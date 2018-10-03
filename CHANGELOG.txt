@@ -316,11 +316,17 @@ TODO:
 #######################################################################################################
 
 Server Notes:
+	--- PREPARATIONS ---
 	to install npm canvas package those are required:
 		sudo apt-get install libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev build-essential g++
+	also this libs are required for running server:
+		sudo apt-get install libpng16-dev
 
-	service email:
+	--- MySQL configuration ---
+		---
+
+	--- SERVICE EMAIL ---
 		BertaSnakes@gmail.com
-		tajne/poufne
+		############
 
 #######################################################################################################
