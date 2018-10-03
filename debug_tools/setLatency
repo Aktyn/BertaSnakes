@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#set localhost latency (in miliseconds)
+
+if [ $# -lt 1 ]
+then
+	echo "Give latency value as argument (miliseconds)"
+	exit
+fi
+
+
+sudo tc qdisc add dev lo root netem delay $1ms

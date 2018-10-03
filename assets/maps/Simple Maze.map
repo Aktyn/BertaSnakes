@@ -1,0 +1,15 @@
+//MAP SETTINGS:
+
+size: 5, //size of map (non whole numbers may cause incorrect map size), NOTE - set no more than 10 (mem)
+background_color: [0, 150, 136], //RGB
+smooth_texture: false,
+
+entities: {
+	//items
+	//ENERGY_ITEM: [
+	//	{	x: 1.2, y: -0.32, scale: 0.2, rot: 0	}, 
+	//	{	x: -1.2, y: 0.22, scale: 0.2, rot: 0	}
+	//]
+}
+
+//ENTITIES FORMAT: 

@@ -1,0 +1,160 @@
+Stage.Popup.SETTINGS = Stage.Popup.SETTINGS || (function() {
+
+	const CATEGORIES = ['GAME', 'MENU', 'CHAT'];
+
+	function createSwitcherEntry(text, onSwitch, is_enabled) {
+		return $$.create('DIV').append(
+			$$.create('LABEL').html(text)
+		).append(
+			(switcher => {
+				if(is_enabled)
+					switcher.addClass('on');
+				return switcher;
+			})( 
+				COMMON.createSwitcher(onSwitch)
+			)
+		);
+	}
+
+	return class extends Stage.Popup {
+		constructor() {
+			super();
+			console.log('SETTINGS POPUP');
+
+			this.popup_html = $$.create('DIV').addClass('popup_container').append(
+				//popup window
+				$$.create('DIV').addClass('popup').addClass('zoom_in').append(//title
+					$$.create('DIV').addClass('header')
+						.append( $$.create('SPAN').setStyle({margin: '0px 50px'}).html('SETTINGS') )
+						.append( $$.create('DIV').addClass('close_btn')
+							.addClass('opacity_and_rot_transition')
+							.setStyle({'float': 'right', marginLeft: '-50px'})
+							.on('click', e => this.close()) 
+						)
+				).append(
+					$$.create('DIV').addClass('category')
+				).append(//side menu
+					(() => {
+						let menu = $$.create('DIV').addClass('menu');
+						CATEGORIES.forEach(cat => {
+							menu.append( $$.create('DIV').setText(cat)
+								.on('click', () => this.setCategory(cat)) );
+						});
+						return menu;
+					})()
+				).append(//content
+					$$.create('DIV').addClass('main').html('content')
+				)/*.append(//horizontal panel with buttons
+					$$.create('DIV').addClass('panel').html('apply?')
+				)*/
+			).on('click', e => {
+				if(e.srcElement === this.popup_html)
+					this.close();
+			});
+
+			$$(document.body).append( this.popup_html );
+
+			this.setCategory( CATEGORIES[0] );
+		}
+
+		close() {
+			SETTINGS.save();
+			this.popup_html.remove();
+			super.close();
+		}
+
+		setCategory(category) {
+			var index = CATEGORIES.indexOf(category);
+			if(index === -1)
+				return;
+			try {
+				$$('.popup').getChildren('.category').setText(category);
+				$$('.popup').getChildren('.menu > *').forEach(cat_entry => {
+					if(cat_entry.html() === category)
+						cat_entry.addClass('current');
+					else
+						cat_entry.removeClass('current');
+				});
+				//removing current content
+				var content = $$('.popup').getChildren('.main');
+				content.setText('');
+
+				switch(category) {
+					case 'GAME': 	this.showGameSettings(content);	break;
+					case 'MENU': 	this.showMenuSettings(content);	break;
+					case 'CHAT': 	this.showChatSettings(content);	break;
+				}
+			}
+			catch(e) {
+				console.error('cannot change settings category: ', e);
+			}
+		}
+
+		showGameSettings(div) {
+			var createRefreshToApplyHelper = function() {
+				let helper = $$.create('SPAN').setClass('help_mark');
+
+				var helper_html = $$.create('DIV').setText(
+					'In order to apply this option\'s change\nyou must refresh page.')
+					.setStyle({
+						'text-align': 'justify',
+		    			'text-justify': 'auto'
+					});
+
+				WIDGETS_CREATOR.createDescription(helper_html, helper);
+
+				return helper;
+			};
+
+			div.append(
+				createSwitcherEntry('Auto hide right panel:', (enabled) => {
+					SETTINGS.game_panel_auto_hide = enabled;
+				}, SETTINGS.game_panel_auto_hide === true)
+			).append(
+				$$.create('DIV').append(
+					$$.create('LABEL').setText('Painter resolution:').append(
+						createRefreshToApplyHelper()
+					)
+				).append(
+					COMMON.createOptionsList(['LOW', 'MEDIUM', 'HIGH'], opt => {
+						SETTINGS.painter_resolution = opt;
+					}).selectOption(SETTINGS.painter_resolution)
+				)
+			).append(
+				$$.create('DIV').append(
+					$$.create('LABEL').setText('Shadows type:').append(
+						createRefreshToApplyHelper()
+					)
+				).append(
+					$$.create('DIV').setStyle({'padding': '7px 0px'}).append(
+						COMMON.createOptionsList(['FLAT', 'LONG'], opt => {
+							SETTINGS.shadows_type = opt;
+						}).selectOption(SETTINGS.shadows_type)
+					)
+				)
+			);
+		}
+
+		showMenuSettings(div) {
+			div.append(
+				createSwitcherEntry('Background effect:', (enabled) => {
+					SETTINGS.menu_background_effect = enabled;
+					DustBackground.reload();
+				}, SETTINGS.menu_background_effect === true)
+			).append(
+				createSwitcherEntry('Click effect:', (enabled) => {
+					SETTINGS.menu_click_effect = enabled;
+					DustBackground.reload();
+				}, SETTINGS.menu_click_effect === true)
+			);
+		}
+
+		showChatSettings(div) {
+			div.append(
+				createSwitcherEntry('Auto hide/show chat:', (enabled) => {
+					SETTINGS.chat_auto_hide_show = enabled;
+				}, SETTINGS.chat_auto_hide_show === true)
+			);
+		}
+	};
+})();

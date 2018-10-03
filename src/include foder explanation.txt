@@ -1,0 +1,1 @@
+Due to mobile project's folder structure restrictions, include folder was moved to src folder in mobile project and symlink was created on its place.

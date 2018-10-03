@@ -1,0 +1,11 @@
+//MAP SETTINGS:
+
+size: 5, //size of map (non whole numbers may cause incorrect map size), NOTE - set no more than 10 (mem)
+background_color: [120, 144, 156], //RGB
+smooth_texture: false,
+
+entities: {
+	
+}
+
+//ENTITIES FORMAT: 
