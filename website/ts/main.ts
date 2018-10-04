@@ -11,8 +11,8 @@ interface GameInfo {
 }
 
 const COMMON = {
-	createLoader: function(color: string) {
-		var spin_style = { backgroundColor: color || '#f44336' };
+	createLoader: function(color = '#f44336') {
+		var spin_style = { backgroundColor: color };
 
 		return $$.create('DIV').addClass('spinner').addChild( 
 			$$.create('DIV').addClass('double-bounce1').setStyle(spin_style) 
@@ -119,7 +119,7 @@ const COMMON = {
 			let block = $$.create('A').setText(i);
 
 			if(typeof base_redirect_url === 'string')
-				block.attribute('href', base_redirect_url + (i-1));
+				block.setAttrib('href', base_redirect_url + (i-1));
 			else if(typeof base_redirect_url === 'function')
 				block.on('click', () => base_redirect_url(i-1));
 			else
@@ -174,8 +174,8 @@ $$.load(function() {
 	//$$.loadScript('js/bg.js', true);
 
 	function onSession(logged_in: boolean) {
-		$$("#account_icon").attribute("src", logged_in ? "img/account_on.png" : "img/account.png");
-		$$("#account_href").attribute("href", logged_in ? "/account" : "login");
+		$$("#account_icon").setAttrib("src", logged_in ? "img/account_on.png" : "img/account.png");
+		$$("#account_href").setAttrib("href", logged_in ? "/account" : "login");
 
 		//if user is logged in but in /login page
 		if( logged_in === true && location.href.match(/\/login([\/?]|$)/i) !== null )

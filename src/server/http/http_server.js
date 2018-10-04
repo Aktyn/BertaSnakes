@@ -15,7 +15,7 @@ const HttpServer = (function() {
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: false }));
 
-	const port = 1337;
+	const port = process.argv.slice(2)[1] || 1337;
 
 	var initialized = false;
 

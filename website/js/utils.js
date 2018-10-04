@@ -144,11 +144,6 @@ var $$ = (function () {
     };
     var extender = {
         html: function (content) {
-            /*if(typeof content === 'string') {
-                this.innerHTML = content;
-                return <$_face>this;
-            }
-            return <string>this.innerHTML;*/
             this.innerHTML = String(content);
             return this;
         },
@@ -204,22 +199,22 @@ var $$ = (function () {
             static_methods.expand(this.style, css, true);
             return this;
         },
-        /*attribute: function(name, value) {
-            if(typeof value === 'string' || typeof value === 'number')
-                return this.setAttrib(name, value);
-            else
-                return this.getAttrib(name);
-        },*/
+        // attribute: function(name, value) {
+        // 	if(typeof value === 'string' || typeof value === 'number')
+        // 		return this.setAttrib(name, value);
+        // 	else
+        // 		return this.getAttrib(name);
+        // },
         setAttrib: function (name, value) {
             this.setAttribute(name, String(value));
             return this;
         },
         //NOTE - using this method => property names does not change after minify/closure compiling etc
         //along with other code changes
-        /*set: function(name, value) {
-            this[name] = value;
-            return this;
-        },*/
+        // set: function(name, value) {
+        // 	this[name] = value;
+        // 	return this;
+        // },
         getAttrib: function (name) {
             return this.getAttribute(name);
         },
@@ -230,11 +225,11 @@ var $$ = (function () {
             var rect = this.getBoundingClientRect();
             return { x: rect.left, y: rect.top };
         },
-        width: function () {
+        getWidth: function () {
             var rect = this.getBoundingClientRect();
             return rect.right - rect.left;
         },
-        height: function () {
+        getHeight: function () {
             var rect = this.getBoundingClientRect();
             return rect.bottom - rect.top;
         },

@@ -65,8 +65,9 @@ module.exports = {//PAGES
 		document.body.innerHTML += 'Not found :(';
 	}}),
 	admin: createAndSerialize({modify: document => {
-		document.head.appendChild( createScriptNode(document, 'admin_page/admin.js', true) );
-		document.body.innerHTML += fs.readFileSync('admin_page/admin.html', 'utf8');
+		document.head.appendChild( createScriptNode(document, 'webjs/chart.js', true) );
+		document.head.appendChild( createScriptNode(document, 'webjs/admin.js', true) );
+		document.body.innerHTML += fs.readFileSync('website/html/admin.html', 'utf8');
 	}}),
 	homepage: createAndSerialize({modify: document => {
 		document.head.appendChild( createScriptNode(document, 'webjs/home.js', true) );

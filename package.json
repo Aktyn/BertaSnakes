@@ -15,8 +15,8 @@
     "nodemon": "^1.18.4"
   },
   "scripts": {
-    "start": "nodemon -e js,html --watch src/server --watch website/html --watch admin_page/*.html src/server/main",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nodemon -e js,html --watch src/server --watch website/html --watch admin_page/*.html src/server/main 2674 1337",
+    "start": "nodejs src/server/main 2674 80"
   },
   "keywords": [
     "game",

@@ -49,7 +49,7 @@ const sources = [
 		'game/game_result.js'
 	].map(src => include_path + src).join(','),
 
-	dir + '/website/js_src/utilsV2.js',//utils file (source)
+	dir + '/website/js/utilsV2.js',//utils file (source)
 
 	[//CLIENT SOURCES
 		//'/../../res/js/utilsV2.js',//utils files comes first

@@ -1,3 +1,5 @@
+///<reference path="utils.ts"/>
+
 (function() {
 	if(typeof $$ === 'undefined') throw Error("Aktyn's utilsV2.js required");
 
@@ -83,9 +85,9 @@
 		'height': canvasHeight+'px',
 		'background': '#607D8B',
 	});
-	(<any>canvas).width = canvasWidth;
-	canvas.set('width', canvasWidth);
-	(<any>canvas).height = canvasHeight;
+	// (<any>canvas).width = canvasWidth;
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
 	container.addChild(canvas);
 
 	var rightPanel = $$.create("DIV").setStyle({
@@ -157,8 +159,8 @@
 	};
 
 	var setBoxTransform = (pos: {x: number, y: number}) => {
-		pos.x = clamp(pos.x, 0, $$.getScreenSize().width-box.width());
-		pos.y = clamp(pos.y, 0, $$.getScreenSize().height-box.height());
+		pos.x = clamp(pos.x, 0, $$.getScreenSize().width-box.getWidth());
+		pos.y = clamp(pos.y, 0, $$.getScreenSize().height-box.getHeight());
 		box.setStyle({
 			transform: 'translate(' + pos.x + 'px, ' + pos.y +'px)'
 		});

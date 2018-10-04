@@ -2,7 +2,8 @@
 ///<reference path="utils.ts"/>
 var COMMON = {
     createLoader: function (color) {
-        var spin_style = { backgroundColor: color || '#f44336' };
+        if (color === void 0) { color = '#f44336'; }
+        var spin_style = { backgroundColor: color };
         return $$.create('DIV').addClass('spinner').addChild($$.create('DIV').addClass('double-bounce1').setStyle(spin_style)).addChild($$.create('DIV').addClass('double-bounce2').setStyle(spin_style));
     },
     makeUserLink: function (id, vertical) {
@@ -83,7 +84,7 @@ var COMMON = {
         var makeBlock = function (i) {
             var block = $$.create('A').setText(i);
             if (typeof base_redirect_url === 'string')
-                block.attribute('href', base_redirect_url + (i - 1));
+                block.setAttrib('href', base_redirect_url + (i - 1));
             else if (typeof base_redirect_url === 'function')
                 block.on('click', function () { return base_redirect_url(i - 1); });
             else
@@ -123,8 +124,8 @@ $$.load(function () {
     }, false);
     //$$.loadScript('js/bg.js', true);
     function onSession(logged_in) {
-        $$("#account_icon").attribute("src", logged_in ? "img/account_on.png" : "img/account.png");
-        $$("#account_href").attribute("href", logged_in ? "/account" : "login");
+        $$("#account_icon").setAttrib("src", logged_in ? "img/account_on.png" : "img/account.png");
+        $$("#account_href").setAttrib("href", logged_in ? "/account" : "login");
         //if user is logged in but in /login page
         if (logged_in === true && location.href.match(/\/login([\/?]|$)/i) !== null)
             location.href = '/account'; //redirect to account info

@@ -12,7 +12,7 @@
             var res = JSON.parse(pre_res);
             if (res.result !== 'SUCCESS')
                 return;
-            console.log(res);
+            //console.log(res);
             var ranking_table = $$.create('TABLE').addClass('dark_evens').setStyle({
                 backgroundColor: '#fff',
                 boxShadow: '0px 2px 6px #0003',

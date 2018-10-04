@@ -27,7 +27,7 @@ interface ResUserInfo {
 			var res: RequestResult = JSON.parse(pre_res);
 			if(res.result !== 'SUCCESS')
 				return;
-			console.log(res);
+			//console.log(res);
 
 			let ranking_table = $$.create('TABLE').addClass('dark_evens').setStyle({
 				backgroundColor: '#fff',
