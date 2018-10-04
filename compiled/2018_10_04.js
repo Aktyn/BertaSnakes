@@ -1,4 +1,4 @@
-(function(){//last change: 4.10.2018, 17:28:16
+(function(){//last change: 4.10.2018, 18:17:47
 'use strict';
 const _CLIENT_ = true;
 //--- /src/include/utils/vector.js ---\\

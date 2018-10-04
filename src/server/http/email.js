@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+var ip = require('ip');
 
 const transporter = nodemailer.createTransport({
 	service: 'gmail',
@@ -17,7 +18,7 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			let msg = 'Congratulations! Your account has been successfuly registered. ' + 
 				'Once you open below link in your browser, you will be able to login.';
-			let link = 'http://localhost/verify?code=' + code;
+			let link = 'http://' + ip.address() + '/verify?code=' + code;
 
 			let opts = Object.assign({
 				subject: 'Account verification',
