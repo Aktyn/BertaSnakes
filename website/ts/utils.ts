@@ -372,3 +372,6 @@ const $$ : $_static_func = (function() {
 
 	return __self;
 })();
+
+//@ts-ignore //for closure compiler
+window['$$'] = $$;

@@ -35,7 +35,7 @@ function createAndSerialize(options) {
 			"<link rel='stylesheet' type='text/css' href='css/main.css'>\
 			<link rel='stylesheet' type='text/css' href='css/game.css'>";
 		document.head.appendChild(
-			createScriptNode(document, 'js/' + DATE_VERSION + '.js', true) );
+			createScriptNode(document, 'js/' + /*DATE_VERSION*/APP_VERSION + '.js', true) );
 
 		
 		document.body.innerHTML += 

@@ -1,6 +1,1 @@
-"use strict";
-(function () {
-    $$.load(function () {
-        $$("#topbar").getChildren('a[href="gallery"]').addClass('current'); //highlight topbar bookmark
-    });
-})();
+"use strict";(function(){$$.load(function(){$$("#topbar").getChildren('a[href\x3d"gallery"]').addClass("current")})})();

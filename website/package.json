@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run build:live",
-    "build": "tsc -p .",
+    "build": "echo Compiling website code && tsc -p . && node ./compile",
     "build:live": "nodemon -e ts --watch './ts/**/*.ts' --exec tsc -p .",
-    "closure-compile": "node closure_compile"
+    "closure-compile": "node ./compile"
   },
   "author": "Aktyn",
   "license": "UNLICENSED",

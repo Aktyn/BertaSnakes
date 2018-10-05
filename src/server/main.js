@@ -1,7 +1,7 @@
 global._CLIENT_ = false;
 
 var pjson = require('./../../package.json');
-global.APP_VERSION = pjson.version || 'beta';
+global.APP_VERSION = pjson.version.replace(/\./g, '_') || 'beta';
 global.DATE_VERSION = (() => {
 	let date = new Date();
 	let m = date.getUTCMonth() + 1;
@@ -25,7 +25,7 @@ const path = require('path');
 
 const dir = path.join(__dirname, '..', '..');
 
-const game_code_file = dir + '/compiled/' + DATE_VERSION + '.js';
+const game_code_file = dir + '/compiled/' + /*DATE_VERSION*/APP_VERSION + '.js';
 const compilation_options = {closure: false, target_file: game_code_file, remove_logs: false};
 
 Compiler.compileGameSources(compilation_options).then(() => {
@@ -33,7 +33,10 @@ Compiler.compileGameSources(compilation_options).then(() => {
 }).then(() => {
 	// console.log('Page code compiled');
 	require('./http/http_server.js').init();//running http server
-}).catch(e => console.error(e));
+}).catch(e => {
+	console.error("Compilation error:", e);
+	require('./http/http_server.js').init();
+});
 
 Compiler.recompileOnGameSourceFileChange(compilation_options);//ONLY DEVELOPEMENT MODE
 

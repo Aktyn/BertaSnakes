@@ -49,10 +49,11 @@ const sources = [
 		'game/game_result.js'
 	].map(src => include_path + src).join(','),
 
-	dir + '/website/js/utilsV2.js',//utils file (source)
+	//dir + '/website/js/',//utils file (source)
 
 	[//CLIENT SOURCES
 		//'/../../res/js/utilsV2.js',//utils files comes first
+		'common/utils_deprecated.js',
 		'common/common.js',
 		'common/gui_widgets_creator.js',
 

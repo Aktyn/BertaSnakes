@@ -35,10 +35,8 @@ const HttpServer = (function() {
 			console.log('Initializing HTTP server at port:', port);
 
 			app.use('/css', express.static(dir + '/assets/css'));
-			//app.use('/icons', express.static(dir + '/assets/img/icons'));
 			app.use('/img', express.static(dir + '/assets/img'));
 			app.use('/html', express.static(dir + '/website/html'));
-			//js_src - using sources instead of compiled files, js_min - folder with compiled file
 			app.use('/webjs', express.static(dir + '/website/js'));
 			app.use('/admin_page/admin.js', express.static(dir + '/admin_page/admin.js'));
 
@@ -76,7 +74,6 @@ const HttpServer = (function() {
 
 			//requests
 			app.get('/get_list_of_maps', (req, resp) => {
-				// console.log( Maps );
 				resp.send(list_of_maps);
 			});
 			app.post('/restore_session', Actions.restoreSession);
