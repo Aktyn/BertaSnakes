@@ -35,7 +35,7 @@ function createAndSerialize(options) {
 			"<link rel='stylesheet' type='text/css' href='css/main.css'>\
 			<link rel='stylesheet' type='text/css' href='css/game.css'>";
 		document.head.appendChild(
-			createScriptNode(document, 'js/' + /*DATE_VERSION*/APP_VERSION + '.js', true) );
+			createScriptNode(document, /*'js/' + */DATE_VERSION/*APP_VERSION*/ + '.js', true) );
 
 		
 		document.body.innerHTML += 
@@ -110,5 +110,5 @@ module.exports = {//PAGES
 		document.head.appendChild( createScriptNode(document, 'webjs/register.js') );
 		document.body.innerHTML += fs.readFileSync('website/html/register_form.html', 'utf8');
 	}}),
-	play: createAndSerialize({title: 'Berta Snakes v'+APP_VERSION, isPlayPage: true})
+	play: createAndSerialize({title: 'Berta Snakes v'+DATE_VERSION, isPlayPage: true})
 };

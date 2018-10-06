@@ -70,7 +70,7 @@ const Maps = (function() {
 	function onMapDataLoadedServer(map) {
 		fs.readFile(MAP_FOLDER + map.name + '.png', function(err, squid) {
 			if(err) throw err;
-			map_png = new Image();
+			var map_png = new Image();
 			map_png.src = squid;
 			//ctx.drawImage(img, 0, 0, img.width / 4, img.height / 4);
 			map.image = map_png;
