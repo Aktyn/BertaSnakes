@@ -13,15 +13,19 @@
     "ws": "^5.2.1"
   },
   "devDependencies": {
+    "google-closure-compiler-js": "^20180610.0.0",
     "nodemon": "^1.18.4",
+    "npm-run-all": "^4.1.3",
     "typescript": "^3.1.1"
   },
   "scripts": {
-    "test": "nodemon -e js,html --watch src/server --watch website/html --watch admin_page/*.html src/server/main 2674 1337",
+    "dev": "run-p build:live watch:server",
+    "watch:server": "nodemon -e js,html --watch src/server --watch website/html src/server/main 2674 1337",
+    "test": "nodejs src/server/main 2674 1337",
     "build": "npm run build:website",
     "build:live": "npm run build:website:live",
-    "build:website": "npm run build --prefix ./website",
-    "build:website:live": "npm run build:live --prefix ./website",
+    "build:website": "echo Compiling website code && tsc -p ./website/. && node ./website/compile",
+    "build:website:live": "nodemon -e ts --watch './website/ts/*.ts' --exec tsc -p ./website/.",
     "start": "nodejs src/server/main 2674 80"
   },
   "keywords": [

@@ -2,7 +2,6 @@
 
 (function() {
 	if(typeof $$ === 'undefined') throw Error("Aktyn's utilsV2.js required");
-
 	var RUNNING = true;
 	
 	const canvasWidth: number = 200, canvasHeight: number = canvasWidth*20/10;
