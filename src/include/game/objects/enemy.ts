@@ -9,13 +9,13 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 		var _Object2D_: typeof Object2D = require('./object2d');
 		var _Movement_: typeof Movement = require('./../common/movement');
 		var _Sensor_: typeof Sensor = require('./../common/sensor');
-		var _HpBar_: typeof HpBar = require('./hp_bar');
+		var _HpBar_: typeof Objects.HpBar = require('./hp_bar').HpBar;
 	}
 	catch(e) {
 		var _Object2D_ = Object2D;
 		var _Movement_ = Movement;
 		var _Sensor_ = Sensor;
-		var _HpBar_ = HpBar;
+		var _HpBar_ = Objects.HpBar;
 	}
 
 	const REGENERATION_SPEED = 0.025;
@@ -25,7 +25,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 		private entity_name: string;
 		private movement: MovementScope.Movement;
 		public sensor: Sensor;
-		public hp_bar: any;
+		public hp_bar: Objects.HpBar;
 
 		private _spawning = false;
 
@@ -80,7 +80,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 			this.movement.applyMove(<Object2D><unknown>this, delta);
 			super.update(delta);
 
-			this.hp_bar.update(delta, this.x, this.y, this.height);
+			this.hp_bar.update_hpbar(delta, this.x, this.y, this.height);
 		}
 
 		/*static get INITIAL_SCALE() {

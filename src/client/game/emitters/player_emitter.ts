@@ -1,4 +1,4 @@
-///<reference path="../../engine/graphics.js"/>
+///<reference path="../../engine/graphics.ts"/>
 
 // const PlayerEmitter = (function() {
 namespace Emitters {

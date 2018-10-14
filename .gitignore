@@ -2,3 +2,5 @@
 MySQL_Schemas/
 debug_tools/
 CHANGELOG.txt
+compiled/
+website/js/

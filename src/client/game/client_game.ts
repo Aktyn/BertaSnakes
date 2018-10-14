@@ -490,7 +490,8 @@ namespace ClientGame {
 						Renderer.Class.addEmitter( blast_emitter );
 						this.emitters.push( blast_emitter );
 					}
-					//super.paintHole(data[index+1],data[index+2],GameCore.PARAMS.energy_blast_radius);
+					//super.paintHole(data[index+1],data[index+2],
+					//	GameCore.PARAMS.energy_blast_radius);
 
 					index += 4;
 					break;

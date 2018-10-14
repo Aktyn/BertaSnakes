@@ -1,6 +1,7 @@
 ///<reference path="object2d.ts"/>
 
-const HpBar = (function() {
+// const HpBar = (function() {
+namespace Objects {
 	try {
 		var _Object2D_: typeof Object2D = require('./object2d');
 	}
@@ -14,7 +15,7 @@ const HpBar = (function() {
 
 	const ETITY_NAME = 'HEALTH_BAR';
 
-	return class HpBar extends _Object2D_ {
+	export class HpBar extends _Object2D_ {
 		private _hp: number;
 		private widenness: number;
 		private visible: boolean;
@@ -74,9 +75,9 @@ const HpBar = (function() {
 			}
 		}
 	};
-})();
+}//)();
 
 try {//export for NodeJS
-	module.exports = HpBar;
+	module.exports = Objects;
 }
 catch(e) {}

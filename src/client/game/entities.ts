@@ -6,7 +6,7 @@
 ///<reference path="../../include/game/objects/bullet.ts"/>
 ///<reference path="../../include/game/objects/object2d.ts"/>
 
-///<reference path="../engine/graphics.js"/>
+///<reference path="../engine/graphics.ts"/>
 ///<reference path="in_game_gui.ts"/>
 
 //const Entities = (function() {//@child of Renderer
@@ -161,7 +161,7 @@ var Entities = (function() {
 					color: data.color || DEFAULT_COLOR,
 					//@ts-ignore
 					texture: GRAPHICS.TEXTURES.createFrom(
-						ASSETS.getTexture( data.texture_name ), 
+						<ImageData><unknown>ASSETS.getTexture( data.texture_name ), 
 						data.linear === undefined ? DEFAULT_FILTERING : data.linear 
 					),
 					objects: []

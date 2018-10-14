@@ -1,6 +1,6 @@
 ///<reference path="../common/utils.ts"/>
 ///<reference path="entities.ts"/>
-///<reference path="../engine/graphics.js"/>
+///<reference path="../engine/graphics.ts"/>
 ///<reference path="../engine/assets.ts"/>
 ///<reference path="emitters/dust_emitter.ts"/>
 

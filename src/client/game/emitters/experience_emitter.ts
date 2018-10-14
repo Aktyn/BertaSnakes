@@ -1,4 +1,4 @@
-///<reference path="../../engine/graphics.js"/>
+///<reference path="../../engine/graphics.ts"/>
 
 // const ExperienceEmitter = (function() {
 namespace Emitters {
