@@ -122,7 +122,7 @@ namespace GameMap {
 					throw "No map data";
 					
 
-				super.size = map.data['size'] || 5;//default
+				this.size = map.data['size'] || 5;//default
 				if(map.data['background_color'])
 					this.background.set( ...map.data['background_color'].map(v => v/256) );
 

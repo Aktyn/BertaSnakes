@@ -64,7 +64,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 		}
 
 		isAlive() {
-			return this.hp_bar.hp >= 0.005 || super.expired === true;
+			return this.hp_bar.hp >= 0.005 || this.expired === true;
 		}
 
 		get spawning() {

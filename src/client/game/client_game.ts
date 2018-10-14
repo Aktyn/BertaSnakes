@@ -194,7 +194,7 @@ namespace ClientGame {
 				case NetworkCodes.DRAW_PLAYER_LINE://NOTE - use for update player position
 					
 					p_h = this.players[ data[index + 1] | 0 ];
-					super.color = p_h.painter.color.hex;
+					this.color = p_h.painter.color.hex;
 
 					p_h.setPos(data[index + 2], p_h.y = data[index + 3]);
 

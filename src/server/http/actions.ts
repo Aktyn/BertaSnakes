@@ -1,8 +1,8 @@
 /* jshint multistr:true */
 
 import * as crypto from 'crypto';
-import DatabaseUtils, {UserInfoI} from './../database_utils';
 import Email from './email';
+import DatabaseUtils, {UserInfoI} from './../database_utils';
 
 const ROWS_PER_PAGE = 20;//users ranking page
 

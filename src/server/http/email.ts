@@ -8,7 +8,7 @@ try {
 	email_pass = prompt('Email password: ');
 }
 catch(e) {
-	console.error('Cannot prompt user fro email password since server is running in nodemon');
+	console.error('Cannot prompt user for email password since server is running in nodemon');
 	email_pass = '';
 }
 

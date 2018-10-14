@@ -1,6 +1,7 @@
 // var DatabaseUtils = (function() {
 const MySQL = require('mysql');
 
+import * as fs from 'fs';
 /* jshint multistr:true */
 
 /*const STATUS = {
@@ -16,10 +17,21 @@ enum STATUS {
 
 var status = STATUS.PENDING;
 
+var prompt = require('prompt-sync')();
+var mysql_pass: string;
+try {
+	mysql_pass = prompt('MySQL password: ');
+}
+catch(e) {
+	console.error('Cannot prompt user for mysql password since server is running in nodemon');
+	//read this from private file (dev mode)
+	mysql_pass = fs.readFileSync('mysql_pass.txt', 'utf8');
+}
+
 var connection = MySQL.createConnection({
 	host: "localhost",
 	user: "root",
-	password: "2718282",
+	password: String(mysql_pass),
 	database: "BertaBall"
 });
 
