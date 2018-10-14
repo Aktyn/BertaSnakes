@@ -1,5 +1,6 @@
 //const HttpServer = (function() {
 //	'use strict';
+///<reference path="./../../include/game/maps.ts"/>
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -7,8 +8,8 @@ import * as bodyParser from 'body-parser';
 //import http from 'http';
 import * as path from 'path';
 
-import * as Pages from './pages.js';
-import * as Actions from './actions.js';
+import Pages from './pages';
+import Actions from './actions';
 
 const app = express();
 // app.use(bodyParser());
@@ -20,8 +21,9 @@ const port = process.argv.slice(2)[1] || 1337;
 var initialized = false;
 
 const dir = path.join(__dirname, '..', '..', '..');
+const Maps = require(path.join(__dirname, '..', '..', 'include', 'game') + '/maps');
 
-const Maps = require(dir + '/src/include/game/maps.js');
+// import Maps from './../../include/game/maps';
 var list_of_maps: string[] = [];
 Maps.onLoad(() => list_of_maps = Object.keys(Maps).filter(key => typeof Maps[key] !== 'function'));
 
@@ -38,7 +40,7 @@ export default {
 		app.use('/img', express.static(dir + '/assets/img'));
 		app.use('/html', express.static(dir + '/website/html'));
 		app.use('/webjs', express.static(dir + '/website/js'));
-		app.use('/admin_page/admin.js', express.static(dir + '/admin_page/admin.js'));
+		//app.use('/admin_page/admin.js', express.static(dir + '/admin_page/admin.js'));
 
 		//allow access to folder with compiled client-side game code
 		app.use('/js', express.static(dir + '/compiled'));

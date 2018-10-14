@@ -1,8 +1,6 @@
 "use strict";
-/*Loads avaible maps data from files alogn with each map's texture*/
-//NOTE - accessable object is of a JSON format with each key name coresponding to map name
-var Maps = (function () {
-    var MAP_FOLDER = typeof module === 'undefined' ? 'maps/' : 'assets/maps/';
+const Maps = (function () {
+    const MAP_FOLDER = typeof module === 'undefined' ? 'maps/' : 'assets/maps/';
     var fs, Canvas, Image;
     if (typeof module !== 'undefined') {
         fs = require('fs');
@@ -12,7 +10,7 @@ var Maps = (function () {
     var pending = 1; //currently loading resources (0 means loaded)
     var onLoadCallbacks = [];
     var self = {
-        loaded: function () { return pending === 0; },
+        loaded: () => pending === 0,
         onLoad: function (callback) {
             if (typeof callback !== 'function')
                 throw new Error('callback must be a function');
@@ -22,7 +20,7 @@ var Maps = (function () {
                 onLoadCallbacks.push(callback);
         },
         getByName: function (map_name) {
-            for (var map_i in this) {
+            for (let map_i in this) {
                 if (typeof this[map_i] !== 'object')
                     continue;
                 if (this[map_i].name === map_name) {
@@ -32,7 +30,7 @@ var Maps = (function () {
             return null;
         }
     };
-    var printErr = function (e) { return console.error(e); };
+    const printErr = (e) => console.error(e);
     function fixJSON(str) {
         str = str.replace(/(\/\/.*)|\n|\s/gi, '');
         str = '{' + str + '}';
@@ -42,8 +40,8 @@ var Maps = (function () {
     }
     function onMapDataLoadedClient(map) {
         //loading .png map texture
-        var map_png = document.createElement('IMG');
-        map_png.onload = function () {
+        let map_png = document.createElement('img');
+        map_png.onload = () => {
             map.image = map_png;
             self[map.name] = map;
             pending--;
@@ -54,7 +52,8 @@ var Maps = (function () {
             }*/
         };
         map_png.onerror = printErr;
-        map_png.src = MAP_FOLDER + map.name + '.png';
+        // map_png.src = MAP_FOLDER + map.name + '.png';
+        map_png.setAttribute('src', MAP_FOLDER + map.name + '.png'); //07.10.2018
     }
     function onMapDataLoadedServer(map) {
         fs.readFile(MAP_FOLDER + map.name + '.png', function (err, squid) {
@@ -70,24 +69,24 @@ var Maps = (function () {
     }
     function loadMaps(maps_names) {
         //console.log(maps_names);
-        maps_names.forEach(function (map_name, index) {
+        maps_names.forEach((map_name, index) => {
             pending++;
             //self[map_name] = {};
             //console.log(map_name);
-            var map = {
+            let map = {
                 name: map_name,
                 data: null,
                 image: null //IMG DOM element
             };
             //loading map data
             if (typeof module === 'undefined') { //client side
-                fetch(MAP_FOLDER + map_name + '.map').then(function (resp) { return resp.text(); }).then(function (map_data) {
+                fetch(MAP_FOLDER + map_name + '.map').then(resp => resp.text()).then(map_data => {
                     map.data = JSON.parse(fixJSON(map_data));
                     onMapDataLoadedClient(map);
                 }).catch(printErr);
             }
             else { //server side
-                fs.readFile(MAP_FOLDER + map_name + '.map', 'utf8', function (err, map_data) {
+                fs.readFile(MAP_FOLDER + map_name + '.map', 'utf8', (err, map_data) => {
                     if (err)
                         throw err;
                     map.data = JSON.parse(fixJSON(map_data));
@@ -101,21 +100,21 @@ var Maps = (function () {
     //loading list of files in MAP_FOLDER
     if (typeof module === 'undefined') {
         //client side
-        fetch('/get_list_of_maps').then(function (resp) { return resp.json(); })
+        fetch('/get_list_of_maps').then(resp => resp.json())
             .then(loadMaps).catch(printErr);
     }
     else {
         //server side
-        fs.readdir(MAP_FOLDER, function (err, files) {
+        fs.readdir(MAP_FOLDER, (err, files) => {
             if (err)
                 throw err;
             //console.log( files.filter(f => f.endsWith('.map')).map(f => f.split('.')[0]) );
-            loadMaps(files.filter(function (f) { return f.endsWith('.map'); }).map(function (f) { return f.split('.')[0]; }));
+            loadMaps(files.filter(f => f.endsWith('.map')).map(f => f.split('.')[0]));
         });
     }
-    var checkLoaded = function () {
+    let checkLoaded = () => {
         if (self.loaded())
-            onLoadCallbacks.forEach(function (cb) { return cb(); });
+            onLoadCallbacks.forEach(cb => cb());
         else
             setTimeout(checkLoaded, 100);
     };
@@ -126,3 +125,6 @@ try { //export for NodeJS
     module.exports = Maps;
 }
 catch (e) { }
+// if(global._CLIENT_)
+// module.exports = Maps;
+// export default Maps;

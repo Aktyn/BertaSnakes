@@ -26,7 +26,7 @@ global.DATE_VERSION = (() => {
 const PORT = Number(process.argv.slice(2)[0]) || 2674;
 
 import Connection from './connection';
-import * as Core from './core';
+import Core from './core';
 // import Compiler from './compiler.js';
 // import * as path from 'path';
 

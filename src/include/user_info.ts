@@ -1,7 +1,7 @@
 //const UserInfo = (function() {
-var guest_id = -1000;//NOTE that guests ids are negative
+// var guest_id = -1000;//NOTE that guests ids are negative
 
-const INITIAL_RANK = 1000;//new account's rank
+// const INITIAL_RANK = 1000;//new account's rank
 
 interface UserCustomData {
 	nick: string;
@@ -10,33 +10,54 @@ interface UserCustomData {
 	exp: number;
 	coins: number;
 	ship_type: number;
-	skills: number[];
+	skills: (number | null)[];
 	avaible_ships: number[];
 	avaible_skills: number[];
 }
 
-export default class UserInfo {
+interface FriendInfoI {
+	id: number;
+	nick: string;
+	online?: boolean;
+}
+
+interface UserJsonI {
+	id: number;
+	nick: string;
+	level: number;
+	rank: number;
+
+	[index: string]: number | string;
+}
+
+class UserInfo {
+	private static guest_id = -1000;
+
+	private static INITIAL_RANK = 1000;
+
 	private _id: number;
-	//private nick: string;
-	private custom_data: UserCustomData;
-	private friends: [];
+	
+	public custom_data: UserCustomData;
+	public friends: FriendInfoI[];
 
 	public nick: string;
 
-	public connection: any;
-	public room: any;
+	public connection: any = null;
+	public room: RoomInfo | null = null;
 
-	private lobby_subscriber = false;
+	public lobby_subscriber = false;
 
 	//@id - database id for registered accounts
-	constructor(id: number, nick: string, custom_data: any) {
+	constructor(id?: number, nick?: string, custom_data?: any) {
 		this._id = id || 0;
 		if(this._id === 0) {//is guest
-			this._id = guest_id--;
+			this._id = UserInfo.guest_id--;
 			this.nick = "Guest#" + Math.abs(this._id);
 		}
-		else
+		else if(nick)
 			this.nick = nick;
+		else
+			this.nick = 'Error#69';
 
 		try {
 			if(typeof custom_data === 'string')
@@ -55,7 +76,7 @@ export default class UserInfo {
 
 		//filling data gaps with default values
 		this.custom_data['level'] 		= this.custom_data['level'] || 1;//NOTE - level is never 0
-		this.custom_data['rank'] 		= this.custom_data['rank'] || INITIAL_RANK;
+		this.custom_data['rank'] 		= this.custom_data['rank'] || UserInfo.INITIAL_RANK;
 		this.custom_data['exp'] 		= this.custom_data['exp'] || 0;
 		this.custom_data['coins'] 		= this.custom_data['coins'] || 0;
 		this.custom_data['ship_type'] 	= this.custom_data['ship_type'] || 0;
@@ -70,8 +91,8 @@ export default class UserInfo {
 		//this.lobby_subscriber = false;
 
 		//use only serverside
-		this.connection = null;
-		this.room = null;
+		// this.connection = null;
+		// this.room = null;
 	}
 
 	//STORES ONLY PUBLIC DATA
@@ -85,9 +106,9 @@ export default class UserInfo {
 	}
 
 	//GETS ONLY PUBLIC DATA
-	static fromJSON(json_data: any) {
+	static fromJSON(json_data: string | UserJsonI) {
 		if(typeof json_data === 'string')
-			json_data = JSON.parse(json_data);
+			json_data = <UserJsonI>JSON.parse(json_data);
 		
 		return new UserInfo(json_data['id'], json_data['nick'], {
 			level: json_data['level'],
@@ -156,18 +177,20 @@ export default class UserInfo {
 	}
 
 	get rank() {
-		return this.custom_data['rank'] || INITIAL_RANK;
+		return this.custom_data['rank'] || UserInfo.INITIAL_RANK;
 	}
 
 	set rank(value) {
 		throw new Error('User\'s rank can be changed only through custom_data');
 	}
-};
+}
 // })();
 
+// module.exports = UserInfo;
+// export default UserInfo;
 //------------------------------------------------------//
 
-/*try {//export for NodeJS
+try {//export for NodeJS
 	module.exports = UserInfo;
 }
-catch(e) {}*/
+catch(e) {}

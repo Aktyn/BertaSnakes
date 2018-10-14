@@ -15,7 +15,7 @@ interface $_static_methods {
 	postRequest: (php_file: string, params: any, callback?: (res?: string) => any) => void;
 	loadScript: (source: string, async: boolean, onload?: any) => void;
 	try: (func: Function, catch_label : string) => void;
-	runAsync: (func: Function, delay: number) => void;
+	runAsync: (func: Function, delay?: number) => void;
 	create: (value: string) => $_face;
 	getScreenSize: () => {width: number, height: number};
 	base64encode: (str: string) => string;
@@ -39,17 +39,17 @@ interface $_extend_methods {
 	setAttrib: (name: string, value: string | number) => this;
 	getAttrib: (name: string) => any;
 	//set: (name: string, value: string | number) => this;
-	//isHover: () => boolean;
+	isHover: () => boolean;
 	getPos: () => {x: number, y: number};
 	getWidth: () => number;
 	getHeight: () => number;
 
-	on: (event: string, func: (e: Event) => any) => $_face;
-	off: (event: string, func: (e: Event) => any) => $_face;
+	on: (event: string, func: (this: $_face, e: Event) => any) => $_face;
+	off: (event: string, func: (this: $_face, e: Event) => any) => $_face;
 }
 
 interface $_static_func extends $_static_methods {
-	(value: HTMLElement | string): $_face;
+	(value: HTMLElement | string | Window): $_face;
 }
 
 interface $_face extends HTMLElement, $_extend_methods, $_static_methods {
@@ -273,28 +273,16 @@ const $$ : $_static_func = (function() {
 			static_methods.expand(this.style, css, true);
 			return this;
 		},
-		// attribute: function(name, value) {
-		// 	if(typeof value === 'string' || typeof value === 'number')
-		// 		return this.setAttrib(name, value);
-		// 	else
-		// 		return this.getAttrib(name);
-		// },
 		setAttrib: function(name, value) {
 			this.setAttribute(name, String(value));
 			return this;
 		},
-		//NOTE - using this method => property names does not change after minify/closure compiling etc
-		//along with other code changes
-		// set: function(name, value) {
-		// 	this[name] = value;
-		// 	return this;
-		// },
 		getAttrib: function(name) {
 			return this.getAttribute(name);
 		},
-		// isHover: function() {
-			// return (this.parentHTMLElement.querySelector(':hover') === this);
-		// },
+		isHover: function() {
+			return (this.parentNode.querySelector(':hover') === this);
+		},
 		getPos: function() {
 			var rect = this.getBoundingClientRect();
 			return {x: rect.left, y: rect.top};
@@ -312,26 +300,30 @@ const $$ : $_static_func = (function() {
 		on: function(event, func) {
 			if(this.addEventListener)// most non-IE browsers and IE9
 			   this.addEventListener(event, func, false);
-			else
+			//@ts-ignore
+			else if(this.attachEvent)//Internet Explorer 5 or above
+				//@ts-ignore
+			  	this.attachEvent('on' + event, func);
+		   	else
 				throw new Error('no addEventListener support');
-			//else if(this.attachEvent)//Internet Explorer 5 or above
-			//   this.attachEvent('on' + event, func);
 			return <$_face>this;
 		},
 		off: function(event, func) {//removeEventListener
 			if(this.removeEventListener)// most non-IE browsers and IE9
 			   this.removeEventListener(event, func, false);
+			//@ts-ignore
+			else if(this.detachEvent)//Internet Explorer 5 or above
+				//@ts-ignore
+			  	this.detachEvent('on' + event, func);
 			else
 				throw new Error('no removeEventListener support');
-			//else if(this.detachEvent)//Internet Explorer 5 or above
-			//   this.detachEvent('on' + event, func);
 			return <$_face>this;
 		}
 	};
 
 	function fromQuery(query: string, parent?: HTMLElement) : $_face {
 		var value : HTMLElement[] = Array.from((parent || document).querySelectorAll(query))
-			.map(HTMLElement => static_methods.expand(HTMLElement, extender, true) );
+			.map( _HTMLElement_ => static_methods.expand(_HTMLElement_, extender, true) );
 
 		if(value.length === 1)//returning single found HTMLElement
 			return <$_face>value[0];
@@ -358,8 +350,8 @@ const $$ : $_static_func = (function() {
 		return <$_face>arr;
 	}
 
-	function __self(value: HTMLElement | string) : $_face {
-		if(value instanceof HTMLElement) {//DOM HTMLElement
+	function __self(value: HTMLElement | string | Window) : $_face {
+		if(value instanceof HTMLElement || value === window) {//DOM HTMLElement
 			static_methods.expand(value, extender, true);
 			return <$_face>value;
 		}

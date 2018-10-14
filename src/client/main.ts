@@ -3,31 +3,30 @@
 //[]+(-~(x=>x)-~(x=>x))+(-~(x=>x)-~(x=>x))
 
 ///<reference path="common/utils.ts"/>
-///<reference path="stages/stage.js"/>
+///<reference path="stages/stage.ts"/>
+///<reference path="stages/lobby_stage.ts"/>
 
 $$.load(function() {
-	//@ts-ignore
-	var currentStage = null;
-	//@ts-ignore
-	var changeStage = (StageClass) => {
+	var currentStage: Stage | null = null;
+	
+	var changeStage = (StageClass: Stage) => {
 		$$.assert(typeof StageClass === 'function', 'Argument must be typeof function');
-		//@ts-ignore
+		
 		if(currentStage != null) {
-			//@ts-ignore
 			currentStage.destroy();
 		}
-		currentStage = new StageClass();
+		currentStage = new ( <StageDerived>StageClass )();
 
 		$$.assert(currentStage instanceof Stage, 'StageClass must be a derived class of Stage');
-		//@ts-ignore
+		
 		currentStage.onchange(NewStageClass => {
 			changeStage( NewStageClass );
 		});
 	};
 	
 	try {
-		//@ts-ignore
-		changeStage(Stage.LOBBY_STAGE);//initial stage LOBBY_STAGE
+		//TODO - try to remove unknown
+		changeStage(<Stage><unknown>LOBBY_STAGE);//initial stage LOBBY_STAGE
 	} catch(e) {
 		console.error(e);
 	}

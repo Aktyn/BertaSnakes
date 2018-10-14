@@ -301,6 +301,9 @@ TODO:
 	
 	SKILLS: ---
 
+	MAP IDEAS:
+		chessboard grid, rings, snowflakes for winter map
+
 	Character creator - make player final apperance be combination of few small textures like background, hair eyes etc
 	for sake of performance - final player apperance may be rendered to framebuffer texture
 

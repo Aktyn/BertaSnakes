@@ -1,6 +1,8 @@
 "use strict";
-var Colors = (function () {
-    var toHexString = function (number) { return '#' + ('000000' + number.toString(16)).substr(-6); };
+//const Colors = (function() {/*GAME COLORS PALETTE*/
+var ColorsScope;
+(function (ColorsScope) {
+    const toHexString = (number) => '#' + ('000000' + number.toString(16)).substr(-6);
     var i;
     function gen(r, g, b) {
         return {
@@ -9,7 +11,7 @@ var Colors = (function () {
             hex: toHexString(r << 16 | g << 8 | b << 0)
         };
     }
-    var PALETTE = {
+    const PALETTE = {
         PLAYERS_COLORS: [
             gen(225, 53, 61),
             gen(139, 195, 74),
@@ -29,26 +31,25 @@ var Colors = (function () {
         HEALTH_BAR: gen(229, 115, 104),
         IMMUNITY_AUREOLE: gen(255, 255, 59)
     };
-    var self = {
-        //@both arguments are to be Uint8Array or Uint8ClampedArray
+    ColorsScope.Colors = Object.assign({ 
+        //NOTE - alpha value does not matter
         compareByteBuffers: function (buff1, buff2) {
             for (i = 0; i < 3; i++) {
                 if (buff1[i] != buff2[i])
                     return false;
             }
             return true;
-        },
-        isPlayerColor: function (buff) {
-            for (var player_col_i in Colors.PLAYERS_COLORS) {
-                if (Colors.compareByteBuffers(Colors.PLAYERS_COLORS[player_col_i].byte_buffer, buff) === true)
+        }, isPlayerColor: function (buff) {
+            for (var player_col_i = 0; player_col_i < PALETTE.PLAYERS_COLORS.length; player_col_i++) {
+                if (ColorsScope.Colors.compareByteBuffers(PALETTE.PLAYERS_COLORS[player_col_i].byte_buffer, buff) === true)
                     return true;
             }
             return false;
-        }
-    };
-    Object.assign(self, PALETTE);
-    return self;
-})();
+        }, PLAYERS_COLORS: PALETTE.PLAYERS_COLORS }, PALETTE);
+    //Object.assign(self, PALETTE);
+    //return self;
+})(ColorsScope || (ColorsScope = {}));
+var Colors = ColorsScope.Colors;
 try { //export for NodeJS
     module.exports = Colors;
 }

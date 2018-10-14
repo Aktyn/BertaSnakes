@@ -1,31 +1,16 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Vector = (function () {
-    var AVAIBLE_TYPES = {
-        INT32: 0,
-        FLOAT: 0,
-    };
-    var j = 0; //auto numering
-    for (var i in AVAIBLE_TYPES)
-        AVAIBLE_TYPES[i] = j++;
+var VectorScope;
+(function (VectorScope) {
+    let AVAIBLE_TYPES;
+    (function (AVAIBLE_TYPES) {
+        AVAIBLE_TYPES[AVAIBLE_TYPES["INT32"] = 0] = "INT32";
+        AVAIBLE_TYPES[AVAIBLE_TYPES["FLOAT"] = 1] = "FLOAT";
+    })(AVAIBLE_TYPES || (AVAIBLE_TYPES = {}));
     /* once declared variables for performance matter */
-    var values_sum, value_it, length_buff, it;
-    var pow2 = function (a) { return a * a; }; //fast square power function
-    /**************************************************/
-    var self = /** @class */ (function () {
-        function class_1(type, size) {
+    var values_sum, length_buff, it;
+    const pow2 = (a) => a * a; //fast square power function
+    class Vector {
+        constructor(type, size) {
             this._vec_size = size;
             switch (type) {
                 case AVAIBLE_TYPES.INT32:
@@ -38,127 +23,99 @@ var Vector = (function () {
                     throw new Error('Incorrect vector type');
             }
         }
-        Object.defineProperty(class_1.prototype, "size", {
-            get: function () {
-                return this._vec_size;
-            },
-            set: function (s) {
-                throw new Error('Vector size cannot be changed after it is created');
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1, "TYPE", {
-            get: function () {
-                return AVAIBLE_TYPES;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        class_1.prototype.set = function () {
-            for (var i_1 in arguments) {
-                if (i_1 >= this._buffer.length) //safety for too many arguments
+        get size() {
+            return this._vec_size;
+        }
+        set size(s) {
+            throw new Error('Vector size cannot be changed after it is created');
+        }
+        /*static get TYPE() {
+            return AVAIBLE_TYPES;
+        }*/
+        // set() {
+        // 	for(let i in arguments) {
+        // 		if(i >= this._buffer.length)//safety for too many arguments
+        // 			break;
+        // 		this._buffer[i] = arguments[i];
+        // 	}
+        // 	return this;
+        // }
+        set(...args) {
+            for (var i = 0; i < args.length; i++) {
+                if (i >= this._buffer.length) //safety for too many arguments
                     break;
-                this._buffer[i_1] = arguments[i_1];
+                this._buffer[i] = args[i];
             }
             return this;
-        };
-        Object.defineProperty(class_1.prototype, "buffer", {
-            get: function () {
-                return this._buffer;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1.prototype, "x", {
-            /*XYZW short access functions*/
-            get: function () { return this._buffer[0]; },
-            set: function (x) { this._buffer[0] = x; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1.prototype, "y", {
-            get: function () { return this._buffer[1]; },
-            set: function (y) { this._buffer[1] = y; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1.prototype, "z", {
-            get: function () { return this._buffer[2]; },
-            set: function (z) { this._buffer[2] = z; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1.prototype, "w", {
-            get: function () { return this._buffer[3]; },
-            set: function (w) { this._buffer[3] = w; },
-            enumerable: true,
-            configurable: true
-        });
+        }
+        get buffer() {
+            return this._buffer;
+        }
+        /*XYZW short access functions*/
+        get x() { return this._buffer[0]; }
+        set x(x) { this._buffer[0] = x; }
+        get y() { return this._buffer[1]; }
+        set y(y) { this._buffer[1] = y; }
+        get z() { return this._buffer[2]; }
+        set z(z) { this._buffer[2] = z; }
+        get w() { return this._buffer[3]; }
+        set w(w) { this._buffer[3] = w; }
         ///////////////////////////////////////////////
-        class_1.prototype.lengthSqrt = function () {
+        lengthSqrt() {
             values_sum = 0;
-            for (var _i = 0, _a = this._buffer; _i < _a.length; _i++) {
-                value_it = _a[_i];
-                values_sum += value_it * value_it;
-            }
+            //for(value_it of this._buffer)
+            for (var value_i = 0; value_i < this._buffer.length; value_i++)
+                values_sum += pow2(this._buffer[value_i]);
             return values_sum;
-        };
-        class_1.prototype.length = function () {
+        }
+        length() {
             return Math.sqrt(this.lengthSqrt());
-        };
-        class_1.prototype.normalize = function () {
+        }
+        normalize() {
             length_buff = this.length();
             if (length_buff > 0)
                 this.scaleBy(1.0 / length_buff);
             return this;
-        };
-        class_1.prototype.dot = function (in_vec) {
+        }
+        dot(in_vec) {
             values_sum = 0;
             for (it = 0; it < this._vec_size; it++)
                 values_sum += this._buffer[it] * in_vec._buffer[it];
             return values_sum;
-        };
-        class_1.prototype.scaleBy = function (factor) {
+        }
+        scaleBy(factor) {
             for (it = 0; it < this._vec_size; it++)
                 this._buffer[it] *= factor;
-        };
+        }
         //STATIC METHOD FOR CALCULATIONS
-        //returns squared distance between two points
-        class_1.distanceSqrt = function (p1, p2) {
+        //returns squared distance between two 2D points
+        static distanceSqrt(p1, p2) {
             return pow2(p2.x - p1.x) + pow2(p2.y - p1.y);
-        };
-        return class_1;
-    }());
-    self.Vec2f = /** @class */ (function (_super) {
-        __extends(Vec2f, _super);
-        function Vec2f() {
-            var _this = _super.call(this, AVAIBLE_TYPES.FLOAT, 2) || this;
-            _super.prototype.set.apply(_this, arguments);
-            return _this;
         }
-        return Vec2f;
-    }(self));
-    self.Vec3f = /** @class */ (function (_super) {
-        __extends(Vec3f, _super);
-        function Vec3f() {
-            var _this = _super.call(this, AVAIBLE_TYPES.FLOAT, 3) || this;
-            _super.prototype.set.apply(_this, arguments);
-            return _this;
+    }
+    Vector.TYPE = AVAIBLE_TYPES;
+    Vector.Vec2f = class Vec2f extends Vector {
+        constructor(...args) {
+            super(AVAIBLE_TYPES.FLOAT, 2);
+            super.set(...args);
         }
-        return Vec3f;
-    }(self));
-    self.Vec4f = /** @class */ (function (_super) {
-        __extends(Vec4f, _super);
-        function Vec4f() {
-            var _this = _super.call(this, AVAIBLE_TYPES.FLOAT, 4) || this;
-            _super.prototype.set.apply(_this, arguments);
-            return _this;
+    };
+    Vector.Vec3f = class Vec3f extends Vector {
+        constructor(...args) {
+            super(AVAIBLE_TYPES.FLOAT, 3);
+            super.set(...args);
         }
-        return Vec4f;
-    }(self));
-    return self;
-})();
+    };
+    Vector.Vec4f = class Vec4f extends Vector {
+        constructor(...args) {
+            super(AVAIBLE_TYPES.FLOAT, 4);
+            super.set(...args);
+        }
+    };
+    VectorScope.Vector = Vector;
+    //return Vector;
+})(VectorScope || (VectorScope = {}));
+var Vector = VectorScope.Vector;
 try { //export for NodeJS
     module.exports = Vector;
 }

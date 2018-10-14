@@ -1,216 +1,229 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
+///<reference path="../common/movement.ts"/>
+///<reference path="../common/painter.ts"/>
+///<reference path="../common/colors.ts"/>
+///<reference path="../common/skills.ts"/>
+///<reference path="../common/effects.ts"/>
+///<reference path="../common/sensor.ts"/>
+///<reference path="object2d_smooth.ts"/>
+////<reference path="../../../client/game/entities.ts"/>
+///<reference path="emoticon.ts"/>
+////<reference path="../../../client/game/emitters/player_emitter.ts"/>
+////<reference path="../../../client/game/emitters/poisoning_emitter.ts"/>
+var Player = (function ( /*Object2D, Movement, Sensor, Painter, Colors, Skills, Effects*/) {
+    // namespace PlayerScope {
+    var _a;
+    try {
+        //var _Object2D_: typeof Object2D = require('./object2d');
+        var _ExtendClass_ = require('./object2d');
+        //var _Object2DSmooth_: typeof Object2DSmooth = require('./object2d_smooth');
+        var _Movement_ = require('./../common/movement');
+        var _Sensor_ = require('./../common/sensor');
+        var _Painter_ = require('./../common/painter');
+        var _Colors_ = require('./../common/colors');
+        var _Skills_ = require('./../common/skills');
+        var _Effects_ = require('./../common/effects');
     }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Player = (function (Object2D, Movement, Sensor, Painter, Colors, Skills, Effects) {
-    var TYPES = {
+    catch (e) {
+        //var _Object2D_ = Object2D;
+        //@ts-ignore
+        var _ExtendClass_ = Object2DSmooth;
+        //var _Object2DSmooth_ = Object2DSmooth;
+        var _Movement_ = Movement;
+        var _Sensor_ = Sensor;
+        var _Painter_ = Painter;
+        var _Colors_ = Colors;
+        var _Skills_ = Skills;
+        var _Effects_ = Effects;
+    }
+    const TYPES = {
         TRIANGLE: 0,
         SQUARE: 1,
         PENTAGON: 2
     };
-    var SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
-    var SHIP_LVL_REQUIREMENTS = [1, 3, 6]; //level required to be able to use ship
-    var SHIP_COSTS = [0, 500, 3000]; //coins required to buy ship
+    const SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
+    const SHIP_LVL_REQUIREMENTS = [1, 3, 6]; //level required to be able to use ship
+    const SHIP_COSTS = [0, 500, 3000]; //coins required to buy ship
     //array of sensor shapes with order corresponding to player TYPES
-    var PLAYER_SENSOR_SHAPES = [
-        Sensor.SHAPES.TRIANGLE, Sensor.SHAPES.SQUARE, Sensor.SHAPES.PENTAGON
+    const PLAYER_SENSOR_SHAPES = [
+        _Sensor_.SHAPES.TRIANGLE, _Sensor_.SHAPES.SQUARE, _Sensor_.SHAPES.PENTAGON
     ];
-    var PLAYER_BASIC_SKILLS = [Skills.SHOOT1, Skills.SHOOT2, Skills.SHOOT3];
+    const PLAYER_BASIC_SKILLS = [
+        _Skills_.SHOOT1,
+        _Skills_.SHOOT2,
+        _Skills_.SHOOT3
+    ];
     //initial parameters
-    var SCALE = 0.05, THICKNESS = 0.015, MAX_SPEED = 0.4, TURN_SPEED = Math.PI;
-    var POISON_STRENGTH = 0.1;
+    const SCALE = 0.05, THICKNESS = 0.015, MAX_SPEED = 0.4, TURN_SPEED = Math.PI;
+    const POISON_STRENGTH = 0.1;
     var s_i, em_i;
-    //(typeof module === 'undefined' ? Object2DSmooth : Object2D)
-    var ExtendClass = (typeof module === 'undefined' ? Object2DSmooth : Object2D);
-    return /** @class */ (function (_super) {
-        __extends(class_1, _super);
-        //@type - value from TYPES object, @skills - array of skills indexes
-        function class_1(type, skills, color) {
-            var _this = _super.call(this) || this;
-            _super.prototype.setScale.call(_this, SCALE, SCALE);
-            _this.user_id = 0; //server-side use
-            _this.nick = '';
-            _this.level = 0;
-            _this.rank = 0;
-            _this.movement = new Movement();
-            _this.movement.setOptions({
-                maxSpeed: MAX_SPEED,
-                turnSpeed: TURN_SPEED
-            });
-            _this.type = type;
-            _this._hp = 1;
-            _this._energy = 1;
-            //list of skills avaible by player (skills bar)
-            _this.skills = [PLAYER_BASIC_SKILLS[type].create()]; //basic skill (space)
-            try {
-                skills.forEach(function (skill_id, index) {
-                    if (skill_id !== null) {
-                        _this.skills.push(Skills.getById(skill_id).create());
+    //(typeof module !== 'undefined' ? _Object2D_ : _Object2DSmooth_)
+    return _a = class Player extends _ExtendClass_ {
+            constructor(type, skills, color) {
+                super();
+                this.emoticons = []; //NOTE - only clientside used
+                super.setScale(SCALE, SCALE);
+                this.user_id = 0; //server-side use
+                this.nick = '';
+                this.level = 0;
+                this.rank = 0;
+                this.movement = new _Movement_();
+                this.movement.setOptions({
+                    maxSpeed: MAX_SPEED,
+                    turnSpeed: TURN_SPEED
+                });
+                this.type = type;
+                this._hp = 1;
+                this._energy = 1;
+                //list of skills avaible by player (skills bar)
+                this.skills = [PLAYER_BASIC_SKILLS[type].create()]; //basic skill (space)
+                try {
+                    skills.forEach((skill_id, index) => {
+                        if (skill_id !== null) {
+                            let skill_schema = _Skills_.getById(skill_id);
+                            if (skill_schema === undefined)
+                                throw `Cannot find skill by id: ${skill_id}`;
+                            this.skills.push(skill_schema.create());
+                        }
+                        else
+                            this.skills.push(null);
+                    });
+                }
+                catch (e) {
+                    console.error(e);
+                }
+                this.effects = new _Effects_(this);
+                //this.emoticons = [];//client-side only
+                this._points = 0;
+                this.kills = 0;
+                this.deaths = 0;
+                this.sensor = new _Sensor_(PLAYER_SENSOR_SHAPES[type]);
+                this.painter = new _Painter_(color, THICKNESS);
+                //@ts-ignore
+                if (typeof Entities !== 'undefined') {
+                    this.entity_name = Player.entityName(type, color); //clientside only
+                    //@ts-ignore
+                    Entities.addObject(Entities[this.entity_name].id, this);
+                }
+                //@ts-ignore //client side
+                if (typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined') {
+                    //@ts-ignore
+                    this.emitter = Renderer.Class.addEmitter(new Emitters.Player(this));
+                    this.poisoning_emitter = null;
+                }
+            }
+            destroy() {
+                //@ts-ignore
+                if (typeof Entities !== 'undefined') {
+                    console.log('removing player from entities');
+                    //@ts-ignore
+                    Entities.removeObject(Entities[this.entity_name].id, this);
+                }
+                if (this.emitter)
+                    this.emitter.expired = true;
+                if (this.poisoning_emitter)
+                    this.poisoning_emitter.expired = true;
+            }
+            onPoisoned() {
+                if (this.poisoning_emitter === null)
+                    //@ts-ignore
+                    this.poisoning_emitter = Renderer.Class.addEmitter(new Emitters.Poisoning(this));
+                else
+                    this.poisoning_emitter.resetTimer();
+            }
+            //clientside only function
+            showEmoticon(name) {
+                for (em_i = 0; em_i < this.emoticons.length; em_i++)
+                    this.emoticons[em_i].endEffect();
+                this.emoticons.push(new Emoticon(name, this));
+            }
+            update(delta) {
+                this.movement.applyMove(this, delta);
+                for (s_i = 0; s_i < this.skills.length; s_i++) {
+                    if (this.skills[s_i] !== null)
+                        //@ts-ignore
+                        this.skills[s_i].update(delta);
+                }
+                this.effects.update(delta);
+                if (this.effects.isActive(_Effects_.TYPES.POISONING))
+                    this.hp -= POISON_STRENGTH * delta;
+                super.update(delta);
+                //update emoticons
+                for (em_i = 0; em_i < this.emoticons.length; em_i++) {
+                    if (this.emoticons[em_i].expired === true) {
+                        this.emoticons[em_i].destroy();
+                        this.emoticons.splice(em_i, 1);
+                        em_i--;
                     }
                     else
-                        _this.skills.push(null);
-                });
-            }
-            catch (e) {
-                console.error(e);
-            }
-            _this.effects = new Effects(_this);
-            _this.emoticons = []; //client-side only
-            _this._points = 0;
-            _this.kills = 0;
-            _this.deaths = 0;
-            _this.sensor = new Sensor(PLAYER_SENSOR_SHAPES[type]);
-            _this.painter = new Painter(color, THICKNESS);
-            if (typeof Entities !== 'undefined') {
-                _this.entity_name = Player.entityName(type, color); //clientside only
-                Entities.addObject(Entities[_this.entity_name].id, _this);
-            }
-            if (typeof Renderer !== 'undefined' && typeof PlayerEmitter !== 'undefined') { //client side
-                _this.emitter = Renderer.addEmitter(new PlayerEmitter(_this));
-                _this.poisoning_emitter = null;
-            }
-            return _this;
-        }
-        class_1.prototype.destroy = function () {
-            if (typeof Entities !== 'undefined') {
-                console.log('removing player from entities');
-                Entities.removeObject(Entities[this.entity_name].id, this);
-            }
-            if (this.emitter)
-                this.emitter.expired = true;
-            if (this.poisoning_emitter)
-                this.poisoning_emitter.expired = true;
-        };
-        class_1.prototype.onPoisoned = function () {
-            if (this.poisoning_emitter === null)
-                this.poisoning_emitter = Renderer.addEmitter(new PoisoningEmitter(this));
-            else
-                this.poisoning_emitter.resetTimer();
-        };
-        //clientside only function
-        class_1.prototype.showEmoticon = function (name) {
-            for (em_i = 0; em_i < this.emoticons.length; em_i++)
-                this.emoticons[em_i].endEffect();
-            this.emoticons.push(new Emoticon(name, this));
-        };
-        class_1.prototype.update = function (delta) {
-            this.movement.applyMove(this, delta);
-            for (s_i = 0; s_i < this.skills.length; s_i++) {
-                if (this.skills[s_i] !== null)
-                    this.skills[s_i].update(delta);
-            }
-            this.effects.update(delta);
-            if (this.effects.isActive(Effects.POISONING))
-                this.hp -= POISON_STRENGTH * delta;
-            _super.prototype.update.call(this, delta);
-            //update emoticons
-            for (em_i = 0; em_i < this.emoticons.length; em_i++) {
-                if (this.emoticons[em_i].expired === true) {
-                    this.emoticons[em_i].destroy();
-                    this.emoticons.splice(em_i, 1);
-                    em_i--;
+                        this.emoticons[em_i].update(delta);
                 }
-                else
-                    this.emoticons[em_i].update(delta);
+                if (this.emitter)
+                    this.emitter.update(delta);
+                if (this.poisoning_emitter) {
+                    this.poisoning_emitter.update(delta);
+                    if (this.poisoning_emitter.expired === true)
+                        this.poisoning_emitter = null;
+                }
             }
-            if (this.emitter)
-                this.emitter.update(delta);
-            if (this.poisoning_emitter) {
-                this.poisoning_emitter.update(delta);
-                if (this.poisoning_emitter.expired === true)
-                    this.poisoning_emitter = null;
+            isAlive() {
+                return this._hp >= 0.005;
             }
-        };
-        class_1.prototype.isAlive = function () {
-            return this._hp >= 0.005;
-        };
-        Object.defineProperty(class_1.prototype, "hp", {
-            get: function () {
+            get hp() {
                 return this._hp;
-            },
-            set: function (value) {
+            }
+            set hp(value) {
                 //if hp dropped but SHIELD effect is active
                 if (value < this._hp &&
-                    (this.effects.isActive(Effects.SHIELD) ||
-                        this.effects.isActive(Effects.SPAWN_IMMUNITY))) {
+                    (this.effects.isActive(_Effects_.TYPES.SHIELD) ||
+                        this.effects.isActive(_Effects_.TYPES.SPAWN_IMMUNITY))) {
                     return; //do not update hp
                 }
                 this._hp = Math.min(1, Math.max(0, value));
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1.prototype, "energy", {
-            get: function () {
+            }
+            get energy() {
                 return this._energy;
-            },
-            set: function (value) {
+            }
+            set energy(value) {
                 this._energy = Math.min(1, Math.max(0, value));
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1.prototype, "points", {
-            get: function () {
+            }
+            get points() {
                 return this._points;
-            },
-            set: function (value) {
+            }
+            set points(value) {
                 this._points = Math.round(Math.max(0, value));
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1, "INITIAL_SCALE", {
-            get: function () {
+            }
+            static get INITIAL_SCALE() {
                 return SCALE;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1, "TYPES", {
-            get: function () {
-                return TYPES;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1, "SHIP_NAMES", {
-            get: function () {
+            }
+            static get SHIP_NAMES() {
                 return SHIP_NAMES;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1, "SHIP_COSTS", {
-            get: function () {
+            }
+            static get SHIP_COSTS() {
                 return SHIP_COSTS;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(class_1, "SHIP_LVL_REQUIREMENTS", {
-            get: function () {
+            }
+            static get SHIP_LVL_REQUIREMENTS() {
                 return SHIP_LVL_REQUIREMENTS;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        class_1.entityName = function (type_i, color) {
-            return 'PLAYER_' + type_i + '_' + Colors.PLAYERS_COLORS.indexOf(color);
-        };
-        return class_1;
-    }(ExtendClass));
-})(typeof Object2D !== 'undefined' ? Object2D : require('./object2d.js'), typeof Movement !== 'undefined' ? Movement : require('./../common/movement.js'), typeof Sensor !== 'undefined' ? Sensor : require('./../common/sensor.js'), typeof Painter !== 'undefined' ? Painter : require('./../common/painter.js'), typeof Colors !== 'undefined' ? Colors : require('./../common/colors.js'), typeof Skills !== 'undefined' ? Skills : require('./../common/skills.js'), typeof Effects !== 'undefined' ? Effects : require('./../common/effects.js'));
+            }
+            static entityName(type_i, color) {
+                return 'PLAYER_' + type_i + '_' + _Colors_.PLAYERS_COLORS.indexOf(color);
+            }
+        },
+        //static get TYPES() {
+        //	return TYPES;
+        //}
+        _a.TYPES = TYPES,
+        _a;
+})(
+// typeof Object2D !== 'undefined' ? Object2D : require('./object2d.js'),
+// typeof Movement !== 'undefined' ? Movement : require('./../common/movement'),
+// typeof Sensor !== 'undefined' ? Sensor : require('./../common/sensor'),
+// typeof Painter !== 'undefined' ? Painter : require('./../common/painter'),
+// typeof Colors !== 'undefined' ? Colors : require('./../common/colors'),
+// typeof Skills !== 'undefined' ? Skills : require('./../common/skills'),
+// typeof Effects !== 'undefined' ? Effects : require('./../common/effects')
+);
+// var Player = PlayerScope.Player;
 try { //export for NodeJS
     module.exports = Player;
 }

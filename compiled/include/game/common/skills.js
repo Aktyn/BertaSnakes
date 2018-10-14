@@ -1,46 +1,53 @@
 "use strict";
-var Skills = (function () {
+// const Skills = (function() {
+var SkillsScope;
+(function (SkillsScope) {
+    /*interface SkillObjectDerived extends SkillObject {
+        new(): SkillObject;
+    }*/
     //NOTE - in case of continuous skils the energy cost is per second
-    var SkillObject = /** @class */ (function () {
-        function class_1(skill_data) {
-            this.data = skill_data; //const
-            this.data.continuous = this.data.continuous || false; //make sure it is a bool
+    class SkillObject {
+        constructor(skill_data) {
             this.cooldown = 0;
-            this._in_use = false; //for continous skills
+            this._in_use = false;
+            this.data = skill_data; //const
+            this.data.continuous = !!this.data.continuous; //make sure it is a bool
+            //this.cooldown = 0;
+            //this._in_use = false;//for continous skills
         }
-        class_1.prototype.canBeUsed = function (avaible_energy) {
+        canBeUsed(avaible_energy) {
             return avaible_energy + 0.001 >= this.data.energy_cost &&
                 this.cooldown <= 0; // && 
             //this._in_use === false;
-        };
-        class_1.prototype.isContinous = function () {
+        }
+        isContinous() {
             return this.data.continuous;
-        };
-        class_1.prototype.use = function () {
+        }
+        use() {
             this.cooldown += this.data.cooldown || 0;
             //if(this.data.continuous === true)
             this._in_use = true;
             return this.data.energy_cost;
-        };
-        class_1.prototype.stopUsing = function () {
+        }
+        stopUsing() {
             this._in_use = false;
             //if(this.isContinous())
             //	this.cooldown = 0;//NOTE - experimental (hacking vulnerability)
-        };
-        class_1.prototype.isInUse = function () {
+        }
+        isInUse() {
             return this._in_use;
-        };
-        class_1.prototype.update = function (delta) {
+        }
+        update(delta) {
             /*if(this.cooldown !== 0) {
                 if( (this.cooldown -= delta) < 0 )
                     this.cooldown = 0;
             }*/
             if (this.cooldown > 0)
                 this.cooldown -= delta;
-        };
-        return class_1;
-    }());
-    var self = {
+        }
+    }
+    SkillsScope.SkillObject = SkillObject;
+    SkillsScope.Skills = {
         // SHIP SPECIFIC SKILLS:
         SHOOT1: {
             //id: 0,
@@ -120,6 +127,7 @@ var Skills = (function () {
             price: 500 //coins
         },
         //NOTE - new skills must be add at the end of this object due to preserve it's id order
+        //or change order in mysql database
         getById: function (id) {
             for (var s in this) {
                 if (typeof this[s] === 'object' && this[s].id === id)
@@ -130,19 +138,20 @@ var Skills = (function () {
         Skill: SkillObject
     };
     function skillCreator(skill) {
-        return function () { return new SkillObject(skill); };
+        return () => new SkillObject(skill);
     }
     //indexing skills
-    var i = 0;
-    for (var prop in self) {
-        if (typeof self[prop] === 'object') {
-            self[prop].id = i++;
-            self[prop].create = skillCreator(self[prop]);
+    let i = 0;
+    for (let prop in SkillsScope.Skills) {
+        if (typeof SkillsScope.Skills[prop] === 'object') {
+            SkillsScope.Skills[prop].id = i++;
+            SkillsScope.Skills[prop].create = skillCreator(SkillsScope.Skills[prop]);
         }
     }
-    //console.log(self);
-    return self;
-})();
+    //console.log(Skills);
+    //return Skills;
+})(SkillsScope || (SkillsScope = {}));
+var Skills = SkillsScope.Skills;
 try { //export for NodeJS
     module.exports = Skills;
 }

@@ -9,12 +9,17 @@
     "fs-watch-tree": "^0.2.5",
     "ip": "^1.1.5",
     "jsdom": "^11.12.0",
+    "mysql": "^2.16.0",
     "nodemailer": "^4.6.7",
+    "prompt-sync": "^4.1.6",
     "ws": "^5.2.1"
   },
   "devDependencies": {
     "@types/express": "^4.16.0",
+    "@types/ip": "0.0.31",
+    "@types/mysql": "^2.15.5",
     "@types/node": "^10.11.4",
+    "@types/websocket": "0.0.40",
     "@types/ws": "^6.0.1",
     "google-closure-compiler-js": "^20180610.0.0",
     "nodemon": "^1.18.4",
@@ -24,19 +29,15 @@
   "scripts": {
     "dev": "run-s -c -n clean build:live",
     "clean": "rm -R ./compiled/*",
-
     "build": "run-s -l build:website build:server build:game",
     "build:live": "run-p build:website:live build:game:live build:server:live",
-
     "build:website": "tsc -p ./website/tsconfig.json",
     "build:website:live": "nodemon -e ts --watch './website/ts/*.ts' --exec tsc -p ./website/tsconfig.json",
     "compile:website": "node ./website/compile",
-
     "build:server": "tsc -p ./src/tsconfig-server.json",
     "build:server:live": "nodemon -e js,ts --watch src/server --watch src/include --exec \"tsc -p ./src/tsconfig-server.json && npm run test\"",
     "build:game": "tsc -p ./src/tsconfig-client.json",
     "build:game:live": "nodemon -e js,ts --watch src/client --watch src/include --exec tsc -p ./src/tsconfig-client.json",
-
     "test": "nodejs compiled/server/main 2674 1337",
     "start": "nodejs compiled/server/main 2674 80"
   },

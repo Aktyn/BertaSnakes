@@ -1,6 +1,7 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /*jshint multistr: true */
-var topbar_html = "<div id='topbar'>\
+const topbar_html = "<div id='topbar'>\
 	<div class='topbar_side' style='text-align: left;'>\
 		<a href='/' target='_self' ><img src='/img/icons/logo.png' /></a>\
 	</div>\
@@ -19,7 +20,7 @@ var topbar_html = "<div id='topbar'>\
 		</a>\
 	</div>\
 </div>";
-module.exports = {
+exports.default = {
     getHTML: function () {
         return topbar_html;
     }
