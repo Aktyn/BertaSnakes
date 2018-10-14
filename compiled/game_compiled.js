@@ -9352,7 +9352,7 @@ class LOBBY_STAGE extends Stage {
         }
     }
 }
-LOBBY_STAGE.TESTING = true;
+LOBBY_STAGE.TESTING = false;
 // })();
 // console.log( (s=n=>n==2?2:n*s(--n))(6) );//mystery code
 // ¯\_(ツ)_/¯

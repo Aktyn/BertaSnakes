@@ -12,7 +12,7 @@ catch (e) {
     console.error('Cannot prompt user fro email password since server is running in nodemon');
     email_pass = '';
 }
-console.log('Email:', email_pass);
+// console.log( 'Email:', email_pass );
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
