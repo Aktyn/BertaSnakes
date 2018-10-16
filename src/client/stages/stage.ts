@@ -50,7 +50,7 @@ abstract class Stage {
 		this.change_callback = null;
 		this.current_popup = null;
 
-		document.title = 'Berta Snakes';
+		//document.title = 'Berta Snakes';
 		$$(document.body).html('');//removing previous page content
 	}
 

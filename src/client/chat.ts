@@ -97,6 +97,8 @@ const Chat = (function() {
 		private chat_body?: $_face;
 		private header?: $_face;
 
+		private PRESERVED_TITLE = document.title;
+
 		constructor() {
 			this.chat_widget = null;
 			this.createWidget();
@@ -368,9 +370,9 @@ const Chat = (function() {
 			//	header_spanner.setText( text.html() );
 
 			if(text.length === 0)
-				document.title = 'Berta Snakes';
+				document.title = this.PRESERVED_TITLE;
 			else if(document.hasFocus() === false)//if page is out of focus
-				document.title = '*'+text + ' - Berta Snakes';
+				document.title = '*'+text + ' - ' + this.PRESERVED_TITLE;
 		}
 
 		setHidden(hide: boolean) {//@hide - bool

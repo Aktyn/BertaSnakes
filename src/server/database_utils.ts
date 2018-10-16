@@ -1,14 +1,9 @@
-// var DatabaseUtils = (function() {
 const MySQL = require('mysql');
 
-import * as fs from 'fs';
+//import * as fs from 'fs';
 /* jshint multistr:true */
 
-/*const STATUS = {
-	ERROR: 0,
-	PENDING: 1,
-	SUCCESS: 2
-};*/
+
 enum STATUS {
     ERROR,
     PENDING,
@@ -17,16 +12,20 @@ enum STATUS {
 
 var status = STATUS.PENDING;
 
-var prompt = require('prompt-sync')();
-var mysql_pass: string;
-try {
+//var prompt = require('prompt-sync')();
+var mysql_pass = process.env.npm_config_mysqlpass;
+if(!mysql_pass) {
+	console.error('You must specify mysql password adding --mysqlpass=PASSWORD to console npm command');
+	process.exit();
+}
+/*try {
 	mysql_pass = prompt('MySQL password: ');
 }
 catch(e) {
 	console.error('Cannot prompt user for mysql password since server is running in nodemon');
 	//read this from private file (dev mode)
 	mysql_pass = fs.readFileSync('mysql_pass.txt', 'utf8');
-}
+}*/
 
 var connection = MySQL.createConnection({
 	host: "localhost",
@@ -240,7 +239,5 @@ const self = {
 			VALUES (" + author_id + ", " + category + ", '" + subject + "', '" + 
 			UTILS.currentTime() + "', '" + UTILS.currentTime() + "', 1);"),
 };
-// return self;
-// })();
+
 export default self;
-// export default DatabaseUtils;

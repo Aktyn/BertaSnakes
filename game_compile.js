@@ -11,10 +11,7 @@ const path = require('path');
 //file containing code (this file will be replaced with compiled code)
 const target_file = __dirname + '/compiled/game_compiled.js';
 
-// const ignored_files = [];
-// const files_for_simple_compilation = ['utils.js'];
-
-function postModify(code) {
+function postModify(code) {//TODO - put everything into IIF
 	return '"use strict";' + code;
 }
 
@@ -23,7 +20,6 @@ try {
 }
 catch(e) {
 	console.log(`Cannot read target file (${target_file})\n`);
-	//console.error(e);
 	process.exit();
 }
 

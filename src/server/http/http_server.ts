@@ -16,7 +16,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const port = process.argv.slice(2)[1] || 1337;
+const port = process.argv.slice(2)[0] || 1337;
 
 var initialized = false;
 
@@ -44,7 +44,7 @@ export default {
 
 		//allow access to folder with compiled client-side game code
 		app.use('/js', express.static(dir + '/compiled'));
-		app.use('/' + global.DATE_VERSION + '.js', express.static(dir + '/compiled/game_compiled.js'));
+		app.use('/' + global.APP_VERSION + '.js', express.static(dir + '/compiled/game_compiled.js'));
 
 		app.use('/shaders', express.static(dir + '/assets/shaders'));
 		app.use('/maps', express.static(dir + '/assets/maps'));

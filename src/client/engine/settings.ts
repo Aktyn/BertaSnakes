@@ -34,7 +34,7 @@ const SETTINGS = (function() {
 	};
 
 	const PREFIX = 'BS_';//Berta Snakes
-	const COOKIE_LIFETIME = 2 * 1000 * 60 * 60 * 24;//2 days (in miliseconds)
+	const COOKIE_LIFETIME = 1000 * 60 * 60 * 24 * 7;//7 days (in miliseconds)
 
 	function setCookie(name: string, value: string | number/*, exdays*/) {
 	    document.cookie = name + '=' + value + ';' + 'expires=' +
