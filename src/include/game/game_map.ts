@@ -11,7 +11,6 @@
 ///<reference path="objects/immunity.ts"/>
 ///<reference path="objects/bomb.ts"/>
 
-// const GameMap = (function(/*PaintLayer, Vector, Object2D*/) {
 namespace GameMap {
 	try {
 		var _PaintLayer_: typeof PaintLayer = require('./paint_layer');
@@ -33,14 +32,6 @@ namespace GameMap {
 	export class Map extends _PaintLayer_.Layer {
 		public background: VectorScope.Vector;
 
-		// public players: (typeof Player)[] = [];
-		// public enemies: (typeof Enemy)[] = [];
-		// public enemy_spawners: (typeof EnemySpawner)[] = [];
-		// public items: (typeof Item)[] = [];
-		// public bullets: (typeof Bullet)[] = [];
-		// public shields: (typeof Shield)[] = [];
-		// public immunities: (typeof Immunity)[] = [];
-		// public bombs: (typeof Bomb)[] = [];
 		public players: Object2D[] = [];
 		public enemies: Object2D[] = [];
 		public enemy_spawners: Object2D[] = [];
@@ -60,10 +51,10 @@ namespace GameMap {
 			this.background = new _Vector_.Vec3f(1, 1, 1);
 
 			this.updatables = [//contains array that contains objects with update(delta) method
-				<Object2D[]><unknown>this.players, 			<Object2D[]><unknown>this.enemies, 
-				<Object2D[]><unknown>this.enemy_spawners, 	<Object2D[]><unknown>this.items, 
-				<Object2D[]><unknown>this.bullets, 			<Object2D[]><unknown>this.shields, 
-				<Object2D[]><unknown>this.immunities, 		<Object2D[]><unknown>this.bombs
+				this.players, 			this.enemies, 
+				this.enemy_spawners, 	this.items, 
+				this.bullets, 			this.shields, 
+				this.immunities, 		this.bombs
 			];
 
 			//server-side use for constantly sending object updates each few frames
@@ -120,7 +111,6 @@ namespace GameMap {
 				console.log('(' + map.name + ') map data:', map.data);
 				if(map.data === null)
 					throw "No map data";
-					
 
 				this.size = map.data['size'] || 5;//default
 				if(map.data['background_color'])

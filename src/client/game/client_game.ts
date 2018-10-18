@@ -75,7 +75,7 @@ namespace ClientGame {
 		private renderer: Renderer.Class;//Renderer;
 		private hit_effects: Emitters.Hit;//HitEmitter;
 
-		private emitters: any;//GraphicsScope.Modules.Emitter[];//GRAPHICS.Emitter[];//Emitter[]
+		private emitters: GRAPHICS.Emitter[];
 
 		private onKeyUp?: (e: Event) => void;
 		private onKeyDown?: (e: Event) => void;
@@ -88,6 +88,9 @@ namespace ClientGame {
 		constructor(map: MapJSON_I, onLoad: (result: boolean) => void) {
 			super();
 
+			if(!map.data)
+				throw "No map data";
+
 			Network.assignCurrentGameHandle(this);
 			var curr_room = Network.getCurrentRoom();
 			if(curr_room === null)
@@ -95,7 +98,7 @@ namespace ClientGame {
 				
 			this.room = curr_room;
 
-			this.renderer = new Renderer.Class(this);
+			this.renderer = new Renderer.Class(this, map.data);
 
 			ASSETS.onload(() => {//making sure game assets are loaded
 				if(this.destroyed === true)

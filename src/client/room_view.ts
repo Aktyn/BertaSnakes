@@ -28,12 +28,11 @@ const RoomView = (function() {
 			$$.create('LABEL').setText( map.name )
 		).addChild(
 			(() => {
-				let canv = $$.create('CANVAS');
+				let canv = document.createElement('canvas');
 				canv.width = map.image.naturalWidth;
 				canv.height = map.image.naturalHeight;
 
-				let ctx = canv.getContext('2d', {antialias: true});
-				//console.log(map.data);
+				let ctx = <CanvasRenderingContext2D>canv.getContext('2d', {antialias: true});
 				ctx.fillStyle = 'rgb(' + map.data['background_color'].join(',') + ')';
 				ctx.fillRect(0, 0, canv.width, canv.height);
 
@@ -327,18 +326,19 @@ const RoomView = (function() {
 			};
 
 			var roomSettings = $$.create('DIV').addClass('room_settings').addChild(
-				$$.create('H1').setStyle({display: 'table', borderBottom: '1px solid #90A4AE'}).addChild(
-					$$.create('DIV').setStyle({'display': 'table-cell'}).html('Room settings')
-				).addChild(
-					$$.create('DIV').addClass('close_btn').addClass('opacity_and_rot_transition')
-						.setStyle({'display': 'table-cell'}).on('click', () => {
-							//applying settings before closing
-							applySettings();
-							//closing room settings
-							room_info.setStyle({display: 'block'});
-							roomSettings.remove();
-						})
-				)
+				$$.create('H1')
+					.setStyle({display: 'table', borderBottom: '1px solid #90A4AE'}).addChild(
+						$$.create('DIV').setStyle({'display': 'table-cell'}).html('Room settings')
+					).addChild(
+						$$.create('DIV').addClass('close_btn').addClass('opacity_and_rot_transition')
+							.setStyle({'display': 'table-cell'}).on('click', () => {
+								//applying settings before closing
+								applySettings();
+								//closing room settings
+								room_info.setStyle({display: 'block'});
+								roomSettings.remove();
+							})
+					)
 			).addChild(//settings one below each other
 				$$.create('DIV').addClass('settings_container').addChild(//room name
 					$$.create('DIV').addChild( $$.create('LABEL' ).html('Name:'))

@@ -26,41 +26,22 @@ namespace PaintLayer {
 
 	//CHUNK_RES / CHUNK_SIZE should be 1024 at highest settings
 	var CHUNK_RES = 128;//resolution of single chunk (256)
-	const CHUNK_SIZE = 0.25;//size of a single chunk compared to screen height
-
-	if(typeof module === 'undefined') {//client-side only
-		var applyResolution = function() {
-			//@ts-ignore
-			if(typeof SETTINGS === 'undefined')
-				throw new Error('Client-side SETTINGS module required');
-			//@ts-ignore
-			switch(SETTINGS.painter_resolution) {
-				case 'LOW':
-					CHUNK_RES = 64;
-					break;
-				case 'MEDIUM':
-					CHUNK_RES = 128;
-					break;
-				case 'HIGH':
-					CHUNK_RES = 256;
-					break;
-			}
-		};
-
-		setTimeout(applyResolution, 1);
-	}
+	//const CHUNK_SIZE = 0.25;//size of a single chunk compared to screen height
 
 	const PI_2 = Math.PI * 2.0;
 
 	//performance mater variables
-	var sxi_temp, syi_temp, sxi, syi, exi, eyi, xx, yy, temp, itY, itX, ch_i, chunk_ctx, 
-		relXs, relYs, relXe, relYe,
-		thick_off, rad_off, pixel_i, ii;
+	var sxi_temp: number, syi_temp: number, sxi: number, syi: number, exi: number, eyi: number, 
+		xx: number, yy: number, temp: number, itY: number, itX: number, ch_i: number, 
+		chunk_ctx: CanvasRenderingContext2D, relXs: number, relYs: number, relXe: number, 
+		relYe: number, thick_off: number, rad_off: number, pixel_i: number, ii: number;
 
 	var clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 	const pow2 = (a: number) => a*a;
 
 	export class Layer {
+		public static CHUNK_SIZE = 0.25;
+
 		private _color = '#fff';
 
 		private composite = 'source-over';
@@ -75,6 +56,30 @@ namespace PaintLayer {
 		private spawn_thickness = 0;
 
 		constructor() {
+			if(typeof module === 'undefined') {//client-side only
+				//var applyResolution = function() {
+				//@ts-ignore
+				if(typeof SETTINGS === 'undefined')
+					throw new Error('Client-side SETTINGS module required');
+				//@ts-ignore
+				switch(SETTINGS.painter_resolution) {
+					case 'LOW':
+						CHUNK_RES = 64;
+						break;
+					case 'MEDIUM':
+						CHUNK_RES = 128;
+						break;
+					case 'HIGH':
+						CHUNK_RES = 256;
+						break;
+				}
+
+				console.info('Painter resolution:', CHUNK_RES);
+				//};
+
+				//setTimeout(applyResolution, 1);
+				//applyResolution();
+			}
 			// this._color = '#fff';
 			// this.composite = 'source-over';
 			// this.chunks = [];
@@ -100,16 +105,16 @@ namespace PaintLayer {
 		static get CHUNK_RES() {
 			return CHUNK_RES;
 		}
-		static get CHUNK_SIZE() {
+		/*static get CHUNK_SIZE() {
 			return CHUNK_SIZE;
-		}
+		}*/
 
 		generateChunks() {
 			if(!this.size)
 				throw new Error('No size specified for number chunks');
-			this.size = Math.round(this.size / CHUNK_SIZE);
+			this.size = Math.round(this.size / Layer.CHUNK_SIZE);
 
-			this.map_size = this.size * CHUNK_SIZE;
+			this.map_size = this.size * Layer.CHUNK_SIZE;
 			console.log('map size:', this.map_size, 'number of chunks:', this.size*this.size);
 			let chunks_memory = 2 * (this.size * this.size * CHUNK_RES * CHUNK_RES * 4 / (1024*1024));
 			console.log('\tmemory:', chunks_memory + 'MB');
@@ -119,10 +124,10 @@ namespace PaintLayer {
 			for(let y=0; y<this.size; y++) {
 				for(let x=0; x<this.size; x++) {
 					let mat = new _Matrix2D_();
-					mat.setScale(CHUNK_SIZE, CHUNK_SIZE);
+					mat.setScale(Layer.CHUNK_SIZE, Layer.CHUNK_SIZE);
 
-					xx = -(this.size-1) * CHUNK_SIZE + x * CHUNK_SIZE * 2;
-					yy = (this.size-1) * CHUNK_SIZE - y * CHUNK_SIZE * 2;
+					xx = -(this.size-1) * Layer.CHUNK_SIZE + x * Layer.CHUNK_SIZE * 2;
+					yy = (this.size-1) * Layer.CHUNK_SIZE - y * Layer.CHUNK_SIZE * 2;
 
 					mat.setPos(xx, yy);
 
@@ -201,22 +206,22 @@ namespace PaintLayer {
 			exi = clamp(exi + thick_off, 0, this.size-1) | 0;
 			eyi = clamp(eyi + thick_off, 0, this.size-1) | 0;
 
-			thickness *= CHUNK_RES / CHUNK_SIZE;
+			thickness *= CHUNK_RES / Layer.CHUNK_SIZE;
 
 			for(itY = syi; itY <= eyi; itY++) {
 				for(itX = sxi; itX <= exi; itX++) {
 					ch_i = itY * this.size + itX;
 
 					//calculating relative coords
-					relXs = (sx + this.size * CHUNK_SIZE - itX*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) * 
-						CHUNK_RES;
-					relYs = (-sy + this.size * CHUNK_SIZE - itY*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) * 
-						CHUNK_RES;
+					relXs = (sx + this.size * Layer.CHUNK_SIZE - itX*Layer.CHUNK_SIZE*2) / 
+						(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					relYs = (-sy + this.size * Layer.CHUNK_SIZE - itY*Layer.CHUNK_SIZE*2) / 
+						(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
 
-					relXe = (ex + this.size * CHUNK_SIZE - itX*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) *
-						CHUNK_RES;
-					relYe = (-ey + this.size * CHUNK_SIZE - itY*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) *
-						CHUNK_RES;
+					relXe = (ex + this.size * Layer.CHUNK_SIZE - itX*Layer.CHUNK_SIZE*2) / 
+						(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					relYe = (-ey + this.size * Layer.CHUNK_SIZE - itY*Layer.CHUNK_SIZE*2) / 
+						(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
 
 					chunk_ctx = this.chunks[ch_i].ctx;
 					if( !prevent_chunks_update )
@@ -247,17 +252,17 @@ namespace PaintLayer {
 			exi = clamp(sxi_temp + rad_off, 0, this.size-1) | 0;
 			eyi = clamp(syi_temp + rad_off, 0, this.size-1) | 0;
 
-			radius *= CHUNK_RES / CHUNK_SIZE;
+			radius *= CHUNK_RES / Layer.CHUNK_SIZE;
 
 			for(itY = syi; itY <= eyi; itY++) {
 				for(itX = sxi; itX <= exi; itX++) {
 					ch_i = itY * this.size + itX;
 
 					//calculating relative coords
-					relXs = (sx + this.size * CHUNK_SIZE - itX*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) * 
-						CHUNK_RES;
-					relYs = (-sy + this.size * CHUNK_SIZE - itY*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) * 
-						CHUNK_RES;
+					relXs = (sx + this.size * Layer.CHUNK_SIZE - itX*Layer.CHUNK_SIZE*2) / 
+						(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					relYs = (-sy + this.size * Layer.CHUNK_SIZE - itY*Layer.CHUNK_SIZE*2) / 
+						(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
 					
 					chunk_ctx = this.chunks[ch_i].ctx;
 					if( !prevent_chunks_update )
@@ -306,6 +311,9 @@ namespace PaintLayer {
 			//@ts-ignore
 			map_ctx['msImageSmoothingEnabled'] = smooth;
 			map_ctx['imageSmoothingEnabled'] = smooth;
+
+			//if(map.image)
+			//	console.log(map.image.width);
 
 			if(map.image !== null)
 				map_ctx.drawImage(map.image, 0, 0, map_canvas.width, map_canvas.height);
@@ -464,10 +472,10 @@ namespace PaintLayer {
 			
 			//safety for incorrect coords issues
 			if(this.chunks[ch_i]/* && this.chunks[ch_i].buff != null*/) {
-				relXs = (x + this.size * CHUNK_SIZE - sxi*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) * 
-					CHUNK_RES;
-				relYs = (-y + this.size * CHUNK_SIZE - syi*CHUNK_SIZE*2) / (CHUNK_SIZE*2.0) * 
-					CHUNK_RES;
+				relXs = (x + this.size * Layer.CHUNK_SIZE - sxi*Layer.CHUNK_SIZE*2) / 
+					(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
+				relYs = (-y + this.size * Layer.CHUNK_SIZE - syi*Layer.CHUNK_SIZE*2) / 
+					(Layer.CHUNK_SIZE*2.0) * CHUNK_RES;
 				
 				pixel_i = ((relXs|0) + (relYs|0) * CHUNK_RES) * 4;
 

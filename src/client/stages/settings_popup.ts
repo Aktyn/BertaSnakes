@@ -118,7 +118,7 @@ namespace Popup {
 			div.addChild(
 				createSwitcherEntry('Auto hide right panel:', (enabled) => {
 					SETTINGS.game_panel_auto_hide = enabled;
-				}, SETTINGS.game_panel_auto_hide === true)
+				}, SETTINGS.game_panel_auto_hide)
 			).addChild(
 				$$.create('DIV').addChild(
 					$$.create('LABEL').setText('Painter resolution:').addChild(
@@ -141,6 +141,12 @@ namespace Popup {
 						}).selectOption(SETTINGS.shadows_type)
 					)
 				)
+			)/*.addChild(
+				$$.create('LABEL').setText('Particles').addClass('section_title')
+			)*/.addChild(
+				createSwitcherEntry('Weather particles:', (enabled) => {
+					SETTINGS.weather_particles = enabled;
+				}, SETTINGS.weather_particles)
 			);
 		}
 

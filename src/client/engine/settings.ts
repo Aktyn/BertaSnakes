@@ -1,5 +1,6 @@
 interface SettingsI {
 	game_panel_auto_hide: boolean;
+	weather_particles: boolean;
 	painter_resolution: string;
 	shadows_type: string;
 	menu_background_effect: boolean;
@@ -15,6 +16,7 @@ const SETTINGS = (function() {
 	var self: SettingsI = {//DEFAULT SETTINGS VALUES
 		//GAME
 		game_panel_auto_hide: false,
+		weather_particles: true,
 		painter_resolution: 'MEDIUM',
 		shadows_type: 'LONG',
 		

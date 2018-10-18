@@ -67,6 +67,7 @@ const ASSETS = (function() {
 		// PARTICLES
 		loadImage('fussion_particle', TEXTURES_PATH + 'particles/fussion.png');
 		loadImage('cloud_particle', TEXTURES_PATH + 'particles/cloud.png');
+		loadImage('snow_particle', TEXTURES_PATH + 'particles/snowflake.png');
 		loadImage('plus', TEXTURES_PATH + 'particles/plus.png');
 		loadImage('ring', TEXTURES_PATH + 'ring.png');
 		loadImage('ring_thick', TEXTURES_PATH + 'ring_thick.png');

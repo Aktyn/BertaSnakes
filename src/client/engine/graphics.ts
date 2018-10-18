@@ -210,12 +210,12 @@ namespace GRAPHICS {
 
 	interface FramebufferOptions {
 		linear: boolean;
-		width: number;
-		height: number;
+		width?: number;
+		height?: number;
 		fullscreen: boolean;
 	}
 
-	interface ExtendedFramebuffer {
+	export interface ExtendedFramebuffer {
 		framebuffer: WebGLFramebuffer;
 		webgl_texture: WebGLTexture;
 		linear: boolean;
@@ -235,8 +235,8 @@ namespace GRAPHICS {
 			//console.log('Creating framebuffer with given options:', options);
 
 			let linear = options.linear === undefined ? true : options.linear;//default
-			let width = options.width,
-				height = options.height;
+			let width = options.width || 0,
+				height = options.height || 0;
 			if(options.fullscreen === true) {
 				width = CANVAS.width;
 				height = CANVAS.height;
@@ -380,6 +380,12 @@ namespace GRAPHICS {
 		return GL.getUniformLocation(<WebGLProgram>current_shader_program, name);
 	}
 
+	export interface ExtendedShader {
+		program: WebGLProgram;
+		bind(): void;
+		destroy(): void;
+	}
+
 	export const SHADERS = {
 		create: function(sources: {vertex_source: string, fragment_source: string}) {
 			$$.assert(GL !== undefined, "GL context required");
@@ -390,7 +396,7 @@ namespace GRAPHICS {
 			let compiled_program = compile_shader(sources.vertex_source, sources.fragment_source);
 			//$$.assert(compiled_program, "Cannot compile shader");
 
-			return {
+			return <ExtendedShader>{
 				program: compiled_program,
 				bind: function() {
 					GL.useProgram(this.program);
@@ -438,7 +444,7 @@ namespace GRAPHICS {
 		draw(count: number): void;
 	}
 
-	interface VBO_I {
+	export interface VBO_I {
 		faces_len: number;
 		bind(): void;
 		draw(): void;
@@ -546,15 +552,15 @@ namespace GRAPHICS {
 			VALUES_PER_PARTICLE = (POSITION_VALUES + COLOR_VALUES);
 
 	//@_texture - texture name, @_count - number of particles, @_additive - boolean
-	export class Emitter {
+	export abstract class Emitter {
 		//private data_length = 0;
-		private count: number;
+		protected count: number;
 		private additive: boolean;
 		private buffer: VertexBufferI;
 
 		private texture: any;
 
-		public data: Float32Array;
+		protected data: Float32Array;
 		public visible = true;
 
 		public expired = false;
@@ -583,6 +589,8 @@ namespace GRAPHICS {
 			//@ts-ignore
 			this.data = null;
 		}
+
+		abstract update(delta: number, ...args: any): void;
 
 		draw() {
 			//binding

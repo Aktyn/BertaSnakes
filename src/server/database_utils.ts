@@ -16,7 +16,9 @@ var status = STATUS.PENDING;
 var mysql_pass = process.env.npm_config_mysqlpass;
 if(!mysql_pass) {
 	console.error('You must specify mysql password adding --mysqlpass=PASSWORD to console npm command');
-	process.exit();
+	console.log('Trying to log in with empty password');
+	mysql_pass = '';
+	//process.exit();
 }
 /*try {
 	mysql_pass = prompt('MySQL password: ');

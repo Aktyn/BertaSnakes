@@ -32,7 +32,7 @@ class RoomInfo {
 	private static id = 0;
 
 	private static DEFAULT_SITS = 1;
-	private static DEFAULT_MAP = 'Open Maze';//'Empty'
+	private static DEFAULT_MAP = 'Snowflake';//'Empty', 'Open Maze'
 	private static DEFAULT_DURATION = 180;//seconds
 
 	static get MODES() {

@@ -1,4 +1,4 @@
-///<reference path="../../engine/graphics.ts"/>
+///<reference path="weather_emitter.ts"/>
 
 // const DustEmitter = (function() {
 namespace Emitters {
@@ -7,15 +7,11 @@ namespace Emitters {
 
 	let gauss: (n: number) => number = (n) => Math.random() * ( n <= 1 ? 1 : gauss(n-1) );
 
-	var aspect: number, i: number;
+	var i: number;
 
-	export class Dust extends GRAPHICS.Emitter {
-		private velocities_data: Float32Array;
-
+	export class Dust extends Emitter.Weather {
 		constructor() {
 			super('fussion_particle', PARTICLES, true);
-
-			this.velocities_data = new Float32Array(PARTICLES * 2);
 
 			for(i=0; i<PARTICLES; i++) {
 				this.data[i*vals + 0] = (Math.random() * 2.0 - 1.0) * GRAPHICS.getAspect();//x
@@ -37,28 +33,7 @@ namespace Emitters {
 		}
 
 		destroy() {
-			//@ts-ignore
-			this.velocities_data = null;//free memory
 			super.destroy();
-		}
-
-		update(delta: number, camera: VectorScope.Vector) {
-			aspect = GRAPHICS.getAspect();
-
-			//for(i=0, j=0; i<PARTICLES_COUNT; i++, j+=VALUES_PER_PARTICLE) {
-			for(i=0; i<PARTICLES; i++) {
-				this.data[i*vals + 0] += this.velocities_data[i*2+0] * delta;
-				this.data[i*vals + 1] += this.velocities_data[i*2+1] * delta;
-
-				if(this.data[i*vals + 0] > aspect + camera.x)
-					this.data[i*vals + 0] -= aspect * 2.0;
-				if(this.data[i*vals + 0] < -aspect + camera.x)
-					this.data[i*vals + 0] += aspect * 2.0;
-				if(this.data[i*vals + 1] > 1.0 + camera.y)
-					this.data[i*vals + 1] -= 2.0;
-				if(this.data[i*vals + 1] < -1.0 + camera.y)
-					this.data[i*vals + 1] += 2.0;
-			}
 		}
 	}
 }//)();

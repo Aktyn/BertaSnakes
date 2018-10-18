@@ -127,6 +127,11 @@
 	display: table-cell;
 }
 
+.popup > .main > label.section_title {
+	width: 100%;
+	color: #555;
+}
+
 .account_popup_main {
 	text-align: center;
 	padding: 10px 15px;

@@ -4,7 +4,9 @@ interface MapDataSchema {
 	size: number;
 	background_color: number[];
 	smooth_texture: boolean;
+	use_svg: boolean;
 	entities: any;
+	weather: string;
 }
 
 interface MapJSON_I {
@@ -70,33 +72,56 @@ const Maps: MapObjectI = (function() {
 		//loading .png map texture
 		let map_png = document.createElement('img');
 
+		
 		map_png.onload = () => {
 			map.image = map_png;
 			self[map.name] = map;
 			pending--;
-			//console.log(self);
-
-			/*if(index === maps_names.length-1) {
-				console.log('Maps data loaded');
-				console.log(self);
-			}*/
-			
 		};
-		map_png.onerror = printErr;
-		// map_png.src = MAP_FOLDER + map.name + '.png';
-		map_png.setAttribute('src', MAP_FOLDER + map.name + '.png');//07.10.2018
+		map_png.onerror = (e: string | Event) => printErr(e);
+
+		if(map.data && map.data.use_svg)
+			map_png.setAttribute('src', MAP_FOLDER + map.name + '.svg');//07.10.2018
+		else
+			map_png.setAttribute('src', MAP_FOLDER + map.name + '.png');//07.10.2018
 	}
 
+	//TODO - server-site support for svg
+	/*function loadSVG(map: MapJSON_I) {
+		fs.readFile(MAP_FOLDER + map.name + '.svg', function(err: Error, squid: string) {
+			if(err) throw err;
+			var map_svg = new Image();
+
+			map_svg.onload = () => {
+				map.image = map_svg;
+			
+				self[map.name] = map;
+				pending--;
+			};
+			map_svg.onerror = (e: string | Event) => {
+				console.log(map.name, squid);
+				printErr(e);
+			};
+
+			//map_svg.src = MAP_FOLDER + map.name + '.svg';//squid;
+		});
+	}*/
+
 	function onMapDataLoadedServer(map: MapJSON_I) {
+		//server can load only .png (TODO - .svg support)
 		fs.readFile(MAP_FOLDER + map.name + '.png', function(err: Error, squid: string) {
 			if(err) throw err;
 			var map_png = new Image();
-			map_png.src = squid;
-			//ctx.drawImage(img, 0, 0, img.width / 4, img.height / 4);
-			map.image = map_png;
 			
-			self[map.name] = map;
-			pending--;
+			map_png.onload = () => {
+				map.image = map_png;
+			
+				self[map.name] = map;
+				pending--;
+			};
+			map_png.onerror = (e: string | Event) => printErr(e);
+
+			map_png.src = squid;
 		});
 	}
 
@@ -143,7 +168,7 @@ const Maps: MapObjectI = (function() {
 		//server side
 		fs.readdir(MAP_FOLDER, (err: Error, files: string[]) => {
 			if(err) throw err;
-			//console.log( files.filter(f => f.endsWith('.map')).map(f => f.split('.')[0]) );
+			
 			loadMaps( files.filter(f => f.endsWith('.map')).map(f => f.split('.')[0]) );
 		});
 	}

@@ -5,7 +5,7 @@
   "main": "src/server/main.js",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "canvas": "^1.6.11",
+    "canvas": "^1.6.13",
     "fs-watch-tree": "^0.2.5",
     "ip": "^1.1.5",
     "jsdom": "^11.12.0",

@@ -2,7 +2,9 @@
 ///<reference path="entities.ts"/>
 ///<reference path="../engine/graphics.ts"/>
 ///<reference path="../engine/assets.ts"/>
+
 ///<reference path="emitters/dust_emitter.ts"/>
+///<reference path="emitters/snow_emitter.ts"/>
 
 // const Renderer = (function() {
 namespace Renderer {
@@ -32,24 +34,24 @@ namespace Renderer {
 
 	export class Class extends Entities {
 		public GUI: InGameGUI;
-		private VBO_RECT: any;
+		private VBO_RECT: GRAPHICS.VBO_I;
 		private map: GameMap.Map;
 		public focused: any;
 
 		private camera: VectorScope.Vector;
 		private _zoom: number;
 
-		private main_fb: any;
-		private paint_fb: any;
-		private main_shader: any;
-		private post_shader: any;
-		private particles_shader: any;
-		private emitters: any;//GraphicsScope.Modules.Emitter[];
-		private paint_emitters: any;//GraphicsScope.Modules.Emitter[];
-		private dust_emitter: Emitters.Dust;
+		private main_fb: GRAPHICS.ExtendedFramebuffer;
+		private paint_fb: GRAPHICS.ExtendedFramebuffer;
+		private main_shader: GRAPHICS.ExtendedShader;
+		private post_shader: GRAPHICS.ExtendedShader;
+		private particles_shader: GRAPHICS.ExtendedShader;
+		private emitters: GRAPHICS.Emitter[];//GraphicsScope.Modules.Emitter[];
+		private paint_emitters: GRAPHICS.Emitter[];//GraphicsScope.Modules.Emitter[];
+		private weather_emitter: GRAPHICS.Emitter | null;//Emitters.Dust;
 		private ready: boolean;
 
-		constructor(map: GameMap.Map) {
+		constructor(map: GameMap.Map, map_data: MapDataSchema) {
 			$$.assert(current_instance === null, 'Only single instance of Renderer is allowed');
 			//$$.assert(map instanceof GameMap, 'map argument must be instance of GameMap');
 			if(ASSETS.loaded() !== true)
@@ -66,6 +68,8 @@ namespace Renderer {
 			this.VBO_RECT = rect;
 			this.map = map;//handle to map instance
 			this.focused = null;//handle to focused player
+
+			console.log( map_data );
 
 			$$(window).on('resize', onResize);
 
@@ -102,7 +106,7 @@ namespace Renderer {
 				drag_data.y = (<MouseEvent>e).clientY;
 			});
 
-			//@ts-ignore
+			
 			this.main_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
 			//@ts-ignore
 			this.paint_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
@@ -118,8 +122,21 @@ namespace Renderer {
 			this.emitters = [];
 			this.paint_emitters = [];
 
-			this.dust_emitter = new Emitters.Dust();
-			this.emitters.push( this.dust_emitter );
+			if(SETTINGS.weather_particles) {
+				switch(map_data.weather) {
+					default:
+					case 'dust':
+						this.weather_emitter = new Emitters.Dust();
+						break;
+					case 'snow':
+						this.weather_emitter = new Emitters.Snow();
+						break;
+				}
+
+				this.emitters.push( this.weather_emitter );
+			}
+			else
+				this.weather_emitter = null;
 
 			this.ready = true;
 
@@ -260,7 +277,8 @@ namespace Renderer {
 					this.GUI.update( this.focused, delta );
 				this.updateCamera(delta);
 
-				this.dust_emitter.update(delta, this.camera);
+				if(this.weather_emitter !== null)
+					this.weather_emitter.update(delta, this.camera);
 			}
 
 			//GRAPHICS.clear(255/256, 144/256, 156/256);

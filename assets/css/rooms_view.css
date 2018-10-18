@@ -175,7 +175,8 @@
 	overflow-y: auto;
 	overflow-x: visible;
 	height: auto;
-	max-height: 50vh;
+	/*max-height: 50vh;*/
+	max-height: 470px;
 	width: 100%;
 	max-width: 600px;
 	text-align: center;
@@ -235,7 +236,7 @@
 	height: 150px;
 	display: block;
 	border-radius: 5px;
-	opacity: 0.66;
+	/*opacity: 0.66;*/
 }
 
 /* SETTINGS INFO PANEL */
