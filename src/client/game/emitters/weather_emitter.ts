@@ -28,14 +28,14 @@ namespace Emitter {
 				this.data[i*vals + 0] += this.velocities_data[i*2+0] * delta;
 				this.data[i*vals + 1] += this.velocities_data[i*2+1] * delta;
 
-				if(this.data[i*vals + 0] > aspect + camera.x)
-					this.data[i*vals + 0] -= aspect * 2.0;
-				if(this.data[i*vals + 0] < -aspect + camera.x)
-					this.data[i*vals + 0] += aspect * 2.0;
-				if(this.data[i*vals + 1] > 1.0 + camera.y)
-					this.data[i*vals + 1] -= 2.0;
-				if(this.data[i*vals + 1] < -1.0 + camera.y)
-					this.data[i*vals + 1] += 2.0;
+				if( this.data[i*vals + 0] > camera.x + aspect/camera.z )
+					this.data[i*vals + 0] -= aspect/camera.z * 2.0;
+				if( this.data[i*vals + 0] < camera.x -aspect/camera.z )
+					this.data[i*vals + 0] += aspect/camera.z * 2.0;
+				if( this.data[i*vals + 1] > camera.y + 1.0/camera.z )
+					this.data[i*vals + 1] -= 2.0/camera.z;
+				if( this.data[i*vals + 1] < camera.y - 1.0/camera.z )
+					this.data[i*vals + 1] += 2.0/camera.z;
 			}
 		}
 	}
