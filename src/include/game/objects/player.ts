@@ -46,10 +46,6 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 		PENTAGON: 2
 	};
 
-	const SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
-	const SHIP_LVL_REQUIREMENTS = [1, 3, 6];//level required to be able to use ship
-	const SHIP_COSTS = [0, 500, 3000];//coins required to buy ship
-
 	//array of sensor shapes with order corresponding to player TYPES
 	const PLAYER_SENSOR_SHAPES: number[][][] = [
 		_Sensor_.SHAPES.TRIANGLE, _Sensor_.SHAPES.SQUARE, _Sensor_.SHAPES.PENTAGON
@@ -69,6 +65,10 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 	
 	//(typeof module !== 'undefined' ? _Object2D_ : _Object2DSmooth_)
 	return class Player extends _ExtendClass_ {
+		public static SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
+		public static SHIP_LVL_REQUIREMENTS = [1, 3, 6];//level required to be able to use ship
+		public static SHIP_COSTS = [0, 500, 3000];//coins required to buy ship
+
 		public user_id: number;
 		public nick: string;
 		public level: number;
@@ -266,7 +266,7 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 		//}
 		public static TYPES = TYPES;
 
-		static get SHIP_NAMES() {
+		/*static get SHIP_NAMES() {
 			return SHIP_NAMES;
 		}
 
@@ -276,7 +276,7 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 
 		static get SHIP_LVL_REQUIREMENTS() {
 			return SHIP_LVL_REQUIREMENTS;
-		}
+		}*/
 
 		static entityName(type_i: number, color: ColorsScope.ColorI) {
 			return 'PLAYER_' + type_i + '_' + _Colors_.PLAYERS_COLORS.indexOf(color);

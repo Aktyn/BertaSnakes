@@ -1,6 +1,7 @@
 ///<reference path="utils.ts"/>
 ///<reference path="../engine/assets.ts"/>
 ///<reference path="../../include/game/common/skills.ts"/>
+///<reference path="../../include/game/objects/player.ts"/>
 
 interface SkillSlotSchema {
 	setSkill(skill: SkillsScope.SkillData | null): void;
@@ -194,8 +195,12 @@ const WIDGETS_CREATOR = (function() {
 
 			let panel = $$.create('DIV').setClass('panel');
 
+			let texture_source = ASSETS.getTexture(skill.texture_name).getAttribute('src');
+			if(texture_source === null)
+				throw "Texture has no source attribute";
+				
 			let skill_preview = $$.create('IMG')
-				.setAttrib( 'src', ASSETS.getTexture(skill.texture_name).getAttrib('src') );	
+				.setAttrib( 'src', texture_source );	
 
 			/*let skill_description = */this.createDescription(
 				createSkillDescriptionHTML(skill, !short_description), skill_preview);
@@ -289,9 +294,13 @@ const WIDGETS_CREATOR = (function() {
 						// skill = Object.values(Skills).find(s => typeof s==='object' && s.id===skill);
 					}
 
+					let texture_source = ASSETS.getTexture(skill.texture_name).getAttribute('src');
+
+					if(texture_source === null)
+						throw "Texture has no source";
+
 					wearing_skill = skill;
-					skill_preview.setAttrib('src', 
-						ASSETS.getTexture(skill.texture_name).getAttrib('src'));
+					skill_preview.setAttrib('src', texture_source);
 					slot.getChildren('BUTTON').setStyle({'display': 'initial'});
 
 					if(skill_description !== null)

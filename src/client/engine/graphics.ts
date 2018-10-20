@@ -119,11 +119,18 @@ namespace GRAPHICS {
 		return (n & (n - 1)) === 0;
 	}
 
-	function stitchTextureObject(texture: WebGLTexture) {
+	export interface ExtendedTexture {
+		webgl_texture: WebGLTexture;
+		update(pixels: TexImageSource, linear: boolean): void;
+		bind(): void;
+		destroy(): void;
+	}
+
+	function stitchTextureObject(texture: WebGLTexture): ExtendedTexture {
 		return {
       		webgl_texture: texture,
       		//fb: null,//framebuffer
-      		update: function(pixels: TexImageSource, linear: boolean) {
+      		update: function(pixels, linear) {
       			this.bind();
       			
       			// console.time("texture update test");
@@ -161,7 +168,7 @@ namespace GRAPHICS {
 		/*createFromCanvas: function(canvas, linear) {
 			return this.createFromIMG(canvas, linear);
 		},*/
-		createFrom: function(image: ImageData, linear = true) {
+		createFrom: function(image: ImageData | HTMLCanvasElement | HTMLImageElement, linear = true) {
 			var texture = GL.createTexture();
 			if(texture === null)
 				throw "Cannot create WebGLTexture";

@@ -15,9 +15,9 @@ interface SettingsI {
 const SETTINGS = (function() {
 	var self: SettingsI = {//DEFAULT SETTINGS VALUES
 		//GAME
-		game_panel_auto_hide: false,
+		game_panel_auto_hide: true,
 		weather_particles: true,
-		painter_resolution: 'MEDIUM',
+		painter_resolution: 'HIGH',//'LOW', 'MEDIUM', 'HIGH'
 		shadows_type: 'LONG',
 		
 		//MENU

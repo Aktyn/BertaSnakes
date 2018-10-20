@@ -2,7 +2,7 @@
 
 import * as crypto from 'crypto';
 import Email from './email';
-import DatabaseUtils, {UserInfoI} from './../database_utils';
+import DatabaseUtils, {UserInfoI, THREAD_CATEGORY} from './../database_utils';
 
 const ROWS_PER_PAGE = 20;//users ranking page
 
@@ -464,6 +464,16 @@ export default {//Actions
 		if(user_session.length < 1)
 			return sendResponse(resp, {result: 'NO_SESSION'});
 
+		let thread_category = await DatabaseUtils.getThreadCategory((req.body.thread || 0));
+		if(thread_category === null)
+			return sendResponse(resp, {result: 'ERROR'});
+
+		if(thread_category == THREAD_CATEGORY.NEWS) {
+			let is_admin = await isAdmin(req);
+			if( is_admin === false)
+				return sendResponse(resp, {result: 'INSUFFICIENT_PERMISSIONS'});
+		}
+
 		//incrementing post number in thread record
 		DatabaseUtils.onPostCreated( (req.body.thread || 0) );
 
@@ -477,6 +487,12 @@ export default {//Actions
 		if(validateText(req.body.subject, 256) === false || validateText(req.body.content) === false)
 			return sendResponse(resp, {result: 'ERROR'});
 
+		if(req.body.category == THREAD_CATEGORY.NEWS) {
+			let is_admin = await isAdmin(req);
+			if( is_admin === false)
+				return sendResponse(resp, {result: 'INSUFFICIENT_PERMISSIONS'});
+		}
+		
 		//checking if user is logged in
 		const session_key = getUserSessionKey(req);
 		let user_session = await DatabaseUtils.checkSession(session_key);
@@ -549,26 +565,7 @@ export default {//Actions
 	/* jshint ignore:end */
 
 	get_latest_news: (req: any, resp: any) => {
-		DatabaseUtils.customQuery(
-			"SELECT \
-			    `threads`.`id` AS `thread_id`, `threads`.`subject`, `threads`.`time`, `posts`.`content`\
-			FROM\
-			    `BertaBall`.`threads`\
-			        JOIN\
-			    `BertaBall`.`posts` ON `posts`.`id` = (SELECT \
-			            `posts`.`id`\
-			        FROM\
-			            `BertaBall`.`posts`\
-			        WHERE\
-			            `posts`.`thread_id` = `threads`.`id`\
-			        ORDER BY `posts`.`id` ASC\
-			        LIMIT 1)\
-			WHERE\
-			    `category` = 1\
-			ORDER BY \
-				`threads`.`time` DESC\
-			LIMIT 10;"
-		).then(res => {
+		DatabaseUtils.getLatestNews().then(res => {
 		    let response: any = {
 				result: 'SUCCESS',
 				NEWS: []

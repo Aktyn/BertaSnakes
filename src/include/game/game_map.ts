@@ -14,12 +14,12 @@
 namespace GameMap {
 	try {
 		var _PaintLayer_: typeof PaintLayer = require('./paint_layer');
-		var _Vector_: typeof VectorScope.Vector = require('./../utils/vector');
-		var _Object2D_: typeof Object2D = require('./../game/objects/object2d');
+		//var _Vector_: typeof VectorScope.Vector = require('./../utils/vector');
+		//var _Object2D_: typeof Object2D = require('./../game/objects/object2d');
 	}
 	catch(e) {
-		var _Object2D_ = Object2D;
-		var _Vector_ = Vector;
+		//var _Object2D_ = Object2D;
+		//var _Vector_ = Vector;
 		var _PaintLayer_ = PaintLayer;
 	}
 
@@ -30,7 +30,7 @@ namespace GameMap {
 	var ui: number, obji: number, temp_arr: Object2D[];
 
 	export class Map extends _PaintLayer_.Layer {
-		public background: VectorScope.Vector;
+		//public background: VectorScope.Vector;
 
 		public players: Object2D[] = [];
 		public enemies: Object2D[] = [];
@@ -48,7 +48,7 @@ namespace GameMap {
 		constructor() {
 			super();
 
-			this.background = new _Vector_.Vec3f(1, 1, 1);
+			//this.background = new _Vector_.Vec3f(1, 1, 1);
 
 			this.updatables = [//contains array that contains objects with update(delta) method
 				this.players, 			this.enemies, 
@@ -108,13 +108,13 @@ namespace GameMap {
 
 		loadMap(map: MapJSON_I) {//synchronous
 			try {
-				console.log('(' + map.name + ') map data:', map.data);
-				if(map.data === null)
-					throw "No map data";
+				console.log('(' + map['name'] + ') map data:', map);
+				//if(map.data === null)
+				//	throw "No map data";
 
-				this.size = map.data['size'] || 5;//default
-				if(map.data['background_color'])
-					this.background.set( ...map.data['background_color'].map(v => v/256) );
+				this.size = map['map_size'];// || 5;//default
+				//if(map.data['background_color'])
+				//	this.background.set( ...map.data['background_color'].map(v => v/256) );
 
 				super.generateChunks();
 
@@ -122,7 +122,7 @@ namespace GameMap {
 				super.drawWalls( DEFAULT_WALLS_SIZE );//TODO - make it modifable from map file
 
 				//placing entities
-				Object.keys(map.data.entities).forEach(key => {//for each entity
+				/*Object.keys(map.data.entities).forEach(key => {//for each entity
 					//@ts-ignore
 					map.data.entities[key].forEach(obj_data => {//for each object
 						var obj = new _Object2D_().setPos(obj_data.x || 0, obj_data.y || 0)
@@ -135,7 +135,7 @@ namespace GameMap {
 							Entities.addObject(Entities[key].id, obj);
 						}
 					});
-				});
+				});*/
 
 				return true;
 			}

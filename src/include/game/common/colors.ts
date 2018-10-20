@@ -22,7 +22,7 @@ namespace ColorsScope {
 		PLAYERS_COLORS: ColorI[];
 		WHITE: ColorI;
 		BLACK: ColorI;
-		WALLS: ColorI;
+		//WALLS: ColorI;
 		SAFE_AREA: ColorI;
 		ENEMY_SPAWN: ColorI;
 		POISON: ColorI;
@@ -45,29 +45,32 @@ namespace ColorsScope {
 		WHITE: 	gen(255, 255, 255),
 		BLACK: 	gen(0, 0, 0),
 
-		WALLS: 		gen(156, 185, 237),
+		//WALLS: 		gen(255, 255, 255),//156, 185, 237
 		SAFE_AREA: 	gen(96, 255, 96),
 		ENEMY_SPAWN:gen(245, 68, 55),
 		POISON:		gen(178, 204, 101),
 		HEALTH_BAR: gen(229, 115, 104),
-		IMMUNITY_AUREOLE: gen(255, 255, 59)
+		IMMUNITY_AUREOLE: gen(255, 255, 59),
 	};
 
 	interface ColorsSchema extends PaletteSchema {
-		compareByteBuffers: any;
-		isPlayerColor: any; 
+		compareByteBuffers(buff1: Uint8Array | number[], buff2: Uint8Array | number[]): boolean;
+		isPlayerColor(buff: Uint8Array | number[]): boolean;
+		gen(r: number, g: number, b: number): ColorI;
+
+		//[index: string]: Function | ColorI | ColorI[];
 	}
 
 	export var Colors: ColorsSchema = {//utils methods
 		//NOTE - alpha value does not matter
-		compareByteBuffers: function(buff1: Uint8Array, buff2: Uint8Array) {
+		compareByteBuffers: function(buff1, buff2) {
 			for(i=0; i<3; i++) {
-				if(buff1[i] != buff2[i])
+				if(buff1[i] !== buff2[i])
 					return false;
 			}
 			return true;
 		},
-		isPlayerColor: function(buff: Uint8Array) {
+		isPlayerColor: function(buff) {
 			for(var player_col_i=0; player_col_i<(<ColorI[]>PALETTE.PLAYERS_COLORS).length; 
 				player_col_i++) 
 			{
@@ -77,6 +80,7 @@ namespace ColorsScope {
 			}
 			return false;
 		},
+		gen: gen,
 
 		PLAYERS_COLORS: PALETTE.PLAYERS_COLORS,//TODO - check for duplicate
 

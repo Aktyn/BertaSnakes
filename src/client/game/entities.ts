@@ -35,7 +35,7 @@ var Entities = (function() {
 	interface EntityObjectSchema {
 		layer: LAYERS;
 		color: Float32Array;
-		texture: any;//TODO <-- type
+		texture: GRAPHICS.ExtendedTexture;//TODO <-- type
 		objects: Object2D[];
 	}
 
@@ -159,9 +159,9 @@ var Entities = (function() {
 				this.entities.push({
 					layer: data.layer !== undefined ? data.layer : DEFAULT_LAYER,
 					color: data.color || DEFAULT_COLOR,
-					//@ts-ignore
+					
 					texture: GRAPHICS.TEXTURES.createFrom(
-						<ImageData><unknown>ASSETS.getTexture( data.texture_name ), 
+						ASSETS.getTexture( data.texture_name ), 
 						data.linear === undefined ? DEFAULT_FILTERING : data.linear 
 					),
 					objects: []

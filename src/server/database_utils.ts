@@ -1,6 +1,4 @@
 const MySQL = require('mysql');
-
-//import * as fs from 'fs';
 /* jshint multistr:true */
 
 
@@ -12,22 +10,21 @@ enum STATUS {
 
 var status = STATUS.PENDING;
 
-//var prompt = require('prompt-sync')();
+var prompt = require('prompt-sync')();
+
 var mysql_pass = process.env.npm_config_mysqlpass;
 if(!mysql_pass) {
-	console.error('You must specify mysql password adding --mysqlpass=PASSWORD to console npm command');
-	console.log('Trying to log in with empty password');
-	mysql_pass = '';
-	//process.exit();
+	try {//ask user to type password in console
+		mysql_pass = prompt('MySQL password: ');
+	}
+	catch(e) {
+		console.error(
+			'Cannot prompt user for email password since server is running in nodemon');
+		console.error(
+			'You must specify mysql password adding --mysqlpass=PASSWORD to console npm command');
+		process.exit();
+	}
 }
-/*try {
-	mysql_pass = prompt('MySQL password: ');
-}
-catch(e) {
-	console.error('Cannot prompt user for mysql password since server is running in nodemon');
-	//read this from private file (dev mode)
-	mysql_pass = fs.readFileSync('mysql_pass.txt', 'utf8');
-}*/
 
 var connection = MySQL.createConnection({
 	host: "localhost",
@@ -105,6 +102,20 @@ export interface PostInfoI {
 	nickname: string;
 	content: string;
 	time: string;
+}
+
+export interface NewsInfoI {
+	thread_id: number;
+	subject: string;
+	time: string;
+	content: string;
+}
+
+export enum THREAD_CATEGORY {
+	NEWS = 1,
+	GENERAL = 2,
+	HELP = 3,
+	BUGS = 4
 }
 
 const self = {
@@ -206,6 +217,12 @@ const self = {
 		self.customQuery("UPDATE `threads` SET `total_posts` = `total_posts` + 1, `last_post_time` = '" + UTILS.currentTime() + "' WHERE `id` = " + 
 			thread_id + ";"),
 
+	getThreadCategory: (thread_id: number) =>
+		<Promise<THREAD_CATEGORY | null>>self.customQuery("SELECT `threads`.`category`\
+			FROM `BertaBall`.`threads`\
+			WHERE threads.id = " + thread_id + " LIMIT 1;")
+		.then(res => res.length > 0 ? Number(res[0].category) : null),
+
 	getThreads: (category: number, page_id: number, rows_per_page: number) =>
 		<Promise<ThreadsInfoI[]>>self.customQuery("(SELECT `threads`.*, `users`.`nickname` FROM `threads` \
 			INNER JOIN `users` ON `threads`.`author_id` = `users`.`id` \
@@ -228,6 +245,29 @@ const self = {
 			UNION \
 			(SELECT COUNT(*), NULL, NULL, NULL, NULL, NULL FROM `BertaBall`.`posts` \
 			WHERE `thread_id` = " + thread_id + ");"),
+
+	getLatestNews: () =>
+		<Promise<NewsInfoI[]>>self.customQuery("SELECT \
+			    `threads`.`id` AS `thread_id`,\
+			    `threads`.`subject`,\
+			    `posts`.`time`,\
+			    `posts`.`content`\
+			FROM\
+			    `BertaBall`.`threads`\
+			        JOIN\
+			    `BertaBall`.`posts` ON `posts`.`id` = (SELECT \
+			            `posts`.`id`\
+			        FROM\
+			            `BertaBall`.`posts`\
+			        WHERE\
+			            `posts`.`thread_id` = `threads`.`id`\
+			        ORDER BY `posts`.`id` DESC\
+			        LIMIT 1)\
+			WHERE\
+			    `category` = 1\
+			ORDER BY \
+				`posts`.`time` DESC\
+			LIMIT 10;"),
 
 	addPost: (author_id: number, thread_id: number, content: string) =>
 		self.customQuery("INSERT INTO `posts` (`author_id`, `thread_id`, `time`, `content`) \

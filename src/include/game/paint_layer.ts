@@ -41,6 +41,7 @@ namespace PaintLayer {
 
 	export class Layer {
 		public static CHUNK_SIZE = 0.25;
+		public walls_color = _Colors_.gen(255, 255, 255);
 
 		private _color = '#fff';
 
@@ -280,10 +281,12 @@ namespace PaintLayer {
 
 		paintMapWalls(map: MapJSON_I) {//synchronous function
 			//this.color = Colors.WALLS.hex;
-			if(map.data === null)
-				throw "No map data found";
+			//if(map.data === null)
+			//	throw "No map data found";
+			let cc = map['walls_color'];
+			this.walls_color = _Colors_.gen(cc[0], cc[1], cc[2]);
 				
-			var smooth = map.data['smooth_texture'] || false;//image smoothing during scale
+			var smooth = map['smooth_walls'];// || false;//image smoothing during scale
 
 			let map_canvas: HTMLCanvasElement;
 			if(typeof module === 'undefined') {
@@ -315,13 +318,13 @@ namespace PaintLayer {
 			//if(map.image)
 			//	console.log(map.image.width);
 
-			if(map.image !== null)
-				map_ctx.drawImage(map.image, 0, 0, map_canvas.width, map_canvas.height);
+			//if(map['walls_texture'] !== null) //20.10.2018
+			map_ctx.drawImage(map['walls_texture'], 0, 0, map_canvas.width, map_canvas.height);
 
 			var canvasData = map_ctx.getImageData(0, 0, map_canvas.width, map_canvas.height),
 		     	pix = canvasData.data;
 
-		    var cbuff = _Colors_.WALLS.byte_buffer;
+		    var cbuff = this.walls_color.byte_buffer;//_Colors_.WALLS.byte_buffer;
 		    for(var i=0, n=pix.length; i<n; i+=4) {
 		        pix[i+3] = pix[i];
 		        pix[i+0] = cbuff[0];
@@ -368,7 +371,7 @@ namespace PaintLayer {
 
 		//draw walls on edges so players cannot escape map area
 		drawWalls(thickness: number, restrict?: number, prevent_chunks_update = false) {
-			this.color = _Colors_.WALLS.hex;
+			this.color = this.walls_color.hex;//_Colors_.WALLS.hex;
 			this.walls_thickness = thickness;
 
 			if(restrict === undefined)
@@ -419,7 +422,7 @@ namespace PaintLayer {
 			this.spawn_radius = radius;
 			this.spawn_thickness = thickness;
 
-			this.color = _Colors_.WALLS.hex;
+			this.color = this.walls_color.hex;//_Colors_.WALLS.hex;
 			this.drawCircle(0, 0, radius, prevent_chunks_update);
 
 			//this.paintHole(0, 0, radius - thickness);

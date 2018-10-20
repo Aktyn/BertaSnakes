@@ -39,9 +39,13 @@ function createSkillButton(texture_name: string, key: number | string,
 	let cooldown_timer = $$.create('DIV').addClass('cooldown').setStyle({'display': 'none'});
 	//.setText('')
 
+	let texture_source = ASSETS.getTexture(texture_name).getAttribute('src');
+	if(texture_source === null)
+		throw "Texture has no source";
+
 	let widget = $$.create('SPAN').addClass('skill_button').addChild(
 		main_part.addChild(
-			$$.create('IMG').setAttrib( 'src', ASSETS.getTexture(texture_name).getAttrib('src') )
+			$$.create('IMG').setAttrib( 'src', texture_source )
 		).addChild(
 			cooldown_timer
 		)

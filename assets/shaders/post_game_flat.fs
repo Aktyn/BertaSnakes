@@ -4,9 +4,14 @@ varying vec2 vUV;
 
 uniform sampler2D scene_pass;
 uniform sampler2D curves_pass;
-uniform vec3 background_color;//background color
+uniform sampler2D background_texture;
+uniform float background_scale;
+uniform float aspect;
+uniform vec3 camera;
+// uniform vec3 background_color;//background color
 uniform vec2 offset;//normalized flipped resolution
-uniform float shadow_length;
+// uniform float shadow_length;//10-03-2018 => changed from constant to uniform
+// uniform float zoom_factor;
 
 #define SHADOW_TRANSPARENCY 0.15//0.15
 #define SAMPLES 20
@@ -26,7 +31,7 @@ void main() {
         return;
     }
 
-    vec2 paralax = 0.1 * shadow_length * offset * 
+    vec2 paralax = 0.01 * camera.z * offset * //0.01 - as 0.1*0.1
         vec2(-(vUV.x * 2.0 - 1.0), vUV.y * 2.0 - 1.0) * PARALAX_VALUE;
 
     float STEP = 1.0 / SAMPLESf;
@@ -59,8 +64,15 @@ void main() {
     }
     scene.rgb *= darkness_factor;
     scene.a = sh;
-    
-    float shadow = combined(vUV + paralax+offset*shadow_length*0.1).a * SHADOW_TRANSPARENCY - scene.a;
 
-    gl_FragColor = vec4(mix(background_color * (1.-shadow), scene.rgb, scene.a), 1.);
+    float shadow = combined(vUV + paralax+offset*camera.z*0.01).a * SHADOW_TRANSPARENCY - scene.a;
+
+    vec2 tile_coord = vec2(
+        fract( ((vUV.x-0.5)*aspect / camera.z + (camera.x+background_scale)/2.0)/background_scale ), 
+        fract( ((vUV.y-0.5) / camera.z + (camera.y+background_scale)/2.0)/background_scale )
+    );
+
+    vec3 background_tex = texture2D(background_texture, tile_coord, -5.0).rgb;
+
+    gl_FragColor = vec4(mix(background_tex * (1.-shadow), scene.rgb, scene.a), 1.);
 }

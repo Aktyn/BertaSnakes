@@ -106,7 +106,7 @@ class GAME_STAGE extends Stage {
 	private game?: ClientGame.Game;
 
 	constructor()  {
-		GamePanel
+		//GamePanel
 		super();
 		console.log('GAME_STAGE');
 

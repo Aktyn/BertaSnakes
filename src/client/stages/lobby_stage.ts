@@ -38,8 +38,8 @@ class LOBBY_STAGE extends Stage {
 		
 		$$(document.body).addChild( body_grid.addChild([header, content_l, content_r, chat_widget]) );
 
-		content_l.addChild( this.rooms_list.createWidget() );
-		content_r.addChild( this.room_view.createWidget() );
+		content_l.addChild( this.rooms_list.widget );
+		content_r.addChild( this.room_view.widget );
 
 		//header notifications
 		header.addChild( this.notifications.widget );
@@ -143,7 +143,7 @@ class LOBBY_STAGE extends Stage {
 	}
 
 	onServerMessage(data: NetworkPackage) {//JSON message
-		// console.log(Object.keys(NetworkCodes).find((key,i)=>i===data.type), data);
+		//console.log(data, NetworkCodes);
 		
 		try {
 			switch(data['type']) {

@@ -363,6 +363,7 @@ main {
 
 .homepage .news_entry > h2 > a {
 	justify-self: right;
+	margin-right: 5px;
 }
 
 .homepage .news_entry > section {

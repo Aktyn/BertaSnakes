@@ -1,18 +1,14 @@
 //MAP SETTINGS:
 
-size: 5, //size of map (non whole numbers may cause incorrect map size), NOTE - set no more than 10 (mem)
-background_color: [128, 203, 196], //RGB
-smooth_texture: true,
-use_svg: true,
+map_size: 5,
 
-weather: "snow",
+walls_image: "Snowflake.svg",
+walls_color: [178, 235, 242],//200, 240, 255
+smooth_walls: true,
 
-entities: {
-	//items
-	//ENERGY_ITEM: [
-	//	{	x: 1.2, y: -0.32, scale: 0.2, rot: 0	}, 
-	//	{	x: -1.2, y: 0.22, scale: 0.2, rot: 0	}
-	//]
-}
+background_image: "bg1.png",
+smooth_background: true,
 
-//ENTITIES FORMAT: 
+background_scale: 5,//5
+
+weather: "snow"

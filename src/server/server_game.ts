@@ -15,7 +15,7 @@
 namespace ServerGame {
 	try {
 		var _RoomInfo_: typeof RoomInfo = require('./../include/room_info');
-		var GameCore = require('./../include/game/game_core');
+		var _GameCore_: typeof GameCore = require('./../include/game/game_core');
 		var Colors = require('./../include/game/common/colors');
 		var Vector = require('./../include/utils/vector');
 		var Item = require('./../include/game/objects/item');
@@ -46,7 +46,7 @@ namespace ServerGame {
 
 	const RESPAWN_DURATION = 3;//seconds
 
-	//damages (moved to GameCore.PARAMS)
+	//damages (moved to _GameCore_.PARAMS)
 	//const ENEMY_COLLISION_DAMAGE = 0.2;
 
 	//predefined bullets spawn offsets relative to player for each player type
@@ -61,7 +61,7 @@ namespace ServerGame {
 		async_s, r_p_i: number,//e_h, e_h2
 		hit_x: number, hit_y: number, offsets, sin: number, cos: number, synch_array;
 
-	let emitAction = (action: NetworkCodes, data?: any) => {
+	let emitAction = (action: number, data?: any) => {
 		try {
 			//@ts-ignore
 			process.send( {action: action, data: data} );
@@ -119,14 +119,15 @@ namespace ServerGame {
 		};
 	})();
 
-	export class Class extends GameCore {
+	//@ts-ignore
+	export class Class extends _GameCore_ {
 		private room: RoomInfo;
 		public running: boolean;
 		//private duration: number;
 		private maximum_enemies: number;
 		private bounceVec: VectorScope.Vector;
 		private respawning_players: {player: typeof Player.prototype, time: number}[] = [];
-		private dataForClients: (number | NetworkCodes)[] = [];
+		private dataForClients: number[] = [];
 		public initialized: boolean;
 
 		private time_to_enemy_wave = 0;
@@ -315,10 +316,11 @@ namespace ServerGame {
 			if(Colors.compareByteBuffers(player.painter.color.byte_buffer, color) === true)
 				return;
 
-			if(Colors.compareByteBuffers(Colors.WALLS.byte_buffer, color) === true) {
+			//this.walls_color.byte_buffer
+			if(Colors.compareByteBuffers(this.walls_color.byte_buffer, color) === true) {
 				if(player.spawning === true) {//pushing out of safe area and finishing spawning
 					this.bounceVec.set(player.x, player.y).normalize().scaleBy(
-						GameCore.PARAMS.spawn_radius + GameCore.PARAMS.spawn_walls_thickness);
+						_GameCore_.PARAMS.spawn_radius + _GameCore_.PARAMS.spawn_walls_thickness);
 					player.setPos(this.bounceVec.x, this.bounceVec.y);
 
 					player.spawning = false;
@@ -357,7 +359,7 @@ namespace ServerGame {
 		}
 
 		onEnemyPainterCollision(enemy: typeof Enemy.prototype, color: Uint8Array) {
-			if(Colors.compareByteBuffers(Colors.WALLS.byte_buffer, color) === true) {
+			if(Colors.compareByteBuffers(this.walls_color.byte_buffer, color) === true) {
 				this.enemyBounce(enemy, color);
 			}
 		}
@@ -367,7 +369,7 @@ namespace ServerGame {
 			if(Colors.compareByteBuffers(bullet.color.byte_buffer, color) === true)
 				return;
 
-			if( Colors.compareByteBuffers(Colors.WALLS.byte_buffer, color) || 
+			if( Colors.compareByteBuffers(this.walls_color.byte_buffer, color) || 
 				Colors.compareByteBuffers(Colors.POISON.byte_buffer, color) ||
 				Colors.isPlayerColor(color)) 
 			{
@@ -379,7 +381,7 @@ namespace ServerGame {
 					hit_x = bullet.x + Math.cos(fixAngle(bullet.rot)) * bullet.width;
 					hit_y = bullet.y + Math.sin(fixAngle(bullet.rot)) * bullet.height;
 
-					super.paintHole(hit_x, hit_y, GameCore.PARAMS.bullet_explosion_radius);
+					super.paintHole(hit_x, hit_y, _GameCore_.PARAMS.bullet_explosion_radius);
 
 					bullet.expired = true;
 					
@@ -400,17 +402,17 @@ namespace ServerGame {
 			if( player.effects.isActive(Effects.TYPES.SHIELD) === false && 
 				player.effects.isActive(Effects.TYPES.SPAWN_IMMUNITY) === false ) 
 			{
-				player.hp -= GameCore.PARAMS.enemy_collision_damage;//ENEMY_COLLISION_DAMAGE;
-				player.points -= GameCore.PARAMS.points_lose_for_enemy_collision;
+				player.hp -= _GameCore_.PARAMS.enemy_collision_damage;//ENEMY_COLLISION_DAMAGE;
+				player.points -= _GameCore_.PARAMS.points_lose_for_enemy_collision;
 			}
 
 			//do not move player - prevents from jumping outside walls
-			//player.x += this.bounceVec.x * GameCore.PARAMS.explosion_radius * 0.5;
-			//player.y += this.bounceVec.y * GameCore.PARAMS.explosion_radius * 0.5;
+			//player.x += this.bounceVec.x * _GameCore_.PARAMS.explosion_radius * 0.5;
+			//player.y += this.bounceVec.y * _GameCore_.PARAMS.explosion_radius * 0.5;
 
 			var xx = player.x - this.bounceVec.x * player.width;
 			var yy = player.y - this.bounceVec.y * player.height;
-			super.paintHole( xx, yy, GameCore.PARAMS.explosion_radius );
+			super.paintHole( xx, yy, _GameCore_.PARAMS.explosion_radius );
 
 			//enemy dies on hit with player
 			enemy.expired = true;
@@ -459,9 +461,9 @@ namespace ServerGame {
 
 			var damage = 0;
 			if(bullet.bouncing)
-				damage = GameCore.PARAMS.player_to_bouncing_bullet_receptivity;
+				damage = _GameCore_.PARAMS.player_to_bouncing_bullet_receptivity;
 			else
-				damage = GameCore.PARAMS.player_to_bullet_receptivity;
+				damage = _GameCore_.PARAMS.player_to_bullet_receptivity;
 
 			this.onPlayerAttackedPlayer(<typeof Player.prototype>bullet.parent, player, damage);
 
@@ -478,9 +480,9 @@ namespace ServerGame {
 
 			var damage = 0;
 			if(bullet.bouncing)
-				damage = GameCore.PARAMS.enemy_to_bouncing_bullet_receptivity;
+				damage = _GameCore_.PARAMS.enemy_to_bouncing_bullet_receptivity;
 			else
-				damage = GameCore.PARAMS.enemy_to_bullet_receptivity;
+				damage = _GameCore_.PARAMS.enemy_to_bullet_receptivity;
 
 			this.onPlayerAttackedEnemy(<typeof Player.prototype>bullet.parent, enemy, damage);
 
@@ -518,8 +520,8 @@ namespace ServerGame {
 			if(player.effects.isActive(Effects.TYPES.SHIELD) === false && 
 				player.effects.isActive(Effects.TYPES.SPAWN_IMMUNITY) === false)
 			{
-				player.points -= GameCore.PARAMS.points_lose_for_enemy_painter_collision;
-				player.hp -= GameCore.PARAMS.enemy_painter_collision_damage;
+				player.points -= _GameCore_.PARAMS.points_lose_for_enemy_painter_collision;
+				player.hp -= _GameCore_.PARAMS.enemy_painter_collision_damage;
 				if(player.hp < 0.01)
 					player.hp = 0.01;
 			}
@@ -528,7 +530,7 @@ namespace ServerGame {
 			this.dataForClients.push(NetworkCodes.ON_PLAYER_ENEMY_PAINTER_COLLISION, 
 				this.players.indexOf(player), player.x, player.y, player.hp, player.points);
 
-			super.paintHole( player.x, player.y, GameCore.PARAMS.small_explosion_radius );
+			super.paintHole( player.x, player.y, _GameCore_.PARAMS.small_explosion_radius );
 		}
 
 		onPlayerDeath(player: typeof Player.prototype, explosion_radius: number) {
@@ -537,7 +539,7 @@ namespace ServerGame {
 
 			if(explosion_radius > 0)
 				super.paintHole( player.x, player.y, explosion_radius );
-			//GameCore.PARAMS.small_explosion_radius
+			//_GameCore_.PARAMS.small_explosion_radius
 
 			super.drawDeathMark( player.x, player.y, player.painter.color );
 
@@ -564,13 +566,13 @@ namespace ServerGame {
 				this.players.indexOf(victim), victim.hp, victim.x, victim.y
 			);
 
-			attacker.points += damage * GameCore.PARAMS.points_for_player_damage;
+			attacker.points += damage * _GameCore_.PARAMS.points_for_player_damage;
 
 			if(victim.isAlive() === false) {
-				this.onPlayerDeath(victim, GameCore.PARAMS.explosion_radius);
+				this.onPlayerDeath(victim, _GameCore_.PARAMS.explosion_radius);
 
 				attacker.kills++;
-				attacker.points += GameCore.PARAMS.points_for_player_kill;
+				attacker.points += _GameCore_.PARAMS.points_for_player_kill;
 			}
 		}
 
@@ -586,15 +588,15 @@ namespace ServerGame {
 			);
 
 			if(this.room.gamemode === _RoomInfo_.MODES.COOPERATION)
-				player.points += damage * GameCore.PARAMS.points_for_enemy_damage;
+				player.points += damage * _GameCore_.PARAMS.points_for_enemy_damage;
 
 			if(enemy.isAlive() === false) {//enemy was killed
 				enemy.expired = true;
-				super.paintHole( enemy.x, enemy.y, GameCore.PARAMS.explosion_radius );
+				super.paintHole( enemy.x, enemy.y, _GameCore_.PARAMS.explosion_radius );
 					
 				if(this.room.gamemode === _RoomInfo_.MODES.COOPERATION) {	
 					player.kills++;
-					player.points += GameCore.PARAMS.points_for_enemy_kill;
+					player.points += _GameCore_.PARAMS.points_for_enemy_kill;
 				}
 			}
 			//else {//enemy was hitted but not killed (cooperation only)
@@ -603,9 +605,9 @@ namespace ServerGame {
 		}
 
 		onBombExplosion(bomb: typeof Bomb.prototype) {
-			super.paintHole( bomb.x, bomb.y, GameCore.PARAMS.bomb_explosion_radius );
+			super.paintHole( bomb.x, bomb.y, _GameCore_.PARAMS.bomb_explosion_radius );
 
-			const radius_pow = pow( GameCore.PARAMS.bomb_explosion_radius );
+			const radius_pow = pow( _GameCore_.PARAMS.bomb_explosion_radius );
 			
 			for(e_i=0; e_i<this.enemies.length; e_i++) {
 				if((<typeof Enemy.prototype>this.enemies[e_i]).spawning === false && 
@@ -630,11 +632,11 @@ namespace ServerGame {
 		}
 
 		onStain(enemy: typeof Enemy.prototype) {
-			let stain_index = GameCore.getRandomStainIndex();
+			let stain_index = _GameCore_.getRandomStainIndex();
 			super.drawStain( stain_index, enemy.x, enemy.y, enemy.width );
 
 			this.dataForClients.push(NetworkCodes.ON_POISON_STAIN, 
-				stain_index, enemy.x, enemy.y, enemy.width*GameCore.PARAMS.stain_shrink);
+				stain_index, enemy.x, enemy.y, enemy.width*_GameCore_.PARAMS.stain_shrink);
 		}
 
 		initWave() {
@@ -645,7 +647,7 @@ namespace ServerGame {
 				this.dataForClients.push(NetworkCodes.WAVE_INFO, this.wave_number);
 
 				for(wave_i=0; wave_i < ENEMIES_PER_WAVE*this.players.length; wave_i++) {
-					var enemy_class_index = GameCore.getRandomEnemyClassIndex();
+					var enemy_class_index = _GameCore_.getRandomEnemyClassIndex();
 					
 					var enemy = super.spawnEnemy( enemy_class_index );
 					if(enemy === null)
@@ -735,13 +737,13 @@ namespace ServerGame {
 						bullet.x, bullet.y, bullet.rot );
 					break;
 				case Skills.ENERGY_BLAST:
-					// super.paintHole(player.x, player.y, GameCore.PARAMS.energy_blast_radius);
+					// super.paintHole(player.x, player.y, _GameCore_.PARAMS.energy_blast_radius);
 					this.dataForClients.push( 
 						NetworkCodes.ON_ENERGY_BLAST, player.x, player.y, 
 						Colors.PLAYERS_COLORS.indexOf(player.painter.color)
 					);
 
-					const radius_pow = pow( GameCore.PARAMS.energy_blast_radius );
+					const radius_pow = pow( _GameCore_.PARAMS.energy_blast_radius );
 					
 					for(e_i=0; e_i<this.enemies.length; e_i++) {
 						//@ts-ignore
@@ -749,7 +751,7 @@ namespace ServerGame {
 						Vector.distanceSqrt(this.enemies[e_i], player) <= radius_pow ) {
 							this.onPlayerAttackedEnemy(
 								player, <typeof Enemy.prototype>this.enemies[e_i], 
-								GameCore.PARAMS.energy_blast_damage);
+								_GameCore_.PARAMS.energy_blast_damage);
 						}
 					}
 
@@ -760,7 +762,7 @@ namespace ServerGame {
 							Vector.distanceSqrt(this.players[p_i], player) <= radius_pow ) {
 								this.onPlayerAttackedPlayer(
 									player, <typeof Player.prototype>this.players[p_i], 
-									GameCore.PARAMS.energy_blast_damage);
+									_GameCore_.PARAMS.energy_blast_damage);
 							}
 						}
 					}
@@ -778,7 +780,7 @@ namespace ServerGame {
 					this.dataForClients.push( NetworkCodes.ON_SPEED_EFFECT, player_i );
 					break;
 				case Skills.INSTANT_HEAL:
-					player.hp += GameCore.PARAMS.instant_heal_value;
+					player.hp += _GameCore_.PARAMS.instant_heal_value;
 					this.dataForClients.push( NetworkCodes.ON_INSTANT_HEAL, player_i );
 					break;
 				case Skills.BOMB:
@@ -921,7 +923,7 @@ namespace ServerGame {
 
 				//checking if alive
 				if(p_it.isAlive() !== true) {//dead from poison etc
-					this.onPlayerDeath(p_it, GameCore.PARAMS.small_explosion_radius);
+					this.onPlayerDeath(p_it, _GameCore_.PARAMS.small_explosion_radius);
 				}
 
 				//drawing player line segments for each player

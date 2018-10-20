@@ -212,6 +212,9 @@
 					default: 
 						$$('#forum_error').setText('Cannot submit answer');
 						break;
+					case 'INSUFFICIENT_PERMISSIONS':
+						$$('#forum_error').setText('You are not permitted to answer in this category');
+						break;
 					case 'NO_SESSION':
 						$$('#forum_error').setText('You are not logged in');
 						break;
@@ -258,6 +261,10 @@
 				switch(res.result) {
 					default: 
 						$$('#forum_error').setText('Cannot create thread');
+						break;
+					case 'INSUFFICIENT_PERMISSIONS':
+						$$('#forum_error').setText(
+							'You are not permitted to create thread in this category');
 						break;
 					case 'NO_SESSION':
 						$$('#forum_error').setText('You are not logged in');

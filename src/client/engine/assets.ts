@@ -12,7 +12,7 @@ interface AssetsMethods {
 	loaded(): boolean;
 	onload(callback: () => void): void;
 	getShaderSources(name: string): ShaderSourceI;
-	getTexture(name: string): $_face;
+	getTexture(name: string): HTMLCanvasElement | HTMLImageElement;
 }
 
 const ASSETS = (function() {
@@ -20,7 +20,7 @@ const ASSETS = (function() {
 	const TEXTURES_PATH = 'img/textures/';
 
 	var shaders: {[index:string]: ShaderSourceI} = {};
-	var textures: {[index:string]: $_face} = {};
+	var textures: {[index:string]: HTMLCanvasElement | HTMLImageElement} = {};
 
 	var pending = 1;//currently loading resources (0 means loaded)
 	var onLoadCallbacks: (() => void)[] = [];
@@ -48,6 +48,8 @@ const ASSETS = (function() {
 		loadImage('heal_skill', TEXTURES_PATH + 'skills_icons/heal.png');
 		loadImage('speed_skill', TEXTURES_PATH + 'skills_icons/speed.png');
 		loadImage('bomb_skill', TEXTURES_PATH + 'skills_icons/bomb.png');
+
+		//loadImage('background_test', TEXTURES_PATH + 'background1.png');
 
 		//emoticons
 		InGameGUI.EMOTS.forEach(emot => {
@@ -131,8 +133,8 @@ const ASSETS = (function() {
 		pending++;
 
 		//new version of this method
-		$$.create('IMG').on('load', function() {
-			textures[name] = this;
+		$$.create('img').on('load', function() {
+			textures[name] = <HTMLImageElement><unknown>this;
 
 			if(onLoad)
 				onLoad(this);
@@ -154,12 +156,12 @@ const ASSETS = (function() {
 				(<ColorsScope.ColorI[]>Colors.PLAYERS_COLORS).forEach((color) => {
 					pending++;
 
-					let player_canv = $$.create('CANVAS');//document.createElement('CANVAS');
+					let player_canv = document.createElement('canvas'); //$$.create('CANVAS');
 					player_canv.width = this.naturalWidth;
 					player_canv.height = this.naturalHeight;
 
-					let player_ctx: CanvasRenderingContext2D = 
-						player_canv.getContext('2d', {antialias: true});
+					let player_ctx = 
+						<CanvasRenderingContext2D>player_canv.getContext('2d', {antialias: true});
 					player_ctx.drawImage(<CanvasImageSource><unknown>player_texture, 0, 0);
 
 					var canvasData = player_ctx.getImageData(0, 0, 

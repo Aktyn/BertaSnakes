@@ -51,7 +51,10 @@ namespace Renderer {
 		private weather_emitter: GRAPHICS.Emitter | null;//Emitters.Dust;
 		private ready: boolean;
 
-		constructor(map: GameMap.Map, map_data: MapDataSchema) {
+		private background_texture: GRAPHICS.ExtendedTexture;
+		private background_scale: number;
+
+		constructor(map: GameMap.Map, map_data: MapJSON_I) {
 			$$.assert(current_instance === null, 'Only single instance of Renderer is allowed');
 			//$$.assert(map instanceof GameMap, 'map argument must be instance of GameMap');
 			if(ASSETS.loaded() !== true)
@@ -65,11 +68,18 @@ namespace Renderer {
 			
 			this.GUI = new InGameGUI();
 
+			//this.background_test = GRAPHICS.TEXTURES.createFrom(
+			//	ASSETS.getTexture('background_test'), true);
+			this.background_texture = GRAPHICS.TEXTURES.createFrom(
+				map_data['background_texture'], map_data['smooth_background']
+			);
+			this.background_scale = map_data['background_scale'];
+
 			this.VBO_RECT = rect;
 			this.map = map;//handle to map instance
 			this.focused = null;//handle to focused player
 
-			console.log( map_data );
+			//console.log( map_data );
 
 			$$(window).on('resize', onResize);
 
@@ -108,22 +118,19 @@ namespace Renderer {
 
 			
 			this.main_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
-			//@ts-ignore
 			this.paint_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
 
-			//@ts-ignore
+			
 			this.main_shader = GRAPHICS.SHADERS.create( ASSETS.getShaderSources('main_shader') );
-			//@ts-ignore
 			this.post_shader = GRAPHICS.SHADERS.create( ASSETS.getShaderSources('post_shader') );
 			this.particles_shader = 
-				//@ts-ignore
 				GRAPHICS.SHADERS.create( ASSETS.getShaderSources('particles_shader') );
 
 			this.emitters = [];
 			this.paint_emitters = [];
 
 			if(SETTINGS.weather_particles) {
-				switch(map_data.weather) {
+				switch(map_data['weather']) {
 					default:
 					case 'dust':
 						this.weather_emitter = new Emitters.Dust();
@@ -228,14 +235,11 @@ namespace Renderer {
 			GRAPHICS.clear(0, 0, 0);
 			this.main_shader.bind();
 			this.VBO_RECT.bind();
-			//@ts-ignore
+
 			GRAPHICS.TEXTURES.active(0);
-			//@ts-ignore
 			GRAPHICS.SHADERS.uniform_int('sampler', 0);
 
-			//@ts-ignore
 			GRAPHICS.SHADERS.uniform_float('aspect', GRAPHICS.getAspect());
-			//@ts-ignore
 			GRAPHICS.SHADERS.uniform_vec3('camera', <Float32Array>this.camera.buffer);
 		}
 
@@ -249,11 +253,9 @@ namespace Renderer {
 
 		drawParticles(list: /*GraphicsScope.Modules.Emitter[]*/any) {
 			this.particles_shader.bind();
-			//@ts-ignore
+
 			GRAPHICS.SHADERS.uniform_float('screen_height', windowHeight);
-			//@ts-ignore
 			GRAPHICS.SHADERS.uniform_float('aspect', GRAPHICS.getAspect());
-			//@ts-ignore
 			GRAPHICS.SHADERS.uniform_vec3('camera', <Float32Array>this.camera.buffer);
 
 			//console.log('emitters:', this.emitters.length);
@@ -349,26 +351,28 @@ namespace Renderer {
 			this.VBO_RECT.bind();
 
 			//drawing scene entities
-			//@ts-ignore
 			GRAPHICS.TEXTURES.active(0);
-			//@ts-ignore
 			GRAPHICS.SHADERS.uniform_int('scene_pass', 0);
 			this.main_fb.bindTexture();
 
 			//drawing paint layer
-			//@ts-ignore
 			GRAPHICS.TEXTURES.active(1);
-			//@ts-ignore
 			GRAPHICS.SHADERS.uniform_int('curves_pass', 1);
 			this.paint_fb.bindTexture();
-			//@ts-ignore
-			GRAPHICS.SHADERS.uniform_vec3('background_color', 
-				<Float32Array>this.map.background.buffer);
 
-			//@ts-ignore
+			GRAPHICS.TEXTURES.active(2);
+			GRAPHICS.SHADERS.uniform_int('background_texture', 2);
+			this.background_texture.bind();
+			
+			//GRAPHICS.SHADERS.uniform_vec3('background_color', 
+			//	<Float32Array>this.map.background.buffer);
+			GRAPHICS.SHADERS.uniform_float('background_scale', this.background_scale);
+
 			GRAPHICS.SHADERS.uniform_vec2('offset', <Float32Array>shadow_vector.buffer);
-			//@ts-ignore
-			GRAPHICS.SHADERS.uniform_float('shadow_length', 0.1 * this.camera.z);
+			// GRAPHICS.SHADERS.uniform_float('shadow_length', 0.1 * this.camera.z);
+			// GRAPHICS.SHADERS.uniform_float('zoom_factor', this.camera.z);
+			GRAPHICS.SHADERS.uniform_vec3('camera', <Float32Array>this.camera.buffer);
+			GRAPHICS.SHADERS.uniform_float('aspect', GRAPHICS.getAspect());
 
 			this.VBO_RECT.draw();
 
@@ -386,7 +390,7 @@ namespace Renderer {
 			return current_instance;
 		}
 
-		static addEmitter(emitter: /*GraphicsScope.Modules.Emitter*/any, paint_layer = false) {
+		static addEmitter(emitter: GRAPHICS.Emitter, paint_layer = false) {
 			if(current_instance === null)
 				throw "No Renderer instance";
 				

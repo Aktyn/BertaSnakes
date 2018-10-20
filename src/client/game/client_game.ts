@@ -88,8 +88,8 @@ namespace ClientGame {
 		constructor(map: MapJSON_I, onLoad: (result: boolean) => void) {
 			super();
 
-			if(!map.data)
-				throw "No map data";
+			//if(!map.data)
+			//	throw "No map data";
 
 			Network.assignCurrentGameHandle(this);
 			var curr_room = Network.getCurrentRoom();
@@ -98,7 +98,7 @@ namespace ClientGame {
 				
 			this.room = curr_room;
 
-			this.renderer = new Renderer.Class(this, map.data);
+			this.renderer = new Renderer.Class(this, map);
 
 			ASSETS.onload(() => {//making sure game assets are loaded
 				if(this.destroyed === true)

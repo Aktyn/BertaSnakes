@@ -1,8 +1,17 @@
 //MAP SETTINGS:
 
-size: 5, //size of map (non whole numbers may cause incorrect map size), NOTE - set no more than 10 (mem)
-background_color: [120, 144, 156], //RGB
-smooth_texture: true,
+map_size: 5,
+
+walls_image: "OpenMaze.png",
+walls_color: [156, 185, 237],//200, 240, 255
+smooth_walls: true,
+
+background_image: "bg2.png",
+smooth_background: true,
+
+background_scale: 5,//5
+
+weather: "dust",
 
 entities: {
 	//items
@@ -11,8 +20,3 @@ entities: {
 	//	{	x: -1.2, y: 0.22, scale: 0.1, rot: 0	}
 	//]
 }
-//0, 150, 136
-//120, 144, 156
-//200, 128, 128
-
-//ENTITIES FORMAT: 

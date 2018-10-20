@@ -2,22 +2,22 @@
 const nodemailer = require('nodemailer');
 import * as ip from 'ip';
 
-/*var prompt = require('prompt-sync')();
-var email_pass: string;
-try {
-	email_pass = prompt('Email password: ');
-}
-catch(e) {
-	console.error('Cannot prompt user for email password since server is running in nodemon');
-	email_pass = '';
-}*/
+var prompt = require('prompt-sync')();
+
 var email_pass = process.env.npm_config_emailpass;
 if(!email_pass) {
-	console.error('You must specify email password adding --emailpass=PASSWORD to console npm command');
-	process.exit();
-}
 
-// console.log( 'Email:', email_pass );
+	try {//ask user to type password in console
+		email_pass = prompt('Email password: ');
+	}
+	catch(e) {
+		console.error(
+			'Cannot prompt user for email password since server is running in nodemon');
+		console.error(
+			'You must specify email password adding --emailpass=PASSWORD to console npm command');
+		process.exit();
+	}
+}
 
 const transporter = nodemailer.createTransport({
 	service: 'gmail',
