@@ -129,6 +129,19 @@
     }
 }
 
+@media (max-height: 415px) {
+    .lobby_stage .chat:not(.hidden) > div, .lobby_stage .chat:not(.hidden) div.chat_body {
+        height: calc(100vh - 50px - 90px) !important;
+    }
+}
+
+/*game stage case*/
+@media (max-height: 480px) {
+    .game_gui_right .chat:not(.hidden) > div, .game_gui_right .chat:not(.hidden) div.chat_body {
+        height: calc(100vh - 50px - 140px) !important;
+    }
+}
+
 .orientation_request .nope_btn {
     background: transparent;
     /*padding: 0px;*/
