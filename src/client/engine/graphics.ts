@@ -22,9 +22,9 @@ namespace GRAPHICS {
     		if(!EXT)
     			throw new Error('Browser does not support "draw buffers" webgl extention');
 		}
-		catch(e) {
+		catch(e) {//TODO - check this error on mobiles
 			console.error(e);
-			alert('No WebGL support');
+			//alert('No WebGL support');
 		}
 
 		// Turn off rendering to alpha

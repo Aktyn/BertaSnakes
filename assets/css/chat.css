@@ -6,7 +6,7 @@
 	border-top: 5px solid rgb(55, 71, 79);
 	border-left: 5px solid rgb(55, 71, 79);
 	border-top-left-radius: 8px;
-	border-top-right-radius: 8px;
+	/*border-top-right-radius: 8px;*/
 	box-shadow: rgba(0, 0, 0, 0.267) 0px 0px 8px 0px;
 }
 
@@ -216,3 +216,7 @@
 	background-color: transparent;
 	opacity: 0.61;
 }
+
+/*.chat_switcher {
+	display: none;
+}*/

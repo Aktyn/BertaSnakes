@@ -117,7 +117,8 @@ class GamePanel extends Chat {
 					})
 			)
 		).addChild(//chat widget
-			super.createWidget().setStyle({
+			//super.createWidget().setStyle({
+			this.chat_widget.setStyle({
 				width: '' + GamePanel.RIGHT_PANEL_WIDTH + 'px',
 			})
 		).addChild( panel_slider );

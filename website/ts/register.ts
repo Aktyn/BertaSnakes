@@ -50,6 +50,15 @@
 	};
 
 	$$.load(() => {
+		$$('input[name="username"]').on('keydown', (e) => {
+			if((<KeyboardEvent>e).keyCode === 13)
+				$$('input[name="password"]').focus();
+		});
+		$$('input[name="password"]').on('keydown', (e) => {
+			if((<KeyboardEvent>e).keyCode === 13)
+				$$('input[name="email"]').focus();
+		});
+
 		$$("#register_submit").on('click', () => {
 			try {
 				registerUser($$('input[name="username"]').value, $$('input[name="password"]').value,

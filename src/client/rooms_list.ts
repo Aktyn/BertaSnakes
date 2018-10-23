@@ -5,6 +5,7 @@
 
 class RoomsList/* extends SessionWidget*/ {
 	public widget: $_face;
+	public switcher_widget: $_face;
 
 	constructor() {
 		//super();
@@ -26,6 +27,23 @@ class RoomsList/* extends SessionWidget*/ {
 				$$.create('DIV').addClass('list_container')
 					.addChild( $$.create('DIV').addClass('html_list') )//list of avaible rooms
 			);
+
+		var list_hidden = true;//only for smaller screen resolution
+
+		this.switcher_widget = $$.create('DIV').addClass('rooms_list_switcher').addClass('hidden')
+			.addClass('opacity_and_rot_transition');
+		this.switcher_widget.on('click', () => {
+			list_hidden = !list_hidden;
+
+			if(list_hidden) {
+				this.switcher_widget.addClass('hidden');
+				this.widget.removeClass('showed');
+			}
+			else {
+				this.switcher_widget.removeClass('hidden');
+				this.widget.addClass('showed');
+			}
+		});
 	}
 
 	/*get listWidget() {

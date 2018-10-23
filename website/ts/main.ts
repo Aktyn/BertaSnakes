@@ -193,4 +193,35 @@ $$.load(function() {
 	}
 	else
 		onSession(false);
+
+	/*var f_btn = document.getElementById("f_button");
+	if(f_btn !== null) {
+		f_btn.addEventListener("click", async function() {
+			if(document.documentElement === null)
+				return;
+			//document.documentElement.requestFullscreen();
+			if (document.documentElement.requestFullscreen)
+				document.documentElement.requestFullscreen();
+			//@ts-ignore
+			else if (document.documentElement.mozRequestFullScreen)
+				//@ts-ignore
+				document.documentElement.mozRequestFullScreen();
+				//@ts-ignore
+			else if (document.documentElement.webkitRequestFullScreen)
+				//@ts-ignore
+				document.documentElement.webkitRequestFullScreen();
+			//@ts-ignore
+			else if (document.documentElement.msRequestFullscreen)
+				//@ts-ignore
+				document.documentElement.msRequestFullscreen();
+
+			try {
+				await screen.orientation.lock("landscape-primary");
+			}
+			catch(e) {
+				document.writeln('doesnt work');
+			}
+
+		}, false);
+	}*/
 });

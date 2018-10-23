@@ -43,7 +43,7 @@
 	function createPostWidget(post: PostWidget) {
 		return $$.create('SECTION').addChild(
 			$$.create('DIV').addClass('post_header').addChild(//author
-				$$.create('A').setText(post.AUTHOR_NICK).setStyle({//TODO - link to user's page
+				$$.create('A').setText(post.AUTHOR_NICK).setStyle({
 					// float: 'left',
 					'marginRight': '20px'
 				}).setAttrib('href', '/user/' + post.AUTHOR_ID)
@@ -113,12 +113,17 @@
 				if( e.target.parentNode === thread_row )//checking if current row was clicked directly
 					showThread(thread.ID, data);
 			})	.addChild( $$.create('TD').setText(thread.SUBJECT) )
-				.addChild( $$.create('TD').setText(thread.AUTHOR_NICK).addChild(
-					COMMON.makeUserLink(thread.AUTHOR_ID, true)
-				) )
+				.addChild( $$.create('TD').addChild(
+					$$.create('A').setText(thread.AUTHOR_NICK)
+						.setAttrib('href', '/user/' + thread.AUTHOR_ID) )
+				)
 				.addChild( $$.create('TD').setText(thread.TIME) )
 				.addChild( $$.create('TD').setText(thread.TOTAL_POSTS) )
 				.addChild( $$.create('TD').setText(thread.LAST_POST) );
+
+				// .addChild(
+					// COMMON.makeUserLink(thread.AUTHOR_ID, true)
+				// )
 
 			table.addChild( thread_row );
 		});

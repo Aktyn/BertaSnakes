@@ -17,7 +17,8 @@ const SETTINGS = (function() {
 		//GAME
 		game_panel_auto_hide: true,
 		weather_particles: true,
-		painter_resolution: 'HIGH',//'LOW', 'MEDIUM', 'HIGH'
+		//TODO - make MEDIUM default for mobile devices and default false for menu effects and more...
+		painter_resolution: 'HIGH',//'LOW', 'MEDIUM', 'HIGH', 
 		shadows_type: 'LONG',
 		
 		//MENU
@@ -25,7 +26,7 @@ const SETTINGS = (function() {
 		menu_click_effect: true,
 
 		//CHAT
-		chat_auto_hide_show: true,
+		chat_auto_hide_show: true,//DEFAULT DISABLE FOR MOBILE
 
 		save: function() {
 			Object.getOwnPropertyNames(self).forEach(prop => {

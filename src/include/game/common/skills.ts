@@ -127,7 +127,7 @@ namespace SkillsScope {
 			texture_name: 'bounce_shot_skill',
 
 			name: 'Bounce Shot',
-			description: 'Shoot a bullet that bouncing off the walls. \nCauses stronger damage than regular bullets.',
+			description: 'Shoot bullets that bounces off the walls. \nCauses stronger damage than regular ones.',
 			lvl_required: 5,
 			price: 1000//coins
 		},

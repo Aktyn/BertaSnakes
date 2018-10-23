@@ -3,6 +3,7 @@
 ///<reference path="../rooms_list.ts"/>
 ///<reference path="../room_view.ts"/>
 ///<reference path="../header_notifications.ts"/>
+///<reference path="../engine/device.ts"/>
 ///<reference path="stage.ts"/>
 ///<reference path="game_stage.ts"/>
 ///<reference path="settings_popup.ts"/>
@@ -21,24 +22,48 @@ class LOBBY_STAGE extends Stage {
 	private room_view = new RoomView();
 	private notifications = new HeaderNotifications();
 
+	private orientation_request: $_face | null = null;
+	private explicity_nope = false;
+	private onScreenOrientationChange?: (cb: Device.Orientation) => void;
+
 	constructor()  {
 		super();
 		console.log('LOBBY_STAGE');
 
-		// this.chat = new Chat();
-		// this.rooms_list = new RoomsList();
-		// this.room_view = new RoomView();
-		// this.notifications = new HeaderNotifications();
+		var body_grid = $$.create('TABLE').addClass('lobby_stage'),
+			header = $$.create('TD').addClass('header').setAttrib('colspan', 2),
+			header_row = $$.create('TR').addChild(header),
+			content = $$.create('TR').addClass('content'),
+			//content_l = $$.create('DIV').addClass('content_left'),
+			content_r = $$.create('TD').addClass('content_center'),//room view
+			//chat_widget = this.chat.createWidget(),
+			chat_holder = $$.create('TD').setStyle({
+				'padding': '0px',
+				'vertical-align': 'bottom',
+			    'width': '0.1%',
+    			'min-width': '250px'
+			}).addChild( this.chat.chat_widget ).addClass('chat_cell');
 
-		var body_grid = $$.create('DIV').addClass('lobby_stage'),
-			header = $$.create('DIV').addClass('header'),
-			content_l = $$.create('DIV').addClass('content_left'),
-			content_r = $$.create('DIV').addClass('content_center'),
-			chat_widget = this.chat.createWidget();
+		//var chat_folded = true;
+		/*var fold_widget = $$.create('DIV').addClass('chat_switcher').on('click', () => {
+			chat_folded = !chat_folded;
+
+			if(chat_folded)
+				chat_holder.removeClass('unfolded');
+			else
+				chat_holder.addClass('unfolded');
+		});*/
+
+		content.addChild([content_r, chat_holder]);
 		
-		$$(document.body).addChild( body_grid.addChild([header, content_l, content_r, chat_widget]) );
+		$$(document.body).addChild([
+			this.rooms_list.widget,
+			this.rooms_list.switcher_widget,
+			//fold_widget,
+			body_grid.addChild([header_row, content])
+		]);
 
-		content_l.addChild( this.rooms_list.widget );
+		//content_l.addChild( this.rooms_list.widget );
 		content_r.addChild( this.room_view.widget );
 
 		//header notifications
@@ -83,7 +108,8 @@ class LOBBY_STAGE extends Stage {
 		header.addChild(
 			$$.create('DIV').setStyle({
 				'border-right': '1px solid rgb(85, 108, 120)',
-				'height': '100%'
+				// 'height': '100%'
+				'height': '50px'
 			})
 		);
 
@@ -119,6 +145,63 @@ class LOBBY_STAGE extends Stage {
 			Network.subscribeLobby();
 
 		// this.popup(<PopupDerived><unknown>Popup.Settings);
+
+		this.checkDevice();
+	}
+
+	destroy() {
+		if(this.onScreenOrientationChange)
+			Device.onOrientationChangeRelease( this.onScreenOrientationChange );
+
+		super.destroy();
+	}
+
+	private showOrientationRequest() {
+		if(this.explicity_nope === true)
+			return;
+		var device_image = $$.create('IMG').setAttrib('src', 'img/device.svg').addClass('phone_image');
+
+		this.orientation_request = $$.create('DIV').addClass('popup_container').addChild(
+			$$.create('DIV').addClass('popup').setStyle({
+				'display': 'inline-block'
+			}).addChild(//text
+				$$.create('DIV').setStyle({
+					'min-width': '300px',
+					'max-width': '100vw',
+					'font-size': '25px',
+					'padding': '15px'
+				}).setText('You should turn your device horizontally for better experience')
+			).addChild(//device animation
+				$$.create('DIV').addChild(device_image)
+			).addChild(//option buttons
+				$$.create('DIV').addChild(
+					$$.create('BUTTON').addClass('nope_btn').setText('NOPE').on('click', () => {
+						this.explicity_nope = true;
+						if(this.orientation_request)
+							this.orientation_request.delete();
+					})
+				)
+			)
+		).addClass('orientation_request');
+
+		$$(document.body).addChild(this.orientation_request);
+	}
+
+	private checkDevice() {
+		if(Device.info.orientation === Device.Orientation.PORTRAIT) {
+			this.showOrientationRequest();
+		}
+
+		this.onScreenOrientationChange = (orient) => {
+			if(orient === Device.Orientation.LANDSCAPE && this.orientation_request) {
+				this.orientation_request.delete();
+				this.orientation_request = null;
+			}
+			else
+				this.showOrientationRequest();
+		};
+
+		Device.onOrientationChange( this.onScreenOrientationChange );
 	}
 
 	refreshAccountInfo() {

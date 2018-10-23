@@ -1,0 +1,189 @@
+@media (max-width: 1150px) {
+    html, body {
+       	grid-template-areas: "content_body";
+		grid-template-columns: auto;
+    }
+
+    .room_view {
+        text-align: right;
+    }
+
+    .rooms_list {
+    	position: fixed;
+    	left: -50vw;
+        
+    	top: 0px;
+    	z-index: 10;
+
+        transition: left 500ms ease-in-out;
+    }
+
+    .rooms_list.showed {
+        left: 0vw;
+    }
+
+    .rooms_list .rooms_list_control_panel {
+    	background-color: #40535dc0;
+    }
+
+    .rooms_list .list_container {
+    	background-color: #556c78c0 !important;
+    	border-right: 1px solid #40535d80 !important;
+    }
+
+    .rooms_list > h1 {
+    	/*background: transparent;*/
+        opacity: 0;
+    }
+
+    .rooms_list_switcher {
+        z-index: 11;
+        display: inline-block;
+    }
+}
+
+@media (max-width: 675px) {
+    .lobby_stage .chat_cell {
+        /*display: none;*/
+        position: fixed;
+        right: -200px;
+        bottom: 0px;
+        z-index: 4;
+        transition: right 500ms ease-in-out;
+    }
+
+    .lobby_stage .chat_cell.unfolded {
+        right: 0px;
+    }
+
+    .lobby_stage .chat_cell .chat {
+        background-color: rgb(55, 71, 79, 0.66);
+        border-color: rgb(55, 71, 79, 0.66);
+    }
+
+    .lobby_stage .chat_cell .chat .chat_body, .lobby_stage .chat_cell .chat input:not(:focus) {
+        background: transparent;
+        border-color: rgb(55, 71, 79, 0.66);
+    }
+
+    /*.chat_switcher {
+        background: url('../img/icons/chat_btn.png');
+        opacity: 0.66;
+        width: 50px;
+        height: 50px;
+        display: inline-block;
+
+        position: fixed;
+        right: 0px;
+        bottom: 0px;
+
+        z-index: 3;
+    }*/
+
+    .chat_switcher:hover {
+        opacity: 1;
+    }
+
+    .room_view {
+        text-align: center;
+    }
+
+    .header {
+        height: auto !important;
+        word-wrap: break-word !important;
+        vertical-align: top !important;
+    }
+
+    .header .iconic_button {
+        font-size: 0;
+        /*background: red;*/
+        overflow: hidden;
+        height: 32px;
+        width: 32px;
+        padding: 0px;
+        margin: 0px 10px !important;
+    }
+    .header .iconic_button::after {
+        float: left;
+        margin: 0px;
+        /*padding: 0px;*/
+    }
+
+    .popup > .main > div {/*individual option entry*/
+        display: block !important;
+        height: 60px !important;/*double height*/
+    }
+
+    .popup > .main > div > * {
+        display: block !important;
+    }
+
+    .popup > .main > div > .options_list {
+        width: fit-content;
+    }
+
+    .account_popup_main .ships_list {
+        min-width: auto !important;
+        width: 550px;
+        max-width: 90vw !important;
+    }
+}
+
+.orientation_request .nope_btn {
+    background: transparent;
+    /*padding: 0px;*/
+    vertical-align: middle;
+    border: 1px solid #555;
+    margin-bottom: 20px;
+    width: 250px;
+    max-width: 100vw;
+    height: 102px;
+    line-height: 100px;
+    font-size: 22px;
+    padding: 0px;
+
+    color: #555;
+}
+
+.orientation_request .nope_btn::after {
+    background: url('../img/nope.png') center no-repeat;
+    background-size: contain;
+
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+
+    float: right;
+
+    content: "";
+}
+
+.orientation_request .phone_image {
+    max-width: 100vw;
+    height: 300px;
+    animation: shake_repeatedly infinite 10s cubic-bezier(.36,.07,.19,.97) both;
+
+    margin: -30px 0px;/*only for square image*/
+}
+
+@keyframes shake_repeatedly {
+    1%, 9% {
+        transform: rotate(-2deg);
+    }
+
+    2%, 8% {
+        transform: rotate(4deg);
+    }
+
+    3%, 5%, 7% {
+        transform: rotate(-8deg);
+    }
+
+    4%, 6% {
+        transform: rotate(8deg);
+    }
+
+    10% {
+        transform: rotate(0deg);
+    }
+}

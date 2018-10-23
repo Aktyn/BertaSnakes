@@ -197,6 +197,15 @@ body {
 	max-height: 50px;
 }
 
+@media (max-width: 700px) {
+	#topbar .topbar_side {
+		order: 1;
+	}
+	#topbar :not(.topbar_side) {
+		order: 2;
+	}
+}
+
 main {
 	grid-area: main;
 }

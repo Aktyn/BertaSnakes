@@ -112,12 +112,12 @@ class GAME_STAGE extends Stage {
 
 		this.panel = new GamePanel();//extends Chat
 
-		$$(document.body).setStyle({
+		/*$$(document.body).setStyle({
 			height: '100vh',
 			width: '100vw',
 			display: 'block',
 			overflow: 'hidden'
-		});
+		});*/
 
 		$$(document.body).addChild( this.panel.createPanelWidget() );
 

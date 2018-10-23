@@ -87,7 +87,7 @@ const Chat = (function() {
 	return class ChatClass {
 		private static instance_handler: ChatClass | null = null;
 
-		private chat_widget: $_face | null;
+		public chat_widget: $_face;
 		private hidden: boolean;
 
 		private bookmarks: BookMark[];
@@ -100,9 +100,9 @@ const Chat = (function() {
 		private PRESERVED_TITLE = document.title;
 
 		constructor() {
-			this.chat_widget = null;
-			this.createWidget();
-			//this.msg_buffer = [];//buffer every message
+			this.chat_widget = this.createWidget();//null;
+			//this.createWidget();
+			
 			this.hidden = true;
 
 			this.bookmarks = [];//list of bookmarks
@@ -184,17 +184,17 @@ const Chat = (function() {
 			this.chat_body.addChild( bookmark.messages.setStyle({'display': 'none'}) );
 
 			if(is_room) {
-				if(this.chat_widget)
-					this.chat_widget.getChildren('NAV').appendAtBeginning(
-						bookmark.selector_btn.addClass('room_bookmark')
-					);
+				//if(this.chat_widget)
+				this.chat_widget.getChildren('NAV').appendAtBeginning(
+					bookmark.selector_btn.addClass('room_bookmark')
+				);
 			}
 			else {
 				bookmark.selector_btn.setStyle({
 					'backgroundColor': getNextPaletteColor()
 				});
-				if(this.chat_widget)
-					this.chat_widget.getChildren('NAV').addChild( bookmark.selector_btn );
+				//if(this.chat_widget)
+				this.chat_widget.getChildren('NAV').addChild( bookmark.selector_btn );
 			}
 			//} catch(e) {}
 			
@@ -247,7 +247,7 @@ const Chat = (function() {
 						}
 							
 						//})(this.chat_widget.getChildren('INPUT'));
-						if(SETTINGS.chat_auto_hide_show && this.chat_widget)
+						if(SETTINGS.chat_auto_hide_show/* && this.chat_widget*/)
 							this.chat_widget.addClass('hidden');
 					}
 
@@ -385,13 +385,16 @@ const Chat = (function() {
 			else
 				this.hidden = _hidden;
 
-			if(!this.chat_widget)
-				throw new Error('no chat_widget');
+			//if(!this.chat_widget)
+			//	throw new Error('no chat_widget');
 
-			if(this.hidden)
+			if(this.hidden) {
 				this.chat_widget.addClass('hidden');
+				$$('.chat_cell').removeClass('unfolded');
+			}
 			else {
 				this.chat_widget.removeClass('hidden');
+				$$('.chat_cell').addClass('unfolded');
 				this.setHeaderText('');
 				
 				setTimeout(() => {
@@ -404,8 +407,8 @@ const Chat = (function() {
 			}
 		}
 
-		createWidget() {
-			if(this.chat_widget !== null)
+		private createWidget() {
+			if(this.chat_widget)
 				return this.chat_widget;
 
 			this.chat_body = $$.create('DIV');

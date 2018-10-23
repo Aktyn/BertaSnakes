@@ -80,8 +80,10 @@ namespace Popup {
 				//popup window
 				$$.create('DIV').addClass('popup').addClass('zoom_in').addChild(//title
 					$$.create('DIV').addClass('header')
-						.addChild( $$.create('SPAN').setStyle( {margin: '0px 50px'} )
-						.setText('User account').setAttrib('id', 'popup_title') )
+						.addChild( 
+							$$.create('SPAN').setStyle( {margin: '0px 50px'} )
+								.setAttrib('id', 'popup_title').setText('User account')
+						)
 						.addChild( $$.create('DIV').addClass('close_btn')
 							.addClass('opacity_and_rot_transition')
 							.setStyle({'float': 'right', marginLeft: '-50px'})
@@ -171,7 +173,8 @@ namespace Popup {
 			this.popup_html.getChildren('#confirmation_main')
 				.setStyle({display: 'none'}).html('');
 
-			$$('#popup_title').setText( this.preserved_header || '' );
+			if(this.preserved_header)
+				$$('#popup_title').setText( this.preserved_header );
 		}
 
 		onTransactionError(error_detail: string) {

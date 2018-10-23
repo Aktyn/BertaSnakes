@@ -149,7 +149,7 @@ class RoomView/* extends SessionWidget*/ {
 		if(current_room === null) throw new Error('There isn\'t current room');
 
 		this.widget.getChildren('.no_room_info').setStyle({display: 'none'});
-		this.widget.getChildren('.room_info').setStyle({display: 'block'});
+		this.widget.getChildren('.room_info').setStyle({display: 'inline-block'});
 		
 		// this.widget.getChildren('.room_name').setText( current_room.name );
 		// this.updateSits(current_room.sits, current_room.readys);
@@ -372,14 +372,17 @@ class RoomView/* extends SessionWidget*/ {
 		var roomSettings = $$.create('DIV').addClass('room_settings').addChild(
 			$$.create('H1')
 				.setStyle({display: 'table', borderBottom: '1px solid #90A4AE'}).addChild(
-					$$.create('DIV').setStyle({'display': 'table-cell'}).html('Room settings')
+					$$.create('DIV').setStyle({
+						'display': 'table-cell',
+						'padding': '0px 20px'
+					}).html('Room settings')
 				).addChild(
 					$$.create('DIV').addClass('close_btn').addClass('opacity_and_rot_transition')
 						.setStyle({'display': 'table-cell'}).on('click', () => {
 							//applying settings before closing
 							applySettings();
 							//closing room settings
-							room_info.setStyle({display: 'block'});
+							room_info.setStyle({display: 'inline-block'});
 							roomSettings.remove();
 						})
 				)

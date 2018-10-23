@@ -78,14 +78,25 @@
 		});
 	}
 
+	function tryLogin() {
+		try {
+			loginUser($$('input[name="username"]').value, $$('input[name="password"]').value);
+		}
+		catch(e) {
+			console.error('Login error:', e);
+		}
+	}
+
 	$$.load(() => {
-		$$("#login_submit").on('click', () => {
-			try {
-				loginUser($$('input[name="username"]').value, $$('input[name="password"]').value);
-			}
-			catch(e) {
-				console.error('Login error:', e);
-			}
+		$$('input[name="username"]').on('keydown', (e) => {
+			if((<KeyboardEvent>e).keyCode === 13)
+				$$('input[name="password"]').focus();
 		});
+		$$('input[name="password"]').on('keydown', (e) => {
+			if((<KeyboardEvent>e).keyCode === 13)
+				tryLogin();
+		});
+
+		$$("#login_submit").on('click', tryLogin);
 	});
 })();

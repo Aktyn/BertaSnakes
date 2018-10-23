@@ -12,8 +12,9 @@ $$.load(function() {
 	var changeStage = (StageClass: Stage) => {
 		$$.assert(typeof StageClass === 'function', 'Argument must be typeof function');
 		
-		if(currentStage != null) {
+		if(currentStage !== null) {
 			currentStage.destroy();
+			currentStage = null;
 		}
 		currentStage = new ( <StageDerived>StageClass )();
 
