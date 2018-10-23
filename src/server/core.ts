@@ -48,7 +48,7 @@ var avaible_rooms: RoomInfo[] = [];
 //	avaible_rooms.push( new RoomInfo() );
 
 setInterval(function() {//temporary - making sure that at least one room exists
-	if(avaible_rooms.length < 100)
+	if(avaible_rooms.length < 1)
 		createRoom();
 		//avaible_rooms.push( new RoomInfo() );
 }, 1000);
