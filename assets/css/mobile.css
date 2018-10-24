@@ -129,6 +129,25 @@
     }
 }
 
+@media (max-width: 450px) {
+    /*overwrite rooms_view.css*/
+    .settings_container > div, .settings_container > div > label {
+        display: block;
+        text-align: center;
+        /*background: red;*/
+    }
+
+    .settings_info {
+        grid-template-areas: "map" "gamemode" "time" !important;
+        grid-template-columns: auto !important;
+        grid-template-rows: fit-content(100%) fit-content(100%) fit-content(100%) !important;
+    }
+
+    .room_view section {
+        grid-template-columns: auto;
+    }
+}
+
 @media (max-height: 415px) {
     .lobby_stage .chat:not(.hidden) > div, .lobby_stage .chat:not(.hidden) div.chat_body {
         height: calc(100vh - 50px - 90px) !important;

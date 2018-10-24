@@ -442,20 +442,20 @@ class RoomView/* extends SessionWidget*/ {
 					.addChild(//sit / stand button
 						$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
 							.addClass('sit_or_stand_button')
-							.setStyle({gridColumn: '1', gridRow: '1', 
+							.setStyle({/*gridColumn: '1', gridRow: '1',*/ 
 								marginBottom: '10px', marginRight: '10px'})
 							.html('SIT').on('click', () => this.sitOrStand())
 					)
 					.addChild(//ready button
 						$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
 							.addClass('sit_ready_button')
-							.setStyle({gridColumn: '1', gridRow: '1', marginBottom: '10px'})
+							.setStyle({/*gridColumn: '1', gridRow: '1', */marginBottom: '10px'})
 							.setAttrib('disabled', '')
 							.html('READY').on('click', () => Network.sendReadyRequest())
 					)
 				).addChild(//leave room button
 					$$.create('BUTTON').addClass('iconic_button').addClass('iconic_close')
-						.setStyle({gridColumn: '2', gridRow: '1', marginBottom: '10px'})
+						.setStyle({/*gridColumn: '2', gridRow: '1', */marginBottom: '10px'})
 						.html('LEAVE ROOM').on('click', event => {
 							//leaving room request
 							try {
@@ -467,11 +467,11 @@ class RoomView/* extends SessionWidget*/ {
 						})
 				).addChild(//sits list
 					$$.create('DIV').addClass('sits_list')
-						.setStyle({gridColumn: '1', gridRow: '2'}) 
+						//.setStyle({gridColumn: '1', gridRow: '2'}) 
 				).addChild(//users list container for table
 					$$.create('DIV').addClass('users_list_container').addChild(
 						$$.create('DIV').addClass('users_list')//list of users
-							.setStyle({gridColumn: '2', gridRow: '2'}) 
+							//.setStyle({gridColumn: '2', gridRow: '2'}) 
 					)
 				)
 			)
