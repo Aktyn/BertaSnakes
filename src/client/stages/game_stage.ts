@@ -119,7 +119,7 @@ class GAME_STAGE extends Stage {
 			overflow: 'hidden'
 		});*/
 
-		$$(document.body).addChild( this.panel.createPanelWidget() );
+		$$(document.body).addChild( this.panel.panel_widget );
 
 		try {
 			//@ts-ignore
@@ -150,6 +150,7 @@ class GAME_STAGE extends Stage {
 	}
 
 	destroy() {
+		this.panel.destroy();
 		//@ts-ignore
 		this.panel = null;
 		if(this.game)

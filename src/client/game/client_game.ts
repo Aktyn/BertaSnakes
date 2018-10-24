@@ -679,12 +679,12 @@ namespace ClientGame {
 
 				this.renderer.GUI.onSkillUse(((index: number | string) => {
 					if(this.renderer.focused !== null && this.renderer.focused.spawning !== true)
-						this.trySkillUse(index);
+						this.trySkillUse(typeof index === 'number' ? index : 0);
 				}));
 
 				this.renderer.GUI.onSkillStop(((index: number | string) => {
 					if(this.renderer.focused !== null && this.renderer.focused.spawning !== true)
-						this.trySkillStop(index);
+						this.trySkillStop(typeof index === 'number' ? index : 0);
 				}));
 			}
 			catch(e) {
@@ -841,11 +841,11 @@ namespace ClientGame {
 			//}
 		}
 
-		trySkillUse(index: number | string) {
+		trySkillUse(index: number) {
 			var focused = this.renderer.focused;
 			if(focused.skills[index] && focused.skills[index].canBeUsed(focused.energy)) {
 				Network.sendByteBuffer(Uint8Array.from(
-					[NetworkCodes.PLAYER_SKILL_USE_REQUEST, Number(index)]));
+					[NetworkCodes.PLAYER_SKILL_USE_REQUEST, index]));
 			}
 		}
 

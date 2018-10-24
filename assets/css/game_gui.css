@@ -137,6 +137,11 @@
 	padding: 8px 0px;
 	background-color: #37474f;
 	/*border-top: 1px solid #37474F50;*/
+
+	display: inline-grid;
+	align-items: center;
+    justify-content: space-around;
+    grid-template-columns: auto 34px;/*fit-content(100%);*/
 }
 
 .game_gui_left {
@@ -430,8 +435,11 @@
 	display: inline-block;
 	height: auto;
 	width: 50px;
-	
 	margin: 0px 3px;
+}
+
+/*.skills_bar .skill_button, */.skills_bar .skill_button * {
+	/*pointer-events: none;*/
 }
 
 .skills_bar .skill_button > .main_part {
@@ -572,4 +580,14 @@
 
 .skills_bar .emot_bar_switcher:hover {
 	opacity: 1;
+}
+
+.fullscreen_request_popup {
+	display: inline-block;
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	padding: 10px 0px;
+	margin: auto;
 }

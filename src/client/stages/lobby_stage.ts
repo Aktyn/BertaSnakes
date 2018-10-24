@@ -15,7 +15,7 @@
 // const TESTING = false;
 
 class LOBBY_STAGE extends Stage {
-	private static TESTING = false;
+	private static TESTING = true;
 
 	private chat = new Chat();
 	private rooms_list = new RoomsList();

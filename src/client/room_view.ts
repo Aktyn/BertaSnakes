@@ -1,5 +1,6 @@
 ///<reference path="engine/network.ts"/>
 ///<reference path="../include/game/maps.ts"/>
+///<reference path="engine/device.ts"/>
 ////<reference path="session_widget.ts"/>
 
 //const RoomView = (function() {
@@ -414,8 +415,17 @@ class RoomView/* extends SessionWidget*/ {
 		return $$.create('DIV').setClass('room_view')
 			//.setAttrib('id', 'room_view' + this.session_string + this.id)
 		.addChild(//not in room info
-			$$.create('DIV').html('Join a room to play with other players')
-				.addClass('no_room_info')
+			$$.create('DIV').setText('Join a room to play with other players')
+				.addClass('no_room_info').addChild( 
+					$$.create('HR').addClass('hide_in_fullscreen') 
+				).addChild(
+					$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
+						.addClass('hide_in_fullscreen').setText('Go Fullscreen')
+						.on('click', () => {
+							Device.goFullscreen();
+							//Device.setOrientation( Device.Orientation.LANDSCAPE );
+						})
+				)
 		).addChild( 
 			$$.create('DIV').setStyle({display: 'none'}).addClass('room_info').addChild(
 				$$.create('H1')//header

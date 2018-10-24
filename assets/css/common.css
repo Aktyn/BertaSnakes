@@ -21,9 +21,14 @@
 		transform: scale(0);
 	}
 
-	1000% {
+	100% {
 		transform: scale(1);
 	}
+}
+
+.fade_out {
+	transition: transform 1000ms ease-in-out;
+	transform: translate(0px, -200px);
 }
 
 /* ICON BUTTON (from img element) */
@@ -94,6 +99,14 @@
 	animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
 }
 
+.red_button {
+	background: #ef5350;
+}
+
+.red_button:hover:not([disabled]):not(.iconic_blue) {
+	background: #e57373;
+}
+
 .iconic_blue {
 	background: #03A9F4;
 }
@@ -124,6 +137,10 @@
 
 .iconic_coin::after {
 	background-image: url('../img/icons/coin.png');
+}
+
+.iconic_fullscreen::after {
+	background-image: url('../img/icons/fullscreen_open.svg');
 }
 
 @keyframes shake {
@@ -412,4 +429,16 @@
 	color: #fff;
 	background-color: #90A4AE;
 	border-radius: 20px;
+}
+
+html:-moz-full-screen .hide_in_fullscreen {
+  	display: none;
+}
+
+html:-webkit-full-screen .hide_in_fullscreen {
+  	display: none;
+}
+
+html:-fullscreen .hide_in_fullscreen {
+  	display: none;
 }

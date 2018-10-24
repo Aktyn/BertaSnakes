@@ -1,13 +1,15 @@
 ///<reference path="common/utils.ts"/>
 ///<reference path="common/common.ts"/>
 ///<reference path="chat.ts"/>
+///<reference path="engine/device.ts"/>
 
 //const GamePanel = (function() {
 
 class GamePanel extends Chat {
+	private static id = 0;
 	private static RIGHT_PANEL_WIDTH = 250;
 
-	private _widget: $_face | null = null;
+	public panel_widget: $_face;
 	//private input: $_face | null = null;
 
 	private folded = false;
@@ -16,8 +18,13 @@ class GamePanel extends Chat {
 	constructor() {
 		super();
 
-		//this._widget = null;
-		this.createPanelWidget();
+		GamePanel.id++;
+
+		//this.panel_widget = null;
+		this.panel_widget = this.createPanelWidget();
+
+		if(Device.info.is_mobile)
+			this.initFullscreenRequest();
 
 		// this.folded = false;
 
@@ -31,8 +38,12 @@ class GamePanel extends Chat {
 		});//regain focus to canvas
 	}
 
+	destroy() {
+
+	}
+
 	get widget() {
-		return this._widget || $$(document.body);
+		return this.panel_widget || $$(document.body);
 	}
 
 	panel_slide() {
@@ -74,9 +85,44 @@ class GamePanel extends Chat {
 		}
 	}
 
-	createPanelWidget() {
-		if(this._widget !== null)
-			return this._widget;
+	private initFullscreenRequest() {
+		var popup_request = $$.create('DIV').addClass('fullscreen_request_popup')
+			.addClass('hide_in_fullscreen').addChild(
+				$$.create('BUTTON').addClass('iconic_button').addClass('iconic_fullscreen')
+					.addClass('red_button').setText('GO FULLSCREEN').on('click', () => {
+						if(Device.goFullscreen() === true) {
+							popup_request.delete();
+						}
+						Device.setOrientation(Device.Orientation.LANDSCAPE);
+					}).setStyle({
+						'padding': '20px 15px 20px 20px'
+					})
+			);
+
+		$$(document.body).addChild(popup_request);
+
+		setTimeout(() => {//autoremove button auto some period of time
+			popup_request.addClass('fade_out');
+			setTimeout(() => popup_request.delete(), 1000);//synchronize with fading animation
+		}, 5000);
+	}
+
+	private askForLobbyLeave() {
+		$$('#exit_to_lobby').setStyle({'display': 'none'});
+		$$('#game_exit_confirm').setStyle({'display': 'initial'});
+
+		let instance_id = GamePanel.id;
+		setTimeout(() => {
+			if(instance_id !== GamePanel.id)//check if this is same class instance
+				return;
+			$$('#exit_to_lobby').setStyle({'display': 'initial'});
+			$$('#game_exit_confirm').setStyle({'display': 'none'});
+		}, 5000);
+	}
+
+	private createPanelWidget() {
+		if(this.panel_widget)
+			return this.panel_widget;
 
 		let panel_slider = $$.create('BUTTON').setClass('panel_slide_btn')
 			.addClass('opacity_and_rot_transition').on('click', () => {
@@ -84,21 +130,19 @@ class GamePanel extends Chat {
 				panel_slider.blur();
 			});
 
-		this._widget = $$.create('DIV').addClass('game_gui_right').setStyle({
+		this.panel_widget = $$.create('DIV').addClass('game_gui_right').setStyle({
 			width: '' + GamePanel.RIGHT_PANEL_WIDTH + 'px'
 		}).addChild(//panel header
 			$$.create('DIV').addClass('header').addChild(
 				$$.create('IMG').addClass('icon_btn')
-					.setAttrib('src', 'img/icons/settings.png').on('click', 
-					() => {
+					.setAttrib('src', 'img/icons/settings.png').on('click', () => {
 						let curr_stage = Stage.getCurrent();
 						if(curr_stage)
 							curr_stage.popup(<PopupDerived><unknown>Popup.Settings);
 					})
 			).addChild(
 				$$.create('IMG').addClass('icon_btn')
-					.setAttrib('src', 'img/account.png').on('click', 
-					() => {
+					.setAttrib('src', 'img/account.png').on('click', () => {
 						let curr_stage = Stage.getCurrent();
 						if(curr_stage)
 							curr_stage.popup(<PopupDerived><unknown>Popup.Account);
@@ -111,9 +155,25 @@ class GamePanel extends Chat {
 		).addChild(/*buttons*/
 			$$.create('DIV').setClass('panel_buttons').addChild(
 				$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
-					.setText('EXIT TO LOBBY').on('click', () => {
+					.setText('CONFIRM').setStyle({'display': 'none'})
+					.setAttrib('id', 'game_exit_confirm').on('click', () => {
 						try 	{	Network.leaveRoom();	}
 						catch(e){	console.error('cannot send leave room request: ', e); }
+					})
+			).addChild(
+				$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
+					.setText('EXIT TO LOBBY').setAttrib('id', 'exit_to_lobby').on('click', () => {
+						this.askForLobbyLeave();
+					})
+			).addChild(
+				$$.create('IMG').addClass('icon_btn').setAttrib('id', 'fullscreen_switcher_small')
+					.addClass('hide_in_fullscreen')
+					.setAttrib('src', 'img/icons/fullscreen_open.svg')
+					.on('click', () => {
+						//if(!Device.info.fullscreen) {
+						Device.goFullscreen();
+						Device.setOrientation(Device.Orientation.LANDSCAPE);
+						//}
 					})
 			)
 		).addChild(//chat widget
@@ -123,7 +183,9 @@ class GamePanel extends Chat {
 			})
 		).addChild( panel_slider );
 
-		return this._widget;
+		// Device.goFullscreen();
+
+		return this.panel_widget;
 	}
 }
 // })();

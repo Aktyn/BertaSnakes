@@ -308,21 +308,31 @@ class InGameGUI {
 		this.skills.push( skill_btn );
 		this.skills_bar.addChild( skill_btn.widget );
 
-		//key = typeof key === 'number' ? key : 0;
-
-		skill_btn.widget.on('mousedown', (e) => {
-			if((<MouseEvent>e).button !== 0)//only LMB
+		var startSkill = (e: Event) => {
+			if(Device.info.is_mobile === false && (<MouseEvent>e).button !== 0)//only LMB
 				return;
 			if(typeof this.skill_use_listener === 'function')
 				this.skill_use_listener(key);
-		});
+			e.preventDefault();
+		};
 
-		skill_btn.widget.on('mouseup', (e) => {
-			if((<MouseEvent>e).button !== 0)//only LMB
+		var cancelSkill = (e: Event) => {
+			if(Device.info.is_mobile === false && (<MouseEvent>e).button !== 0)//only LMB
 				return;
 			if(typeof this.skill_stop_listener === 'function')
 				this.skill_stop_listener(key);
-		});
+		};
+
+  		if(Device.info.is_mobile === false) {
+	  		skill_btn.widget.on('mousedown', startSkill);
+			skill_btn.widget.on('mouseup', cancelSkill);
+			skill_btn.widget.on('mouseleave', cancelSkill);
+		}
+		else {
+			skill_btn.widget.on('touchstart', startSkill);
+			skill_btn.widget.on('touchend', cancelSkill);
+			skill_btn.widget.on('touchcancel', cancelSkill);
+		}
 	}
 
 	addChildEmptySkill(key: number) {
