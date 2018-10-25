@@ -1,0 +1,100 @@
+.chat.mobile_mode {
+	transition: transform 500ms ease-in-out;
+
+	background-color: rgb(55, 71, 79, 0.66);
+    border-color: rgb(55, 71, 79, 0.66);
+}
+
+.game_gui_left.mobile {
+	height: auto !important;
+	max-height: calc(100vw - 70px) !important;
+	overflow-y: auto !important;
+}
+
+.game_gui_right.folded .chat.mobile_mode.hidden {
+	transform: translate(200px, 0px);
+}
+
+.chat.mobile_mode .chat_body, .lobby_stage .chat_cell .chat input:not(:focus) {
+    background: transparent;
+    border-color: rgb(55, 71, 79, 0.66);
+}
+
+.game_gui_bottom.mobile {
+	grid-template-areas: 
+		"emots_bar emots_bar emots_bar" 
+		"speed_controller skills_bar turn_controller";
+    grid-template-columns: fit-content(100%) auto fit-content(100%);
+    grid-template-rows: auto auto;
+
+    max-width: calc(100vw - 50px);
+    overflow-x: auto;
+}
+
+.game_gui_bottom.mobile .skills_bar {
+	border-radius: 12px !important;
+	padding: 8px 30px 8px 8px !important;
+}
+
+.speed_controller {
+	grid-area: speed_controller;
+	height: 68px;
+	width: 68px;
+	overflow: hidden;
+	pointer-events: all;
+
+	position: relative;
+	border-radius: 8px;
+	margin-right: 8px;
+	box-shadow: 0px 2px 5px #0005;
+}
+
+.speed_controller > * {
+	overflow: auto;
+	position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: -15px;
+}
+
+.speed_controller > * > * {
+	display: block;
+	width: 100%;
+	height: 17px;
+	background: red;
+}
+
+.turn_controller {
+	grid-area: turn_controller;
+	margin: 0px 8px;
+
+	border: 1px solid #fff4;
+	border-radius: 15px;
+    box-sizing: border-box;
+    background: #93a5afa0;
+	box-shadow: 0px 2px 5px #0005;
+
+	width: auto;
+	height: 68px;
+}
+
+.turn_controller > * {
+	/*width: 60px;*/
+	height: 68px;
+	width: 68px;
+
+	display: inline-block;
+
+	background-image: url('../img/icons/arrow.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+
+	opacity: 0.45;
+	pointer-events: auto;
+}
+
+.turn_controller > *:active {
+	opacity: 1;
+}

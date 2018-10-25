@@ -677,15 +677,33 @@ namespace ClientGame {
 						this.tryEmoticonUse(index);
 				});
 
-				this.renderer.GUI.onSkillUse(((index: number | string) => {
+				this.renderer.GUI.onSkillUse((index: number | string) => {
 					if(this.renderer.focused !== null && this.renderer.focused.spawning !== true)
 						this.trySkillUse(typeof index === 'number' ? index : 0);
-				}));
+				});
 
-				this.renderer.GUI.onSkillStop(((index: number | string) => {
+				this.renderer.GUI.onSkillStop((index: number | string) => {
 					if(this.renderer.focused !== null && this.renderer.focused.spawning !== true)
 						this.trySkillStop(typeof index === 'number' ? index : 0);
-				}));
+				});
+
+				this.renderer.GUI.onTurnArrowPressed((dir: TurnDirection, released: boolean) => {
+					var focused = this.renderer.focused;
+					if(focused === null || focused.spawning === true)
+						return;
+
+					var preserved_state = focused.movement.state;
+
+					focused.movement.set( dir === TurnDirection.LEFT 
+						? Movement.FLAGS.LEFT
+						: Movement.FLAGS.RIGHT, !released );
+
+					if(preserved_state != focused.movement.state) {
+						focused.movement.smooth = false;
+						Network.sendByteBuffer(Uint8Array.from(
+							[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
+					}
+				});
 			}
 			catch(e) {
 				console.error(e);
@@ -767,9 +785,6 @@ namespace ClientGame {
 				
 				e_h.expired = true;//safe removing (after processed by other methods)
 			}
-			//else {//hitted but not died		
-				//MOVED UP
-			//}
 		}
 
 		//redundantion
@@ -799,46 +814,11 @@ namespace ClientGame {
 		onPlayerKilledPlayer(attacker_i: number, victim_i: number) {
 			this.onPlayerKill(attacker_i, 'Player killed', GAME_MODES.COMPETITION,
 				GameCore.PARAMS.points_for_player_kill, this.players[victim_i]);
-
-			
-
-			//if(this.room.gamemode === RoomInfo.GAME_MODES.COMPETITION) {
-			//	this.players[attacker_i].kills++;
-			//	this.players[attacker_i].points += GameCore.PARAMS.points_for_player_kill;
-
-				//this.renderer.GUI.onPlayerKill( attacker_i );
-				//this.renderer.GUI.onPlayerPointsChange(attacker_i, this.players[attacker_i].points);
-
-				// let exp_effect = new ExperienceEmitter(
-				// 	this.players[victim_i], this.players[attacker_i]);
-				// exp_effect.timestamp = new Date();
-
-				// Renderer.addEmitter( exp_effect, false );
-				// this.emitters.push( exp_effect );
-			//}
 		}
 
 		onPlayerKilledEnemy(player_i: number, enemy_i: number) {
 			this.onPlayerKill(player_i, 'Enemy killed', GAME_MODES.COOPERATION,
 				GameCore.PARAMS.points_for_enemy_kill, this.enemies[enemy_i]);
-
-			//if(this.renderer.focused === this.players[player_i])
-			//	this.renderer.GUI.addNotification('Enemy killed');
-
-			//if(this.room.gamemode === RoomInfo.GAME_MODES.COOPERATION) {
-			//	this.players[player_i].kills++;
-			//	this.players[player_i].points += GameCore.PARAMS.points_for_enemy_kill;
-
-				//this.renderer.GUI.onPlayerKill( player_i );
-				//this.renderer.GUI.onPlayerPointsChange(player_i, this.players[player_i].points);
-
-				// let exp_effect = new ExperienceEmitter(
-				//		this.enemies[enemy_i], this.players[player_i]);
-				// exp_effect.timestamp = new Date();
-
-				// Renderer.addEmitter( exp_effect, false );
-				// this.emitters.push( exp_effect );
-			//}
 		}
 
 		trySkillUse(index: number) {

@@ -146,13 +146,12 @@
 
 .game_gui_left {
 	text-align: center;
-	/*background: #fff1;*/
 	background: transparent;
 	padding: 0px;
 
-	/*height: auto;*/
-	/*max-height: 100vh;*/
 	height: 100vh;
+	/*max-height: 100vh;*/
+	/*max-height: calc(100vw - 70px);*/
 	/*overflow-y: auto;*/
 	overflow: hidden;
 	/*overflow-x: hidden;*/
@@ -425,13 +424,29 @@
     box-shadow: 0px 2px 5px #0005;
 }
 
+.game_gui_bottom {
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+	text-align: center;
+	pointer-events: none;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    grid-template-areas: "emots_bar" "skills_bar";
+    grid-template-columns: auto;
+    grid-template-rows: auto auto;
+}
+
 .emots_bar {
+	grid-area: emots_bar;
 	background: transparent;
 	border: none;
 	box-shadow: none;
 }
 
 .skills_bar .skill_button {
+	grid-area: skills_bar;
 	display: inline-block;
 	height: auto;
 	width: 50px;
@@ -585,8 +600,10 @@
 .fullscreen_request_popup {
 	display: inline-block;
 	position: fixed;
+	z-index: 99;
 	left: 0px;
 	right: 0px;
+	width: fit-content;
 	top: 0px;
 	padding: 10px 0px;
 	margin: auto;

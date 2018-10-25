@@ -1,7 +1,7 @@
 .jshintrc
 MySQL_Schemas/
 debug_tools/
-CHANGELOG.txt
+NOTES.txt
 compiled/
 website/js/
 run_dev

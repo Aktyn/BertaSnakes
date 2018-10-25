@@ -9,6 +9,40 @@ namespace GRAPHICS {
 
 	var fullscreen_framebuffers: ExtendedFramebuffer[] = [];
 
+	/*function fixRetinaDisplay(canvas: HTMLCanvasElement, context: WebGLRenderingContext) {
+		var devicePixelRatio = window.devicePixelRatio || 1;
+		//@ts-ignore
+	    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+	    	//@ts-ignore
+            context.mozBackingStorePixelRatio ||
+            //@ts-ignore
+            context.msBackingStorePixelRatio ||
+            //@ts-ignore
+            context.oBackingStorePixelRatio ||
+            //@ts-ignore
+            context.backingStorePixelRatio || 1;
+
+	    var ratio = devicePixelRatio / backingStoreRatio;
+
+	    if (devicePixelRatio !== backingStoreRatio) {
+	    	console.log('ratina ratios:', backingStoreRatio, ratio);
+
+	        var oldWidth = $$.getScreenSize().width;//canvas.width;
+	        var oldHeight = $$.getScreenSize().height;//canvas.height;
+
+	        console.log(oldWidth, oldHeight);
+
+	        canvas.width = oldWidth * ratio;
+	        canvas.height = oldHeight * ratio;
+
+	        canvas.style.width = oldWidth + 'px';
+	        canvas.style.height = oldHeight + 'px';
+
+	        //context.scale(ratio, ratio);
+	        context.viewport(0, 0, oldWidth * ratio, oldHeight * ratio);
+	    }
+	}*/
+
 	function loadContext() {
 		try {		//premultipliedAlpha
 			GL = <WebGLRenderingContext>CANVAS.getContext('webgl', {antialias: true, alpha: false});
@@ -33,6 +67,9 @@ namespace GRAPHICS {
 		GL.enable(GL.BLEND);
 		GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
 		GL.viewport(0, 0, CANVAS.width, CANVAS.height);
+
+		//if(Device.info.is_mobile)
+			//fixRetinaDisplay(CANVAS, GL);
 	}
 
 	//var self = {//common graphic functions
@@ -94,6 +131,7 @@ namespace GRAPHICS {
 			fb.updateTextureResolution(width, height);
 
 		GL.viewport(0, 0, width, height);
+		//fixRetinaDisplay(CANVAS, GL);
 		//loadContext();
 	}
 	export function getWidth() {

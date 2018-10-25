@@ -183,6 +183,9 @@ class GamePanel extends Chat {
 			})
 		).addChild( panel_slider );
 
+		if(Device.info.is_mobile)
+			this.chat_widget.addClass('mobile_mode');
+
 		// Device.goFullscreen();
 
 		return this.panel_widget;

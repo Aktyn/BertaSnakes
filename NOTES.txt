@@ -1,0 +1,53 @@
+
+#######################################################################################################
+
+TODO:
+	Core.js - user's custom_data can be updated in database only when user disconnects from the server
+
+	MOBILE VERSION - no WebGL, just simple canvas rendering on two layers
+	
+	SKILLS: ---
+
+	RANDOM DEFAULT ROOM
+	update enemies positions more frequent
+	USE SOUND OF KULKA W TARAPATACH
+	FIX GAME MENU BACKGROUND
+	Make larger bullet holes
+	express caching
+
+	LOADING INDICATOR WHILE WAITING FOR MAP TO GENERATE AND OTHER USERS
+
+	COMBINE AND MINIFY .css FILES SEPARATERLY FOR GAME AND WEBSITE
+
+	OPTIMIZE SHADERS BY REMOVING TILED BACKGROUND SUPPORT
+
+	MAP IDEAS:
+		chessboard grid, rings, underwater (with water bubles effects as weather, maybe pipes as walls),
+		rainy map with little water stains as background texture and rain weather effect of course, or background as glass window with raindrops on top of it and something blured behind,
+		retro with pixelated old game background
+
+	Cloudy weather - clouds somposed from big additive cloud particles moving with groups (clouds may have different colors)
+
+	REMOVE LISTENERS AFTER STAGE CHANGE
+
+	SET DEFAULT ZOOM DURING GAME ACCORDINGLY TO VISIBLE SCREEN AREA (TAKE IN COUNT SCREEN WIDTH*HEIGHT INSTEAD OF ONLY HEIGHT)
+
+	PATREON??
+
+#######################################################################################################
+
+Server Notes:
+	--- PREPARATIONS ---
+	to install npm canvas package those are required:
+		sudo apt-get install libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev build-essential g++
+	also this libs are required for running server:
+		sudo apt-get install libpng16-dev
+
+	--- MySQL configuration ---
+		---
+
+	--- SERVICE EMAIL ---
+		BertaSnakes@gmail.com
+		############
+
+#######################################################################################################

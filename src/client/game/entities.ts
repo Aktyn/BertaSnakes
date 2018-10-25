@@ -87,7 +87,8 @@ var Entities = (function() {
 	InGameGUI.EMOTS.forEach(emot => {
 		let emot_name = Emoticon.entityName(emot.file_name);
 		EntitiesData[emot_name] = {
-			texture_name: emot_name
+			texture_name: emot_name,
+			linear: true
 		};
 	});
 

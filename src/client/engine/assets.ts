@@ -58,8 +58,8 @@ const ASSETS = (function() {
 				loaded_image => {//fix for .svg => set resolution
 					//loaded_image.setAttrib('width', 256);
 					//loaded_image.setAttrib('height', 256);
-					loaded_image.width = 128;
-					loaded_image.height = 128;
+					// loaded_image.width = 128;
+					// loaded_image.height = 128;
 				});
 		});
 
@@ -129,17 +129,18 @@ const ASSETS = (function() {
 		});
 	}
 
-	function loadImage(name: string, path: string, onLoad?: (arg: $_face) => void) {
+	function loadImage(name: string, path: string, onLoad?: (arg: HTMLImageElement) => void) {
 		pending++;
 
 		//new version of this method
-		$$.create('img').on('load', function() {
+		$$.create('img').on('load', function onload() {
 			textures[name] = <HTMLImageElement><unknown>this;
 
 			if(onLoad)
-				onLoad(this);
+				onLoad(<HTMLImageElement><unknown>this);
 
 			pending--;
+			this.off('load', onload);
 		}).on('error', e => printError(<Error><unknown>e)).setAttrib('src', path);
 	}
 
@@ -149,7 +150,7 @@ const ASSETS = (function() {
 		Object.keys(Player.TYPES).map(key => Player.TYPES[key]).forEach((type_i: number) => {
 			pending++;
 
-			$$.create('IMG').on('load', function() {
+			$$.create('img').on('load', function onload() {
 				var player_texture = this;
 				// console.log(this);
 
@@ -183,6 +184,7 @@ const ASSETS = (function() {
 				});
 
 				pending--;
+				this.off('load', onload);
 			}).on('error', e => printError(<Error><unknown>e))
 				.setAttrib('src', TEXTURES_PATH + 'players/type_' + (type_i+1) + '.png');
 		});

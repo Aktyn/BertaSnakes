@@ -22,7 +22,7 @@ const header =
 	<meta name='viewport' content='width=device-width, initial-scale=1'>\
 	<meta name='theme-color' content='#40535d' />\
 	<meta name='Description' content='Web version of Berta Snakes.'>\
-	<link rel='icon' href='/img/icons/icon.ico' type='image/x-icon'>";
+	<link rel='icon' href='/img/icons/icon.png' type='image/png'>";
 
 function createScriptNode(doc: Document, src: string, async= false) {
 	let node = doc.createElement('SCRIPT');

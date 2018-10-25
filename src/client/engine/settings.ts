@@ -1,3 +1,5 @@
+///<reference path="device.ts"/>
+
 interface SettingsI {
 	game_panel_auto_hide: boolean;
 	weather_particles: boolean;
@@ -17,16 +19,16 @@ const SETTINGS = (function() {
 		//GAME
 		game_panel_auto_hide: true,
 		weather_particles: true,
-		//TODO - make MEDIUM default for mobile devices and default false for menu effects and more...
-		painter_resolution: 'HIGH',//'LOW', 'MEDIUM', 'HIGH', 
+		
+		painter_resolution: Device.info.is_mobile ? 'MEDIUM' : 'HIGH',//'LOW', 'MEDIUM', 'HIGH', 
 		shadows_type: 'LONG',
 		
 		//MENU
 		menu_background_effect: false,
-		menu_click_effect: true,
+		menu_click_effect: !Device.info.is_mobile,//DISABLE FOR MOBILE
 
 		//CHAT
-		chat_auto_hide_show: true,//DEFAULT DISABLE FOR MOBILE
+		chat_auto_hide_show: !Device.info.is_mobile,//DISABLE FOR MOBILE
 
 		save: function() {
 			Object.getOwnPropertyNames(self).forEach(prop => {

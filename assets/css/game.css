@@ -5,6 +5,7 @@
 @import "rooms_view.css";
 @import "scrollbar.css";
 @import "game_gui.css";
+@import "game_gui_mobile.css";
 @import "mobile.css";
 
 html, body {
