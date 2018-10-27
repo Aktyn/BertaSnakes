@@ -7,21 +7,21 @@
 // const DEFAULT_MAP = 'Open Maze';//'Empty';
 // const DEFAULT_DURATION = 180;//seconds
 
-/*const GAME_MODES = {//@enum
+const GAME_MODES = {//@enum
 	COOPERATION: 0,
 	COMPETITION: 1
-};*/
+};
 
-enum GAME_MODES {
+/*enum GAME_MODES {
 	COOPERATION,
 	COMPETITION
-}
+}*/
 
 interface RoomCustomData {
 	id: number;
 	name: string;
 	map: string;
-	gamemode: GAME_MODES;
+	gamemode: number;
 	duration: number;
 	sits: number[];
 	readys: boolean[];
@@ -47,7 +47,7 @@ class RoomInfo {
 	public sits: number[];
 	public readys: boolean[];
 	public users: UserInfo[];
-	public gamemode: GAME_MODES;
+	public gamemode: number;
 
 	public onUserConfirm: ((user_id: number) => void) | null = null;
 	public game_process: any = null;//TODO - set type of ChildProcess
@@ -135,8 +135,12 @@ class RoomInfo {
 		throw new Error('RoomInfo id cannot be changed');
 	}
 
-	get taken_sits() {//returns number
+	get taken_sits() {//returns number (deprecated)
 		return this.sits.filter(sit => sit !== 0).length;
+	}
+
+	getTakenSits() {
+		return this.sits.filter(sit => sit !== 0).length || 0;
 	}
 
 	getUserByID(user_id: number) {

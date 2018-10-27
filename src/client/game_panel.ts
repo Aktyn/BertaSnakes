@@ -42,21 +42,21 @@ class GamePanel extends Chat {
 
 	}
 
-	get widget() {
+	/*get widget() {
 		return this.panel_widget || $$(document.body);
-	}
+	}*/
 
 	panel_slide() {
 		this.folded = !this.folded;
 
 		if(!this.folded)
-			this.widget.removeClass('folded');
+			this.panel_widget.removeClass('folded');
 		else
-			this.widget.addClass('folded');
+			this.panel_widget.addClass('folded');
 	}
 
 	addUser(user: UserInfo) {
-		let users_list = this.widget.getChildren('.users_list');
+		let users_list = this.panel_widget.getChildren('.users_list');
 		if(!users_list)
 			return;
 

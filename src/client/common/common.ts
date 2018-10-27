@@ -159,7 +159,7 @@ const COMMON = (function() {
 			let nick = $$.create('SPAN').addClass('nickname')
 				.setText( COMMON.trimString(user.nick, 12) );
 			let rank = $$.create('SPAN').addClass('rank')
-				.setText(Math.round(user.rank) + ' |  ' + user.level);
+				.setText(Math.round(user.getRank()) + ' |  ' + user.getLevel());
 			let more_btn: $_face;
 
 			let option_add_friend = $$.create('BUTTON').addClass('iconic_button')

@@ -3,13 +3,18 @@ namespace Device {
 	if(!orientation_support)
 		console.info('No screen.orientation support');
 
-	export enum Orientation {
-		LANDSCAPE,
-		PORTRAIT
+	interface OrientationSchema {
+		LANDSCAPE: number;
+		PORTRAIT: number;
+	}
+
+	export const Orientation : OrientationSchema = {
+		LANDSCAPE: 0,
+		PORTRAIT: 1
 	}
 
 	interface Info {
-		orientation: Orientation;
+		orientation: number;
 		fullscreen: boolean;
 		is_mobile: boolean;
 	}
@@ -31,7 +36,7 @@ namespace Device {
 			Orientation.PORTRAIT : Orientation.LANDSCAPE;
 	}
 
-	function getOrientationName(target: Orientation): OrientationType | OrientationLockType {
+	function getOrientationName(target: number): OrientationType | OrientationLockType {
 		switch(target) {
 			default: throw "Invalid argument";
 			case Orientation.LANDSCAPE: return "landscape-primary";
@@ -44,13 +49,15 @@ namespace Device {
 			_info.orientation = getOrientation();
 		_info.fullscreen = getFullScreen();
 		_info.is_mobile = IS_MOBILE;
+
+		//console.log(orientation_support, screen.orientation.type, getOrientation(), IS_MOBILE);
 		
 		return <Info>_info;
 	}
 
 	export var info: Info = refreshInfo({});
 
-	var orientation_listeners: ( (orient: Orientation) => void )[] = [];
+	var orientation_listeners: ( (orient: number) => void )[] = [];
 
 	if(orientation_support) {
 		screen.orientation.addEventListener("change", function(e) {
@@ -72,11 +79,11 @@ namespace Device {
 	    document.addEventListener('MSFullscreenChange', onFullscrenChange, false);
 	}
 
-	export function onOrientationChange(callback: (orient: Orientation) => void) {
+	export function onOrientationChange(callback: (orient: number) => void) {
 		orientation_listeners.push(callback);
 	}
 
-	export function onOrientationChangeRelease(callback: (orient: Orientation) => void) {
+	export function onOrientationChangeRelease(callback: (orient: number) => void) {
 		let index = orientation_listeners.indexOf(callback);
 		if(index !== -1)
 			orientation_listeners.splice(index, 1);
@@ -107,7 +114,7 @@ namespace Device {
 		}
 	}
 
-	export function setOrientation(target: Orientation) {//works only in fullscreen mode
+	export function setOrientation(target: number) {//works only in fullscreen mode
 		var target_name = getOrientationName(target);
 		screen.orientation.lock(target_name).catch((e: Error) => {
 			console.info(e.message);

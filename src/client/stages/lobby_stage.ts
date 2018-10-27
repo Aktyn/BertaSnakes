@@ -15,7 +15,7 @@
 // const TESTING = false;
 
 class LOBBY_STAGE extends Stage {
-	private static TESTING = false;
+	private static TESTING = true;
 
 	private chat = new Chat();
 	private rooms_list = new RoomsList();
@@ -24,7 +24,7 @@ class LOBBY_STAGE extends Stage {
 
 	private orientation_request: $_face | null = null;
 	private explicity_nope = false;
-	private onScreenOrientationChange?: (cb: Device.Orientation) => void;
+	private onScreenOrientationChange?: (cb: number) => void;
 
 	constructor()  {
 		super();

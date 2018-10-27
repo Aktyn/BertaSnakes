@@ -141,6 +141,8 @@ class InGameGUI {
 	private skill_stop_listener: ((arg: number | string) => void) | null = null;
 	private turn_arrow_listener: ((arg: TurnDirection, released: boolean) => void) | null = null;
 
+	private mobile_speed_state = 0;//only in mobile mode
+
 	private entries_container: $_face;
 	private notifications_container?: $_face;
 	private emots_bar: $_face;
@@ -254,11 +256,14 @@ class InGameGUI {
 				);
 			}
 
-			speed_controller_child.on('touchmove', function(e) {
-				var factor = 1.0 - this.scrollTop / (this.scrollHeight - this.clientHeight);
+			var checkSpeedFactor = () => {
+				var factor = 1.0 - speed_controller_child.scrollTop / 
+					(speed_controller_child.scrollHeight - speed_controller_child.clientHeight);
+				this.mobile_speed_state = factor;
+			};
 
-				console.log(factor);
-			});
+			speed_controller_child.on('touchmove', checkSpeedFactor);
+			speed_controller_child.on('touchcancel', () => setTimeout(checkSpeedFactor, 500))
 
 			var turn_left_btn = $$.create('DIV').setStyle({'transform': 'rotate(90deg)'});
 			var turn_right_btn = $$.create('DIV').setStyle({'transform': 'rotate(270deg)'});
@@ -509,7 +514,14 @@ class InGameGUI {
 	}
 
 	update(focused: any, delta: number) {
-		if(this.focused_speed_value !== focused.movement.speed) {
+		if(Device.info.is_mobile) {
+			// mobile_speed_state
+			//TODO - send speed change request to server
+
+			let percent = InGameGUI.toPercent(this.mobile_speed_state);
+			this.focused_speed.setText( percent ).setStyle( {'width': percent} );
+		}
+		else if(this.focused_speed_value !== focused.movement.speed) {
 			this.focused_speed_value = focused.movement.speed;
 
 			var speed_normalized = focused.movement.speed / focused.movement.maxSpeed;

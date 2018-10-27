@@ -279,7 +279,7 @@ const Network = (function() {
 			sendJSON( {'type': NetworkCodes.USER_KICK_REQUEST, 'user_id': user_id} );
 		},
 		sendRoomUpdateRequest: function(name: string, sits_number: number, duration: number, 
-			map: string, gamemode: GAME_MODES) 
+			map: string, gamemode: number) 
 		{
 			sendJSON({
 				'type': NetworkCodes.ROOM_UPDATE_REQUEST, 

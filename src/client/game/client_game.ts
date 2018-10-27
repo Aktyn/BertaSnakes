@@ -788,7 +788,7 @@ namespace ClientGame {
 		}
 
 		//redundantion
-		onPlayerKill(attacker_i: number, notification: string, gamemode: GAME_MODES, 
+		onPlayerKill(attacker_i: number, notification: string, gamemode: number, 
 			points_for_kill: number, victim_obj: Object2D) 
 		{
 			if(this.renderer.focused === this.players[attacker_i])

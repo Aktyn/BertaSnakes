@@ -84,7 +84,7 @@ class RoomsList/* extends SessionWidget*/ {
 		try {
 			let room_row = this.widget.getChildren("#room_list_entry_" + room.id);
 			room_row.getChildren('.room_sits_info')
-				.setText(room.taken_sits + '/' + room.sits.length);
+				.setText(room.getTakenSits() + '/' + room.sits.length);
 			room_row.getChildren('.room_name_info').setText( COMMON.trimString(room.name, 10) )
 				.setAttrib('name', room.name);//atribute contains full name
 			room_row.getChildren('.room_map_info').setText( room.map );
@@ -106,7 +106,7 @@ class RoomsList/* extends SessionWidget*/ {
 				.addClass('room_name_info').setAttrib('name', room.name)
 				.setStyle({'gridColumn': '1', textAlign: 'left'}) )
 			.addChild( $$.create('SPAN').addClass('room_sits_info')
-				.setText(room.taken_sits + '/' + room.sits.length)
+				.setText(room.getTakenSits() + '/' + room.sits.length)
 				.setStyle({'gridColumn': '2'}) )
 			.addChild( $$.create('SPAN').addClass('room_duration_info')
 				.setText( ((room.duration / 60)|0) + ' min' ) )

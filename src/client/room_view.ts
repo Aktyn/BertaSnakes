@@ -324,7 +324,7 @@ class RoomView/* extends SessionWidget*/ {
 				sits_input.setMinimumValue(2);//minimum 2 sits in competition mode
 			else
 				sits_input.setMinimumValue(1);
-		}).selectOption(RoomView.gamemode_names[ current_room['gamemode'] ])//default option
+		}).selectOption(RoomView.gamemode_names[ current_room.gamemode ])//default option
 			.setStyle({
 				'display': 'inline-block',
 				'margin': '10px',

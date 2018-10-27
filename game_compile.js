@@ -54,11 +54,11 @@ function onCompiled(compiled_code) {
 
 let data = {
 	//'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS', 'WHITESPACE_ONLY',
-	compilation_level: 'SIMPLE_OPTIMIZATIONS',
+	compilation_level: 'ADVANCED_OPTIMIZATIONS',
 	js_code: code,
 	output_format: 'text',
 	output_info: 'compiled_code',
-	language_out: 'ECMASCRIPT5_STRICT'//ECMASCRIPT6_STRICT
+	language_out: 'ECMASCRIPT5_STRICT'//ECMASCRIPT6_STRICT, ECMASCRIPT5_STRICT
 };
 
 request.post({

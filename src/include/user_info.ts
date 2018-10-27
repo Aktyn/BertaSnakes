@@ -75,16 +75,22 @@ class UserInfo {
 		this.friends = [];
 
 		//filling data gaps with default values
-		this.custom_data['level'] 		= this.custom_data['level'] || 1;//NOTE - level is never 0
-		this.custom_data['rank'] 		= this.custom_data['rank'] || UserInfo.INITIAL_RANK;
-		this.custom_data['exp'] 		= this.custom_data['exp'] || 0;
-		this.custom_data['coins'] 		= this.custom_data['coins'] || 0;
-		this.custom_data['ship_type'] 	= this.custom_data['ship_type'] || 0;
-		this.custom_data['skills'] 		= 
-			this.custom_data['skills'] || [null, null, null, null, null, null];
 
-		this.custom_data['avaible_ships'] = this.custom_data['avaible_ships'] || [0];
-		this.custom_data['avaible_skills'] = this.custom_data['avaible_skills'] || [];
+		//NOTE - level is never 0
+		this.custom_data['level'] = this.custom_data['level'] || this.custom_data.level || 1;
+		this.custom_data['rank'] = 
+			this.custom_data['rank'] || this.custom_data.rank || UserInfo.INITIAL_RANK;
+		this.custom_data['exp'] = this.custom_data['exp'] || this.custom_data.exp || 0;
+		this.custom_data['coins'] = this.custom_data['coins'] || this.custom_data.coins || 0;
+		this.custom_data['ship_type'] = 
+			this.custom_data['ship_type'] || this.custom_data.ship_type || 0;
+		this.custom_data['skills'] = this.custom_data['skills'] || this.custom_data.skills || 
+			[null, null, null, null, null, null];
+
+		this.custom_data['avaible_ships'] = 
+			this.custom_data['avaible_ships'] || this.custom_data.avaible_ships || [0];
+		this.custom_data['avaible_skills'] = 
+			this.custom_data['avaible_skills'] || this.custom_data.avaible_skills || [];
 
 		//this.level = custom_data['level'] || 1;
 
@@ -167,8 +173,12 @@ class UserInfo {
 		this._nick = _nick || '';
 	}*/
 
-	get level() {
+	get level() {//deprecated
 		return this.custom_data['level'] || 1;//this._level;
+	}
+
+	getLevel() {
+		return this.custom_data['level'] || 1;
 	}
 
 	set level(_level) {
@@ -177,6 +187,10 @@ class UserInfo {
 	}
 
 	get rank() {
+		return this.custom_data['rank'] || UserInfo.INITIAL_RANK;
+	}
+
+	getRank() {
 		return this.custom_data['rank'] || UserInfo.INITIAL_RANK;
 	}
 
