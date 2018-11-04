@@ -103,9 +103,10 @@ namespace PaintLayer {
 			this.chunks = null;
 		}
 
-		static get CHUNK_RES() {
+		/*static get CHUNK_RES() {
 			return CHUNK_RES;
-		}
+		}*/
+		public static CHUNK_RES = CHUNK_RES;
 		/*static get CHUNK_SIZE() {
 			return CHUNK_SIZE;
 		}*/

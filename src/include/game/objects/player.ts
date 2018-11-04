@@ -257,9 +257,10 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 			this._points = Math.round( Math.max(0, value) );
 		}
 
-		static get INITIAL_SCALE() {
+		/*static INITIAL_SCALE() {
 			return SCALE;
-		}
+		}*/
+		public static INITIAL_SCALE = SCALE;
 
 		//static get TYPES() {
 		//	return TYPES;

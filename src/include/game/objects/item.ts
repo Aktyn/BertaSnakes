@@ -9,11 +9,11 @@ const Item = (function() {
 		var _Object2D_ = Object2D;
 	}
 
-	enum TYPES {//enum
-		HEALTH,
-		SPEED,
-		ENERGY
-	}
+	const TYPES = {//enum
+		HEALTH: 0,
+		SPEED: 1,
+		ENERGY: 2
+	};
 	//NOTE - sum of this array must be equal to 1 and it must be sorted with ascending order
 	const PROBABILITIES = [0.1, 0.2, 0.7];
 
@@ -25,14 +25,14 @@ const Item = (function() {
 	var sc = 0;
 
 	return class Item extends _Object2D_ {
-		public type: TYPES;
+		public type: number;
 
 		private blink_percent = 0;
 		private timer = 0;
 
 		private entity_name?: string;
 
-		constructor(_type: TYPES) {
+		constructor(_type: number) {
 			super();
 			super.setScale(0, 0);
 
@@ -102,11 +102,12 @@ const Item = (function() {
 			//return (Math.random() * Object.values(TYPES).length) | 0;
 		}
 
-		public static get TYPES() {
+		/*public static get TYPES() {
 			return TYPES;
-		}
+		}*/
+		public static TYPES = TYPES;
 
-		static entityName(type: TYPES) {
+		static entityName(type: number) {
 			switch(type) {
 				default: throw new Error('Incorrect Item type');
 				case TYPES.HEALTH: return 'HEALTH_ITEM';
@@ -115,13 +116,15 @@ const Item = (function() {
 			}
 		}
 
-		static get HEALTH_VALUE() {
+		/*static get HEALTH_VALUE() {
 			return 0.25;
 		}
 
 		static get ENERGY_VALUE() {
 			return 0.2;
-		}
+		}*/
+		public static HEALTH_VALUE = 0.25;
+		public static ENERGY_VALUE = 0.2;
 	};
 })();
 

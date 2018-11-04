@@ -35,10 +35,11 @@ class RoomInfo {
 	private static DEFAULT_MAP = 'Simple Maze';//'Empty', 'Open Maze', 'Simple Maze', 'Snowflake'
 	private static DEFAULT_DURATION = 180;//seconds
 
-	static get MODES() {
+	/*static get MODES() {
 		return GAME_MODES;
-	}
-	// public static GAME_MODES: GAME_MODES = GAME_MODES;
+	}*/
+
+	public static MODES = GAME_MODES;
 
 	private _id: number;
 	public name: string;

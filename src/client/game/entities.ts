@@ -15,10 +15,10 @@
 var Entities = (function() {
 	var current_instance: Entities | null = null;
 
-	enum LAYERS {
-		FOREGROUND,
-		PAINT
-	}
+	const LAYERS = {
+		FOREGROUND: 0,
+		PAINT: 1
+	};
 
 	const DEFAULT_LAYER = LAYERS.FOREGROUND;
 	const DEFAULT_COLOR = Colors.WHITE.buffer;
@@ -28,12 +28,12 @@ var Entities = (function() {
 		id?: number;
 		texture_name: string;
 		color?: Float32Array;
-		layer?: LAYERS;
+		layer?: number;
 		linear?: boolean;
 	}
 
 	interface EntityObjectSchema {
-		layer: LAYERS;
+		layer: number;
 		color: Float32Array;
 		texture: GRAPHICS.ExtendedTexture;//TODO <-- type
 		objects: Object2D[];
@@ -76,7 +76,7 @@ var Entities = (function() {
 		'STREAK': {
 			texture_name: 'streak'
 		},
-		IMMUNITY_AUREOLE: {
+		'IMMUNITY_AUREOLE': {
 			texture_name: 'ring',
 			color: Colors.IMMUNITY_AUREOLE.buffer,
 			layer: LAYERS.PAINT
@@ -184,7 +184,7 @@ var Entities = (function() {
 			current_instance = null;
 		}
 
-		drawLayer(layer: LAYERS) {
+		drawLayer(layer: number) {
 			for(entity_it of this.entities) {
 				if(entity_it.layer !== layer || entity_it.objects.length === 0)
 					continue;
@@ -243,7 +243,7 @@ var Entities = (function() {
 			return false;
 		}
 
-		static LAYERS = LAYERS;
+		public static LAYERS = LAYERS;
 	}
 
 	//@ts-ignore

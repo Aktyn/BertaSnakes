@@ -128,9 +128,10 @@ const EnemySpawner = (function(/*Object2D, Enemy, Movement*/) {
 				this.emitter.update(delta, this.x, this.y, this.state >= 3);
 		}
 
-		static get SCALE() {
+		/*static get SCALE() {
 			return SCALE;
-		}
+		}*/
+		public static SCALE = SCALE;
 	};
 })();
 

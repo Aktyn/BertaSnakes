@@ -17,7 +17,14 @@ interface GameResultJSON {
 	players_results: PlayerResultJSON[]
 }
 
-const GameResult = (function(GameCore) {
+const GameResult = (function() {
+	try {
+		var _GameCore_: typeof GameCore = require('./game_core');
+	}
+	catch(e) {
+		var _GameCore_ = GameCore;
+	}
+
 	const EXP_FACTOR = 0.01;//1 percent per kill point
 	const COINS_PER_BEATEN_PLAYER = 50;
 	const COINS_FOR_POINTS_BONUS_FACTOR = 4;
@@ -25,7 +32,7 @@ const GameResult = (function(GameCore) {
 	//according to killed enemies minus deaths, player's level and points
 	function calculateExpReward(player: any) {
 		return Math.max(0,
-			player.kills + player.points/GameCore.PARAMS.points_for_enemy_kill - player.deaths*5
+			player.kills + player.points/_GameCore_.GET_PARAMS().points_for_enemy_kill-player.deaths*5
 		) * EXP_FACTOR / Math.sqrt(player.level);
 	}
 
@@ -36,7 +43,7 @@ const GameResult = (function(GameCore) {
 		let beaten_players = players_count - (position+1);
 		return Math.round( 
 			beaten_players * COINS_PER_BEATEN_PLAYER + 
-			points/GameCore.PARAMS.points_for_enemy_kill * COINS_FOR_POINTS_BONUS_FACTOR * 
+			points/_GameCore_.GET_PARAMS().points_for_enemy_kill * COINS_FOR_POINTS_BONUS_FACTOR * 
 				( (players_count-1) / 8 )
 		);
 	}
@@ -105,7 +112,7 @@ const GameResult = (function(GameCore) {
 		constructor(game?: any) {
 			this.players_results = [];
 
-			if(game instanceof GameCore) {//this should be invoke only server-side
+			if(game instanceof _GameCore_) {//this should be invoke only server-side
 				game.players.sort((a: any, b: any) => b.points - a.points)
 					.forEach((player: any, index: any, arr: any) => 
 				{
@@ -144,10 +151,7 @@ const GameResult = (function(GameCore) {
 			return result;
 		}
 	};
-})(
-	//@ts-ignore
-	typeof GameCore !== 'undefined' ? GameCore : require('./game_core.js')
-);
+})();
 
 try {//export for NodeJS
 	module.exports = GameResult;

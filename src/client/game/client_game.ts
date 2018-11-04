@@ -240,8 +240,8 @@ namespace ClientGame {
 				case NetworkCodes.ON_PLAYER_ENEMY_PAINTER_COLLISION:
 					p_h = this.players[ data[index + 1] | 0 ];
 
-					/*p_h.points -= GameCore.PARAMS.points_lose_for_enemy_painter_collision;
-					p_h.hp -= GameCore.PARAMS.enemy_painter_collision_damage;
+					/*p_h.points -= GameCore.GET_PARAMS().points_lose_for_enemy_painter_collision;
+					p_h.hp -= GameCore.GET_PARAMS().enemy_painter_collision_damage;
 					if(p_h.hp < 0.01)
 						p_h.hp = 0.01;*/
 					p_h.hp = data[index + 4];
@@ -252,7 +252,7 @@ namespace ClientGame {
 					this.renderer.GUI.onPlayerPointsChange(data[index + 1], p_h.points);
 
 					this.explosionEffect(data[index + 2], data[index + 3], 
-						GameCore.PARAMS.small_explosion_radius);
+						GameCore.GET_PARAMS().small_explosion_radius);
 
 					index += 6;
 					break;
@@ -325,7 +325,7 @@ namespace ClientGame {
 					index += 2;
 					break;
 				case NetworkCodes.SPAWN_ENEMY://enemy_class_index, object_id, pos_x, pos_y, rot
-					let enemy = new GameCore.ENEMY_CLASSES[data[index + 1]]();//new RocketEnemy();
+					let enemy = new (GameCore.GET_ENEMY_CLASSES())[data[index + 1]]();
 
 					enemy.id = data[index + 2];
 					enemy.setPos( data[index + 3], data[index + 4] );
@@ -411,7 +411,7 @@ namespace ClientGame {
 					bomb.id = data[index + 2];
 					bomb.timestamp = Date.now();
 
-					this.bombs.push( <any>bomb );
+					this.bombs.push( bomb );
 
 					index += 5;
 					break;
@@ -421,13 +421,13 @@ namespace ClientGame {
 							this.bombs[b_i].expired = true;
 					}
 					this.explosionEffect(data[index+2], data[index+3], 
-						GameCore.PARAMS.bomb_explosion_radius);
+						GameCore.GET_PARAMS().bomb_explosion_radius);
 
 					index += 4;
 					break;
 				case NetworkCodes.ON_POISON_STAIN://stain_index, pos_x, pos_y, size
 					super.drawStain( data[index + 1], data[index + 2], data[index + 3], 
-						data[index + 4]*GameCore.PARAMS.stain_shrink );
+						data[index + 4]*GameCore.GET_PARAMS().stain_shrink );
 
 					index += 5;
 					break;
@@ -466,7 +466,7 @@ namespace ClientGame {
 					break;
 				case NetworkCodes.ON_INSTANT_HEAL:
 					p_h = this.players[ data[index + 1] | 0 ];
-					p_h.hp += GameCore.PARAMS.instant_heal_value;
+					p_h.hp += GameCore.GET_PARAMS().instant_heal_value;
 					this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
 
 					if(this.renderer.withinVisibleArea(p_h.x, p_h.y, 0.5) === true) {
@@ -482,11 +482,11 @@ namespace ClientGame {
 				//pos_x, pos_y, player_color_index
 				case NetworkCodes.ON_ENERGY_BLAST:
 					if(this.renderer.withinVisibleArea(data[index+1], data[index+2], 
-						GameCore.PARAMS.energy_blast_radius) === true) {
+						GameCore.GET_PARAMS().energy_blast_radius) === true) {
 						
 						//@ts-ignore
 						let blast_emitter = new Emitters.EnergyBlast(data[index+1], data[index+2], 
-							GameCore.PARAMS.energy_blast_radius, 
+							GameCore.GET_PARAMS().energy_blast_radius, 
 							Colors.PLAYERS_COLORS[ data[index+3] ]);
 						blast_emitter.timestamp = Date.now();
 						
@@ -494,7 +494,7 @@ namespace ClientGame {
 						this.emitters.push( blast_emitter );
 					}
 					//super.paintHole(data[index+1],data[index+2],
-					//	GameCore.PARAMS.energy_blast_radius);
+					//	GameCore.GET_PARAMS().energy_blast_radius);
 
 					index += 4;
 					break;
@@ -515,7 +515,7 @@ namespace ClientGame {
 					//if(p_h.effects.isActive(Effects.SHIELD) === false && 
 					//	p_h.effects.isActive(Effects.SPAWN_IMMUNITY) === false) 
 					//{
-					//p_h.points -= GameCore.PARAMS.points_lose_for_enemy_collision;
+					//p_h.points -= GameCore.GET_PARAMS().points_lose_for_enemy_collision;
 					this.renderer.GUI.onPlayerPointsChange(
 						data[index + 2] | 0, p_h.points);
 					//}
@@ -527,7 +527,7 @@ namespace ClientGame {
 					var xx = p_h.x - data[index + 8] * p_h.width;
 					var yy = p_h.y - data[index + 9] * p_h.height;
 
-					this.explosionEffect(xx, yy, GameCore.PARAMS.explosion_radius);
+					this.explosionEffect(xx, yy, GameCore.GET_PARAMS().explosion_radius);
 
 					index += 10;
 					break;
@@ -538,7 +538,7 @@ namespace ClientGame {
 					}
 					//console.log(data[index + 2], data[index + 3]);
 					super.paintHole(data[index + 2], data[index + 3], 
-						GameCore.PARAMS.bullet_explosion_radius);
+						GameCore.GET_PARAMS().bullet_explosion_radius);
 					this.hit_effects.hit(data[index + 2], data[index + 3], false);
 
 					index += 4;
@@ -770,15 +770,15 @@ namespace ClientGame {
 			p_h2.hp = victim_hp;
 			this.renderer.GUI.onPlayerHpChange(victim_i, p_h2.hp);
 
-			p_h.points += damage * GameCore.PARAMS.points_for_player_damage;
+			p_h.points += damage * GameCore.GET_PARAMS().points_for_player_damage;
 			this.renderer.GUI.onPlayerPointsChange(attacker_i, p_h.points);
 
 			if(p_h2.isAlive() === false) {
-				//this.onPlayerDeath(p_h2, GameCore.PARAMS.explosion_radius);
+				//this.onPlayerDeath(p_h2, GameCore.GET_PARAMS().explosion_radius);
 				this.onPlayerKilledPlayer(attacker_i, victim_i);
 
 				//p_h.kills++;
-				//p_h.points += GameCore.PARAMS.points_for_player_kill;
+				//p_h.points += GameCore.GET_PARAMS().points_for_player_kill;
 			}
 		}
 
@@ -791,13 +791,13 @@ namespace ClientGame {
 
 			if(this.room.gamemode === GAME_MODES.COOPERATION) {	
 				(<any>this.players[player_i]).points += 
-					damage * GameCore.PARAMS.points_for_enemy_damage;
+					damage * GameCore.GET_PARAMS().points_for_enemy_damage;
 				this.renderer.GUI.onPlayerPointsChange(player_i, 
 					(<any>this.players[player_i]).points);
 			}
 
 			if(e_h.isAlive() === false) {//enemy died - exploson
-				this.explosionEffect(hit_x, hit_y, GameCore.PARAMS.explosion_radius);
+				this.explosionEffect(hit_x, hit_y, GameCore.GET_PARAMS().explosion_radius);
 				this.onPlayerKilledEnemy( player_i, enemy_i );
 				
 				e_h.expired = true;//safe removing (after processed by other methods)
@@ -830,12 +830,12 @@ namespace ClientGame {
 
 		onPlayerKilledPlayer(attacker_i: number, victim_i: number) {
 			this.onPlayerKill(attacker_i, 'Player killed', GAME_MODES.COMPETITION,
-				GameCore.PARAMS.points_for_player_kill, this.players[victim_i]);
+				GameCore.GET_PARAMS().points_for_player_kill, this.players[victim_i]);
 		}
 
 		onPlayerKilledEnemy(player_i: number, enemy_i: number) {
 			this.onPlayerKill(player_i, 'Enemy killed', GAME_MODES.COOPERATION,
-				GameCore.PARAMS.points_for_enemy_kill, this.enemies[enemy_i]);
+				GameCore.GET_PARAMS().points_for_enemy_kill, this.enemies[enemy_i]);
 		}
 
 		trySkillUse(index: number) {

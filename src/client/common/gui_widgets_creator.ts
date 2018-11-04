@@ -14,13 +14,13 @@ interface SkillSlotSchema {
 }
 
 const WIDGETS_CREATOR = (function() {
-	enum STATES {//ENUM
-		NORMAL,//ready to use
-		IN_USE,//already in use
-		TO_BUY,//not yet bought
-		BOUGHT,
-		LOCKED
-	}
+	const STATES = {//ENUM
+		NORMAL: 0,//ready to use
+		IN_USE: 1,//already in use
+		TO_BUY: 2,//not yet bought
+		BOUGHT: 3,
+		LOCKED: 4
+	};
 
 	function createSkillDescriptionHTML(skill: SkillsScope.SkillData, show_requirements: boolean) {
 		let temp = $$.create('DIV').addChild( 
@@ -127,7 +127,7 @@ const WIDGETS_CREATOR = (function() {
 
 			return {
 				domElement: widget,
-				setState: function(state: STATES) {
+				setState: function(state: number) {
 					widget.setClass('ship_widget');//removes additional classes
 					switch(state) {
 						default: throw new Error('Incorrect state');
@@ -210,7 +210,7 @@ const WIDGETS_CREATOR = (function() {
 
 			return {
 				domElement: widget,
-				setState: function(state: STATES) {
+				setState: function(state: number) {
 					widget.setClass('skill_widget');
 					switch(state) {
 						default: throw new Error('Incorrect state');

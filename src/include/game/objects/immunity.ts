@@ -33,9 +33,10 @@ const Immunity = (function() {
 			this.timer = 0;
 
 			//@ts-ignore
-			if(typeof Entities !== 'undefined')
+			if(typeof Entities !== 'undefined') {
 				//@ts-ignore
 				Entities.addObject(Entities[ENTITY_NAME].id, this);
+			}
 		}
 
 		destroy() {

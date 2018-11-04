@@ -660,9 +660,10 @@ namespace GRAPHICS {
 			enableAddiveBlending(false);
 		}
 
-		static get VALUES_PER_PARTICLE() {
+		/*static get VALUES_PER_PARTICLE() {
 			return VALUES_PER_PARTICLE;
-		}
+		}*/
+		public static VALUES_PER_PARTICLE = VALUES_PER_PARTICLE;
 	};
 	//})(),
 

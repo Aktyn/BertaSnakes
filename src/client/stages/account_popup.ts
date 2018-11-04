@@ -146,8 +146,15 @@ namespace Popup {
 			this.popup_body.addChild(
 				$$.create('DIV').setStyle({display: 'inline-block'})
 					.addChild( [rank_info, level_info, coins_info] )
-			).addChild( [this.ships_list, this.skills_list, this.skills_bar, this.friends_list] )
-				.addChild( COMMON.createLoader().setAttrib('id', 'account_popup_loader') );
+			).addChild( [this.ships_list, this.skills_list, this.skills_bar, this.friends_list] );
+			try {
+				this.popup_body.addChild(
+					COMMON.createLoader().setAttrib('id', 'account_popup_loader'));
+				
+			}
+			catch(e) {
+				console.log('Cannot create loader');
+			}
 
 			Network.requestAccountData();
 		}
@@ -242,6 +249,7 @@ namespace Popup {
 			this.ships_list.html('');
 			data['avaible_ships'].forEach(ship => {
 				let ship_widget = WIDGETS_CREATOR.createShipWidget(ship, this);
+				
 				if(ship === data['ship_type'])
 					ship_widget.setState(WIDGETS_CREATOR.WIDGET_STATES.IN_USE);
 				else

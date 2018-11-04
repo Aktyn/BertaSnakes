@@ -2,6 +2,7 @@
 ///<reference path="common/common.ts"/>
 ///<reference path="chat.ts"/>
 ///<reference path="engine/device.ts"/>
+///<reference path="engine/settings.ts"/>
 
 //const GamePanel = (function() {
 
@@ -131,7 +132,7 @@ class GamePanel extends Chat {
 			});
 
 		this.panel_widget = $$.create('DIV').addClass('game_gui_right').setStyle({
-			width: '' + GamePanel.RIGHT_PANEL_WIDTH + 'px'
+			'width': '' + GamePanel.RIGHT_PANEL_WIDTH + 'px'
 		}).addChild(//panel header
 			$$.create('DIV').addClass('header').addChild(
 				$$.create('IMG').addClass('icon_btn')
@@ -179,7 +180,7 @@ class GamePanel extends Chat {
 		).addChild(//chat widget
 			//super.createWidget().setStyle({
 			this.chat_widget.setStyle({
-				width: '' + GamePanel.RIGHT_PANEL_WIDTH + 'px',
+				'width': '' + GamePanel.RIGHT_PANEL_WIDTH + 'px',
 			})
 		).addChild( panel_slider );
 

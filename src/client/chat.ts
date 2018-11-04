@@ -123,9 +123,10 @@ const Chat = (function() {
 			ChatClass.instance_handler = this;
 		}
 
-		static get currentInstance() {
+		/*static get currentInstance() {
 			return ChatClass.instance_handler;
-		}
+		}*/
+		public static currentInstance = ChatClass.instance_handler
 
 		onRoomJoined() {
 			var current_room = Network.getCurrentRoom();

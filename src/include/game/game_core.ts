@@ -2,7 +2,7 @@
 ///<reference path="collision_detector.ts"/>
 ///<reference path="common/colors.ts"/>
 ////<reference path="objects/player.ts"/>
-////<reference path="objects/enemy.ts"/>
+///<reference path="objects/enemy.ts"/>
 ////<reference path="objects/rocket_enemy.ts"/>
 ////<reference path="objects/poisonous_enemy.ts"/>
 ////<reference path="objects/enemy_spawner.ts"/>
@@ -229,11 +229,11 @@ const GameCore = (function(/*GameMap, CollisionDetector, Colors, Player,
 			super.update(delta);
 		}
 
-		static get PARAMS() {
+		static GET_PARAMS() {
 			return PARAMS;
 		}
 
-		static get ENEMY_CLASSES() {
+		static GET_ENEMY_CLASSES(): (typeof RocketEnemy | typeof PoisonousEnemy)[] {
 			return ENEMY_CLASSES;
 		}
 

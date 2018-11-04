@@ -84,7 +84,7 @@ namespace Renderer {
 			$$(window).on('resize', onResize);
 
 			this.camera = new Vector.Vec3f(0, 0, 1);
-			this._zoom = 1;
+			this._zoom = 0.8;
 
 			// $$(window).on('wheel', e => this.zoom(e.wheelDelta / 120));
 			//@ts-ignore
@@ -195,12 +195,17 @@ namespace Renderer {
 		}
 
 		updateCamera(delta: number) {
-			if(this._zoom !== this.camera.z) {
-				this.camera.z += (this._zoom - this.camera.z) * delta * 6.0;
+			var a = GRAPHICS.getAspect();
+			var sqrtA = Math.sqrt(a);
+			//console.log(sqrtA);
+
+			if(this._zoom*sqrtA !== this.camera.z) {
+				
+				this.camera.z += (this._zoom*sqrtA - this.camera.z) * delta * 6.0;
 
 				// if(Math.abs(this.camera.z - this.zoom) < 0.001)
-				if(Math.abs(this.camera.z - this._zoom) < 0.001)
-					this.camera.z = this._zoom;
+				if(Math.abs(this.camera.z - this._zoom*sqrtA) < 0.001)
+					this.camera.z = this._zoom*sqrtA;
 			}
 			if(this.focused !== null) {
 				var dtx = this.focused.x - this.camera.x;
@@ -213,7 +218,7 @@ namespace Renderer {
 			///	this.camera.set(this.focused.x, this.focused.y);//camera movement without smoothing
 
 			//clamping to edges
-			var a = GRAPHICS.getAspect();
+			
 			var cam_max = this.map.map_size - 1/this.camera.z;
 			var cam_max_a = this.map.map_size - a/this.camera.z;
 			if(this.camera.y > cam_max)

@@ -59,7 +59,7 @@ namespace GameMap {
 
 			//server-side use for constantly sending object updates each few frames
 			//clientside use for receiving and applying updates
-			this.server_synchronized = [<Object2D[]><unknown>this.enemies];
+			this.server_synchronized = [this.enemies];
 		}
 
 		destroy() {
