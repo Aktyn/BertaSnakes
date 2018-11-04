@@ -55,6 +55,10 @@ namespace MovementScope {
 				this._state &= ~flag;
 		}
 
+		isFlagEnabled(flag: number) {
+			return !!(this._state & flag);
+		}
+
 		resetState(): void {
 			this._state = 0;
 		}

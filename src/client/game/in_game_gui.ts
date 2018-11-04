@@ -29,7 +29,7 @@ interface GUI_PlayerInfo {
 }
 
 enum TurnDirection {
-	LEFT, RIGHT
+	LEFT, RIGHT, UP, DOWN, NONE
 }
 
 class InGameGUI {
@@ -140,8 +140,9 @@ class InGameGUI {
 	private skill_use_listener: ((arg: number | string) => void) | null = null;
 	private skill_stop_listener: ((arg: number | string) => void) | null = null;
 	private turn_arrow_listener: ((arg: TurnDirection, released: boolean) => void) | null = null;
+	private on_speed_change_listener: ((arg: TurnDirection) => void) | null = null;
 
-	private mobile_speed_state = 0;//only in mobile mode
+	private mobile_speed_state = 1;//only in mobile mode
 
 	private entries_container: $_face;
 	private notifications_container?: $_face;
@@ -259,11 +260,12 @@ class InGameGUI {
 			var checkSpeedFactor = () => {
 				var factor = 1.0 - speed_controller_child.scrollTop / 
 					(speed_controller_child.scrollHeight - speed_controller_child.clientHeight);
+				//console.log(factor);
 				this.mobile_speed_state = factor;
 			};
 
 			speed_controller_child.on('touchmove', checkSpeedFactor);
-			speed_controller_child.on('touchcancel', () => setTimeout(checkSpeedFactor, 500))
+			speed_controller_child.on('touchend', () => setTimeout(checkSpeedFactor, 500))
 
 			var turn_left_btn = $$.create('DIV').setStyle({'transform': 'rotate(90deg)'});
 			var turn_right_btn = $$.create('DIV').setStyle({'transform': 'rotate(270deg)'});
@@ -362,6 +364,10 @@ class InGameGUI {
 
 	onTurnArrowPressed(callback: (dir: TurnDirection, released: boolean) => void) {//only mobile
 		this.turn_arrow_listener = callback;
+	}
+
+	onSpeedChange(callback: (dir: TurnDirection) => void) {
+		this.on_speed_change_listener = callback;
 	}
 
 	updateTimer(duration: number) {
@@ -516,10 +522,28 @@ class InGameGUI {
 	update(focused: any, delta: number) {
 		if(Device.info.is_mobile) {
 			// mobile_speed_state
-			//TODO - send speed change request to server
-
 			let percent = InGameGUI.toPercent(this.mobile_speed_state);
 			this.focused_speed.setText( percent ).setStyle( {'width': percent} );
+
+			var speed_normalized = focused.movement.speed / focused.movement.maxSpeed;
+			if(Math.abs(speed_normalized - this.mobile_speed_state) > 0.05) {
+				if(this.on_speed_change_listener) {
+					if(this.mobile_speed_state > speed_normalized && 
+						focused.movement.isFlagEnabled(Movement.FLAGS.UP) === false)
+							this.on_speed_change_listener(TurnDirection.UP)
+					else if(this.mobile_speed_state < speed_normalized && 
+						focused.movement.isFlagEnabled(Movement.FLAGS.DOWN) === false) 
+							this.on_speed_change_listener(TurnDirection.DOWN)
+				}
+			}
+			else if(focused.movement.isFlagEnabled(Movement.FLAGS.UP) || 
+				focused.movement.isFlagEnabled(Movement.FLAGS.DOWN)) {
+
+				if(this.on_speed_change_listener) {
+					console.log('STOP');
+					this.on_speed_change_listener(TurnDirection.NONE);
+				}
+			}
 		}
 		else if(this.focused_speed_value !== focused.movement.speed) {
 			this.focused_speed_value = focused.movement.speed;

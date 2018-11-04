@@ -704,6 +704,23 @@ namespace ClientGame {
 							[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
 					}
 				});
+
+				this.renderer.GUI.onSpeedChange((dir: TurnDirection) => {
+					var focused = this.renderer.focused;
+					if(focused === null || focused.spawning === true)
+						return;
+
+					var preserved_state = focused.movement.state;
+
+					focused.movement.set( Movement.FLAGS.UP, dir === TurnDirection.UP );
+					focused.movement.set( Movement.FLAGS.DOWN, dir === TurnDirection.DOWN );
+
+					if(preserved_state != focused.movement.state) {
+						focused.movement.smooth = false;
+						Network.sendByteBuffer(Uint8Array.from(
+							[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
+					}
+				});
 			}
 			catch(e) {
 				console.error(e);

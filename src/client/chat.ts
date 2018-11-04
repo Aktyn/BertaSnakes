@@ -280,7 +280,7 @@ const Chat = (function() {
 				}
 			});
 
-			if(this.input)
+			if(this.input && Device.info.is_mobile === false)
 				this.input.focus();
 		}
 

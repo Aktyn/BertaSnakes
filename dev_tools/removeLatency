@@ -1,0 +1,3 @@
+#!/bin/bash
+#removes localhost latency
+sudo tc qdisc del dev lo root netem

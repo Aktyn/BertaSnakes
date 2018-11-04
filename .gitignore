@@ -1,4 +1,5 @@
 .jshintrc
+node_modules/
 MySQL_Schemas/
 debug_tools/
 NOTES.txt
