@@ -119,7 +119,6 @@ namespace Renderer {
 			
 			this.main_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
 			this.paint_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
-
 			
 			this.main_shader = GRAPHICS.SHADERS.create( ASSETS.getShaderSources('main_shader') );
 			this.post_shader = GRAPHICS.SHADERS.create( ASSETS.getShaderSources('post_shader') );

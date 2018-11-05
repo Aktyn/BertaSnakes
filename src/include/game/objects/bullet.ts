@@ -28,7 +28,7 @@ const Bullet = (function() {
 		public parent: Object2D;
 		private lifetime: number;
 		private speed: number;
-		public sensor: Sensor;
+		public sensor: Sensor.Class;
 
 		//NOTE - parent must constains a Painter instance as 'painter' property name
 		//@parent - instance that 'owns' this bullet
@@ -46,7 +46,7 @@ const Bullet = (function() {
 			this.lifetime = MAXIMUM_LIFETIME;
 			this.speed = DEFAULT_SPEED;
 
-			this.sensor = new _Sensor_( _Sensor_.SHAPES.BULLET );
+			this.sensor = new _Sensor_.Class( _Sensor_.SHAPES.BULLET );
 
 			//@ts-ignore
 			if(typeof Entities !== 'undefined') {

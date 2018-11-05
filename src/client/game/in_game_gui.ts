@@ -556,6 +556,7 @@ class InGameGUI {
 			this.focused_hp_value = focused.hp;
 
 			let percent = InGameGUI.toPercent(focused.hp);
+			//console.log( percent, focused.hp, focused );
 			this.focused_health.setText( percent ).setStyle( {'width': percent} );
 		}
 		if(this.focused_energy_value !== focused.energy) {

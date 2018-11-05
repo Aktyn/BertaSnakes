@@ -128,7 +128,7 @@ var Entities = (function() {
 		});
 	});
 	
-	var ids = 0, key, l, entity_it, obj_it;//data
+	var ids = 0, key, l, entity_it, ii, obj_it;//data
 
 	for(key in EntitiesData)//assigning id to each entity data
 		EntitiesData[key].id = ids++;
@@ -185,7 +185,9 @@ var Entities = (function() {
 		}
 
 		drawLayer(layer: number) {
-			for(entity_it of this.entities) {
+			// for(entity_it of this.entities) {
+			for(ii=0; ii<this.entities.length; ii++) {
+				entity_it = this.entities[ii];
 				if(entity_it.layer !== layer || entity_it.objects.length === 0)
 					continue;
 

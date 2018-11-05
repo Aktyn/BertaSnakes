@@ -3,7 +3,7 @@
 ///<reference path="common/common.ts"/>
 ///<reference path="common/utils.ts"/>
 
-class RoomsList/* extends SessionWidget*/ {
+class RoomsList {
 	public widget: $_face;
 	public switcher_widget: $_face;
 

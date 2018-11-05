@@ -24,7 +24,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 	return class Enemy extends _Object2D_ {
 		private entity_name: string;
 		private movement: MovementScope.Movement;
-		public sensor: Sensor;
+		public sensor: Sensor.Class;
 		public hp_bar: Objects.HpBar;
 
 		private _spawning = false;
@@ -45,7 +45,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 
 			// this._spawning = false;
 
-			this.sensor = new _Sensor_( sensor_shape );
+			this.sensor = new _Sensor_.Class( sensor_shape );
 			this.hp_bar = new _HpBar_(SCALE, REGENERATION_SPEED);//needs destroying
 			
 			//@ts-ignore
@@ -77,7 +77,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 		}
 
 		update(delta: number) {
-			this.movement.applyMove(<Object2D><unknown>this, delta);
+			this.movement.applyMove(this, delta);
 			super.update(delta);
 
 			this.hp_bar.update_hpbar(delta, this.x, this.y, this.height);

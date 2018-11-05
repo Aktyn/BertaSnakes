@@ -10,7 +10,7 @@ interface RoomUserEntry {
 	nodes: $_face[];
 }
 
-class RoomView/* extends SessionWidget*/ {
+class RoomView {
 	private static amIsitting = function() {
 		try {
 			//@ts-ignore

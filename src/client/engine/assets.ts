@@ -3,19 +3,21 @@
 ///<reference path="../../include/game/objects/emoticon.ts"/>
 ///<reference path="../../include/game/common/colors.ts"/>
 
-interface ShaderSourceI {
-	vertex_source: string;
-	fragment_source: string;
-}
+namespace ASSETS {
 
-interface AssetsMethods {
-	loaded(): boolean;
-	onload(callback: () => void): void;
-	getShaderSources(name: string): ShaderSourceI;
-	getTexture(name: string): HTMLCanvasElement | HTMLImageElement;
-}
+	interface ShaderSourceI {
+		vertex_source: string;
+		fragment_source: string;
+	}
 
-const ASSETS = (function() {
+	/*interface AssetsMethods {
+		loaded(): boolean;
+		onload(callback: () => void): void;
+		getShaderSources(name: string): ShaderSourceI;
+		getTexture(name: string): HTMLCanvasElement | HTMLImageElement;
+	}*/
+
+// const ASSETS = (function() {
 	const SHADERS_PATH = 'shaders/';
 	const TEXTURES_PATH = 'img/textures/';
 
@@ -96,17 +98,8 @@ const ASSETS = (function() {
 			SHADERS_PATH+'particles.vs', SHADERS_PATH+'particles.fs');
 	}
 
-	var self: AssetsMethods = {
-		loaded: () => pending === 0,
-		onload: function(callback) {
-			if(this.loaded())
-				callback();
-			else
-				onLoadCallbacks.push( callback );
-		},
-		getShaderSources: name => shaders[name] || notFound(name),
-		getTexture: name => textures[name] || notFound(name)
-	};
+	//var self: AssetsMethods = {
+	//};
 
 	function loadShaderSource(name: string, vertex_file_path: string, fragment_file_path: string) {
 		pending++;
@@ -189,6 +182,22 @@ const ASSETS = (function() {
 				.setAttrib('src', TEXTURES_PATH + 'players/type_' + (type_i+1) + '.png');
 		});
 	}
+
+	export function loaded() {
+		return pending === 0;
+	}
+	export function onload(callback: () => void) {
+		if(loaded())
+			callback();
+		else
+			onLoadCallbacks.push( callback );
+	}
+	export function getShaderSources(name: string) {
+		return shaders[name] || notFound(name);
+	}
+	export function getTexture(name: string) {
+		return textures[name] || notFound(name);
+	}
 	
 	//LOADING GAME RESOURCES ASYNCHRONOUSLY
 	$$.runAsync(() => {
@@ -200,7 +209,7 @@ const ASSETS = (function() {
 		pending--;
 
 		let checkLoaded = () => {
-			if(self.loaded())
+			if(loaded())
 				onLoadCallbacks.forEach(cb => cb());
 			else
 				setTimeout(checkLoaded, 100);
@@ -208,5 +217,5 @@ const ASSETS = (function() {
 		checkLoaded();
 	});
 
-	return self;
-})();
+	//return self;
+}//)();

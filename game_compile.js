@@ -15,7 +15,11 @@ function postModify(code) {
 	return '"use strict";' + code;
 }
 
-var code = fs.readFileSync(target_file, 'utf8');
+var code = fs.readFileSync(target_file, 'utf8')
+	.replace(/([^/\n]*)(var|const|let).*require\([^)]+\);/gi, '$1throw "skipping server-side code";')
+	.replace(/(\ *).*require\([^)]+\);/gi, '$1//removed require function')
+	.replace(/try {[^\n]*\n\ *module.exports[^;]*;\n}[^\n]*\ncatch.*/gi, '//removed server-side code')
+	.replace(/\/\/\/<reference path=[^>]+>/gi, '//removed typescript reference');
 
 function onCompiled(compiled_code) {
 	fs.writeFileSync(target_file, compiled_code, 'utf8');
@@ -24,10 +28,12 @@ function onCompiled(compiled_code) {
 
 let data = {
 	//'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS', 'WHITESPACE_ONLY',
-	compilation_level: 'SIMPLE_OPTIMIZATIONS',
+	compilation_level: 'ADVANCED_OPTIMIZATIONS',
 	js_code: code,
 	output_format: 'text',
 	output_info: 'compiled_code',
+	// use_types_for_optimization: true,//causes weird issues (functions dissapears)
+	// language: 'ECMASCRIPT5_STRICT',
 	language_out: 'ECMASCRIPT5_STRICT'//ECMASCRIPT6_STRICT, ECMASCRIPT5_STRICT
 };
 
@@ -39,3 +45,4 @@ request.post({
 	else
 		onCompiled(body);//saveResult(body);
 });
+// onCompiled(code);

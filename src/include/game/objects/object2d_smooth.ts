@@ -2,16 +2,6 @@
 
 //namespace Object2DScope {
 var Object2DSmooth = (function(Object2D) {
-	// try {
-	// 	if(typeof Object2D === 'undefined') {
-	// 		//@ts-ignore
-	// 		var Object2D = require('./object2d');
-	// 	}
-	// }
-	// catch(e) {}
-
-	// var Object2DSmooth = (function() {
-	// 	const SMOOTHNESS = 20, POS_SMOOTHNESS = 20, PI_2 = Math.PI * 2.0;
 
 	//@ts-ignore
 	class Object2DSmooth extends Object2D {

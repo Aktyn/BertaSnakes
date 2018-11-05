@@ -30,7 +30,7 @@
 
 			// this.active = false;
 		}
-	};
+	}
 //})();
 //	typeof Vector !== 'undefined' ? Vector : require('./../../utils/vector.js')
 //);

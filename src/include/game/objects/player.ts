@@ -83,7 +83,7 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 		private _points: number;
 		public kills: number;
 		public deaths: number;
-		public sensor: Sensor;
+		public sensor: Sensor.Class;
 		public painter: Painter;
 
 		private entity_name?: string;
@@ -140,7 +140,7 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 			this.kills = 0;
 			this.deaths = 0;
 
-			this.sensor = new _Sensor_( PLAYER_SENSOR_SHAPES[type] );
+			this.sensor = new _Sensor_.Class( PLAYER_SENSOR_SHAPES[type] );
 			this.painter = new _Painter_(color, THICKNESS);
 
 			//@ts-ignore
@@ -183,11 +183,11 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 		showEmoticon(name: string) {
 			for(em_i=0; em_i<this.emoticons.length; em_i++)
 				this.emoticons[em_i].endEffect();
-			this.emoticons.push( new Emoticon(name, <Object2D><any>this) );
+			this.emoticons.push( new Emoticon(name, this) );
 		}
 
 		update(delta: number) {
-			this.movement.applyMove(<Object2D><unknown>this, delta);
+			this.movement.applyMove(this, delta);
 
 			for(s_i=0; s_i<this.skills.length; s_i++) {
 				if(this.skills[s_i] !== null)

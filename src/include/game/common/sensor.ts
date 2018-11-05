@@ -1,11 +1,10 @@
-//const Sensor = (function() {
+namespace Sensor {
 
-interface ShapeI {
-	[index: string]: number[][]
-}
+	export interface ShapeI {
+		[index: string]: number[][]
+	}
 
-class Sensor {
-	static SHAPES: ShapeI = {
+	export const SHAPES: ShapeI = {
 		TRIANGLE: 	[[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [-0.5, 0.0], [0.5, 0.0]],
 		SQUARE: 	[[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [-0.5, 0.0], [0.5, 0.0]],
 		PENTAGON: 	[
@@ -20,17 +19,15 @@ class Sensor {
 		BULLET: [[0.0, 1.0], [0.0, -1.0], [-0.5, 0.5], [0.5, 0.5], [-0.5, -0.5], [0.5, -0.5]]
 	};
 
-	public shape: number[][];
+	export class Class {
+		public shape: number[][];
 
-	constructor(shape: number[][]) {
-		this.shape = shape || Sensor.SHAPES.TRIANGLE;//default shape
+		constructor(shape: number[][]) {
+			this.shape = shape || Sensor.SHAPES.TRIANGLE;//default shape
+		}
 	}
 
-	//static get SHAPES() {
-	//	return SHAPES;
-	//
 }
-//})();
 
 try {//export for NodeJS
 	module.exports = Sensor;
