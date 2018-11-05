@@ -24,7 +24,7 @@ function onCompiled(compiled_code) {
 
 let data = {
 	//'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS', 'WHITESPACE_ONLY',
-	compilation_level: 'ADVANCED_OPTIMIZATIONS',
+	compilation_level: 'SIMPLE_OPTIMIZATIONS',
 	js_code: code,
 	output_format: 'text',
 	output_info: 'compiled_code',

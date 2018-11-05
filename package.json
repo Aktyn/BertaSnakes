@@ -45,8 +45,7 @@
     "compile:game": "node ./game_compile",
     "test": "nodejs compiled/server/main 1337",
     "start": "nodejs compiled/server/main 80",
-    "publish": "run-s -c -n clean build:website compile:website build:server build:game compile:game",
-    "publish:clean": "npm run build:game && npm run build:server && nprun compile:game && npm run test --mysqlpass=2718282 --emailpass=tajne/poufne"
+    "publish": "run-s -c -n clean build:website compile:website build:server build:game compile:game"
   },
   "keywords": [
     "game",
