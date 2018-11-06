@@ -139,7 +139,7 @@ class GamePanel extends Chat {
 					.setAttrib('src', 'img/icons/settings.png').on('click', () => {
 						let curr_stage = Stage.getCurrent();
 						if(curr_stage)
-							curr_stage.popup(<PopupDerived><unknown>Popup.Settings);
+							curr_stage.popup(<PopupDerived><unknown>Popup.SettingsPop);
 					})
 			).addChild(
 				$$.create('IMG').addClass('icon_btn')

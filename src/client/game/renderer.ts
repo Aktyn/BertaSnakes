@@ -8,6 +8,10 @@
 
 // const Renderer = (function() {
 namespace Renderer {
+	if(typeof ASSETS === 'undefined')
+		throw "ASSETS module must be loaded before Renderer.Class";
+	var Assets = ASSETS;
+
 	const rect_data = {
 		vertex: [-1, -1, 0, 0, 1, -1, 1, 0, 1, 1, 1, 1, -1, 1, 0, 1],
 		faces: 	[0, 1, 2, 0, 2, 3]
@@ -57,7 +61,7 @@ namespace Renderer {
 		constructor(map: GameMap.Map, map_data: MapJSON_I) {
 			$$.assert(current_instance === null, 'Only single instance of Renderer is allowed');
 			//$$.assert(map instanceof GameMap, 'map argument must be instance of GameMap');
-			if(ASSETS.loaded() !== true)
+			if(Assets.loaded() !== true)
 				throw new Error('Game assets are not loaded');
 
 			const game_canvas = GRAPHICS.init();
@@ -69,7 +73,7 @@ namespace Renderer {
 			this.GUI = new InGameGUI();
 
 			//this.background_test = GRAPHICS.TEXTURES.createFrom(
-			//	ASSETS.getTexture('background_test'), true);
+			//	Assets.getTexture('background_test'), true);
 			this.background_texture = GRAPHICS.TEXTURES.createFrom(
 				map_data['background_texture'], map_data['smooth_background']
 			);
@@ -115,15 +119,14 @@ namespace Renderer {
 				drag_data.x = (<MouseEvent>e).clientX;
 				drag_data.y = (<MouseEvent>e).clientY;
 			});
-
 			
 			this.main_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
 			this.paint_fb = GRAPHICS.FRAMEBUFFERS.create({fullscreen: true, linear: true});
 			
-			this.main_shader = GRAPHICS.SHADERS.create( ASSETS.getShaderSources('main_shader') );
-			this.post_shader = GRAPHICS.SHADERS.create( ASSETS.getShaderSources('post_shader') );
+			this.main_shader = GRAPHICS.SHADERS.create( Assets.getShaderSources('main_shader') );
+			this.post_shader = GRAPHICS.SHADERS.create( Assets.getShaderSources('post_shader') );
 			this.particles_shader = 
-				GRAPHICS.SHADERS.create( ASSETS.getShaderSources('particles_shader') );
+				GRAPHICS.SHADERS.create( Assets.getShaderSources('particles_shader') );
 
 			this.emitters = [];
 			this.paint_emitters = [];

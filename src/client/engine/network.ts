@@ -2,9 +2,13 @@
 ///<reference path="../stages/stage.ts"/>
 ///<reference path="../../include/room_info.ts"/>
 ///<reference path="../../include/user_info.ts"/>
-////<reference path="../game/client_game.js"/>
+///<reference path="../../include/network_codes.ts"/>
 
-const Network = (function() {
+const Network = (function() {//TODO - convert into namespace
+	if(typeof NetworkCodes === 'undefined')
+		throw "_NetworkCodes_ module must be loaded before Network";
+	var _NetworkCodes_ = NetworkCodes || {};
+
 	//@ts-ignore
 	window.WebSocket = window.WebSocket || window.MozWebSocket;
 	$$.assert(typeof WebSocket !== 'undefined', 'No websocket support');
@@ -76,7 +80,7 @@ const Network = (function() {
 		switch(json_data['type']) {
 			//default: 
 			//	throw new Error('Incorrect type value in JSON message');
-			case NetworkCodes.PLAYER_ACCOUNT:
+			case _NetworkCodes_.PLAYER_ACCOUNT:
 				//console.log(json_data, json_data['user_info']);
 				try {
 					CurrentUser = UserInfo.fromFullJSON(json_data['user_info']);
@@ -85,7 +89,7 @@ const Network = (function() {
 					console.error('Cannot create user from JSON', e);
 				}
 				break;
-			case NetworkCodes.ACCOUNT_DATA:
+			case _NetworkCodes_.ACCOUNT_DATA:
 				try {
 					if(CurrentUser !== null) {
 						CurrentUser.custom_data = json_data['data'];
@@ -99,8 +103,8 @@ const Network = (function() {
 					console.error(e);
 				}
 				break;
-			case NetworkCodes.JOIN_ROOM_CONFIRM:
-			case NetworkCodes.CHANGE_ROOM_CONFIRM:
+			case _NetworkCodes_.JOIN_ROOM_CONFIRM:
+			case _NetworkCodes_.CHANGE_ROOM_CONFIRM:
 				try {
 					if(CurrentUser === null)
 						throw new Error('CurrentUser is null');
@@ -115,7 +119,7 @@ const Network = (function() {
 					console.error('Cannot create user from JSON', e);
 				}
 				break;
-			case NetworkCodes.ON_ROOM_UPDATE:
+			case _NetworkCodes_.ON_ROOM_UPDATE:
 				if(CurrentRoom != null) {
 					let updated_room = RoomInfo.fromJSON( json_data['room_info'] );
 					
@@ -123,28 +127,28 @@ const Network = (function() {
 						CurrentRoom.updateData(updated_room);
 				}
 				break;
-			case NetworkCodes.LEAVE_ROOM_CONFIRM:
+			case _NetworkCodes_.LEAVE_ROOM_CONFIRM:
 				CurrentRoom = null;
 				if(CurrentUser)
 					CurrentUser.room = null;
 				break;
-			case NetworkCodes.USER_JOINED_ROOM:
+			case _NetworkCodes_.USER_JOINED_ROOM:
 				if(CurrentRoom == null)
 					throw new Error('CurrentRoom is empty');
 				CurrentRoom.addUser( UserInfo.fromJSON(json_data['user_info']) );
 				break;
-			case NetworkCodes.USER_LEFT_ROOM:
+			case _NetworkCodes_.USER_LEFT_ROOM:
 				if(CurrentRoom == null)
 					throw new Error('CurrentRoom is empty');
 				CurrentRoom.removeUser( json_data['user_id'] );
 				CurrentRoom.updateData( json_data['room_info'] );
 				break;
-			case NetworkCodes.ON_KICKED:
+			case _NetworkCodes_.ON_KICKED:
 				CurrentRoom = null;
 				if(CurrentUser)
 					CurrentUser.room = null;
 				break;
-			case NetworkCodes.START_GAME_FAIL:
+			case _NetworkCodes_.START_GAME_FAIL:
 				if(CurrentRoom == null)
 					throw new Error('CurrentRoom is empty');
 				CurrentRoom.updateData( json_data['room_info'] );
@@ -218,71 +222,71 @@ const Network = (function() {
 			return CurrentRoom.isUserSitting(CurrentUser.id);
 		},
 		subscribeLobby: function() {
-			sendJSON( {'type': NetworkCodes.SUBSCRIBE_LOBBY_REQUEST} );
+			sendJSON( {'type': _NetworkCodes_.SUBSCRIBE_LOBBY_REQUEST} );
 		},
 		joinRoom: function(id: number) {//@id - target room name
-			sendJSON( {'type': NetworkCodes.JOIN_ROOM_REQUEST, 'id': id} );
+			sendJSON( {'type': _NetworkCodes_.JOIN_ROOM_REQUEST, 'id': id} );
 		},
 		leaveRoom: function() {//leaves current room
 			if(CurrentRoom === null)
 				throw new Error('CurrentRoom is null');
-			sendJSON( {'type': NetworkCodes.LEAVE_ROOM_REQUEST, 'id': CurrentRoom.id} );
+			sendJSON( {'type': _NetworkCodes_.LEAVE_ROOM_REQUEST, 'id': CurrentRoom.id} );
 		},
 		createRoom: function() {
-			sendJSON( {'type': NetworkCodes.CREATE_ROOM_REQUEST} );
+			sendJSON( {'type': _NetworkCodes_.CREATE_ROOM_REQUEST} );
 		},
 		sendRoomMessage: function(msg: string) {
-			sendJSON( {'type': NetworkCodes.SEND_ROOM_MESSAGE, 'msg': msg} );
+			sendJSON( {'type': _NetworkCodes_.SEND_ROOM_MESSAGE, 'msg': msg} );
 		},
 		sendPrivateMessage: function(msg: string, target_user_id: number) {
-			sendJSON( {'type': NetworkCodes.SEND_PRIVATE_MESSAGE, 
+			sendJSON( {'type': _NetworkCodes_.SEND_PRIVATE_MESSAGE, 
 				'msg': msg, 'user_id': target_user_id} );
 		},
 		sendAddFriendRequest: function(user_id: number) {
-			sendJSON( {'type': NetworkCodes.ADD_FRIEND_REQUEST, 'user_id': user_id} );
+			sendJSON( {'type': _NetworkCodes_.ADD_FRIEND_REQUEST, 'user_id': user_id} );
 		},
 		sendRemoveFriendRequest: function(user_id: number) {
-			sendJSON( {'type': NetworkCodes.REMOVE_FRIEND_REQUEST, 'user_id': user_id} );
+			sendJSON( {'type': _NetworkCodes_.REMOVE_FRIEND_REQUEST, 'user_id': user_id} );
 		},
 		sendSitRequest: function() {
-			sendJSON( {'type': NetworkCodes.SIT_REQUEST} );
+			sendJSON( {'type': _NetworkCodes_.SIT_REQUEST} );
 		},
 		sendStandUpRequest: function() {
-			sendJSON( {'type': NetworkCodes.STAND_REQUEST} );
+			sendJSON( {'type': _NetworkCodes_.STAND_REQUEST} );
 		},
 		sendReadyRequest: function() {
-			sendJSON( {'type': NetworkCodes.READY_REQUEST} );
+			sendJSON( {'type': _NetworkCodes_.READY_REQUEST} );
 		},
 		requestAccountData: function() {
-			sendJSON( {'type': NetworkCodes.ACCOUNT_DATA_REQUEST} );
+			sendJSON( {'type': _NetworkCodes_.ACCOUNT_DATA_REQUEST} );
 		},
 		requestShipUse: function(type: number) {//TODO - check this types
-			sendJSON( {'type': NetworkCodes.SHIP_USE_REQUEST, 'ship_type': type} );
+			sendJSON( {'type': _NetworkCodes_.SHIP_USE_REQUEST, 'ship_type': type} );
 		},
 		requestShipBuy: function(type: number) {
-			sendJSON( {'type': NetworkCodes.SHIP_BUY_REQUEST, 'ship_type': type} );
+			sendJSON( {'type': _NetworkCodes_.SHIP_BUY_REQUEST, 'ship_type': type} );
 		},
 		requestSkillBuy: function(skill_id: number) {
-			sendJSON( {'type': NetworkCodes.SKILL_BUY_REQUEST, 'skill_id': skill_id} );
+			sendJSON( {'type': _NetworkCodes_.SKILL_BUY_REQUEST, 'skill_id': skill_id} );
 		},
 		requestSkillUse: function(skill_id: number) {
-			sendJSON( {'type': NetworkCodes.SKILL_USE_REQUEST, 'skill_id': skill_id} );
+			sendJSON( {'type': _NetworkCodes_.SKILL_USE_REQUEST, 'skill_id': skill_id} );
 		},
 		requestSkillPutOff: function(skill_id: number) {
-			sendJSON( {'type': NetworkCodes.SKILL_PUT_OFF_REQUEST, 'skill_id': skill_id} );
+			sendJSON( {'type': _NetworkCodes_.SKILL_PUT_OFF_REQUEST, 'skill_id': skill_id} );
 		},
 		//@skills - array of skill indexes and nulls
 		requestSkillsOrder: function(skills: (number | null)[]) {
-			sendJSON( {'type': NetworkCodes.SKILLS_ORDER_REQUEST, 'skills': skills} );
+			sendJSON( {'type': _NetworkCodes_.SKILLS_ORDER_REQUEST, 'skills': skills} );
 		},
 		requestUserKick: function(user_id: number) {
-			sendJSON( {'type': NetworkCodes.USER_KICK_REQUEST, 'user_id': user_id} );
+			sendJSON( {'type': _NetworkCodes_.USER_KICK_REQUEST, 'user_id': user_id} );
 		},
 		sendRoomUpdateRequest: function(name: string, sits_number: number, duration: number, 
 			map: string, gamemode: number) 
 		{
 			sendJSON({
-				'type': NetworkCodes.ROOM_UPDATE_REQUEST, 
+				'type': _NetworkCodes_.ROOM_UPDATE_REQUEST, 
 				'name': name,
 				'map': map,
 				'gamemode': gamemode,
@@ -291,7 +295,8 @@ const Network = (function() {
 			});
 		},
 		confirmGameStart: function() {
-			sendJSON( {'type': NetworkCodes.START_GAME_CONFIRM} );
+			console.log('test:', _NetworkCodes_.START_GAME_CONFIRM, _NetworkCodes_);
+			sendJSON( {'type': _NetworkCodes_.START_GAME_CONFIRM} );
 		},
 
 		assignCurrentGameHandle: function(game: any/*: ClientGame*/) {

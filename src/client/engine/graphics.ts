@@ -1,7 +1,12 @@
 ///<reference path="../common/common.ts"/>
+///<reference path="assets.ts"/>
 
 //const GRAPHICS = (function() {
 namespace GRAPHICS {
+	if(typeof ASSETS === 'undefined')
+		throw "ASSETS module must be loaded before Renderer.Class";
+	var Assets = ASSETS;
+
 	const SESSION_STRING = COMMON.generateRandomString(10);
 
 	var CANVAS: HTMLCanvasElement, GL: WebGLRenderingContext, EXT: WEBGL_draw_buffers, aspect: number;
@@ -616,7 +621,7 @@ namespace GRAPHICS {
 			this.buffer = VBO.createVertexBuffer(_count * VALUES_PER_PARTICLE);
 
 			this.texture = TEXTURES.createFrom(
-				<ImageData><unknown>ASSETS.getTexture( _texture ), true);//linear filtering
+				<ImageData><unknown>Assets.getTexture( _texture ), true);//linear filtering
 			this.count = _count;
 			this.additive = _additive;
 

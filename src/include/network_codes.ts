@@ -3,10 +3,10 @@ interface NetworkPackage {
 	[index: string]: any;
 }
 
-const NetworkCodes = (function() {
+namespace _NetworkCodes_ {
 	
 	//enum NetworkCodes {
-	var self: {[index: string]: number} = {
+	export var self = {
 		//TO SERVER
 		SUBSCRIBE_LOBBY_REQUEST: 0,
 		JOIN_ROOM_REQUEST: 0,//@id - 'number' (target room id)
@@ -130,15 +130,19 @@ const NetworkCodes = (function() {
 
 	//auto numering
 	var j = 0;
-	for(var i in self)
+	for(var i in self) {
+		//@ts-ignore
 		self[i] = j++;
-	return self;
-})();
+	}
+	//return self;
+}
 
-if(NetworkCodes.COUNT_DEBUGGER > 255)
+if(_NetworkCodes_.self.COUNT_DEBUGGER > 255)
 	console.error('More than 256 unique network codes exists!!!');
 
+const NetworkCodes = _NetworkCodes_.self;
+
 try {//export for NodeJS
-	module.exports = NetworkCodes;
+	module.exports = _NetworkCodes_.self;
 }
 catch(e) {}

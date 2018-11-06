@@ -38,7 +38,7 @@ namespace SETTINGS {
 	//CHAT
 	export var chat_auto_hide_show = !Device.info.is_mobile;//DISABLE FOR MOBIL
 
-	export function save() {
+	export function saveAsCookies() {
 		/*Object.getOwnPropertyNames(self).forEach(prop => {
 			if(typeof self[prop] !== 'function') 
 				setCookie(PREFIX + prop, self[prop]);

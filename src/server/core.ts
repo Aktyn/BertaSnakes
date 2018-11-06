@@ -387,7 +387,7 @@ function distributeAndUpdateAccountData(conn: Connection) {
 var handleJSON = function(connection: Connection, json_data: NetworkPackage) {
 	if(connection.user === null)
 		throw new Error('Connection\'s user doesn\'t exist');
-
+	
 	switch(json_data.type) {
 		default: 
 			throw new Error('Incorrect type value in JSON message');

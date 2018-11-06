@@ -1,5 +1,6 @@
 ///<reference path="entities.ts"/>
 ///<reference path="renderer.ts"/>
+///<reference path="../engine/assets.ts"/>
 
 ///<reference path="emitters/hit_emitter.ts"/>
 ///<reference path="emitters/explosion_emitter.ts"/>
@@ -61,6 +62,14 @@ namespace ClientGame {
 		step(0);
 	}
 
+	if(typeof NetworkCodes === 'undefined')
+		throw "NetworkCodes module must be loaded before Network";
+	var _NetworkCodes_ = NetworkCodes || {};
+
+	if(typeof ASSETS === 'undefined')
+		throw "ASSETS module must be loaded before Renderer.Class";
+	var Assets = ASSETS;
+
 	//TODO - p_h => Player type, e_h => Enemy type, b_h =>...
 	var code: number, p_h: any, p_h2: any, s_h: SkillsScope.SkillObject, 
 		p_i: number, e_i: number, b_i: number, i_i: number, 
@@ -100,7 +109,7 @@ namespace ClientGame {
 
 			this.renderer = new Renderer.Class(this, map);
 
-			ASSETS.onload(() => {//making sure game assets are loaded
+			Assets.onload(() => {//making sure game assets are loaded
 				if(this.destroyed === true)
 					return;
 				// this.renderer = new Renderer.Class(this);
@@ -132,7 +141,7 @@ namespace ClientGame {
 			this.emitters = [this.hit_effects];
 
 			setTimeout(() => {
-				if(!ASSETS.loaded())
+				if(!Assets.loaded())
 					throw new Error('Waiting for assets to load timed out');
 			}, 5000);//maximum waiting for assets to load
 		}
@@ -159,13 +168,10 @@ namespace ClientGame {
 		}
 
 		onServerData(data: Float32Array, index = 0) {
-			
-			//index = index || 0;
-
 			switch(data[index] | 0) {
 				default:
 					throw new Error('Received incorrect server data');
-				case NetworkCodes.OBJECT_SYNCHRONIZE://object_id, sync_array_index, pos_x, pos_y, rot
+				case _NetworkCodes_.OBJECT_SYNCHRONIZE://object_id, sync_array_index, pos_x, pos_y, rot
 					synch_array = this.server_synchronized[ data[index+2] ];
 
 					for(obj_i=0; obj_i<synch_array.length; obj_i++) {
@@ -177,7 +183,7 @@ namespace ClientGame {
 
 					index += 6;
 					break;
-				case NetworkCodes.ON_PLAYER_SPAWNING_FINISH:
+				case _NetworkCodes_.ON_PLAYER_SPAWNING_FINISH:
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.spawning = false;
 					p_h.painter.lastPos.set(p_h.x, p_h.y);//reset painter position
@@ -187,14 +193,14 @@ namespace ClientGame {
 
 					index += 4;
 					break;
-				case NetworkCodes.ON_PLAYER_EMOTICON://player_index, emoticon_id
+				case _NetworkCodes_.ON_PLAYER_EMOTICON://player_index, emoticon_id
 					p_h = this.players[ data[index + 1] | 0 ];
 
 					p_h.showEmoticon( InGameGUI.EMOTS[ data[index + 2] ].file_name );
 
 					index += 3;
 					break;
-				case NetworkCodes.DRAW_PLAYER_LINE://NOTE - use for update player position
+				case _NetworkCodes_.DRAW_PLAYER_LINE://NOTE - use for update player position
 					
 					p_h = this.players[ data[index + 1] | 0 ];
 					this.color = p_h.painter.color.hex;
@@ -209,7 +215,7 @@ namespace ClientGame {
 
 					index += 6;
 					break;
-				case NetworkCodes.PLAYER_MOVEMENT_UPDATE:
+				case _NetworkCodes_.PLAYER_MOVEMENT_UPDATE:
 					//console.log(data);
 					p_h = this.players[ data[index + 1] | 0 ];
 					//p_h.setPos(data[index + 2], data[index + 3]);
@@ -237,7 +243,7 @@ namespace ClientGame {
 					index += 5;
 					break;
 				//player_index, player_x, player_y, player_hp, player_points
-				case NetworkCodes.ON_PLAYER_ENEMY_PAINTER_COLLISION:
+				case _NetworkCodes_.ON_PLAYER_ENEMY_PAINTER_COLLISION:
 					p_h = this.players[ data[index + 1] | 0 ];
 
 					/*p_h.points -= GameCore.GET_PARAMS().points_lose_for_enemy_painter_collision;
@@ -256,7 +262,7 @@ namespace ClientGame {
 
 					index += 6;
 					break;
-				case NetworkCodes.ON_PLAYER_BOUNCE:
+				case _NetworkCodes_.ON_PLAYER_BOUNCE:
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.setPos(data[index + 2], data[index + 3], false);
 					p_h.setRot(data[index + 4], true);
@@ -269,7 +275,7 @@ namespace ClientGame {
 
 					index += 7;
 					break;
-				case NetworkCodes.ON_ENEMY_BOUNCE:
+				case _NetworkCodes_.ON_ENEMY_BOUNCE:
 					for(e_i=0; e_i < this.enemies.length; e_i++) {
 						if(this.enemies[e_i].id === (data[index + 1] | 0) ) {
 							e_h = this.enemies[e_i];
@@ -288,7 +294,7 @@ namespace ClientGame {
 
 					index += 7;
 					break;
-				case NetworkCodes.ON_BULLET_BOUNCE://bullet_id, pos_x, pos_y, rot, hit_x, hit_y
+				case _NetworkCodes_.ON_BULLET_BOUNCE://bullet_id, pos_x, pos_y, rot, hit_x, hit_y
 					for(b_i=0; b_i < this.bullets.length; b_i++) {
 						if(this.bullets[b_i].id === (data[index + 1] | 0) ) {
 							b_h = this.bullets[b_i];
@@ -307,7 +313,7 @@ namespace ClientGame {
 
 					index += 7;
 					break;
-				case NetworkCodes.ON_BULLET_HIT://bullet_id, hit_x, hit_y
+				case _NetworkCodes_.ON_BULLET_HIT://bullet_id, hit_x, hit_y
 					for(b_i=0; b_i < this.bullets.length; b_i++) {
 						if( this.bullets[b_i].id === data[index + 1] ) {
 							this.bullets[b_i].expired = true;
@@ -319,12 +325,12 @@ namespace ClientGame {
 
 					index += 4;
 					break;
-				case NetworkCodes.WAVE_INFO:
+				case _NetworkCodes_.WAVE_INFO:
 					// this.renderer.GUI.addNotification('Wave ' + data[index + 1]);
 					this.renderer.GUI.addNotification('More enemies!');
 					index += 2;
 					break;
-				case NetworkCodes.SPAWN_ENEMY://enemy_class_index, object_id, pos_x, pos_y, rot
+				case _NetworkCodes_.SPAWN_ENEMY://enemy_class_index, object_id, pos_x, pos_y, rot
 					let enemy = new (GameCore.GET_ENEMY_CLASSES())[data[index + 1]]();
 
 					enemy.id = data[index + 2];
@@ -339,7 +345,7 @@ namespace ClientGame {
 
 					//console.log(enemy);
 					break;
-				case NetworkCodes.SPAWN_ITEM://item_id, item_type, item_x, item_y
+				case _NetworkCodes_.SPAWN_ITEM://item_id, item_type, item_x, item_y
 					let item = new Item( data[index + 2] );
 
 					item.id = data[index + 1];
@@ -353,7 +359,7 @@ namespace ClientGame {
 					break;
 
 				//enemy_id, damage, player_index, new_enemy_hp, hit_x, hit_y
-				case NetworkCodes.ON_ENEMY_ATTACKED:
+				case _NetworkCodes_.ON_ENEMY_ATTACKED:
 					for(e_i=0; e_i < this.enemies.length; e_i++) {
 						if( this.enemies[e_i].id === (data[index + 1] | 0) ) {
 							//player_index, damage, enemy_index, enemy_hp, hit_x, hit_y
@@ -369,14 +375,14 @@ namespace ClientGame {
 					index += 7;
 					break;
 				//attacker_index, damage, victim_index, new_victim_hp, hit_x, hit_y
-				case NetworkCodes.ON_PLAYER_ATTACKED://player attacked by player
+				case _NetworkCodes_.ON_PLAYER_ATTACKED://player attacked by player
 					this.onPlayerAttackedPlayer(data[index + 1], data[index + 2], data[index + 3], 
 						data[index + 4], data[index + 5], data[index + 6]);
 
 					index += 7;
 					break;
 				//player_index, number_of_bullets, bullet_id1, pos_x1, pos_y1, rot1, ...
-				case NetworkCodes.ON_BULLET_SHOT://NOTE receives data of multiple bullets
+				case _NetworkCodes_.ON_BULLET_SHOT://NOTE receives data of multiple bullets
 					p_h = this.players[ data[index + 1] | 0 ];
 
 					let number_of_bullets = data[index + 2];
@@ -393,7 +399,7 @@ namespace ClientGame {
 					index += 3 + number_of_bullets * 4;
 					break;
 				//player_index, bullet_id, pos_x, pos_y, rot
-				case NetworkCodes.ON_BOUNCE_BULLET_SHOT://NOTE - only single bullet data
+				case _NetworkCodes_.ON_BOUNCE_BULLET_SHOT://NOTE - only single bullet data
 					p_h = this.players[ data[index + 1] | 0 ];
 
 					let bullet = new Bullet(data[index + 3], data[index + 4], data[index + 5], 
@@ -404,7 +410,7 @@ namespace ClientGame {
 
 					index += 6;
 					break;
-				case NetworkCodes.ON_BOMB_PLACED://player_index, bomb_id, pos_x, pos_y
+				case _NetworkCodes_.ON_BOMB_PLACED://player_index, bomb_id, pos_x, pos_y
 					p_h = this.players[ data[index + 1] ];
 
 					let bomb = new Bomb( data[index + 3], data[index + 4], p_h );
@@ -415,7 +421,7 @@ namespace ClientGame {
 
 					index += 5;
 					break;
-				case NetworkCodes.ON_BOMB_EXPLODED://bomb_id, pos_x, pos_y
+				case _NetworkCodes_.ON_BOMB_EXPLODED://bomb_id, pos_x, pos_y
 					for(b_i=0; b_i<this.bombs.length; b_i++) {//pre expiring bomb for server sync 
 						if(this.bombs[b_i].id === data[index+1])
 							this.bombs[b_i].expired = true;
@@ -425,20 +431,20 @@ namespace ClientGame {
 
 					index += 4;
 					break;
-				case NetworkCodes.ON_POISON_STAIN://stain_index, pos_x, pos_y, size
+				case _NetworkCodes_.ON_POISON_STAIN://stain_index, pos_x, pos_y, size
 					super.drawStain( data[index + 1], data[index + 2], data[index + 3], 
 						data[index + 4]*GameCore.GET_PARAMS().stain_shrink );
 
 					index += 5;
 					break;
-				case NetworkCodes.ON_PLAYER_POISONED://player_index
+				case _NetworkCodes_.ON_PLAYER_POISONED://player_index
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.effects.active( Effects.TYPES.POISONING );
 					p_h.onPoisoned();
 
 					index += 2;
 					break;
-				case NetworkCodes.ON_SHIELD_EFFECT://player_index
+				case _NetworkCodes_.ON_SHIELD_EFFECT://player_index
 					p_h = this.players[ data[index + 1] | 0 ];
 
 					p_h.effects.active( Effects.TYPES.SHIELD );
@@ -448,7 +454,7 @@ namespace ClientGame {
 
 					index += 2;
 					break;
-				case NetworkCodes.ON_IMMUNITY_EFFECT://player_index
+				case _NetworkCodes_.ON_IMMUNITY_EFFECT://player_index
 					p_h = this.players[ data[index + 1] | 0 ];
 
 					p_h.effects.active( Effects.TYPES.SPAWN_IMMUNITY );
@@ -458,13 +464,13 @@ namespace ClientGame {
 
 					index += 2;
 					break;
-				case NetworkCodes.ON_SPEED_EFFECT://player_index
+				case _NetworkCodes_.ON_SPEED_EFFECT://player_index
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.effects.active( Effects.TYPES.SPEED );
 
 					index += 2;
 					break;
-				case NetworkCodes.ON_INSTANT_HEAL:
+				case _NetworkCodes_.ON_INSTANT_HEAL:
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.hp += GameCore.GET_PARAMS().instant_heal_value;
 					this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
@@ -480,7 +486,7 @@ namespace ClientGame {
 					index += 2;
 					break;	
 				//pos_x, pos_y, player_color_index
-				case NetworkCodes.ON_ENERGY_BLAST:
+				case _NetworkCodes_.ON_ENERGY_BLAST:
 					if(this.renderer.withinVisibleArea(data[index+1], data[index+2], 
 						GameCore.GET_PARAMS().energy_blast_radius) === true) {
 						
@@ -499,7 +505,7 @@ namespace ClientGame {
 					index += 4;
 					break;
 				//enemy_id, player_index, x, y, player_rot, player_hp, player_points, bounce_x and y
-				case NetworkCodes.ON_PLAYER_ENEMY_COLLISION:
+				case _NetworkCodes_.ON_PLAYER_ENEMY_COLLISION:
 					for(e_i=0; e_i < this.enemies.length; e_i++) {
 						if( this.enemies[e_i].id === (data[index + 1] | 0) ) {
 							this.enemies[e_i].expired = true;
@@ -531,7 +537,7 @@ namespace ClientGame {
 
 					index += 10;
 					break;
-				case NetworkCodes.ON_BULLET_EXPLODE://bullet_id, hit_x, hit_y
+				case _NetworkCodes_.ON_BULLET_EXPLODE://bullet_id, hit_x, hit_y
 					for(b_i=0; b_i < this.bullets.length; b_i++) {
 						if( this.bullets[b_i].id === data[index + 1] )
 							this.bullets[b_i].expired = true;
@@ -543,7 +549,7 @@ namespace ClientGame {
 
 					index += 4;
 					break;
-				case NetworkCodes.ON_PLAYER_COLLECT_ITEM://item_id, item_type, player_index
+				case _NetworkCodes_.ON_PLAYER_COLLECT_ITEM://item_id, item_type, player_index
 					for(i_i=0; i_i < this.items.length; i_i++) {
 						if( this.items[i_i].id === (data[index + 1] | 0) ) {
 							this.items[i_i].expired = true;
@@ -579,7 +585,7 @@ namespace ClientGame {
 
 					break;
 				//player_index, spawning_duration death_pos_x and y, explosion_radius
-				case NetworkCodes.ON_PLAYER_DEATH:
+				case _NetworkCodes_.ON_PLAYER_DEATH:
 					p_h = this.players[ data[index + 1] | 0 ];
 
 					if(data[index + 5] > 0) {//explosion radius
@@ -603,7 +609,7 @@ namespace ClientGame {
 
 					index += 6;
 					break;
-				case NetworkCodes.ON_PLAYER_SKILL_USE://player_index, skill_index, player_energy
+				case _NetworkCodes_.ON_PLAYER_SKILL_USE://player_index, skill_index, player_energy
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.energy = data[index + 3];
 
@@ -618,7 +624,7 @@ namespace ClientGame {
 
 					index += 4;
 					break;
-				case NetworkCodes.ON_PLAYER_SKILL_CANCEL://player_index, skill_index
+				case _NetworkCodes_.ON_PLAYER_SKILL_CANCEL://player_index, skill_index
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.skills[ data[index + 2] | 0 ].stopUsing();
 
@@ -701,7 +707,7 @@ namespace ClientGame {
 					if(preserved_state != focused.movement.state) {
 						focused.movement.smooth = false;
 						Network.sendByteBuffer(Uint8Array.from(
-							[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
+							[_NetworkCodes_.PLAYER_MOVEMENT, focused.movement.state]));
 					}
 				});
 
@@ -718,7 +724,7 @@ namespace ClientGame {
 					if(preserved_state != focused.movement.state) {
 						focused.movement.smooth = false;
 						Network.sendByteBuffer(Uint8Array.from(
-							[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
+							[_NetworkCodes_.PLAYER_MOVEMENT, focused.movement.state]));
 					}
 				});
 			}
@@ -842,7 +848,7 @@ namespace ClientGame {
 			var focused = this.renderer.focused;
 			if(focused.skills[index] && focused.skills[index].canBeUsed(focused.energy)) {
 				Network.sendByteBuffer(Uint8Array.from(
-					[NetworkCodes.PLAYER_SKILL_USE_REQUEST, index]));
+					[_NetworkCodes_.PLAYER_SKILL_USE_REQUEST, index]));
 			}
 		}
 
@@ -850,13 +856,13 @@ namespace ClientGame {
 			var focused = this.renderer.focused;
 			if(focused.skills[index] && focused.skills[index].isContinous()) {
 				Network.sendByteBuffer(Uint8Array.from(
-					[NetworkCodes.PLAYER_SKILL_STOP_REQUEST, Number(index)]));
+					[_NetworkCodes_.PLAYER_SKILL_STOP_REQUEST, Number(index)]));
 			}
 		}
 
 		tryEmoticonUse(index: number) {
 			Network.sendByteBuffer(Uint8Array.from(
-				[NetworkCodes.PLAYER_EMOTICON, index]
+				[_NetworkCodes_.PLAYER_EMOTICON, index]
 			));
 		}
 
@@ -901,7 +907,7 @@ namespace ClientGame {
 			if(preserved_state != focused.movement.state) {
 				focused.movement.smooth = false;
 				Network.sendByteBuffer(Uint8Array.from(
-					[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
+					[_NetworkCodes_.PLAYER_MOVEMENT, focused.movement.state]));
 			}
 		}
 

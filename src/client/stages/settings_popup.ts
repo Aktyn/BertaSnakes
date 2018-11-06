@@ -6,6 +6,9 @@
 
 // Stage.Popup.SETTINGS = Stage.Popup.SETTINGS || (function() {
 namespace Popup {
+	if(typeof SETTINGS === 'undefined')
+		throw "SETTINGS module must be loaded before SettingsPop class";
+	var Settings = SETTINGS;
 
 	const CATEGORIES = ['GAME', 'MENU', 'CHAT'];
 
@@ -23,7 +26,7 @@ namespace Popup {
 		);
 	}
 
-	export class Settings extends Stage.Popup {
+	export class SettingsPop extends Stage.Popup {
 		private popup_html: $_face;
 
 		constructor() {
@@ -67,7 +70,7 @@ namespace Popup {
 		}
 
 		close() {
-			SETTINGS.save();
+			Settings.saveAsCookies();
 			this.popup_html.remove();
 			super.close();
 		}
@@ -117,8 +120,8 @@ namespace Popup {
 
 			div.addChild(
 				createSwitcherEntry('Auto hide right panel:', (enabled) => {
-					SETTINGS.game_panel_auto_hide = enabled;
-				}, SETTINGS.game_panel_auto_hide)
+					Settings.game_panel_auto_hide = enabled;
+				}, Settings.game_panel_auto_hide)
 			).addChild(
 				$$.create('DIV').addChild(
 					$$.create('LABEL').setText('Painter resolution:').addChild(
@@ -126,8 +129,8 @@ namespace Popup {
 					)
 				).addChild(
 					COMMON.createOptionsList(['LOW', 'MEDIUM', 'HIGH'], opt => {
-						SETTINGS.painter_resolution = opt;
-					}).selectOption(SETTINGS.painter_resolution)
+						Settings.painter_resolution = opt;
+					}).selectOption(Settings.painter_resolution)
 				)
 			).addChild(
 				$$.create('DIV').addChild(
@@ -137,38 +140,38 @@ namespace Popup {
 				).addChild(
 					$$.create('DIV').setStyle({'padding': '7px 0px'}).addChild(
 						COMMON.createOptionsList(['FLAT', 'LONG'], opt => {
-							SETTINGS.shadows_type = opt;
-						}).selectOption(SETTINGS.shadows_type)
+							Settings.shadows_type = opt;
+						}).selectOption(Settings.shadows_type)
 					)
 				)
 			)/*.addChild(
 				$$.create('LABEL').setText('Particles').addClass('section_title')
 			)*/.addChild(
 				createSwitcherEntry('Weather particles:', (enabled) => {
-					SETTINGS.weather_particles = enabled;
-				}, SETTINGS.weather_particles)
+					Settings.weather_particles = enabled;
+				}, Settings.weather_particles)
 			);
 		}
 
 		showMenuSettings(div: $_face) {
 			div.addChild(
 				createSwitcherEntry('Background effect:', (enabled) => {
-					SETTINGS.menu_background_effect = enabled;
+					Settings.menu_background_effect = enabled;
 					DustBackground.reload();
-				}, SETTINGS.menu_background_effect === true)
+				}, Settings.menu_background_effect === true)
 			).addChild(
 				createSwitcherEntry('Click effect:', (enabled) => {
-					SETTINGS.menu_click_effect = enabled;
+					Settings.menu_click_effect = enabled;
 					DustBackground.reload();
-				}, SETTINGS.menu_click_effect === true)
+				}, Settings.menu_click_effect === true)
 			);
 		}
 
 		showChatSettings(div: $_face) {
 			div.addChild(
 				createSwitcherEntry('Auto hide/show chat:', (enabled) => {
-					SETTINGS.chat_auto_hide_show = enabled;
-				}, SETTINGS.chat_auto_hide_show === true)
+					Settings.chat_auto_hide_show = enabled;
+				}, Settings.chat_auto_hide_show === true)
 			);
 		}
 	}

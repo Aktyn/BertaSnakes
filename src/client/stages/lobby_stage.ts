@@ -118,7 +118,7 @@ class LOBBY_STAGE extends Stage {
 			$$.create('BUTTON').addClass('iconic_button').addClass('iconic_settings')
 				
 				.setStyle({margin: '0px 20px'}).on('click', () => 
-					this.popup(<PopupDerived><unknown>Popup.Settings))
+					this.popup(<PopupDerived><unknown>Popup.SettingsPop))
 				.html('SETTINGS')
 		);
 
