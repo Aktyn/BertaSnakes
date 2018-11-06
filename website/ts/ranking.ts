@@ -37,7 +37,9 @@ interface ResUserInfo {
 				$$.create('TR')
 					.addChild( $$.create('TH').setText('') )
 					.addChild( $$.create('TH').setText('Username') )
-					.addChild( $$.create('TH').setText('Rank') )
+					.addChild( $$.create('TH').setText('Rank')
+						.addChild($$.create('SPAN').html('&nbsp;&#9650;').setStyle({'opacity': '0.4'}))
+					)
 					.addChild( $$.create('TH').setText('') )
 			);
 

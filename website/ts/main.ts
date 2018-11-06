@@ -162,16 +162,21 @@ $$.load(function() {
 	window.addEventListener('keydown', e => {
 		if(!e || !e.key) return;
 		type_str += e.key.toLowerCase();
-		if(!"tetris".startsWith(type_str) && !"fractal".startsWith(type_str))
+		if( !"tetris".startsWith(type_str) &&
+			!"fractal".startsWith(type_str) && 
+			!"gameoflife".startsWith(type_str)) 
+		{
 			type_str = "";
+		}
 		if(type_str === 'tetris')
 			$$.loadScript('webjs/tetris.js', true);
-			//$.loadScript('js/utilsV2.js', true, () => $.loadScript('js/tetris.js', true));
 		else if(type_str === 'fractal')
 			$$.loadScript('webjs/egg.js', true);
+		else if(type_str === 'gameoflife')
+			$$.loadScript('webjs/game_of_life.js', true);
 	}, false);
 
-	//$$.loadScript('js/bg.js', true);
+	// $$.loadScript('webjs/game_of_life.js', true);
 
 	function onSession(logged_in: boolean) {
 		$$("#account_icon").setAttrib("src", logged_in ? "img/account_on.png" : "img/account.png");

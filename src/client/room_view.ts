@@ -21,6 +21,16 @@ class RoomView {
 		}
 	}
 
+	private static amIReady = function() {
+		try {
+			//@ts-ignore
+			return Network.getCurrentRoom().isUserReady( Network.getCurrentUser().id );
+		}
+		catch(e) {
+			return false;
+		}
+	}
+
 	private static MINIMUM_MINUTES = 0;
 	private static MAXIMUM_MINUTES = 30;
 
@@ -149,7 +159,7 @@ class RoomView {
 		var current_room = Network.getCurrentRoom();
 		if(current_room === null) throw new Error('There isn\'t current room');
 
-		this.widget.getChildren('.no_room_info').setStyle({display: 'none'});
+		this.widget.getChildren('.no_room_info_container').setStyle({display: 'none'});
 		this.widget.getChildren('.room_info').setStyle({display: 'inline-block'});
 		
 		// this.widget.getChildren('.room_name').setText( current_room.name );
@@ -163,7 +173,7 @@ class RoomView {
 
 	onRoomLeft() {
 		try {
-			this.widget.getChildren('.no_room_info').setStyle({display: 'inline-block'});
+			this.widget.getChildren('.no_room_info_container').setStyle({display: 'inline-block'});
 			this.widget.getChildren('.room_info').setStyle({display: 'none'});
 			this.widget.getChildren('.game_start_countdown_info')
 				.removeClass('active').setText('Waiting for everyone to be ready');
@@ -217,12 +227,12 @@ class RoomView {
 		this.updateSits(room.sits, room.readys);
 	}
 
-	updateSits(sits?: number[], readys?: boolean[]) {
+	updateSits(_sits?: number[], _readys?: boolean[]) {
 		var current_room = Network.getCurrentRoom();
 		if(current_room === null) throw new Error('There isn\'t current room');
 
-		sits = sits || current_room.sits;
-		readys = readys || current_room.readys;
+		var sits = _sits || current_room.sits;
+		var readys = _readys || current_room.readys;
 		
 		//console.log(sits);
 		let sits_list = this.widget.getChildren('.sits_list');
@@ -241,8 +251,10 @@ class RoomView {
 				var sitting_user = (<RoomInfo>current_room).getUserByID(sit);
 				if(sitting_user)
 					entry.setText( COMMON.trimString( sitting_user.nick, 12 ) );
-				if((<boolean[]>readys)[index] === true)
+				if(readys[index] === true) {
 					entry.addClass('ready');
+					//XYZ
+				}
 			}
 				
 			sits_list.addChild( entry );
@@ -259,9 +271,13 @@ class RoomView {
 			//enabling ready button when every sit is taken
 			var ready_btn = this.widget.getChildren('.sit_ready_button');
 			
-			//@ts-ignore //if every sit is taken and current user is sitting
-			if(sits.every(sit => sit !== 0) && sits.indexOf(Network.getCurrentUser().id) !== -1)
-				ready_btn.disabled = false;
+			//if every sit is taken and current user is sitting
+			var curr_user = Network.getCurrentUser();
+			if(sits.every(sit => sit !== 0) && curr_user !== null && 
+				sits.indexOf(curr_user.id) !== -1) 
+			{
+				ready_btn.disabled = RoomView.amIReady();
+			}
 			else
 				ready_btn.disabled = true;
 		} catch(e) {
@@ -415,16 +431,18 @@ class RoomView {
 		return $$.create('DIV').setClass('room_view')
 			//.setAttrib('id', 'room_view' + this.session_string + this.id)
 		.addChild(//not in room info
-			$$.create('DIV').setText('Join a room to play with other players')
-				.addClass('no_room_info').addChild( 
-					$$.create('HR').addClass('hide_in_fullscreen') 
-				).addChild(
-					$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
-						.addClass('hide_in_fullscreen').setText('Go Fullscreen')
-						.on('click', () => {
-							Device.goFullscreen();
-							//Device.setOrientation( Device.Orientation.LANDSCAPE );
-						})
+			$$.create('DIV').addClass('no_room_info_container').addChild(
+				$$.create('DIV').setText('Join a room to play with other players')
+					.addClass('no_room_info')
+			).addChild( 
+				$$.create('HR').addClass('hide_in_fullscreen') 
+			).addChild(
+				$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
+					.addClass('hide_in_fullscreen').setText('Go Fullscreen')
+					.on('click', () => {
+						Device.goFullscreen();
+						//Device.setOrientation( Device.Orientation.LANDSCAPE );
+					})
 				)
 		).addChild( 
 			$$.create('DIV').setStyle({display: 'none'}).addClass('room_info').addChild(

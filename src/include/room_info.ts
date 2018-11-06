@@ -173,7 +173,7 @@ class RoomInfo {
 		this.readys = this.sits.map(sit => false);//unready all sitter and keeps array same size
 	}
 
-	isUserSitting(user: number) {
+	isUserSitting(user_id: number) {
 		//if(typeof user === 'undefined')
 		//	throw new Error('User not specified');
 		// if(user.id !== undefined)
@@ -181,7 +181,12 @@ class RoomInfo {
 		//if(typeof user !== 'number')
 		//	user = user.id || 0;
 
-		return this.sits.some(u => (u !== 0) ? (u === user) : false);
+		return this.sits.some(u => (u !== 0) ? (u === user_id) : false);
+	}
+
+	isUserReady(user_id: number) {
+		var sit_id = this.sits.indexOf(user_id);
+		return sit_id === -1 ? false : this.readys[sit_id];
 	}
 
 	sitUser(user: number) {
