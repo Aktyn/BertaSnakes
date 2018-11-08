@@ -9,7 +9,7 @@ smooth_walls: true,
 background_image: "bg2.png",
 smooth_background: true,
 
-background_scale: 5,//5
+//background_scale: 5,//5
 
 weather: "dust",
 

@@ -7,16 +7,6 @@
 // const DEFAULT_MAP = 'Open Maze';//'Empty';
 // const DEFAULT_DURATION = 180;//seconds
 
-const GAME_MODES = {//@enum
-	COOPERATION: 0,
-	COMPETITION: 1
-};
-
-/*enum GAME_MODES {
-	COOPERATION,
-	COMPETITION
-}*/
-
 interface RoomCustomData {
 	id: number;
 	name: string;
@@ -35,11 +25,14 @@ class RoomInfo {
 	private static DEFAULT_MAP = 'Simple Maze';//'Empty', 'Open Maze', 'Simple Maze', 'Snowflake'
 	private static DEFAULT_DURATION = 180;//seconds
 
-	/*static get MODES() {
-		return GAME_MODES;
-	}*/
+	private static generateName(id: number) {
+		return '#' + id.toString();
+	}
 
-	public static MODES = GAME_MODES;
+	public static MODES = {//@enum
+		COOPERATION: 0,
+		COMPETITION: 1
+	};
 
 	private _id: number;
 	public name: string;
@@ -55,7 +48,7 @@ class RoomInfo {
 
 	constructor(_id?: number, _name?: string) {
 		this._id = _id || ++RoomInfo.id;
-		this.name = _name || ("#" + this.id);
+		this.name = _name || RoomInfo.generateName(this.id);//("#" + this.id);
 		this.map = RoomInfo.DEFAULT_MAP;//name of chosen map
 		this.duration = RoomInfo.DEFAULT_DURATION;//game duration in seconds
 		// + Array(~~(Math.random()*15)).fill().map(x => 'x').join('');
@@ -66,7 +59,7 @@ class RoomInfo {
 		this.readys = this.sits.map(sit => false);
 		this.users = [];//contains UserInfo instances
 
-		this.gamemode = GAME_MODES.COOPERATION;//default
+		this.gamemode = RoomInfo.MODES.COOPERATION;//default
 
 		//use only serverside
 		//this.confirmations = null;//if not null => waiting for confirmations before start
@@ -158,12 +151,6 @@ class RoomInfo {
 		return undefined;//empty room has no owner
 	}
 
-	/*getSitsWithUserInfo() {//return array of nulls or UserInfo instances
-		return this.sits.map(sit => {
-			return sit === 0 ? null : this.getUserByID(sit);
-		});
-	}*/
-
 	changeSitsNumber(sits_number: number) {
 		while(this.sits.length > sits_number)//removing last sits
 			this.sits.pop();
@@ -174,13 +161,6 @@ class RoomInfo {
 	}
 
 	isUserSitting(user_id: number) {
-		//if(typeof user === 'undefined')
-		//	throw new Error('User not specified');
-		// if(user.id !== undefined)
-		// 	user = user.id;
-		//if(typeof user !== 'number')
-		//	user = user.id || 0;
-
 		return this.sits.some(u => (u !== 0) ? (u === user_id) : false);
 	}
 
@@ -190,12 +170,6 @@ class RoomInfo {
 	}
 
 	sitUser(user: number) {
-		//if(typeof user === 'undefined')
-		//	throw new Error('User not specified');
-		//if(user.id !== undefined)
-		//	user = user.id;
-		//if(typeof user !== 'number')
-		//	user = user.id || 0;
 		if(this.sits.some(sit => sit === user) === true) {
 			console.log('User already sitting (' + user + ')');
 			return;
@@ -209,25 +183,12 @@ class RoomInfo {
 	}
 
 	standUpUser(user: number) {
-		//if(typeof user === 'undefined')
-		//	throw new Error('User not specified');
-		//if(user.id !== undefined)
-		//	user = user.id;
-		//if(typeof user !== 'number')
-		//	user = user.id || 0;
-		
 		this.sits = this.sits.map(sit => (sit === user) ? 0 : sit)
 			.sort((a, b) => a === 0 ? 1 : -1);
 		this.unreadyAll();
 	}
 
 	setUserReady(user: number) {
-		//if(typeof user === 'undefined')
-		//	throw new Error('User not specified');
-		//if(user.id !== undefined)
-		//	user = user.id;
-		//if(typeof user !== 'number')
-		//	user = user.id || 0;
 		if(this.sits.every(sit => sit !== 0) === false)//not every sit taken
 			return false;
 		for(let i in this.sits) {

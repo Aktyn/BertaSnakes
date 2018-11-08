@@ -176,7 +176,7 @@ $$.load(function() {
 			$$.loadScript('webjs/game_of_life.js', true);
 	}, false);
 
-	// $$.loadScript('webjs/game_of_life.js', true);
+	//$$.loadScript('webjs/game_of_life.js', true);
 
 	function onSession(logged_in: boolean) {
 		$$("#account_icon").setAttrib("src", logged_in ? "img/account_on.png" : "img/account.png");

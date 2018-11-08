@@ -89,7 +89,7 @@ class RoomsList {
 				.setAttrib('name', room.name);//atribute contains full name
 			room_row.getChildren('.room_map_info').setText( room.map );
 			room_row.getChildren('.room_mode_info').setText(
-				room.gamemode === GAME_MODES.COOPERATION ? 'Coop' : 'Comp' );
+				room.gamemode === RoomInfo.MODES.COOPERATION ? 'Coop' : 'Comp' );
 			room_row.getChildren('.room_duration_info')
 				.setText( ((room.duration / 60)|0) + ' min' );
 		}
@@ -113,7 +113,7 @@ class RoomsList {
 			.addChild( $$.create('SPAN').addClass('room_map_info')
 				.setText( room.map ) )
 			.addChild( $$.create('SPAN').addClass('room_mode_info')
-				.setText( room.gamemode === GAME_MODES.COOPERATION ? 'Coop' : 'Comp' ) )
+				.setText( room.gamemode === RoomInfo.MODES.COOPERATION ? 'Coop' : 'Comp' ) )
 			.on('click', (e) => {
 				Network.joinRoom(room.id);
 			});

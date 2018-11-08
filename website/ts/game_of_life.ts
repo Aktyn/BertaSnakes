@@ -8,12 +8,20 @@
 	}
 	window.removeEventListener('onload', GameOfLifeInit, false);
 
+	var screen_r = {
+		//@ts-ignore
+		width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+		//@ts-ignore
+		height: window.innerHeight||document.documentElement.clientHeight|| document.body.clientHeight
+	};
+
 	//PARAMS
-	const width = 80, height = 80;//pixels
-	const visibleWidth = '512px', visibleHeight = '512px';//keep proportion to width and height
+	const SIZE = 5;
+	const width = Math.floor(screen_r.width/SIZE), height = Math.floor(screen_r.height/SIZE);//pixels
+	const visibleWidth = screen_r.width + 'px', visibleHeight = screen_r.height + 'px';
 	const color = Uint8ClampedArray.of(255, 150, 150, 255);//must include alpha channel value
 	const FREQUENCY = 100;//game state update each n milisecond
-	const POPULATION_PERCENTAGE = 0.2;//initial percentage of active pixels
+	const POPULATION_PERCENTAGE = 0.1;//initial percentage of active pixels
 
 	//predeclared variables
 	var x: number, y: number, xx: number, yy: number, p_i: number, p_ii: number, state_it: boolean, 
@@ -27,6 +35,14 @@
 
 
 	const MAP = (function(ctx) {
+		//Author's signature
+		ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+		ctx.font = String(Math.floor(screen_r.height / SIZE / 8)) + 'px Helvetica';
+		ctx.textBaseline = 'middle';
+		ctx.textAlign = 'center';
+		ctx.clearRect(0, 0, width, height);
+		ctx.fillText("Created by Aktyn", width/2, height/2);
+
 		return {
 			clear: () => ctx.clearRect(0, 0, width, height),
 			redraw: (data: ImageData) => ctx.putImageData(data, 0, 0),
@@ -66,7 +82,6 @@
 
 	const logic = {
 		generate: function(data: ImageData) {
-			console.log('generating');
 			for(y=0; y<height; y++) {
 				for(x=0; x<width; x++) {
 					if(Math.random() > 1 - POPULATION_PERCENTAGE)
@@ -102,28 +117,29 @@
 		}
 	};
 
-	var running = true;
+	setTimeout(() => {
+		var running = true;
 
-	MAP.clear();//make sure map is empty
-	var data = MAP.getData();//to get clean data for generating initial state
-	//buffer holding copy of current state while calculating next step in algorithm
-	var current_state_array = new Uint8ClampedArray(data.data.length);
+		MAP.clear();//make sure map is empty
+		var data = MAP.getData();//to get clean data for generating initial state
+		//buffer holding copy of current state while calculating next step in algorithm
+		var current_state_array = new Uint8ClampedArray(data.data.length);
 
-	var tick = () => {
-		if(MAP.isEmpty(data))
-			logic.generate(data);
-		else {
-			current_state_array.set(data.data);//copy current state
-			logic.step(current_state_array, data.data);
-		}
+		var tick = () => {
+			if(MAP.isEmpty(data))
+				logic.generate(data);
+			else {
+				current_state_array.set(data.data);//copy current state
+				logic.step(current_state_array, data.data);
+			}
 
-		MAP.redraw(data);
+			MAP.redraw(data);
 
-		if(running)
-			setTimeout(tick, FREQUENCY);
-	};
-	tick();
-	
+			if(running)
+				setTimeout(tick, FREQUENCY);
+		};
+		tick();
+	}, 3000);//delayed start for showing author's signature
 
 	//styling and appending canvas to page
 	Object.assign(canvas.style, {
@@ -131,7 +147,7 @@
 
 		//position in center of the screen
 		'position': 'fixed',
-		'left': '50px',
+		'left': '0px',
 		'right': '0px',
 		'top': '0px',
 		'bottom': '0px',

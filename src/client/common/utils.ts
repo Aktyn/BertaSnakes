@@ -37,6 +37,7 @@ interface $_extend_methods {
 	setStyle: (css : object) => this;
 	//attribute: (name: string, value?: string | number) => any;
 	setAttrib: (name: string, value: string | number) => this;
+	removeAttrib: (name: string) => this;
 	getAttrib: (name: string) => any;
 	//set: (name: string, value: string | number) => this;
 	isHover: () => boolean;
@@ -275,6 +276,10 @@ const $$ : $_static_func = (function() {
 		},
 		setAttrib: function(name, value) {
 			this.setAttribute(name, String(value));
+			return this;
+		},
+		removeAttrib: function(name) {
+			this.removeAttribute(name);
 			return this;
 		},
 		getAttrib: function(name) {

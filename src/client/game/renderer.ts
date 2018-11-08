@@ -56,7 +56,7 @@ namespace Renderer {
 		private ready: boolean;
 
 		private background_texture: GRAPHICS.ExtendedTexture;
-		private background_scale: number;
+		//private background_scale: number;
 
 		constructor(map: GameMap.Map, map_data: MapJSON_I) {
 			$$.assert(current_instance === null, 'Only single instance of Renderer is allowed');
@@ -77,7 +77,7 @@ namespace Renderer {
 			this.background_texture = GRAPHICS.TEXTURES.createFrom(
 				map_data['background_texture'], map_data['smooth_background']
 			);
-			this.background_scale = map_data['background_scale'];
+			//this.background_scale = map_data['background_scale'];
 
 			this.VBO_RECT = rect;
 			this.map = map;//handle to map instance
@@ -198,7 +198,7 @@ namespace Renderer {
 
 		updateCamera(delta: number) {
 			var a = GRAPHICS.getAspect();
-			var sqrtA = Math.sqrt(a);
+			var sqrtA = this.focused === null ? 1.0 : Math.sqrt(a);
 			//console.log(sqrtA);
 
 			if(this._zoom*sqrtA !== this.camera.z) {
@@ -373,7 +373,7 @@ namespace Renderer {
 			
 			//GRAPHICS.SHADERS.uniform_vec3('background_color', 
 			//	<Float32Array>this.map.background.buffer);
-			GRAPHICS.SHADERS.uniform_float('background_scale', this.background_scale);
+			GRAPHICS.SHADERS.uniform_float('map_scale', this.map.map_size);
 
 			GRAPHICS.SHADERS.uniform_vec2('offset', <Float32Array>shadow_vector.buffer);
 			// GRAPHICS.SHADERS.uniform_float('shadow_length', 0.1 * this.camera.z);

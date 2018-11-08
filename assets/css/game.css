@@ -89,7 +89,7 @@ span {
 	/*vertical-align: bottom;*/
 }
 
-.account_short_info:hover {
+.account_short_info:not(.disabled):hover {
 	background-color: #00c4ff20;
 	cursor: pointer;
 }

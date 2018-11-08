@@ -6,6 +6,11 @@
 ///<reference path="stages/stage.ts"/>
 ///<reference path="stages/lobby_stage.ts"/>
 
+(function() {//hide logs
+	console.log('%clogs disabled\n¯\\_(ツ)_/¯', 'color: #f44336; font-weight: bold; font-size: 25px;');
+	console.log = console.info = function() {};
+})();
+
 $$.load(function() {
 	var currentStage: Stage | null = null;
 	

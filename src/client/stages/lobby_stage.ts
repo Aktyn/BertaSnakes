@@ -72,7 +72,6 @@ class LOBBY_STAGE extends Stage {
 		//account widget
 		header.addChild(
 			$$.create('DIV').addClass('account_short_info').setStyle({
-				// 'float': 'right',
 				'padding': '0px 10px',
 				'borderRight': '1px solid #556c78'
 			}).addChild(
@@ -90,18 +89,18 @@ class LOBBY_STAGE extends Stage {
 					'color': '#6e8f9e',
 				})
 			).on('click', () => {
-				
-				this.popup(<PopupDerived><unknown>Popup.Account);
+				let user = Network.getCurrentUser();
+				if(user && user.id > 0)
+					this.popup(<PopupDerived><unknown>Popup.Account);
 			})
 		);
 
 		//shop button
 		header.addChild(
 			$$.create('BUTTON').addClass('iconic_button').addClass('iconic_coin')
-				//@ts-ignore //TODO
-				.setStyle({margin: '0px 20px'}).on('click', () => 
+				.setStyle({'margin': '0px 20px'}).on('click', () => 
 					this.popup(<PopupDerived><unknown>Popup.Shop))
-				.html('SHOP')
+				.html('SHOP').setAttrib('id', 'shop_button')
 		);
 
 		//separator
@@ -116,8 +115,7 @@ class LOBBY_STAGE extends Stage {
 		//settings button
 		header.addChild(
 			$$.create('BUTTON').addClass('iconic_button').addClass('iconic_settings')
-				
-				.setStyle({margin: '0px 20px'}).on('click', () => 
+				.setStyle({'margin': '0px 20px'}).on('click', () => 
 					this.popup(<PopupDerived><unknown>Popup.SettingsPop))
 				.html('SETTINGS')
 		);
@@ -126,9 +124,8 @@ class LOBBY_STAGE extends Stage {
 		header.addChild(
 			$$.create('DIV').addClass('close_btn').addClass('opacity_and_rot_transition')
 				.on('click', e => {
-					// location.href = './'; //TODO - try this (typescript errorfree)
-					//@ts-ignore
-					location = "./";//returns to home page
+					location.href = './';
+					//location = "./";//returns to home page (typescript shows error)
 				})
 		);
 
@@ -205,10 +202,20 @@ class LOBBY_STAGE extends Stage {
 	}
 
 	refreshAccountInfo() {
-		let user = Network.getCurrentUser() || {nick: 'offline', level: '0'};
+		let user = Network.getCurrentUser() || {nick: 'offline', level: '0', id: -1};
 
 		$$('.account_short_info').getChildren('.account_nick').html( user.nick );
-		$$('.account_short_info').getChildren('.account_level').html( user.level.toString() );
+		//$$('.account_short_info').getChildren('.account_level').html( user.level.toString() );
+		if(user.id < 0) {
+			$$('#shop_button').setAttrib('disabled', 'true');
+			$$('#warning_for_guest').setStyle({'display': 'block'});//element created in room_view.ts
+			$$('.account_short_info').addClass('disabled');
+		}
+		else {
+			$$('#shop_button').removeAttrib('disabled');
+			$$('#warning_for_guest').setStyle({'display': 'none'});//element created in room_view.ts
+			$$('.account_short_info').removeClass('disabled');
+		}
 	}
 
 	onServerConnected() {

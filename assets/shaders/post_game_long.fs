@@ -5,7 +5,7 @@ varying vec2 vUV;
 uniform sampler2D scene_pass;
 uniform sampler2D curves_pass;
 uniform sampler2D background_texture;
-uniform float background_scale;
+uniform float map_scale;
 uniform float aspect;
 uniform vec3 camera;
 // uniform vec3 background_color;//background color
@@ -74,15 +74,10 @@ void main() {
     
     shadow = sqrt(min(shadow, 1.0)) * SHADOW_TRANSPARENCY - scene.a;
 
-    // vec2 tile_coord = vec2(fract(bgUV.x/camera.z), fract(bgUV.y/camera.z));
-
     vec2 tile_coord = vec2(
-        fract( ((vUV.x-0.5)*aspect / camera.z + (camera.x+background_scale)/2.0)/background_scale ), 
-        fract( ((vUV.y-0.5) / camera.z + (camera.y+background_scale)/2.0)/background_scale )
+        ((vUV.x-0.5)*aspect / camera.z + (camera.x+map_scale)/2.0)/map_scale, 
+        ((vUV.y-0.5) / camera.z + (camera.y+map_scale)/2.0)/map_scale
     );
-
-    //tile_coord.x = floor(tile_coord.x*630.0) / 630.0;
-    //tile_coord.y = floor(tile_coord.y*630.0) / 630.0;
 
     //TODO - find workaround to not use this negative bias value
     vec3 background_tex = texture2D(background_texture, tile_coord, -5.0).rgb;

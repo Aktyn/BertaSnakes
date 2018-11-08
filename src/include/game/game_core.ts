@@ -64,7 +64,8 @@ const GameCore = (function(/*GameMap, CollisionDetector, Colors, Player,
 		//effects parameters
 		explosion_radius: 0.5,//on enemy dead explosion
 		small_explosion_radius: 0.3,//on player dead from poison or smth like that
-		bullet_explosion_radius: 0.066,
+		//radius after bullet explosion, 0.02 is additional scale offset   old value: 0.066,
+		bullet_explosion_radius: (2.0 * _Player_.INITIAL_SCALE / Math.sqrt(3)) + 0.02,
 		bomb_explosion_radius: 0.75,
 		energy_blast_radius: 0.5,
 

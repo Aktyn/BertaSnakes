@@ -768,7 +768,7 @@ namespace ClientGame {
 		onPlayerAttackedPlayer(attacker_i: number, damage: number, victim_i: number, 
 			victim_hp: number, hit_x: number, hit_y: number) 
 		{
-			// if(this.room.gamemode !== RoomInfo.GAME_MODES.COMPETITION)
+			// if(this.room.gamemode !== RoomInfo.RoomInfo.MODES.COMPETITION)
 				// return;
 			p_h = this.players[attacker_i];
 			p_h2 = this.players[victim_i];
@@ -795,7 +795,7 @@ namespace ClientGame {
 
 			e_h.hp_bar.hp = enemy_hp;//set up to date enemy's hp value
 
-			if(this.room.gamemode === GAME_MODES.COOPERATION) {	
+			if(this.room.gamemode === RoomInfo.MODES.COOPERATION) {	
 				(<any>this.players[player_i]).points += 
 					damage * GameCore.GET_PARAMS().points_for_enemy_damage;
 				this.renderer.GUI.onPlayerPointsChange(player_i, 
@@ -835,12 +835,12 @@ namespace ClientGame {
 		}
 
 		onPlayerKilledPlayer(attacker_i: number, victim_i: number) {
-			this.onPlayerKill(attacker_i, 'Player killed', GAME_MODES.COMPETITION,
+			this.onPlayerKill(attacker_i, 'Player killed', RoomInfo.MODES.COMPETITION,
 				GameCore.GET_PARAMS().points_for_player_kill, this.players[victim_i]);
 		}
 
 		onPlayerKilledEnemy(player_i: number, enemy_i: number) {
-			this.onPlayerKill(player_i, 'Enemy killed', GAME_MODES.COOPERATION,
+			this.onPlayerKill(player_i, 'Enemy killed', RoomInfo.MODES.COOPERATION,
 				GameCore.GET_PARAMS().points_for_enemy_kill, this.enemies[enemy_i]);
 		}
 

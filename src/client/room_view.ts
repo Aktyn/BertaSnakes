@@ -49,7 +49,7 @@ class RoomView {
 			$$.create('LABEL').setText( map['name'] )
 		).addChild(
 			(() => {
-				let bg_scale = map['background_scale'] / map['map_size'];
+				//let bg_scale = 1;//map['background_scale'] / map['map_size'];
 
 				let canv = document.createElement('canvas');
 				canv.width = 150;
@@ -57,13 +57,13 @@ class RoomView {
 
 				let ctx = <CanvasRenderingContext2D>canv.getContext('2d', {antialias: true});
 
-				let steps = Math.round( (1 / bg_scale) / 2 );
+				let steps = Math.round( 1 / 2 );
 				for(let x=-steps; x<=steps; x++) {
 					for(let y=-steps; y<=steps; y++) {
 						ctx.drawImage(map['background_texture'], 
-							canv.width*( (1-bg_scale)/2 + x*bg_scale ), 
-							canv.height*( (1-bg_scale)/2 + y*bg_scale ), 
-							canv.width*bg_scale, canv.height*bg_scale);
+							canv.width*x, 
+							canv.height*y, 
+							canv.width, canv.height);
 					}
 				}
 				
@@ -336,7 +336,7 @@ class RoomView {
 
 		var mode_option = COMMON.createOptionsList(RoomView.gamemode_names, (opt) => {
 			//if competition
-			if(opt === RoomView.gamemode_names[ GAME_MODES.COMPETITION ])
+			if(opt === RoomView.gamemode_names[ RoomInfo.MODES.COMPETITION ])
 				sits_input.setMinimumValue(2);//minimum 2 sits in competition mode
 			else
 				sits_input.setMinimumValue(1);
@@ -434,6 +434,16 @@ class RoomView {
 			$$.create('DIV').addClass('no_room_info_container').addChild(
 				$$.create('DIV').setText('Join a room to play with other players')
 					.addClass('no_room_info')
+			).addChild(
+				$$.create('DIV').setAttrib('id', 'warning_for_guest')
+					.setText(`You are just a guest.
+						Login or create new account to get access to all game features.`)
+					.addChild($$.create('BR'))
+					.addChild(
+						$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
+							.setText('GO FOR IT').on('click', () => location.href = '/login')
+							.setStyle({'margin-top': '10px'})
+					)
 			).addChild( 
 				$$.create('HR').addClass('hide_in_fullscreen') 
 			).addChild(
@@ -443,7 +453,7 @@ class RoomView {
 						Device.goFullscreen();
 						//Device.setOrientation( Device.Orientation.LANDSCAPE );
 					})
-				)
+			)
 		).addChild( 
 			$$.create('DIV').setStyle({display: 'none'}).addClass('room_info').addChild(
 				$$.create('H1')//header

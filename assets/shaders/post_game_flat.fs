@@ -5,7 +5,7 @@ varying vec2 vUV;
 uniform sampler2D scene_pass;
 uniform sampler2D curves_pass;
 uniform sampler2D background_texture;
-uniform float background_scale;
+uniform float map_scale;
 uniform float aspect;
 uniform vec3 camera;
 // uniform vec3 background_color;//background color
@@ -66,10 +66,10 @@ void main() {
     scene.a = sh;
 
     float shadow = combined(vUV + paralax+offset*camera.z*0.01).a * SHADOW_TRANSPARENCY - scene.a;
-
+    
     vec2 tile_coord = vec2(
-        fract( ((vUV.x-0.5)*aspect / camera.z + (camera.x+background_scale)/2.0)/background_scale ), 
-        fract( ((vUV.y-0.5) / camera.z + (camera.y+background_scale)/2.0)/background_scale )
+        ((vUV.x-0.5)*aspect / camera.z + (camera.x+map_scale)/2.0)/map_scale, 
+        ((vUV.y-0.5) / camera.z + (camera.y+map_scale)/2.0)/map_scale
     );
 
     vec3 background_tex = texture2D(background_texture, tile_coord, -5.0).rgb;

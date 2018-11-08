@@ -9,6 +9,6 @@ smooth_walls: false,
 background_image: "bg3.png",
 smooth_background: false,
 
-background_scale: 5,//5
+//background_scale: 5,//5
 
 weather: "dust"

@@ -25,7 +25,7 @@ interface MapJSON_I {
 	background_texture: HTMLImageElement;
 	smooth_background: boolean;
 
-	background_scale: number;
+	//background_scale: number;
 	//background_color: number[];
 	//smooth_texture: boolean;
 	//use_svg: boolean;
@@ -103,7 +103,7 @@ const Maps: MapObjectI = (function() {
 		map['map_size'] = map['map_size'] || 1;
 		map['smooth_walls'] = !!map['smooth_walls'];
 		map['smooth_background'] = !!map['smooth_background'];
-		map['background_scale'] = map['background_scale'] || 1;
+		//map['background_scale'] = map['background_scale'] || 1;
 		map['weather'] = map['weather'] || "dust";
 
 		map['walls_color'] = map['walls_color'] || [255, 255, 255];
