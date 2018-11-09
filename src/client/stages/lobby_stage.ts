@@ -237,6 +237,10 @@ class LOBBY_STAGE extends Stage {
 		
 		try {
 			switch(data['type']) {
+				case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
+					this.notifications.addNotification('Your account is already logged in game.');
+					this.notifications.addNotification('Check other browser tabs.');
+					break;
 				case NetworkCodes.PLAYER_ACCOUNT://account info update
 					this.refreshAccountInfo();
 					break;

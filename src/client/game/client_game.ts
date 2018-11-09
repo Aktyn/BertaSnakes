@@ -388,7 +388,7 @@ namespace ClientGame {
 					let number_of_bullets = data[index + 2];
 					for(let i=0; i<number_of_bullets; i++) {//bullet_id, pos_x, pos_y, rot
 						let off = index + 3 + i*4;
-						let bullet = new Bullet(data[off + 1], data[off + 2], data[off + 3], 
+						let bullet = new Objects.Bullet(data[off + 1], data[off + 2], data[off + 3], 
 							p_h);
 
 						bullet.id = data[off + 0];
@@ -402,7 +402,7 @@ namespace ClientGame {
 				case _NetworkCodes_.ON_BOUNCE_BULLET_SHOT://NOTE - only single bullet data
 					p_h = this.players[ data[index + 1] | 0 ];
 
-					let bullet = new Bullet(data[index + 3], data[index + 4], data[index + 5], 
+					let bullet = new Objects.Bullet(data[index + 3], data[index + 4], data[index + 5], 
 						p_h, true);
 					bullet.id = data[index + 2];
 

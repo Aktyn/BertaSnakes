@@ -53,10 +53,10 @@ const GameCore = (function(/*GameMap, CollisionDetector, Colors, Player,
 		death_mark_size: 0.04,
 
 		//damages
-		enemy_to_bullet_receptivity: 0.2,//hp taken from enemy on bullet hit
-		enemy_to_bouncing_bullet_receptivity: 0.45,//hp taken from enemy on bouncing bullet hit
-		player_to_bullet_receptivity: 0.2,
-		player_to_bouncing_bullet_receptivity: 0.45,
+		enemy_to_bullet_receptivity: 0.3,//hp taken from enemy on bullet hit
+		enemy_to_bouncing_bullet_receptivity: 0.4,//hp taken from enemy on bouncing bullet hit
+		player_to_bullet_receptivity: 0.3,
+		player_to_bouncing_bullet_receptivity: 0.4,
 		energy_blast_damage: 0.6,//hp cause to each enemy in blast range
 		enemy_collision_damage: 0.2,
 		enemy_painter_collision_damage: 0.2,

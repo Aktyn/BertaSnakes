@@ -70,7 +70,7 @@
 			//set cookie from res.user_key
 			//console.log( 'user_key:', res.user_key );
 			let d = new Date();
-    		d.setTime(d.getTime() + (7*24*60*60*1000));//7 days cookie lifetime
+    		d.setTime(d.getTime() + (14*24*60*60*1000));//14 days cookie lifetime
 			document.cookie = 'user_session=' + res.user_key + 
 				";expires=" + d.toUTCString() + ";path=/";
 

@@ -159,8 +159,8 @@ class RoomView {
 		var current_room = Network.getCurrentRoom();
 		if(current_room === null) throw new Error('There isn\'t current room');
 
-		this.widget.getChildren('.no_room_info_container').setStyle({display: 'none'});
-		this.widget.getChildren('.room_info').setStyle({display: 'inline-block'});
+		this.widget.getChildren('.no_room_info_container').setStyle({'display': 'none'});
+		this.widget.getChildren('.room_info').setStyle({'display': 'inline-block'});
 		
 		// this.widget.getChildren('.room_name').setText( current_room.name );
 		// this.updateSits(current_room.sits, current_room.readys);
@@ -173,8 +173,8 @@ class RoomView {
 
 	onRoomLeft() {
 		try {
-			this.widget.getChildren('.no_room_info_container').setStyle({display: 'inline-block'});
-			this.widget.getChildren('.room_info').setStyle({display: 'none'});
+			this.widget.getChildren('.no_room_info_container').setStyle({'display': 'inline-block'});
+			this.widget.getChildren('.room_info').setStyle({'display': 'none'});
 			this.widget.getChildren('.game_start_countdown_info')
 				.removeClass('active').setText('Waiting for everyone to be ready');
 			this.widget.getChildren('.room_settings').remove();
@@ -324,7 +324,7 @@ class RoomView {
 
 		//makes room html elements
 		var room_info = this.widget.getChildren('.room_info');
-		room_info.setStyle({display: 'none'});
+		room_info.setStyle({'display': 'none'});
 
 		var name_input = $$.create('INPUT').addClass('text_input')
 			.setAttrib('type', 'text').setAttrib('name', 'room_name_input')
@@ -332,7 +332,7 @@ class RoomView {
 
 		var sits_input = COMMON.createNumberInput(1, 6)
 			.setValue( current_room.sits.length )//.setAttrib('name', 'room_sits_input')
-			.setStyle({display: 'inline-block', textAlign: 'center'});
+			.setStyle({'display': 'inline-block', 'textAlign': 'center'});
 
 		var mode_option = COMMON.createOptionsList(RoomView.gamemode_names, (opt) => {
 			//if competition
@@ -352,7 +352,7 @@ class RoomView {
 			COMMON.createNumberInput(RoomView.MINIMUM_MINUTES, RoomView.MAXIMUM_MINUTES, 
 				undefined, ' min')
 			.setValue( (current_room.duration / 60) | 0 )
-			.setStyle({display: 'inline-block', textAlign: 'center'});
+			.setStyle({'display': 'inline-block', 'textAlign': 'center'});
 
 		var maps_horizontal_list = $$.create('DIV').setClass('maps_list');
 		Maps.onLoad(() => {
@@ -388,7 +388,7 @@ class RoomView {
 
 		var roomSettings = $$.create('DIV').addClass('room_settings').addChild(
 			$$.create('H1')
-				.setStyle({display: 'table', borderBottom: '1px solid #90A4AE'}).addChild(
+				.setStyle({'display': 'table', 'borderBottom': '1px solid #90A4AE'}).addChild(
 					$$.create('DIV').setStyle({
 						'display': 'table-cell',
 						'padding': '0px 20px'
@@ -399,7 +399,7 @@ class RoomView {
 							//applying settings before closing
 							applySettings();
 							//closing room settings
-							room_info.setStyle({display: 'inline-block'});
+							room_info.setStyle({'display': 'inline-block'});
 							roomSettings.remove();
 						})
 				)
@@ -421,13 +421,21 @@ class RoomView {
 			maps_horizontal_list
 		).addChild(
 			$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
-				.html('APPLY').setStyle({margin: '15px'}).on('click', applySettings)
+				.html('APPLY').setStyle({'margin': '15px'}).on('click', applySettings)
 		);
 
 		this.widget.addChild(roomSettings);
 	}
 
 	private createWidget() {
+		var V8_warning = $$.create('DIV').setStyle({'padding-top': '20px'});
+
+		if(Device.info.is_v8 === false)
+			V8_warning.html(`Your browser doesn't implement JavaScript V8 engine.<br>
+				Consider using Chrome or Opera Browser for best performance.`);
+		else
+			V8_warning.setStyle({'display': 'none'});
+
 		return $$.create('DIV').setClass('room_view')
 			//.setAttrib('id', 'room_view' + this.session_string + this.id)
 		.addChild(//not in room info
@@ -444,15 +452,14 @@ class RoomView {
 							.setText('GO FOR IT').on('click', () => location.href = '/login')
 							.setStyle({'margin-top': '10px'})
 					)
+			).addChild(
+				V8_warning
 			).addChild( 
 				$$.create('HR').addClass('hide_in_fullscreen') 
 			).addChild(
 				$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
 					.addClass('hide_in_fullscreen').setText('Go Fullscreen')
-					.on('click', () => {
-						Device.goFullscreen();
-						//Device.setOrientation( Device.Orientation.LANDSCAPE );
-					})
+					.on('click', () => Device.goFullscreen())
 			)
 		).addChild( 
 			$$.create('DIV').setStyle({display: 'none'}).addClass('room_info').addChild(
@@ -480,20 +487,19 @@ class RoomView {
 					.addChild(//sit / stand button
 						$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
 							.addClass('sit_or_stand_button')
-							.setStyle({/*gridColumn: '1', gridRow: '1',*/ 
-								marginBottom: '10px', marginRight: '10px'})
+							.setStyle({'marginBottom': '10px', 'marginRight': '10px'})
 							.html('SIT').on('click', () => this.sitOrStand())
 					)
 					.addChild(//ready button
 						$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
 							.addClass('sit_ready_button')
-							.setStyle({/*gridColumn: '1', gridRow: '1', */marginBottom: '10px'})
+							.setStyle({'marginBottom': '10px'})
 							.setAttrib('disabled', '')
 							.html('READY').on('click', () => Network.sendReadyRequest())
 					)
 				).addChild(//leave room button
 					$$.create('BUTTON').addClass('iconic_button').addClass('iconic_close')
-						.setStyle({/*gridColumn: '2', gridRow: '1', */marginBottom: '10px'})
+						.setStyle({'marginBottom': '10px'})
 						.html('LEAVE ROOM').on('click', event => {
 							//leaving room request
 							try {
@@ -505,15 +511,12 @@ class RoomView {
 						})
 				).addChild(//sits list
 					$$.create('DIV').addClass('sits_list')
-						//.setStyle({gridColumn: '1', gridRow: '2'}) 
 				).addChild(//users list container for table
 					$$.create('DIV').addClass('users_list_container').addChild(
 						$$.create('DIV').addClass('users_list')//list of users
-							//.setStyle({gridColumn: '2', gridRow: '2'}) 
 					)
 				)
 			)
 		);
 	}
 }
-//})();

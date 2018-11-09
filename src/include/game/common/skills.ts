@@ -85,13 +85,13 @@ namespace SkillsScope {
 		},
 		SHOOT2: <SkillData>{//level 2 continous shoot
 			continuous: true,
-			energy_cost: 0.0175,//per second (1 => 100%)
+			energy_cost: 0.01625,//per second (1 => 100%)
 			cooldown: 0.25,
 			texture_name: 'shot2_skill'
 		},
 		SHOOT3: <SkillData>{//level 3 continous shoot
 			continuous: true,
-			energy_cost: 0.02,//per second (1 => 100%)
+			energy_cost: 0.0175,//per second (1 => 100%)
 			cooldown: 0.25,
 			texture_name: 'shot3_skill'
 		},

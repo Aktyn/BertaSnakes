@@ -6,7 +6,8 @@
 ///<reference path="../common/painter.ts"/>
 ///<reference path="player.ts"/>
 
-const Bullet = (function() {
+// const Bullet = (function() {
+namespace Objects {
 	try {
 		var _Object2D_: typeof Object2D = require('./object2d');
 		var _Sensor_: typeof Sensor = require('./../common/sensor');
@@ -23,12 +24,13 @@ const Bullet = (function() {
 	const H_PI = Math.PI/2;
 	const fixAngle = (a: number) => -a + H_PI;
 
-	return class Bullet extends _Object2D_ {
+	export class Bullet extends _Object2D_ {
 		public bouncing: boolean;
 		public parent: Object2D;
 		private lifetime: number;
 		private speed: number;
 		public sensor: Sensor.Class;
+		public damage_scale = 1;
 
 		//NOTE - parent must constains a Painter instance as 'painter' property name
 		//@parent - instance that 'owns' this bullet
@@ -84,10 +86,10 @@ const Bullet = (function() {
 		static entityName(color: ColorsScope.ColorI) {
 			return 'BULLET_' + Colors.PLAYERS_COLORS.indexOf(color);
 		}
-	};
-})();
+	}
+}//)();
 
 try {//export for NodeJS
-	module.exports = Bullet;
+	module.exports = Objects.Bullet;
 }
 catch(e) {}

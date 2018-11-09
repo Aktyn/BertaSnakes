@@ -38,8 +38,9 @@ var getIP = (req: any) => req.connection.remoteAddress.replace(/::ffff:/, '');
 function getUserSessionKey(req: any) {
 	try {
 		let key = getCookie(req.headers.cookie, session_cookie_name);
-		let ip = req.connection.remoteAddress.replace(/::ffff:/, '');
-		return crypto.createHash('sha256').update(req.headers['user-agent'] + ip + key).digest('base64');
+		//let ip = req.connection.remoteAddress.replace(/::ffff:/, '');
+		return crypto.createHash('sha256').update(req.headers['user-agent'] + /*ip + */key)
+			.digest('base64');
 	}
 	catch(e) {
 		console.error();
@@ -55,7 +56,7 @@ function generateSessionKeys(req: any) {
 	//generating user key
 	let user_key: string = (<any>randomString(32)).toString('base64');
 	
-	let session_key = crypto.createHash('sha256').update(useragent + getIP(req) + user_key)
+	let session_key = crypto.createHash('sha256').update(useragent + /*getIP(req) + */user_key)
 		.digest('base64');
 	return {
 		sessionkey: session_key, 

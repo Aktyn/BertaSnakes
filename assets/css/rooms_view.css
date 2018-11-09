@@ -15,6 +15,10 @@
 	/*transform: perspective(300px) rotateY(0deg);*/
 }
 
+.room_view .no_room_info_container {
+	display: inline-block;
+}
+
 .room_settings {
 	text-align: center;
 }

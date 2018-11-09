@@ -33,6 +33,7 @@ namespace _NetworkCodes_ {
 		START_GAME_CONFIRM: 0,
 
 		//FROM SERVER
+		ACCOUNT_ALREADY_LOGGED_IN: 0,
 		PLAYER_ACCOUNT: 0,//gives user info to client (stored in @user_info property) (+ custom_data)
 		ACCOUNT_DATA: 0,//complete user's custom_data + friends as an array
 		TRANSACTION_ERROR: 0,//goes with error_detail (string)

@@ -20,7 +20,10 @@ const header =
 	<meta charset='utf-8'>\
 	<meta name='author' content='Aktyn'>\
 	<meta name='viewport' content='width=device-width, initial-scale=1'>\
-	<meta name='theme-color' content='#40535d' />\
+	<meta name='theme-color' content='#40535d'>\
+	<meta name='keywords' content='Berta, Snakes, BertaSnakes, multiplayer, game, browser, Aktyn'>\
+	<meta name='google' content='notranslate'>\
+	<meta http-equiv='content-language' content='pl'>\
 	<meta name='Description' content='Web version of Berta Snakes.'>\
 	<link rel='icon' href='/img/icons/icon.png' type='image/png'>";
 

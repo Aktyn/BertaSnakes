@@ -903,16 +903,21 @@ export default {
 		}
 
 		const session_key = crypto.createHash('sha256')
-			.update(connection.req.headers['user-agent'] + connection.ip + key).digest('base64');
+			.update(connection.req.headers['user-agent'] + /*connection.ip + */key).digest('base64');
 	
 		// console.log(session_key);
 		DatabaseUtils.checkSession(session_key).then((res) => {
 			if(res.length > 0) {//logged in as user
 				let new_id = res[0].id|0;
 				if(current_connections.some((conn) => conn.user !== null && conn.user.id === new_id)) {
-					console.log('user already logged in - TODO - do something about it');
-					connection.close();
-					this.removeConnection(connection);
+					console.log('user already logged in');
+					loginAsGuest(connection);
+
+					connection.send(JSON.stringify({
+						type: NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN
+					}));
+					//connection.close();
+					//this.removeConnection(connection);
 					return;
 				}
 				var new_user = new UserInfo(new_id, res[0].nickname, res[0].custom_data);

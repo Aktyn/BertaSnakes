@@ -94,7 +94,7 @@ var Entities = (function() {
 
 	//adding entities that are distinct by player's colors
 	Colors.PLAYERS_COLORS.forEach((color) => {//for each player color
-		let bullet_name = Bullet.entityName(color);
+		let bullet_name = Objects.Bullet.entityName(color);
 		EntitiesData[bullet_name] = {
 			texture_name: 'bullet',
 			color: color.buffer

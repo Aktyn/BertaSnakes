@@ -13,21 +13,21 @@
 
 //const ServerGame = (function() {
 namespace ServerGame {
-	try {
-		var _RoomInfo_: typeof RoomInfo = require('./../include/room_info');
-		var _GameCore_: typeof GameCore = require('./../include/game/game_core');
-		var Colors = require('./../include/game/common/colors');
-		var Vector = require('./../include/utils/vector');
-		var Item = require('./../include/game/objects/item');
-		var PoisonousEnemy = require('./../include/game/objects/poisonous_enemy');
-		var Bullet = require('./../include/game/objects/bullet');
-		var Bomb = require('./../include/game/objects/bomb');
-		var Skills = require('./../include/game/common/skills');
-		var Effects = require('./../include/game/common/effects');
-		var GameResult = require('./../include/game/game_result');
-		var NetworkCodes = require('./../include/network_codes');
-	}
-	catch(e) {}
+	//try {
+	var _RoomInfo_: typeof RoomInfo = require('./../include/room_info');
+	var _GameCore_: typeof GameCore = require('./../include/game/game_core');
+	var Colors = require('./../include/game/common/colors');
+	var Vector = require('./../include/utils/vector');
+	var Item = require('./../include/game/objects/item');
+	var PoisonousEnemy = require('./../include/game/objects/poisonous_enemy');
+	var Bullet: typeof Objects.Bullet = require('./../include/game/objects/bullet');
+	var Bomb = require('./../include/game/objects/bomb');
+	var Skills = require('./../include/game/common/skills');
+	var Effects = require('./../include/game/common/effects');
+	var GameResult = require('./../include/game/game_result');
+	var NetworkCodes = require('./../include/network_codes');
+	//}
+	//catch(e) {}
 
 	const H_PI = Math.PI/2;
 	const fixAngle = (a: number) => -a + H_PI;
@@ -304,7 +304,7 @@ namespace ServerGame {
 			}
 		}
 
-		bulletBounce(bullet: typeof Bullet.prototype, color: Uint8Array) {
+		bulletBounce(bullet: Objects.Bullet, color: Uint8Array) {
 			if(this.bouncePainter(bullet, color, this.bounceVec) === true) {
 				this.dataForClients.push(NetworkCodes.ON_BULLET_BOUNCE, bullet.id,
 					bullet.x, bullet.y, bullet.rot, this.bounceVec.x, this.bounceVec.y);
@@ -364,7 +364,7 @@ namespace ServerGame {
 			}
 		}
 
-		onBulletPainterCollision(bullet: typeof Bullet.prototype, color: Uint8Array) {
+		onBulletPainterCollision(bullet: Objects.Bullet, color: Uint8Array) {
 			//ignore self color collision
 			if(Colors.compareByteBuffers(bullet.color.byte_buffer, color) === true)
 				return;
@@ -452,43 +452,49 @@ namespace ServerGame {
 			enemy.frames_since_last_update = 0;
 		}
 
-		onPlayerBulletCollision(player: typeof Player.prototype, bullet: typeof Bullet.prototype) {
-			if(player.isAlive() === false || bullet.parent === player)
-				return;
-
-			hit_x = (player.x + bullet.x) / 2.0;
-			hit_y = (player.y + bullet.y) / 2.0;
+		//function created to redundant similar code for players and enemies striked by bullet
+		onBulletHit(object: Object2D, bullet: Objects.Bullet, is_player: boolean) {
+			hit_x = (object.x + bullet.x) / 2.0;
+			hit_y = (object.y + bullet.y) / 2.0;
 
 			var damage = 0;
-			if(bullet.bouncing)
-				damage = _GameCore_.GET_PARAMS().player_to_bouncing_bullet_receptivity;
-			else
-				damage = _GameCore_.GET_PARAMS().player_to_bullet_receptivity;
+			var dmg_scale = bullet.damage_scale;
+			if(is_player) {
+				if(bullet.bouncing)
+					damage = _GameCore_.GET_PARAMS().player_to_bouncing_bullet_receptivity * dmg_scale;
+				else
+					damage = _GameCore_.GET_PARAMS().player_to_bullet_receptivity * dmg_scale;
+			
+				this.onPlayerAttackedPlayer(<typeof Player.prototype>bullet.parent, 
+					<typeof Player.prototype>object, damage);
+			}
+			else {
+				var damage = 0;
+				if(bullet.bouncing)
+					damage = _GameCore_.GET_PARAMS().enemy_to_bouncing_bullet_receptivity * dmg_scale;
+				else
+					damage = _GameCore_.GET_PARAMS().enemy_to_bullet_receptivity * dmg_scale;
 
-			this.onPlayerAttackedPlayer(<typeof Player.prototype>bullet.parent, player, damage);
+				this.onPlayerAttackedEnemy(<typeof Player.prototype>bullet.parent, 
+					<typeof Enemy.prototype>object, damage);
+			}
 
 			this.dataForClients.push( NetworkCodes.ON_BULLET_HIT, bullet.id, hit_x, hit_y );
 			bullet.expired = true;
 		}
 
-		onEnemyBulletCollision(enemy: typeof Enemy.prototype, bullet: typeof Bullet.prototype) {
+		onPlayerBulletCollision(player: typeof Player.prototype, bullet: Objects.Bullet) {
+			if(player.isAlive() === false || bullet.parent === player)
+				return;
+
+			this.onBulletHit(player, bullet, true);
+		}
+
+		onEnemyBulletCollision(enemy: typeof Enemy.prototype, bullet: Objects.Bullet) {
 			if(enemy.isAlive() === false)//|| bullet.parent === enemy => TODO when enemy will shoot
 				return;
 
-			hit_x = (enemy.x + bullet.x) / 2.0;
-			hit_y = (enemy.y + bullet.y) / 2.0;
-
-			var damage = 0;
-			if(bullet.bouncing)
-				damage = _GameCore_.GET_PARAMS().enemy_to_bouncing_bullet_receptivity;
-			else
-				damage = _GameCore_.GET_PARAMS().enemy_to_bullet_receptivity;
-
-			this.onPlayerAttackedEnemy(<typeof Player.prototype>bullet.parent, enemy, damage);
-
-			//bullet dies on hit
-			this.dataForClients.push( NetworkCodes.ON_BULLET_HIT, bullet.id, hit_x, hit_y );
-			bullet.expired = true;
+			this.onBulletHit(enemy, bullet, false);
 		}
 
 		onPlayerItemCollision(player: typeof Player.prototype, item: typeof Item.prototype) {
@@ -705,6 +711,10 @@ namespace ServerGame {
 							player.rot, 
 							player//.painter.color
 						);
+						if(skill.data === Skills.SHOOT2)
+							bullet.damage_scale = 0.6;
+						else if(skill.data === Skills.SHOOT3)
+							bullet.damage_scale = 0.4;
 						this.bullets.push( bullet );
 
 						//fill rest data for clients
