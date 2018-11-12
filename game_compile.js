@@ -31,7 +31,6 @@ process.argv.forEach(function (val) {
 	}
 });
 
-
 function onCompiled(compiled_code) {
 	fs.writeFileSync(target_file, compiled_code, 'utf8');
 	console.log('Compilation succesful');
@@ -48,12 +47,12 @@ let data = {
 	language_out: 'ECMASCRIPT6_STRICT'//ECMASCRIPT6_STRICT, ECMASCRIPT5_STRICT
 };
 
-/*request.post({
+request.post({
 	url: closure_compiler_url, form: data
 }, (err, response, body) => {
 	if(err)
 		console.error(err);
 	else
 		onCompiled(body);//saveResult(body);
-});*/
-onCompiled(code);
+});
+// onCompiled(code);
