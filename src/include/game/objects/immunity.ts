@@ -35,7 +35,7 @@ const Immunity = (function() {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined') {
 				//@ts-ignore
-				Entities.addObject(Entities[ENTITY_NAME].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[ENTITY_NAME].id, this);
 			}
 		}
 
@@ -43,7 +43,7 @@ const Immunity = (function() {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')
 				//@ts-ignore
-				Entities.removeObject(Entities[ENTITY_NAME].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[ENTITY_NAME].id, this);
 		}
 
 		update(delta: number) {

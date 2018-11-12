@@ -263,7 +263,7 @@ export default {//Actions
 		if(user_info === null)//user not found
 			return sendResponse(resp, {result: 'USER_DOES_NOT_EXISTS'});
 
-		let pass = crypto.createHash('sha1').update(req.body.password).digest('base64');
+		let pass = crypto.createHash('sha256').update(req.body.password).digest('base64');
 
 		//checking whether user send correct password
 		if(user_info.password !== pass)
@@ -291,7 +291,7 @@ export default {//Actions
 
 	async register_account(req: any, resp: any) {
 		let nick = req.body.username;
-		let pass = crypto.createHash('sha1').update(req.body.password).digest('base64');
+		let pass = crypto.createHash('sha256').update(req.body.password).digest('base64');
 		let email = req.body.email;
 		//let ip = req.connection.remoteAddress.replace(/::ffff:/, '');
 
@@ -322,7 +322,7 @@ export default {//Actions
 
 	async resend_verification_link(req: any, resp: any) {
 		let nick = req.body.username;
-		let pass = crypto.createHash('sha1').update(req.body.password).digest('base64');
+		let pass = crypto.createHash('sha256').update(req.body.password).digest('base64');
 
 		let user_info = await DatabaseUtils.findUserByNick( nick );
 		if(user_info === null)

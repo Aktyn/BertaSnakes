@@ -263,8 +263,12 @@ const $$ : $_static_func = (function() {
 					this.appendAtBeginning(element[i]);
 				return this;
 			}
-			
-			this.insertBefore(element, this.firstChild);
+			try {
+				this.insertBefore(element, this.firstChild);
+			}
+			catch(e) {
+				console.log('Cannot insert element');
+			}
 			return this;
 		},
 		delete: function() {
@@ -297,31 +301,47 @@ const $$ : $_static_func = (function() {
 			return rect.right - rect.left;
 		},
 		getHeight: function() {
-			var rect = this.getBoundingClientRect();
-			return rect.bottom - rect.top;
+			try {
+				var rect = this.getBoundingClientRect();
+				return rect.bottom - rect.top;
+			}
+			catch(e) {
+				console.trace(e);
+				return 0;
+			}
 		},
 
 		//NEW - less troublesome events support
 		on: function(event, func) {
-			if(this.addEventListener)// most non-IE browsers and IE9
-			   this.addEventListener(event, func, false);
-			//@ts-ignore
-			else if(this.attachEvent)//Internet Explorer 5 or above
+			try {
+				if(this.addEventListener)// most non-IE browsers and IE9
+				   this.addEventListener(event, func, false);
 				//@ts-ignore
-			  	this.attachEvent('on' + event, func);
-		   	else
-				throw new Error('no addEventListener support');
+				else if(this.attachEvent)//Internet Explorer 5 or above
+					//@ts-ignore
+				  	this.attachEvent('on' + event, func);
+			   	else
+					throw new Error('no addEventListener support');
+			}
+			catch(e) {
+				console.trace('Cannot add event listener');
+			}
 			return <$_face>this;
 		},
 		off: function(event, func) {//removeEventListener
-			if(this.removeEventListener)// most non-IE browsers and IE9
-			   this.removeEventListener(event, func, false);
-			//@ts-ignore
-			else if(this.detachEvent)//Internet Explorer 5 or above
+			try {
+				if(this.removeEventListener)// most non-IE browsers and IE9
+				   this.removeEventListener(event, func, false);
 				//@ts-ignore
-			  	this.detachEvent('on' + event, func);
-			else
-				throw new Error('no removeEventListener support');
+				else if(this.detachEvent)//Internet Explorer 5 or above
+					//@ts-ignore
+				  	this.detachEvent('on' + event, func);
+				else
+					throw new Error('no removeEventListener support');
+			}
+			catch(e) {
+				console.trace('Cannot remove event listener');
+			}
 			return <$_face>this;
 		}
 	};

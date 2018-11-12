@@ -130,6 +130,6 @@ export default {//PAGES
 		document.head.appendChild( createScriptNode(document, 'webjs/register.js') );
 		document.body.innerHTML += fs.readFileSync('website/html/register_form.html', 'utf8');
 	}}),
-	play: createAndSerialize({title: 'Berta Snakes v'+global.APP_VERSION.replace(/_/g, '.'), 
+	play: createAndSerialize({/*title: 'Berta Snakes v'+global.APP_VERSION.replace(/_/g, '.'), */
 		isPlayPage: true})
 };

@@ -1,4 +1,3 @@
-///<reference path="../common/common.ts"/>
 ///<reference path="assets.ts"/>
 
 //const GRAPHICS = (function() {
@@ -7,7 +6,7 @@ namespace GRAPHICS {
 		throw "ASSETS module must be loaded before Renderer.Class";
 	var Assets = ASSETS;
 
-	const SESSION_STRING = COMMON.generateRandomString(10);
+	//const SESSION_STRING = COMMON.generateRandomString(10);
 
 	var CANVAS: HTMLCanvasElement, GL: WebGLRenderingContext, EXT: WEBGL_draw_buffers, aspect: number;
 	var initialized = false;
@@ -82,8 +81,8 @@ namespace GRAPHICS {
 		if(CANVAS && typeof CANVAS.remove === 'function')//removing existing canvas
 			CANVAS.remove();
 		//creating new one
-		CANVAS = <HTMLCanvasElement><unknown>$$.create('canvas')
-			.setAttrib('id', 'renderer#' + SESSION_STRING)
+		CANVAS = <HTMLCanvasElement><any>$$.create('canvas')
+			.setAttrib('id', 'renderer')
 			.setAttrib('moz-opaque', '')
 			.setStyle({
 				'display': 'inline-block',
@@ -106,7 +105,7 @@ namespace GRAPHICS {
 
 		initialized = true;
 
-		return CANVAS;
+		return <$_face><any>CANVAS;
 	}
 	export function destroy() {
 		initialized = false;
@@ -280,10 +279,6 @@ namespace GRAPHICS {
 	var current_fb: WebGLFramebuffer | null = null;
 	export const FRAMEBUFFERS = {
 		create: function(options: FramebufferOptions): ExtendedFramebuffer {
-			//$$.assert(typeof options === 'object', 'Framebuffer options not specified');
-
-			//console.log('Creating framebuffer with given options:', options);
-
 			let linear = options.linear === undefined ? true : options.linear;//default
 			let width = options.width || 0,
 				height = options.height || 0;
@@ -438,13 +433,9 @@ namespace GRAPHICS {
 
 	export const SHADERS = {
 		create: function(sources: {vertex_source: string, fragment_source: string}) {
-			$$.assert(GL !== undefined, "GL context required");
-			//$$.assert(typeof sources !== undefined && 
-			//	typeof sources.vertex_source === 'string' && 
-			//	typeof sources.fragment_source === 'string', 'Incorrect argument format');
+			if(GL === undefined) throw "GL context required";
 
 			let compiled_program = compile_shader(sources.vertex_source, sources.fragment_source);
-			//$$.assert(compiled_program, "Cannot compile shader");
 
 			return <ExtendedShader>{
 				program: compiled_program,
@@ -504,8 +495,6 @@ namespace GRAPHICS {
 	//var binded: VertexBufferI | VBO_I | null = null;//curently binded VBO
 	export const VBO = {
 		create: function(data: {vertex: number[], faces: number[]}): VBO_I {
-			//$$.assert(data && data.vertex && data.faces, 'Incorrect data format');
-
 			var vertex_buff = GL.createBuffer();
 			var faces_buff = GL.createBuffer();
 
@@ -673,6 +662,116 @@ namespace GRAPHICS {
 	//})(),
 
 	//};
+	export class CanvasExtended {
+		private static instance_id = 0;
+		public canvas: HTMLCanvasElement;
+		//@ts-ignore
+		private ctx: CanvasRenderingContext2D;
+		public aspect: number;
+
+		private image_smoothing = true;
+
+		constructor() {
+			CanvasExtended.instance_id++;
+
+			this.canvas = <HTMLCanvasElement><any>$$.create('canvas')
+				.setAttrib('id', 'renderer#' + CanvasExtended.instance_id)
+				.setAttrib('moz-opaque', '')
+				.setStyle({
+					'display': 'inline-block',
+					'position': 'fixed',
+					'left': '0px',
+					'top': '0px',
+					'background': 'none',
+					'user-select': 'none'
+					//'pointerEvents': 'none'
+				});
+
+			$$.expand(this.canvas, $$.getScreenSize(), true);
+			this.aspect = $$.getScreenSize().width / $$.getScreenSize().height;
+
+			this.ctx = this.extractContext();
+
+			if($$(document.body) == null)
+				throw new Error('No page body found');
+			$$(document.body).appendAtBeginning(this.canvas);
+		}
+
+		destroy() {
+			if(this.canvas && typeof this.canvas.remove === 'function')//removing existing canvas
+				this.canvas.remove();
+		}
+
+		private extractContext() {
+			return <CanvasRenderingContext2D>this.canvas.getContext('2d', 
+				{antialias: false, alpha: true});
+		}
+
+		setResolution(width: number, height: number) {
+			this.canvas.width = width;
+			this.canvas.height = height;
+			this.ctx = this.extractContext();
+		}
+
+		private setImageSmooth(smooth: boolean) {
+			if(this.image_smoothing === smooth)
+				return;
+			this.image_smoothing = smooth;
+			//@ts-ignore
+			this.ctx['mozImageSmoothingEnabled'] = smooth;
+			//@ts-ignore
+			this.ctx['webkitImageSmoothingEnabled'] = smooth;
+			//@ts-ignore
+			this.ctx['msImageSmoothingEnabled'] = smooth;
+			this.ctx['imageSmoothingEnabled'] = smooth;
+		}
+
+		clear(x: number, y: number, w: number, h: number) {
+			this.ctx.clearRect(x, y, w, h);
+		}
+
+		clearAll() {
+			this.clear(0, 0, this.canvas.width, this.canvas.height);
+		}
+
+		drawRect(x: number, y: number, w: number, h: number) {
+			this.ctx.fillRect(x, y, w, h);
+		}
+
+		drawImage(img: HTMLImageElement | HTMLCanvasElement, 
+			x: number, y: number, w: number, h: number, smooth = true) 
+		{
+			this.setImageSmooth(smooth);
+			this.ctx.drawImage(img, x, y, w, h);
+		}
+
+		drawImageCentered(img: HTMLImageElement | HTMLCanvasElement, 
+			x: number, y: number, w: number, h: number, rot: number, smooth = true) 
+		{
+			this.setImageSmooth(smooth);
+
+			if(rot !== 0) {
+				this.ctx.save();
+		        this.ctx.translate(x, y);
+		        this.ctx.rotate(rot);
+		        this.ctx.translate(-x, -y);
+		        this.ctx.drawImage(img, x-w, y-h, w*2, h*2);
+		        
+		        this.ctx.restore();
+			}
+			else
+				this.ctx.drawImage(img, x-w, y-h, w*2, h*2);
+		}
+
+		drawImageAt(img: HTMLImageElement | HTMLCanvasElement, x: number, y: number, smooth = true) {
+			this.setImageSmooth(smooth);
+			this.ctx.drawImage(img, x, y);
+		}
+
+		drawImageFull(img: HTMLImageElement | HTMLCanvasElement, smooth = true) {
+			this.drawImage(img, 0, 0, this.canvas.width, this.canvas.height, smooth);
+		}
+	}
 
 	//return self;
 }//)();

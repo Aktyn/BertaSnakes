@@ -51,10 +51,12 @@ namespace Popup {
 			this.ships_list.html('');	
 
 			//@ts-ignore
-			Object.keys(Player.TYPES).map(key => Player.TYPES[key]).forEach((type: number, i) => {
+			Object.keys(Objects.Player.TYPES).map(key => Objects.Player.TYPES[key])
+				.forEach((type: number, i) => 
+			{
 				let ship_widget = WIDGETS_CREATOR.createShipWidget(type, this);
 				
-				if(data['level'] >= Player.SHIP_LVL_REQUIREMENTS[i]) {
+				if(data['level'] >= Objects.Player.SHIP_LVL_REQUIREMENTS[i]) {
 					if(data['avaible_ships'].indexOf(i) !== -1)//avaible for user to use
 						ship_widget.setState(WIDGETS_CREATOR.WIDGET_STATES.BOUGHT);
 					else//user must buy this ship before be able to use it

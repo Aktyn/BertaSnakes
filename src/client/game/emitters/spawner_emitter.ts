@@ -2,8 +2,12 @@
 
 // const SpawnerEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 100;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	//SCALE = EnemySpawner.SCALE
 	const /*SCALE = 0.15, */SPEED = 0.1, ALPHA = 0.15;
@@ -12,7 +16,7 @@ namespace Emitters {
 
 	var i;
 
-	export class Spawner extends GRAPHICS.Emitter {
+	export class Spawner extends Graphics.Emitter {
 		private angles: Float32Array;
 
 		constructor(green: boolean) {
@@ -21,7 +25,7 @@ namespace Emitters {
 			this.angles = new Float32Array(PARTICLES);
 
 			for(i=0; i<PARTICLES; i++) {
-				this.data[i*vals + 0] = 1e8;//(Math.random() * 2.0 - 1.0) * GRAPHICS.getAspect();//x
+				this.data[i*vals + 0] = 1e8;//(Math.random() * 2.0 - 1.0) * Graphics.getAspect();//x
 				this.data[i*vals + 1] = 1e8;//Math.random() * 2.0 - 1.0;//yy
 				this.data[i*vals + 2] = 0.05 * Math.random() + 0.025;
 

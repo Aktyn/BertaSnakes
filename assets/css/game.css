@@ -274,31 +274,9 @@ span {
     width: 25px;
 }
 
-/*
-.users_list .add_friend_btn {
-	background: #fff2;
-	border: 1px solid #fff;
-	border-radius: 3px;
-	padding: 3px 0px;
-	margin: 0px 5px;
-    width: auto;
-    height: auto;
+.canvas_rederer_walls > * {
+	display: inline-block;
+	float: left;
+	margin: 0px;
+	padding: 0px;
 }
-
-.users_list .add_friend_btn:hover {
-	background-color: #fff5;
-}
-
-
-.users_list > div:first-child {
-	background: #02ffdc22;
-}
-
-.users_list > * > * {
-	display: table-cell;
-	
-	height: 39px;
-	padding: 5px 10px;
-}
-
-*/

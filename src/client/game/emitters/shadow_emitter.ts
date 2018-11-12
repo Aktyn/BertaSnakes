@@ -2,8 +2,12 @@
 
 // const ShadowEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 1;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	//const SCALE = 0.15;
 
@@ -12,7 +16,7 @@ namespace Emitters {
 
 	var i: number;
 
-	export class Shadow extends GRAPHICS.Emitter {
+	export class Shadow extends Graphics.Emitter {
 		private timer: number;
 
 		constructor(x: number, y: number, radius: number) {

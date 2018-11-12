@@ -2,8 +2,12 @@
 
 //const ExplosionEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 4;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	//const SCALE = 0.15;
 
@@ -11,7 +15,7 @@ namespace Emitters {
 
 	var i: number;//, j: number;
 
-	export class Explosion extends GRAPHICS.Emitter {
+	export class Explosion extends Graphics.Emitter {
 		private radius: number;
 		private timer: number;
 

@@ -53,7 +53,7 @@ var Shield = (function() {
 			if(typeof Entities !== 'undefined') {
 				this.entity_name = Shield.entityName(this.color);//clientside only
 				//@ts-ignore
-				Entities.addObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
 			}
 		}
 
@@ -61,7 +61,7 @@ var Shield = (function() {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')
 				//@ts-ignore
-				Entities.removeObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
 		}
 
 		update(delta: number) {

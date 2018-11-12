@@ -13,16 +13,15 @@
 ////<reference path="../../../client/game/emitters/player_emitter.ts"/>
 ////<reference path="../../../client/game/emitters/poisoning_emitter.ts"/>
 
-var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Effects*/) {
-// namespace PlayerScope {
-
+//var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Effects*/) {
+namespace Objects {
 	try {
 		//var _Object2D_: typeof Object2D = require('./object2d');
 		var _ExtendClass_: typeof Object2D = require('./object2d');
 		//var _Object2DSmooth_: typeof Object2DSmooth = require('./object2d_smooth');
 		var _Movement_: typeof Movement = require('./../common/movement');
 		var _Sensor_: typeof Sensor = require('./../common/sensor');
-		var _Painter_: typeof Painter = require('./../common/painter');
+		var _Painter_: typeof GameCommon.Painter = require('./../common/painter');
 		var _Colors_: typeof Colors = require('./../common/colors');
 		var _Skills_: typeof Skills = require('./../common/skills');
 		var _Effects_: typeof Effects = require('./../common/effects');
@@ -30,11 +29,11 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 	catch(e) {
 		//var _Object2D_ = Object2D;
 		//@ts-ignore
-		var _ExtendClass_ = Object2DSmooth;
+		var _ExtendClass_ = Objects.Object2DSmooth;
 		//var _Object2DSmooth_ = Object2DSmooth;
 		var _Movement_ = Movement;
 		var _Sensor_ = Sensor
-		var _Painter_ = Painter;
+		var _Painter_ = GameCommon.Painter;
 		var _Colors_ = Colors;
 		var _Skills_ = Skills
 		var _Effects_ = Effects;
@@ -64,7 +63,7 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 	var s_i, em_i;
 	
 	//(typeof module !== 'undefined' ? _Object2D_ : _Object2DSmooth_)
-	return class Player extends _ExtendClass_ {
+	export class Player extends _ExtendClass_ {
 		public static SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
 		public static SHIP_LVL_REQUIREMENTS = [1, 3, 6];//level required to be able to use ship
 		public static SHIP_COSTS = [0, 500, 3000];//coins required to buy ship
@@ -84,7 +83,7 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 		public kills: number;
 		public deaths: number;
 		public sensor: Sensor.Class;
-		public painter: Painter;
+		public painter: GameCommon.Painter;
 
 		private entity_name?: string;
 
@@ -147,13 +146,16 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 			if(typeof Entities !== 'undefined') {
 				this.entity_name = Player.entityName(type, color);//clientside only
 				//@ts-ignore
-				Entities.addObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
 			}
 
 			//@ts-ignore //client side
-			if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined') {
+			if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined' &&
 				//@ts-ignore
-				this.emitter = Renderer.Class.addEmitter( new Emitters.Player(this) );
+				Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL) 
+			{
+				//@ts-ignore
+				this.emitter = Renderer.WebGL.addEmitter( new Emitters.Player(this) );
 				this.poisoning_emitter = null;
 			}
 		}
@@ -163,7 +165,7 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 			if(typeof Entities !== 'undefined') {
 				console.log('removing player from entities');
 				//@ts-ignore
-				Entities.removeObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
 			}
 			if(this.emitter)
 				this.emitter.expired = true;
@@ -174,7 +176,9 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 		onPoisoned() {//client-side only use for poisoning particle effect display
 			if(this.poisoning_emitter === null)
 				//@ts-ignore
-				this.poisoning_emitter = Renderer.Class.addEmitter( new Emitters.Poisoning(this) );
+				if(Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL)
+					//@ts-ignore
+					this.poisoning_emitter = Renderer.WebGL.addEmitter( new Emitters.Poisoning(this) );
 			else
 				this.poisoning_emitter.resetTimer();
 		}
@@ -282,20 +286,12 @@ var Player = (function(/*Object2D, Movement, Sensor, Painter, Colors, Skills, Ef
 		static entityName(type_i: number, color: ColorsScope.ColorI) {
 			return 'PLAYER_' + type_i + '_' + _Colors_.PLAYERS_COLORS.indexOf(color);
 		}
-	};
-})(
-	// typeof Object2D !== 'undefined' ? Object2D : require('./object2d.js'),
-	// typeof Movement !== 'undefined' ? Movement : require('./../common/movement'),
-	// typeof Sensor !== 'undefined' ? Sensor : require('./../common/sensor'),
-	// typeof Painter !== 'undefined' ? Painter : require('./../common/painter'),
-	// typeof Colors !== 'undefined' ? Colors : require('./../common/colors'),
-	// typeof Skills !== 'undefined' ? Skills : require('./../common/skills'),
-	// typeof Effects !== 'undefined' ? Effects : require('./../common/effects')
-);
+	}
+}//)();
 
 // var Player = PlayerScope.Player;
 
 try {//export for NodeJS
-	module.exports = Player;
+	module.exports = Objects.Player;
 }
 catch(e) {}

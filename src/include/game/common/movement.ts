@@ -28,7 +28,7 @@ namespace MovementScope {
 
 		public speed = 0;
 		private _state = 0;
-		private smooth = true;
+		public smooth = true;
 
 		public maxSpeed = 0.4;
 		public acceleration = 0.5;

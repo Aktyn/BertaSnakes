@@ -36,17 +36,17 @@ var Emoticon = (function() {
 
 			if(name !== 'hand.svg')//exception (TODO - hand icon in yellow circle)
 				//@ts-ignore
-				Entities.addObject(Entities['STREAK'].id, this.streak);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase['STREAK'].id, this.streak);
 
 			//@ts-ignore
-			Entities.addObject(Entities[Emoticon.entityName(this.name)].id, this);
+			Entities.EntitiesBase.addObject(Entities.EntitiesBase[Emoticon.entityName(this.name)].id, this);
 		}
 
 		destroy() {
 			//@ts-ignore
-			Entities.removeObject(Entities['STREAK'].id, this.streak);
+			Entities.EntitiesBase.removeObject(Entities.EntitiesBase['STREAK'].id, this.streak);
 			//@ts-ignore
-			Entities.removeObject(Entities[Emoticon.entityName(this.name)].id, this);
+			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[Emoticon.entityName(this.name)].id, this);
 		}
 
 		endEffect() {//force end

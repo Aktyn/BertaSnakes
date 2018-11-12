@@ -32,7 +32,7 @@ namespace GameMap {
 	export class Map extends _PaintLayer_.Layer {
 		//public background: VectorScope.Vector;
 
-		public players: Object2D[] = [];
+		public players: Objects.Player[] = [];
 		public enemies: Object2D[] = [];
 		public enemy_spawners: Object2D[] = [];
 		public items: Object2D[] = [];

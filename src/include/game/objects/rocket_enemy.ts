@@ -16,9 +16,12 @@ const RocketEnemy = (function(Enemy, Sensor) {
 			super(ETITY_NAME, Sensor.SHAPES.ROCKET, SCALE, MAX_SPEED);
 
 			//@ts-ignore //client side
-			if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined') {
+			if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined' &&
 				//@ts-ignore
-				this.emitter = Renderer.Class.addEmitter( new Emitters.Fussion() );
+				Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL) 
+			{
+				//@ts-ignore
+				this.emitter = Renderer.WebGL.addEmitter( new Emitters.Fussion() );
 				this.emitter.visible = false;
 			}
 		}
@@ -34,7 +37,7 @@ const RocketEnemy = (function(Enemy, Sensor) {
 			super.update(delta);
 
 			//@ts-ignore
-			if( this.emitter && (renderer = Renderer.Class.getCurrentInstance()) !== null ) {
+			if( this.emitter && (renderer = Renderer.WebGL.getCurrentInstance()) !== null ) {
 				if(this.spawning !== true) {
 					if(renderer.withinVisibleArea(this.x, this.y, 0.25) === true) {
 						this.emitter.visible = true;

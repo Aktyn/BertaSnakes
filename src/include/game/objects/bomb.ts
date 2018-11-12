@@ -2,7 +2,8 @@
 ///<reference path="../common/colors.ts"/>
 ////<reference path="../../../client/game/entities.ts"/>
 
-const Bomb = (function() {
+// const Bomb = (function() {
+namespace Objects {
 	try {
 		var _Object2D_: typeof Object2D = require('./object2d');
 	}
@@ -15,15 +16,15 @@ const Bomb = (function() {
 
 	var shake_factor, rand_a, sc;
 	
-	return class Bomb extends _Object2D_ {
-		public parent: typeof Player.prototype;
+	export class Bomb extends _Object2D_ {
+		public parent: Objects.Player;
 		private initial_x: number;
 		private initial_y: number;
 		private timer: number;
 
 		//NOTE - parent must constains a Painter instance as 'painter' property name
 		//@parent - instance that 'owns' this bullet
-		constructor(x: number, y: number, parent: typeof Player.prototype) {
+		constructor(x: number, y: number, parent: Objects.Player) {
 			super();
 			super.setPos(x, y);
 			super.setScale(SCALE, SCALE);
@@ -41,7 +42,7 @@ const Bomb = (function() {
 				//@ts-ignore
 				this.entity_name = Bomb.entityName(parent.painter.color);//clientside only
 				//@ts-ignore
-				Entities.addObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
 			}
 		}
 
@@ -49,7 +50,7 @@ const Bomb = (function() {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')
 				//@ts-ignore
-				Entities.removeObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
 			
 		}
 
@@ -80,10 +81,10 @@ const Bomb = (function() {
 			return 'BOMB_' + Colors.PLAYERS_COLORS.indexOf(color);
 			//return 'BOMB';
 		}
-	};
-})();
+	}
+}//)();
 
 try {//export for NodeJS
-	module.exports = Bomb;
+	module.exports = Objects.Bomb;
 }
 catch(e) {}

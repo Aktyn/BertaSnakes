@@ -14,7 +14,7 @@ namespace PaintLayer {
 		var _Colors_ = Colors;
 	}
 
-	interface ChunkSchema {
+	export interface ChunkSchema {
 		matrix: MatrixScope.Matrix2D,
 		canvas: HTMLCanvasElement,
 		ctx: CanvasRenderingContext2D,
@@ -40,7 +40,7 @@ namespace PaintLayer {
 	const pow2 = (a: number) => a*a;
 
 	export class Layer {
-		public static CHUNK_SIZE = 0.25;
+		public static CHUNK_SIZE = 0.25;//const
 		public walls_color = _Colors_.gen(255, 255, 255);
 
 		private _color = '#fff';
@@ -94,7 +94,7 @@ namespace PaintLayer {
 
 		destroy() {
 			this.chunks.forEach(ch => {
-				if(ch.webgl_texture != null)
+				if(ch.webgl_texture !== null)
 					ch.webgl_texture.destroy();
 				delete ch.canvas;
 				delete ch.buff;

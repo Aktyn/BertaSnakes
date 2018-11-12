@@ -94,11 +94,11 @@ const WIDGETS_CREATOR = (function() {
 			//let ship_description = createDescription(description_html, ship_preview);
 
 			let widget = $$.create('DIV').setClass('ship_widget').addChild(
-				$$.create('LABEL').setText( Player.SHIP_NAMES[type] )
+				$$.create('LABEL').setText( Objects.Player.SHIP_NAMES[type] )
 			).addChild( ship_preview ).addChild( panel );
 
 			ASSETS.onload(() => ship_preview.addChild(
-				ASSETS.getTexture( Player.entityName(type, Colors.PLAYERS_COLORS[2]) ) ));
+				ASSETS.getTexture( Objects.Player.entityName(type, Colors.PLAYERS_COLORS[2]) ) ));
 
 			let use_btn = $$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
 				.setText('USE').on('click', () => {
@@ -106,11 +106,12 @@ const WIDGETS_CREATOR = (function() {
 				});
 
 			let buy_btn = $$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
-				.setText('BUY (' + Player.SHIP_COSTS[type] + ' COINS)').on('click', () => {
+				.setText('BUY (' + Objects.Player.SHIP_COSTS[type] + ' COINS)').on('click', () => {
 					let confirmation = $$.create('DIV').addChild(
 						$$.create('DIV').addClass('account_row')
-							.html('Are you sure you want to buy&nbsp;<b>' + Player.SHIP_NAMES[type] + 
-								'</b>&nbsp;for ' + Player.SHIP_COSTS[type] + ' coins?')
+							.html('Are you sure you want to buy&nbsp;<b>' + 
+								Objects.Player.SHIP_NAMES[type] + '</b>&nbsp;for ' + 
+								Objects.Player.SHIP_COSTS[type] + ' coins?')
 					).addChild(
 						$$.create('DIV').addChild(
 							$$.create('BUTTON').addClass('iconic_button').addClass('iconic_add')
@@ -147,7 +148,8 @@ const WIDGETS_CREATOR = (function() {
 							break;
 						case STATES.LOCKED:
 							widget.addClass('locked');
-							panel.setText('Requires level ' + Player.SHIP_LVL_REQUIREMENTS[type]);
+							panel.setText('Requires level ' + 
+								Objects.Player.SHIP_LVL_REQUIREMENTS[type]);
 							break;
 					}
 				}

@@ -2,8 +2,12 @@
 
 // const EnergyBlastEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 200;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	const LIFETIME = 0.8, FADING_TIME = 0.4, ALPHA = 0.3;
 
@@ -11,7 +15,7 @@ namespace Emitters {
 
 	var i: number, dst: number, fading_factor: number, scale_str: number;
 
-	export class EnergyBlast extends GRAPHICS.Emitter {
+	export class EnergyBlast extends Graphics.Emitter {
 		private x: number;
 		private y: number;
 		private radius: number;

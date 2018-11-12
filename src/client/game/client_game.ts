@@ -1,6 +1,8 @@
 ///<reference path="entities.ts"/>
-///<reference path="renderer.ts"/>
+///<reference path="webgl_renderer.ts"/>
+///<reference path="canvas_renderer.ts"/>
 ///<reference path="../engine/assets.ts"/>
+///<reference path="../engine/settings.ts"/>
 
 ///<reference path="emitters/hit_emitter.ts"/>
 ///<reference path="emitters/explosion_emitter.ts"/>
@@ -20,7 +22,6 @@
 ///<reference path="../../include/game/common/effects.ts"/>
 ///<reference path="../../include/game/common/skills.ts"/>
 
-//const ClientGame = (function() {
 namespace ClientGame {
 	function runLoop(self: Game) {
 		let last = 0, dt;
@@ -31,13 +32,13 @@ namespace ClientGame {
 			.setStyle({fontSize: '13px', fontFamily: 'RobotoLight'});
 		
 		$$(document.body).addChild($$.create('DIV').setStyle({
-			position: 'fixed',
-			left: '0px',
-			bottom: '0px',
-			background: '#0008',
-			color: '#fff',
-			fontSize: '13px',
-			fontFamily: 'RobotoLight'
+			'position': 'fixed',
+			'left': '0px',
+			'bottom': '0px',
+			'background': '#0008',
+			'color': '#fff',
+			'fontSize': '13px',
+			'fontFamily': 'RobotoLight'
 		}).html('updating + rendering:&nbsp;').addChild(timer_log));
 
 		var step = function(time: number) {
@@ -70,8 +71,13 @@ namespace ClientGame {
 		throw "ASSETS module must be loaded before Renderer.Class";
 	var Assets = ASSETS;
 
+	if(typeof SETTINGS === 'undefined')
+		throw "SETTINGS module must be loaded before SettingsPop class";
+	var Settings = SETTINGS;
+
 	//TODO - p_h => Player type, e_h => Enemy type, b_h =>...
-	var code: number, p_h: any, p_h2: any, s_h: SkillsScope.SkillObject, 
+	var code: number, p_h: Objects.Player, p_h2: Objects.Player, //s_h: SkillsScope.SkillObject,
+		s_h_n: SkillsScope.SkillObject | null,
 		p_i: number, e_i: number, b_i: number, i_i: number, 
 		e_h: any, b_h: any, obj_i: number, 
 		synch_array: Object2D[], rot_dt: number;
@@ -81,10 +87,11 @@ namespace ClientGame {
 		private room: RoomInfo;
 		private destroyed = false;
 
-		private renderer: Renderer.Class;//Renderer;
-		private hit_effects: Emitters.Hit;//HitEmitter;
+		//private rendering_mode: number;
+		private renderer: Renderer.RendererBase;//Renderer;
+		private hit_effects?: Emitters.Hit;//HitEmitter;
 
-		private emitters: GRAPHICS.Emitter[];
+		private emitters?: GRAPHICS.Emitter[] = undefined;
 
 		private onKeyUp?: (e: Event) => void;
 		private onKeyDown?: (e: Event) => void;
@@ -97,9 +104,6 @@ namespace ClientGame {
 		constructor(map: MapJSON_I, onLoad: (result: boolean) => void) {
 			super();
 
-			//if(!map.data)
-			//	throw "No map data";
-
 			Network.assignCurrentGameHandle(this);
 			var curr_room = Network.getCurrentRoom();
 			if(curr_room === null)
@@ -107,12 +111,23 @@ namespace ClientGame {
 				
 			this.room = curr_room;
 
-			this.renderer = new Renderer.Class(this, map);
+			if(Settings.canvas_rendering === false)
+				this.renderer = new Renderer.WebGL(this, map);
+			else
+				this.renderer = new Renderer.Canvas(this, map);
+
+			if(!Assets.loaded()) {
+				setTimeout(() => {
+				if(!Assets.loaded()) {
+					onLoad(false);
+					throw new Error('Waiting for assets to load timed out');
+				}
+				}, 5000);//maximum waiting for assets to load
+			}
 
 			Assets.onload(() => {//making sure game assets are loaded
 				if(this.destroyed === true)
 					return;
-				// this.renderer = new Renderer.Class(this);
 
 				let result = super.loadMap(map);
 				if(result !== true)
@@ -120,11 +135,10 @@ namespace ClientGame {
 
 				//after map loaded
 				try {
-					if(this.renderer === null/* || this.destroyed === true*/)
+					if(this.renderer === null)
 						return;
-
-					// this.running = true;
-					// runLoop(this);
+					if(this.renderer instanceof Renderer.Canvas)
+						(<Renderer.Canvas>this.renderer).onMapLoaded(this);
 					this.renderer.draw(0);//draw first frame before waiting for server response
 					
 					onLoad(true);
@@ -136,25 +150,25 @@ namespace ClientGame {
 				}
 			});
 
-			//this.bounceVec = new Vector.Vec2f();//buffer object for storing bounce results
-			this.hit_effects = <Emitters.Hit>Renderer.Class.addEmitter( new Emitters.Hit() );
-			this.emitters = [this.hit_effects];
-
-			setTimeout(() => {
-				if(!Assets.loaded())
-					throw new Error('Waiting for assets to load timed out');
-			}, 5000);//maximum waiting for assets to load
+			if(Settings.canvas_rendering === false) {
+				this.hit_effects = <Emitters.Hit>Renderer.WebGL.addEmitter( new Emitters.Hit() );
+				this.emitters = [this.hit_effects];
+			}
 		}
 
 		destroy() {
 			super.destroy();
 			this.destroyed = true;
 			this.running = false;
-			this.hit_effects.expired = true;
-			//@ts-ignore
-			this.hit_effects = null;
-			//@ts-ignore
-			this.emitters = null;
+			if(this.emitters) {
+				//@ts-ignore
+				this.hit_effects.expired = true;
+				//@ts-ignore
+				this.hit_effects = null;
+				//@ts-ignore
+				this.emitters = null;
+
+			}
 			if(this.renderer) {
 				this.renderer.destroy();
 				//@ts-ignore
@@ -171,7 +185,8 @@ namespace ClientGame {
 			switch(data[index] | 0) {
 				default:
 					throw new Error('Received incorrect server data');
-				case _NetworkCodes_.OBJECT_SYNCHRONIZE://object_id, sync_array_index, pos_x, pos_y, rot
+				//object_id, sync_array_index, pos_x, pos_y, rot
+				case _NetworkCodes_.OBJECT_SYNCHRONIZE:
 					synch_array = this.server_synchronized[ data[index+2] ];
 
 					for(obj_i=0; obj_i<synch_array.length; obj_i++) {
@@ -189,6 +204,7 @@ namespace ClientGame {
 					p_h.painter.lastPos.set(p_h.x, p_h.y);//reset painter position
 					p_h.painter.active = true;
 
+					//@ts-ignore
 					p_h.setPos(data[index + 2], data[index + 3], false);
 
 					index += 4;
@@ -196,7 +212,7 @@ namespace ClientGame {
 				case _NetworkCodes_.ON_PLAYER_EMOTICON://player_index, emoticon_id
 					p_h = this.players[ data[index + 1] | 0 ];
 
-					p_h.showEmoticon( InGameGUI.EMOTS[ data[index + 2] ].file_name );
+					p_h.showEmoticon( ClientGame.GameGUI.EMOTS[ data[index + 2] ].file_name );
 
 					index += 3;
 					break;
@@ -264,14 +280,18 @@ namespace ClientGame {
 					break;
 				case _NetworkCodes_.ON_PLAYER_BOUNCE:
 					p_h = this.players[ data[index + 1] | 0 ];
+					//@ts-ignore
 					p_h.setPos(data[index + 2], data[index + 3], false);
+					//@ts-ignore
 					p_h.setRot(data[index + 4], true);
 
 					//p_h.timestamp = Date.now();
 
-					this.hit_effects.hit(
-						p_h.x - data[index + 5] * p_h.width, 
-						p_h.y - data[index + 6] * p_h.height, false);
+					if(this.hit_effects) {
+						this.hit_effects.hit(
+							p_h.x - data[index + 5] * p_h.width, 
+							p_h.y - data[index + 6] * p_h.height, false);
+					}
 
 					index += 7;
 					break;
@@ -284,9 +304,11 @@ namespace ClientGame {
 
 							e_h.timestamp = Date.now();
 							
-							this.hit_effects.hit(
-								e_h.x - data[index + 5] * e_h.width, 
-								e_h.y - data[index + 6] * e_h.height, false);
+							if(this.hit_effects) {
+								this.hit_effects.hit(
+									e_h.x - data[index + 5] * e_h.width, 
+									e_h.y - data[index + 6] * e_h.height, false);
+							}
 
 							break;
 						}
@@ -303,9 +325,11 @@ namespace ClientGame {
 
 							b_h.timestamp = Date.now();
 							
-							this.hit_effects.hit(
-								b_h.x - data[index + 5] * b_h.width, 
-								b_h.y - data[index + 6] * b_h.height, false);
+							if(this.hit_effects) {
+								this.hit_effects.hit(
+									b_h.x - data[index + 5] * b_h.width, 
+									b_h.y - data[index + 6] * b_h.height, false);
+							}
 
 							break;
 						}
@@ -318,7 +342,8 @@ namespace ClientGame {
 						if( this.bullets[b_i].id === data[index + 1] ) {
 							this.bullets[b_i].expired = true;
 
-							this.hit_effects.hit(data[index + 2], data[index + 3], true);
+							if(this.hit_effects)
+								this.hit_effects.hit(data[index + 2], data[index + 3], true);
 							break;
 						}
 					}
@@ -402,9 +427,9 @@ namespace ClientGame {
 				case _NetworkCodes_.ON_BOUNCE_BULLET_SHOT://NOTE - only single bullet data
 					p_h = this.players[ data[index + 1] | 0 ];
 
-					let bullet = new Objects.Bullet(data[index + 3], data[index + 4], data[index + 5], 
+					let bullet = new Objects.Bullet(data[index+3], data[index+4], data[index+5], 
 						p_h, true);
-					bullet.id = data[index + 2];
+					bullet.id = data[index+2];
 
 					this.bullets.push( bullet );
 
@@ -413,7 +438,7 @@ namespace ClientGame {
 				case _NetworkCodes_.ON_BOMB_PLACED://player_index, bomb_id, pos_x, pos_y
 					p_h = this.players[ data[index + 1] ];
 
-					let bomb = new Bomb( data[index + 3], data[index + 4], p_h );
+					let bomb = new Objects.Bomb( data[index + 3], data[index + 4], p_h );
 					bomb.id = data[index + 2];
 					bomb.timestamp = Date.now();
 
@@ -476,11 +501,14 @@ namespace ClientGame {
 					this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
 
 					if(this.renderer.withinVisibleArea(p_h.x, p_h.y, 0.5) === true) {
-						//@ts-ignore
-						let heal_emitter = new Emitters.InstantHeal(p_h.x, p_h.y);
-						heal_emitter.timestamp = Date.now();
-						Renderer.Class.addEmitter( heal_emitter );
-						this.emitters.push( heal_emitter );
+						if(this.emitters) {
+							let heal_emitter = new Emitters.InstantHeal(p_h.x, p_h.y);
+							heal_emitter.timestamp = Date.now();
+							//if(this.rendering_mode === RENDERING_MODES.WebGL) {
+							Renderer.WebGL.addEmitter( heal_emitter );
+							this.emitters.push( heal_emitter );
+							//}
+						}
 					}
 
 					index += 2;
@@ -490,14 +518,15 @@ namespace ClientGame {
 					if(this.renderer.withinVisibleArea(data[index+1], data[index+2], 
 						GameCore.GET_PARAMS().energy_blast_radius) === true) {
 						
-						//@ts-ignore
-						let blast_emitter = new Emitters.EnergyBlast(data[index+1], data[index+2], 
-							GameCore.GET_PARAMS().energy_blast_radius, 
-							Colors.PLAYERS_COLORS[ data[index+3] ]);
-						blast_emitter.timestamp = Date.now();
-						
-						Renderer.Class.addEmitter( blast_emitter );
-						this.emitters.push( blast_emitter );
+						if(this.emitters) {
+							let blast_emitter = new Emitters.EnergyBlast(data[index+1],data[index+2], 
+								GameCore.GET_PARAMS().energy_blast_radius, 
+								Colors.PLAYERS_COLORS[ data[index+3] ]);
+							blast_emitter.timestamp = Date.now();
+
+							Renderer.WebGL.addEmitter( blast_emitter );
+							this.emitters.push( blast_emitter );
+						}
 					}
 					//super.paintHole(data[index+1],data[index+2],
 					//	GameCore.GET_PARAMS().energy_blast_radius);
@@ -514,7 +543,9 @@ namespace ClientGame {
 					}
 
 					p_h = this.players[ data[index + 2] | 0 ];
+					//@ts-ignore
 					p_h.setPos(data[index + 3], data[index + 4], false);
+					//@ts-ignore
 					p_h.setRot(data[index + 5], true);
 					p_h.hp = data[index + 6];
 					p_h.points = data[index + 7];
@@ -545,7 +576,8 @@ namespace ClientGame {
 					//console.log(data[index + 2], data[index + 3]);
 					super.paintHole(data[index + 2], data[index + 3], 
 						GameCore.GET_PARAMS().bullet_explosion_radius);
-					this.hit_effects.hit(data[index + 2], data[index + 3], false);
+					if(this.hit_effects)
+						this.hit_effects.hit(data[index + 2], data[index + 3], false);
 
 					index += 4;
 					break;
@@ -565,11 +597,13 @@ namespace ClientGame {
 							this.renderer.GUI.onPlayerHpChange(data[index + 3] | 0, p_h.hp);
 
 							if(this.renderer.withinVisibleArea(p_h.x, p_h.y, 0.5) === true) {
-								//@ts-ignore
-								let heal_emitter = new Emitters.InstantHeal(p_h.x, p_h.y);
-								heal_emitter.timestamp = Date.now();
-								Renderer.Class.addEmitter( heal_emitter );
-								this.emitters.push( heal_emitter );
+								if(this.emitters) {
+									let heal_emitter = new Emitters.InstantHeal(p_h.x, p_h.y);
+									heal_emitter.timestamp = Date.now();
+									
+									Renderer.WebGL.addEmitter( heal_emitter );
+									this.emitters.push( heal_emitter );
+								}
 							}
 						}	break;
 						case Item.TYPES.ENERGY: {
@@ -613,24 +647,27 @@ namespace ClientGame {
 					p_h = this.players[ data[index + 1] | 0 ];
 					p_h.energy = data[index + 3];
 
-					this.renderer.GUI.onPlayerEnergyChange(data[index + 1] | 0, p_h.energy);
+					this.renderer.GUI.onPlayerEnergyChange(data[index + 1]|0, p_h.energy);
 
-					s_h = p_h.skills[ data[index + 2] | 0 ];
-					s_h.use();
+					s_h_n = p_h.skills[ data[index + 2] | 0 ];
+					if(s_h_n !== null) {
+						s_h_n.use();
 
-					if(p_h === this.renderer.focused) {
-						this.renderer.GUI.onSkillUsed( data[index + 2] | 0, s_h.data.cooldown );
+						if(p_h === this.renderer.focused) {
+							this.renderer.GUI.onSkillUsed( data[index + 2]|0, s_h_n.data.cooldown );
+						}
 					}
 
 					index += 4;
 					break;
 				case _NetworkCodes_.ON_PLAYER_SKILL_CANCEL://player_index, skill_index
 					p_h = this.players[ data[index + 1] | 0 ];
-					p_h.skills[ data[index + 2] | 0 ].stopUsing();
+					s_h_n = p_h.skills[ data[index + 2] | 0 ];
+					if(s_h_n !== null)
+						s_h_n.stopUsing();
 
-					if(p_h === this.renderer.focused) {
+					if(p_h === this.renderer.focused)
 						this.renderer.GUI.onSkillStopped( data[index + 2] | 0 );
-					}
 
 					index += 3;
 					break;
@@ -658,14 +695,14 @@ namespace ClientGame {
 						throw "No room";	
 
 					if(data['id'] === curr_room.id) {
-						this.renderer.focusOn( <any>this.players[index] );
+						this.renderer.focusOn( this.players[index] );
 
 						//filling skills bar
-						for(let s_i=0; s_i<this.renderer.focused.skills.length; s_i++) {
-							let sk = this.renderer.focused.skills[s_i];
+						for(let s_i=0; s_i<this.players[index].skills.length; s_i++) {
+							let sk = this.players[index].skills[s_i];
 							if(sk === null) {
-								for(let j=s_i+1; j<this.renderer.focused.skills.length; j++) {
-									if( this.renderer.focused.skills[j] !== null ) {
+								for(let j=s_i+1; j<this.players[index].skills.length; j++) {
+									if( this.players[index].skills[j] !== null ) {
 										this.renderer.GUI.addChildEmptySkill(s_i);
 										break;
 									}
@@ -693,14 +730,14 @@ namespace ClientGame {
 						this.trySkillStop(typeof index === 'number' ? index : 0);
 				});
 
-				this.renderer.GUI.onTurnArrowPressed((dir: TurnDirection, released: boolean) => {
+				this.renderer.GUI.onTurnArrowPressed((dir: number, released: boolean) => {
 					var focused = this.renderer.focused;
 					if(focused === null || focused.spawning === true)
 						return;
 
 					var preserved_state = focused.movement.state;
 
-					focused.movement.set( dir === TurnDirection.LEFT 
+					focused.movement.set( dir === ClientGame.TurnDirection.LEFT 
 						? Movement.FLAGS.LEFT
 						: Movement.FLAGS.RIGHT, !released );
 
@@ -711,7 +748,7 @@ namespace ClientGame {
 					}
 				});
 
-				this.renderer.GUI.onSpeedChange((dir: TurnDirection) => {
+				this.renderer.GUI.onSpeedChange((dir: number) => {
 					var focused = this.renderer.focused;
 					if(focused === null || focused.spawning === true)
 						return;
@@ -825,12 +862,13 @@ namespace ClientGame {
 				this.renderer.GUI.onPlayerPointsChange(attacker_i, 
 					(<any>this.players[attacker_i]).points);
 
-				//@ts-ignore
-				let exp_effect = new Emitters.Experience(victim_obj, this.players[attacker_i]);
-				exp_effect.timestamp = new Date();
+				if(this.emitters) {
+					let exp_effect = new Emitters.Experience(victim_obj, this.players[attacker_i]);
+					exp_effect.timestamp = new Date();
 
-				Renderer.Class.addEmitter( exp_effect, false );
-				this.emitters.push( exp_effect );
+					Renderer.WebGL.addEmitter( exp_effect, false );
+					this.emitters.push( exp_effect );
+				}
 			}
 		}
 
@@ -846,15 +884,21 @@ namespace ClientGame {
 
 		trySkillUse(index: number) {
 			var focused = this.renderer.focused;
-			if(focused.skills[index] && focused.skills[index].canBeUsed(focused.energy)) {
+			if(focused === null)
+				return;
+			s_h_n = focused.skills[index];
+			if(s_h_n && s_h_n.canBeUsed(focused.energy)) {
 				Network.sendByteBuffer(Uint8Array.from(
 					[_NetworkCodes_.PLAYER_SKILL_USE_REQUEST, index]));
 			}
 		}
 
-		trySkillStop(index: number | string) {
+		trySkillStop(index: number) {
 			var focused = this.renderer.focused;
-			if(focused.skills[index] && focused.skills[index].isContinous()) {
+			if(focused === null)
+				return;
+			s_h_n = focused.skills[index];
+			if(s_h_n !== null && s_h_n.isContinous()) {
 				Network.sendByteBuffer(Uint8Array.from(
 					[_NetworkCodes_.PLAYER_SKILL_STOP_REQUEST, Number(index)]));
 			}
@@ -896,7 +940,7 @@ namespace ClientGame {
 
 			//any letter (emoticons use)
 			if(pressed && code >= 65 && code <= 90) {
-				InGameGUI.EMOTS.forEach((emot, index) => {
+				ClientGame.GameGUI.EMOTS.forEach((emot, index) => {
 					if(emot.key.charCodeAt(0) === code) {
 						this.tryEmoticonUse(index);
 					}
@@ -912,22 +956,23 @@ namespace ClientGame {
 		}
 
 		explosionEffect(x: number, y: number, radius: number) {
-			if(this.renderer.withinVisibleArea(x, y, radius) === true) {
-				//@ts-ignore
+			if(this.renderer.withinVisibleArea(x, y, radius) === true && this.emitters) {
 				let explosion = new Emitters.Explosion(x, y, radius);
 				explosion.timestamp = new Date();
-				Renderer.Class.addEmitter( explosion, true );
+				
+				Renderer.WebGL.addEmitter( explosion, true );
 				this.emitters.push( explosion );
 			}
 
-			//@ts-ignore
-			let explosion_shadow = new Emitters.Shadow(x, y, radius);
-			explosion_shadow.timestamp = new Date();
-			Renderer.Class.addEmitter( explosion_shadow );
+			if(this.emitters) {
+				let explosion_shadow = new Emitters.Shadow(x, y, radius);
+				explosion_shadow.timestamp = new Date();
+				Renderer.WebGL.addEmitter( explosion_shadow );
+
+				this.emitters.push( explosion_shadow );
+			}
 
 			super.paintHole(x, y, radius);
-
-			this.emitters.push( explosion_shadow );
 		}
 
 		update(delta: number) {
@@ -965,18 +1010,20 @@ namespace ClientGame {
 
 				var timestamp = Date.now();
 
-				for(e_i=0; e_i<this.emitters.length; e_i++) {
-					if(this.emitters[e_i].expired === true) {
-						this.emitters.splice(e_i, 1);
-						e_i--;
+				if(this.emitters) {
+					for(e_i=0; e_i<this.emitters.length; e_i++) {
+						if(this.emitters[e_i].expired === true) {
+							this.emitters.splice(e_i, 1);
+							e_i--;
+						}
+						else if(this.emitters[e_i].timestamp) {
+							this.emitters[e_i]
+								.update((timestamp - <number>this.emitters[e_i].timestamp)/1000.0);
+							this.emitters[e_i].timestamp = 0;
+						}
+						else//object timestamp === 0
+							this.emitters[e_i].update(delta);
 					}
-					else if(this.emitters[e_i].timestamp) {
-						this.emitters[e_i]
-							.update((timestamp - <number>this.emitters[e_i].timestamp)/1000.0);
-						this.emitters[e_i].timestamp = 0;
-					}
-					else//object timestamp === 0
-						this.emitters[e_i].update(delta);
 				}
 			}
 			else {//regular delta update
@@ -988,15 +1035,16 @@ namespace ClientGame {
 						this.renderer.GUI.onPlayerHpChange(p_i, this.players[p_i].hp);
 				}
 
-				//this.hit_effects.update(delta);
-				for(e_i=0; e_i<this.emitters.length; e_i++) {
-					if(this.emitters[e_i].expired === true) {
-						this.emitters.splice(e_i, 1);
-						e_i--;
-					}
-					else {
-						this.emitters[e_i].update(delta);
-						this.emitters[e_i].timestamp = 0;
+				if(this.emitters) {
+					for(e_i=0; e_i<this.emitters.length; e_i++) {
+						if(this.emitters[e_i].expired === true) {
+							this.emitters.splice(e_i, 1);
+							e_i--;
+						}
+						else {
+							this.emitters[e_i].update(delta);
+							this.emitters[e_i].timestamp = 0;
+						}
 					}
 				}
 			}

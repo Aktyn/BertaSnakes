@@ -21,7 +21,7 @@ namespace ServerGame {
 	var Item = require('./../include/game/objects/item');
 	var PoisonousEnemy = require('./../include/game/objects/poisonous_enemy');
 	var Bullet: typeof Objects.Bullet = require('./../include/game/objects/bullet');
-	var Bomb = require('./../include/game/objects/bomb');
+	var Bomb: typeof Objects.Bomb = require('./../include/game/objects/bomb');
 	var Skills = require('./../include/game/common/skills');
 	var Effects = require('./../include/game/common/effects');
 	var GameResult = require('./../include/game/game_result');
@@ -57,7 +57,7 @@ namespace ServerGame {
 	//game logic variables
 	var wave_i: number, chunk_it: number, chunk_ref, ss_i: number, obj_i: number, 
 		p_i: number, e_i: number, s_i: number, b_i: number, s_h, 
-		async_p_i: number, p_it: typeof Player.prototype, async_p_it: typeof Player.prototype, 
+		async_p_i: number, p_it: Objects.Player, async_p_it: Objects.Player, 
 		async_s, r_p_i: number,//e_h, e_h2
 		hit_x: number, hit_y: number, offsets, sin: number, cos: number, synch_array;
 
@@ -126,7 +126,7 @@ namespace ServerGame {
 		//private duration: number;
 		private maximum_enemies: number;
 		private bounceVec: VectorScope.Vector;
-		private respawning_players: {player: typeof Player.prototype, time: number}[] = [];
+		private respawning_players: {player: Objects.Player, time: number}[] = [];
 		private dataForClients: number[] = [];
 		public initialized: boolean;
 
@@ -246,7 +246,7 @@ namespace ServerGame {
 		onClientMessage(client_id: number, data: Uint8Array) {
 			if((async_p_i = this.getPlayerByUserId(client_id)) === -1)
 				return;
-			async_p_it = <typeof Player.prototype>this.players[async_p_i];
+			async_p_it = <Objects.Player>this.players[async_p_i];
 
 			if((async_p_it).spawning === true)
 				return;
@@ -287,7 +287,7 @@ namespace ServerGame {
 			return this.bounceOutOfColor(object, color, this, bounce_vector);//returns boolean
 		}
 
-		playerBounce(player: typeof Player.prototype, color: Uint8Array) {
+		playerBounce(player: Objects.Player, color: Uint8Array) {
 			if(this.bouncePainter(player, color, this.bounceVec) === true) {
 				this.dataForClients.push(NetworkCodes.ON_PLAYER_BOUNCE, this.players.indexOf(player), 
 					player.x, player.y, player.rot, this.bounceVec.x, this.bounceVec.y);
@@ -311,7 +311,7 @@ namespace ServerGame {
 			}
 		}
 
-		onPlayerPainterCollision(player: typeof Player.prototype, color: Uint8Array) {
+		onPlayerPainterCollision(player: Objects.Player, color: Uint8Array) {
 			//ignore self collisions
 			if(Colors.compareByteBuffers(player.painter.color.byte_buffer, color) === true)
 				return;
@@ -390,7 +390,7 @@ namespace ServerGame {
 			}
 		}
 
-		onPlayerEnemyCollision(player: typeof Player.prototype, enemy: typeof Enemy.prototype) {
+		onPlayerEnemyCollision(player: Objects.Player, enemy: typeof Enemy.prototype) {
 			if(enemy.isAlive() === false)
 				return;
 			this.bounceVec.set(player.x - enemy.x, player.y - enemy.y).normalize();
@@ -426,7 +426,7 @@ namespace ServerGame {
 				this.onPlayerDeath(player, 0);
 		}
 
-		onPlayerEnemySpawnerCollision(player: typeof Player.prototype, 
+		onPlayerEnemySpawnerCollision(player: Objects.Player, 
 			spawner: typeof EnemySpawner.prototype) 
 		{
 			//@ts-ignore
@@ -465,8 +465,8 @@ namespace ServerGame {
 				else
 					damage = _GameCore_.GET_PARAMS().player_to_bullet_receptivity * dmg_scale;
 			
-				this.onPlayerAttackedPlayer(<typeof Player.prototype>bullet.parent, 
-					<typeof Player.prototype>object, damage);
+				this.onPlayerAttackedPlayer(<Objects.Player>bullet.parent, 
+					<Objects.Player>object, damage);
 			}
 			else {
 				var damage = 0;
@@ -475,7 +475,7 @@ namespace ServerGame {
 				else
 					damage = _GameCore_.GET_PARAMS().enemy_to_bullet_receptivity * dmg_scale;
 
-				this.onPlayerAttackedEnemy(<typeof Player.prototype>bullet.parent, 
+				this.onPlayerAttackedEnemy(<Objects.Player>bullet.parent, 
 					<typeof Enemy.prototype>object, damage);
 			}
 
@@ -483,7 +483,7 @@ namespace ServerGame {
 			bullet.expired = true;
 		}
 
-		onPlayerBulletCollision(player: typeof Player.prototype, bullet: Objects.Bullet) {
+		onPlayerBulletCollision(player: Objects.Player, bullet: Objects.Bullet) {
 			if(player.isAlive() === false || bullet.parent === player)
 				return;
 
@@ -497,7 +497,7 @@ namespace ServerGame {
 			this.onBulletHit(enemy, bullet, false);
 		}
 
-		onPlayerItemCollision(player: typeof Player.prototype, item: typeof Item.prototype) {
+		onPlayerItemCollision(player: Objects.Player, item: typeof Item.prototype) {
 			//console.log(item.type);
 			switch(item.type) {
 				default: throw new Error('Incorrect item type');
@@ -522,7 +522,7 @@ namespace ServerGame {
 			item.expired = true;
 		}
 
-		onPlayerEnemyPainterCollision(player: typeof Player.prototype) {
+		onPlayerEnemyPainterCollision(player: Objects.Player) {
 			if(player.effects.isActive(Effects.TYPES.SHIELD) === false && 
 				player.effects.isActive(Effects.TYPES.SPAWN_IMMUNITY) === false)
 			{
@@ -539,7 +539,7 @@ namespace ServerGame {
 			super.paintHole( player.x, player.y, _GameCore_.GET_PARAMS().small_explosion_radius );
 		}
 
-		onPlayerDeath(player: typeof Player.prototype, explosion_radius: number) {
+		onPlayerDeath(player: Objects.Player, explosion_radius: number) {
 			this.dataForClients.push(NetworkCodes.ON_PLAYER_DEATH, 
 				this.players.indexOf(player), RESPAWN_DURATION, player.x, player.y, explosion_radius);
 
@@ -558,7 +558,7 @@ namespace ServerGame {
 			});
 		}
 
-		onPlayerAttackedPlayer(attacker: typeof Player.prototype, victim: typeof Player.prototype, 
+		onPlayerAttackedPlayer(attacker: Objects.Player, victim: Objects.Player, 
 			damage: number)
 		{
 			if(this.room.gamemode !== _RoomInfo_.MODES.COMPETITION)
@@ -582,7 +582,7 @@ namespace ServerGame {
 			}
 		}
 
-		onPlayerAttackedEnemy(player: typeof Player.prototype, enemy: typeof Enemy.prototype, 
+		onPlayerAttackedEnemy(player: Objects.Player, enemy: typeof Enemy.prototype, 
 			damage: number) 
 		{
 			enemy.hp_bar.hp -= damage;//must be before putting data for clients
@@ -674,7 +674,7 @@ namespace ServerGame {
 				this.dataForClients.push(NetworkCodes.SPAWN_ITEM, item.id, item.type, item.x, item.y);
 		}
 
-		applySkillEffect(player: typeof Player.prototype, skill: SkillsScope.SkillObject, 
+		applySkillEffect(player: Objects.Player, skill: SkillsScope.SkillObject, 
 			player_i: number, skill_i: number, immediately_response: boolean) 
 		{
 			//stopping skill using becouse player run out of energy or died and is spawning
@@ -771,7 +771,7 @@ namespace ServerGame {
 							if(this.players[p_i] !== player && this.players[p_i].spawning === false && 
 							Vector.distanceSqrt(this.players[p_i], player) <= radius_pow ) {
 								this.onPlayerAttackedPlayer(
-									player, <typeof Player.prototype>this.players[p_i], 
+									player, <Objects.Player>this.players[p_i], 
 									_GameCore_.GET_PARAMS().energy_blast_damage);
 							}
 						}
@@ -826,7 +826,7 @@ namespace ServerGame {
 					//console.log('SPAWN TIME');
 					
 					for(p_i=0; p_i<this.players.length; p_i++) {
-						p_it = <typeof Player.prototype>this.players[p_i];
+						p_it = <Objects.Player>this.players[p_i];
 						p_it.movement.setMaxSpeed();
 						this.dataForClients.push(NetworkCodes.PLAYER_MOVEMENT_UPDATE, p_i, 
 							p_it.rot, p_it.movement.state, p_it.movement.speed);
@@ -895,7 +895,7 @@ namespace ServerGame {
 			//before updating supper class - checking expired bombs
 			for(b_i=0; b_i<this.bombs.length; b_i++) {
 				if(this.bombs[b_i].expired === true)//bobm just exploded
-					this.onBombExplosion( <typeof Bomb.prototype>this.bombs[b_i] );
+					this.onBombExplosion( <Objects.Bomb>this.bombs[b_i] );
 			}
 
 			super.update(delta);
@@ -917,7 +917,7 @@ namespace ServerGame {
 			}
 			
 			for(p_i=0; p_i<this.players.length; p_i++) {//for each player
-				p_it = <typeof Player.prototype>this.players[p_i];
+				p_it = <Objects.Player>this.players[p_i];
 
 				//handling skills use
 				for(s_i=0; s_i<p_it.skills.length; s_i++) {//for each player skills

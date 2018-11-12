@@ -34,14 +34,14 @@ namespace Objects {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')//client side
 				//@ts-ignore
-				Entities.addObject(Entities[ETITY_NAME].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[ETITY_NAME].id, this);
 		}
 
 		destroy() {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')
 				//@ts-ignore
-				Entities.removeObject(Entities[ETITY_NAME].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[ETITY_NAME].id, this);
 		}
 
 		get hp() {

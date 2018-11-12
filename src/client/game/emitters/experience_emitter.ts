@@ -2,14 +2,18 @@
 
 // const ExperienceEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 20;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	const SCALE = 0.03, SPREAD_SPEED = 0.3, SPREAD_DURATION = 0.3;
 
 	var i: number, dx: number, dy: number, ddx: number, ddy: number, atan: number;
 
-	export class Experience extends GRAPHICS.Emitter {
+	export class Experience extends Graphics.Emitter {
 		private from: Object2D;
 		private to: Object2D;
 

@@ -2,8 +2,12 @@
 
 // const DustEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+
 	const PARTICLES = 100;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	let gauss: (n: number) => number = (n) => Math.random() * ( n <= 1 ? 1 : gauss(n-1) );
 
@@ -14,7 +18,7 @@ namespace Emitters {
 			super('fussion_particle', PARTICLES, true);
 
 			for(i=0; i<PARTICLES; i++) {
-				this.data[i*vals + 0] = (Math.random() * 2.0 - 1.0) * GRAPHICS.getAspect();//x
+				this.data[i*vals + 0] = (Math.random() * 2.0 - 1.0) * Graphics.getAspect();//x
 				this.data[i*vals + 1] = Math.random() * 2.0 - 1.0;//yy
 				this.data[i*vals + 2] = gauss(3) * 0.2 + 0.005;//scale
 

@@ -58,7 +58,7 @@ namespace Popup {
 		return widget;
 	}
 
-	export class Account extends Stage.Popup {
+	export class Account extends Stages.PopupBase {
 		protected popup_body: $_face;
 		protected popup_html: $_face;
 		protected ships_list?: $_face;
@@ -137,9 +137,9 @@ namespace Popup {
 				$$.create('BUTTON').addClass('iconic_button').addClass('iconic_coin')
 					.setText('SPEND').on('click', () => {
 						this.close();
-						let current_stage = Stage.getCurrent();
+						let current_stage = Stages.getCurrent();
 						if(current_stage)
-							current_stage.popup(<PopupDerived><unknown>Popup.Shop);
+							current_stage.popup(Popup.Shop);
 					})
 			);
 

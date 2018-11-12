@@ -137,16 +137,16 @@ class GamePanel extends Chat {
 			$$.create('DIV').addClass('header').addChild(
 				$$.create('IMG').addClass('icon_btn')
 					.setAttrib('src', 'img/icons/settings.png').on('click', () => {
-						let curr_stage = Stage.getCurrent();
+						let curr_stage = Stages.getCurrent();
 						if(curr_stage)
-							curr_stage.popup(<PopupDerived><unknown>Popup.SettingsPop);
+							curr_stage.popup(Popup.SettingsPop);
 					})
 			).addChild(
 				$$.create('IMG').addClass('icon_btn')
 					.setAttrib('src', 'img/account.png').on('click', () => {
-						let curr_stage = Stage.getCurrent();
+						let curr_stage = Stages.getCurrent();
 						if(curr_stage)
-							curr_stage.popup(<PopupDerived><unknown>Popup.Account);
+							curr_stage.popup(Popup.Account);
 					})
 			)
 		).addChild(//list of users

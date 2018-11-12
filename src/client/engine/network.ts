@@ -3,6 +3,7 @@
 ///<reference path="../../include/room_info.ts"/>
 ///<reference path="../../include/user_info.ts"/>
 ///<reference path="../../include/network_codes.ts"/>
+///<reference path="../game/client_game.ts"/>
 
 const Network = (function() {//TODO - convert into namespace
 	if(typeof NetworkCodes === 'undefined')
@@ -18,7 +19,7 @@ const Network = (function() {//TODO - convert into namespace
 
 	var CurrentUser: UserInfo | null = null;
 	var CurrentRoom: RoomInfo | null = null;
-	var CurrentGameHandle: any/*: ClientGame*/ = null;//handle to ClientGame instance
+	var CurrentGameHandle: ClientGame.Game | null = null;//handle to ClientGame instance
 
 	var socket: WebSocket | null = null;
 
@@ -38,7 +39,7 @@ const Network = (function() {//TODO - convert into namespace
 		socket.onopen = function() {
 			connection_attempts = 0;
 			//console.log('Connected to server');
-		   	let curr = Stage.getCurrent();
+		   	let curr = Stages.getCurrent();
 			if(curr != null)
 				curr.onServerConnected();
 		};
@@ -67,7 +68,7 @@ const Network = (function() {//TODO - convert into namespace
 			CurrentUser = null;
 			CurrentRoom = null;
 			socket = null;
-			let curr = Stage.getCurrent();
+			let curr = Stages.getCurrent();
 			if(curr != null)
 				curr.onServerDisconnect();
 		};
@@ -154,7 +155,7 @@ const Network = (function() {//TODO - convert into namespace
 				CurrentRoom.updateData( json_data['room_info'] );
 				break;
 		}
-		let curr = Stage.getCurrent();
+		let curr = Stages.getCurrent();
 		if(curr !== null)//passing message forward
 			curr.onServerMessage(json_data);
 	};
@@ -166,7 +167,7 @@ const Network = (function() {//TODO - convert into namespace
 			reader.onload = function() {
 				try {
 					if(CurrentGameHandle !== null)
-						CurrentGameHandle.onServerData( new Float32Array(<any>reader.result) );
+						CurrentGameHandle.onServerData( new Float32Array(<ArrayBuffer>reader.result) );
 				}
 				catch(e) {
 					console.error(e);
@@ -295,11 +296,10 @@ const Network = (function() {//TODO - convert into namespace
 			});
 		},
 		confirmGameStart: function() {
-			console.log('test:', _NetworkCodes_.START_GAME_CONFIRM, _NetworkCodes_);
 			sendJSON( {'type': _NetworkCodes_.START_GAME_CONFIRM} );
 		},
 
-		assignCurrentGameHandle: function(game: any/*: ClientGame*/) {
+		assignCurrentGameHandle: function(game: ClientGame.Game) {
 			CurrentGameHandle = game;
 		},
 		removeCurrentGameHandle: function() {

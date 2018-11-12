@@ -2,7 +2,7 @@
 
 map_size: 5,
 
-walls_image: "OpenMaze.png",
+walls_image: "OpenMaze.svg",
 walls_color: [156, 185, 237],//200, 240, 255
 smooth_walls: true,
 

@@ -26,7 +26,7 @@ namespace Popup {
 		);
 	}
 
-	export class SettingsPop extends Stage.Popup {
+	export class SettingsPop extends Stages.PopupBase {
 		private popup_html: $_face;
 
 		constructor() {
@@ -128,7 +128,7 @@ namespace Popup {
 						createRefreshToApplyHelper()
 					)
 				).addChild(
-					COMMON.createOptionsList(['LOW', 'MEDIUM', 'HIGH'], opt => {
+					COMMON.createOptionsList(['LOW', 'MEDIUM', 'HIGH'], (opt) => {
 						Settings.painter_resolution = opt;
 					}).selectOption(Settings.painter_resolution)
 				)
@@ -139,17 +139,27 @@ namespace Popup {
 					)
 				).addChild(
 					$$.create('DIV').setStyle({'padding': '7px 0px'}).addChild(
-						COMMON.createOptionsList(['FLAT', 'LONG'], opt => {
+						COMMON.createOptionsList(['FLAT', 'LONG'], (opt) => {
 							Settings.shadows_type = opt;
 						}).selectOption(Settings.shadows_type)
 					)
 				)
-			)/*.addChild(
-				$$.create('LABEL').setText('Particles').addClass('section_title')
-			)*/.addChild(
+			).addChild(
 				createSwitcherEntry('Weather particles:', (enabled) => {
 					Settings.weather_particles = enabled;
 				}, Settings.weather_particles)
+			).addChild(
+				createSwitcherEntry('Canvas rendering* (experimental):', (enables) => {
+					Settings.canvas_rendering = enables;
+				}, Settings.canvas_rendering)
+			).addChild(
+				$$.create('DIV').setStyle({
+				    'display': 'block',
+				    'margin-top': '50px',
+				    'margin-right': '-100vw',
+				    'color': '#657075',
+				    'font-size': '15px'
+				}).setText('* Option not recommended unless your browser doesn\'t support webgl')
 			);
 		}
 

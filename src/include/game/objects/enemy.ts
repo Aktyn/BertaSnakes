@@ -51,7 +51,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')//client side
 				//@ts-ignore
-				Entities.addObject(Entities[entity_name].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[entity_name].id, this);
 
 		}
 
@@ -59,7 +59,7 @@ const Enemy = (function(/*Object2D, Movement, Sensor, HpBar*/) {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')
 				//@ts-ignore
-				Entities.removeObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
 			this.hp_bar.destroy();
 		}
 

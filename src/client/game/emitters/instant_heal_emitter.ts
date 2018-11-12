@@ -2,14 +2,18 @@
 
 // const InstantHealEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 40;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	const LIFETIME = 2, FADING_TIME = 0.75, ALPHA = 0.3;
 
 	var i: number, is_fading: boolean, fading_alpha = ALPHA;
 
-	export class InstantHeal extends GRAPHICS.Emitter {
+	export class InstantHeal extends Graphics.Emitter {
 		private velocities_data: Float32Array;
 		private timer: number;
 

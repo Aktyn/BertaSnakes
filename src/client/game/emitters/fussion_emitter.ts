@@ -2,14 +2,18 @@
 
 // const FussionEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 10;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	const SCALE = 0.04;
 
 	var i: number;
 
-	export class Fussion extends GRAPHICS.Emitter {
+	export class Fussion extends Graphics.Emitter {
 		constructor() {
 			super('fussion_particle', PARTICLES, true);
 

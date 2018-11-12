@@ -21,6 +21,17 @@ var code = fs.readFileSync(target_file, 'utf8')
 	.replace(/try {[^\n]*\n\ *module.exports[^;]*;\n}[^\n]*\ncatch.*/gi, '//removed server-side code')
 	.replace(/\/\/\/<reference path=[^>]+>/gi, '//removed typescript reference');
 
+process.argv.forEach(function (val) {
+	if(val === '-disable-logs') {
+		//disable console.log
+		code = code.replace(/.use strict./i, `'use strict';
+			console.log('%clogs disabled\\n¯\\\\_(ツ)_/¯', 
+				'color: #f44336; font-weight: bold; font-size: 25px;');
+			console.log = console.info = function() {};`);
+	}
+});
+
+
 function onCompiled(compiled_code) {
 	fs.writeFileSync(target_file, compiled_code, 'utf8');
 	console.log('Compilation succesful');
@@ -32,17 +43,17 @@ let data = {
 	js_code: code,
 	output_format: 'text',
 	output_info: 'compiled_code',
-	// use_types_for_optimization: true,//causes weird issues (functions dissapears)
+	use_types_for_optimization: true,//causes weird issues (functions dissapears)
 	// language: 'ECMASCRIPT5_STRICT',
-	language_out: 'ECMASCRIPT5_STRICT'//ECMASCRIPT6_STRICT, ECMASCRIPT5_STRICT
+	language_out: 'ECMASCRIPT6_STRICT'//ECMASCRIPT6_STRICT, ECMASCRIPT5_STRICT
 };
 
-request.post({
+/*request.post({
 	url: closure_compiler_url, form: data
 }, (err, response, body) => {
 	if(err)
 		console.error(err);
 	else
 		onCompiled(body);//saveResult(body);
-});
-// onCompiled(code);
+});*/
+onCompiled(code);

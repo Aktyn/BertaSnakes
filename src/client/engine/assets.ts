@@ -1,5 +1,5 @@
 ///<reference path="../engine/settings.ts"/>
-///<reference path="../game/in_game_gui.ts"/>
+///<reference path="../game/game_gui.ts"/>
 ///<reference path="../../include/game/objects/emoticon.ts"/>
 ///<reference path="../../include/game/common/colors.ts"/>
 
@@ -54,9 +54,9 @@ namespace ASSETS {
 		//loadImage('background_test', TEXTURES_PATH + 'background1.png');
 
 		//emoticons
-		InGameGUI.EMOTS.forEach(emot => {
+		ClientGame.GameGUI.EMOTS.forEach(emot => {
 			loadImage(Emoticon.entityName(emot.file_name), 
-				InGameGUI.EMOTS_FOLDER + emot.file_name,
+				ClientGame.GameGUI.EMOTS_FOLDER + emot.file_name,
 				loaded_image => {//fix for .svg => set resolution
 					//loaded_image.setAttrib('width', 256);
 					//loaded_image.setAttrib('height', 256);
@@ -66,7 +66,7 @@ namespace ASSETS {
 		});
 
 		//streak for emoticons
-		loadImage('streak', InGameGUI.EMOTS_FOLDER + 'streak.png');
+		loadImage('streak', ClientGame.GameGUI.EMOTS_FOLDER + 'streak.png');
 
 		// PARTICLES
 		loadImage('fussion_particle', TEXTURES_PATH + 'particles/fussion.png');
@@ -139,8 +139,12 @@ namespace ASSETS {
 
 	function generatePlayersTextures() {
 		//pending++;
+		
 		//@ts-ignore
-		Object.keys(Player.TYPES).map(key => Player.TYPES[key]).forEach((type_i: number) => {
+		//Object.keys(Objects.Player.TYPES).map(key => Objects.Player.TYPES[key])
+		//	.forEach((type_i: number) => 
+
+		for(let type_i of Object.keys(Objects.Player.TYPES).map(key => Objects.Player.TYPES[key])) {
 			pending++;
 
 			$$.create('img').on('load', function onload() {
@@ -171,7 +175,7 @@ namespace ASSETS {
 
 
 
-				    textures[ Player.entityName(type_i, color) ] = player_canv;
+				    textures[ Objects.Player.entityName(type_i, color) ] = player_canv;
 				    pending--;
 					// $$(document.body).append(player_canv);
 				});
@@ -180,7 +184,7 @@ namespace ASSETS {
 				this.off('load', onload);
 			}).on('error', e => printError(<Error><unknown>e))
 				.setAttrib('src', TEXTURES_PATH + 'players/type_' + (type_i+1) + '.png');
-		});
+		}//);
 	}
 
 	export function loaded() {

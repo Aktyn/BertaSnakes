@@ -7,13 +7,9 @@
 ///<reference path="../../include/game/objects/object2d.ts"/>
 
 ///<reference path="../engine/graphics.ts"/>
-///<reference path="in_game_gui.ts"/>
+///<reference path="game_gui.ts"/>
 
-//const Entities = (function() {//@child of Renderer
-
-// namespace EntitiesScope {
-var Entities = (function() {
-	var current_instance: Entities | null = null;
+namespace Entities {
 
 	const LAYERS = {
 		FOREGROUND: 0,
@@ -22,9 +18,9 @@ var Entities = (function() {
 
 	const DEFAULT_LAYER = LAYERS.FOREGROUND;
 	const DEFAULT_COLOR = Colors.WHITE.buffer;
-	const DEFAULT_FILTERING = true;
+	
 
-	interface EntitySchema {
+	export interface EntitySchema {
 		id?: number;
 		texture_name: string;
 		color?: Float32Array;
@@ -32,10 +28,10 @@ var Entities = (function() {
 		linear?: boolean;
 	}
 
-	interface EntityObjectSchema {
+	export interface EntityObjectSchema {
 		layer: number;
 		color: Float32Array;
-		texture: GRAPHICS.ExtendedTexture;//TODO <-- type
+		texture: GRAPHICS.ExtendedTexture | HTMLCanvasElement | HTMLImageElement;
 		objects: Object2D[];
 	}
 
@@ -84,7 +80,7 @@ var Entities = (function() {
 	};
 
 	//EMOTICONS ENTITIES
-	InGameGUI.EMOTS.forEach(emot => {
+	ClientGame.GameGUI.EMOTS.forEach(emot => {
 		let emot_name = Emoticon.entityName(emot.file_name);
 		EntitiesData[emot_name] = {
 			texture_name: emot_name,
@@ -100,7 +96,7 @@ var Entities = (function() {
 			color: color.buffer
 		};
 
-		let bomb_name = Bomb.entityName(color);
+		let bomb_name = Objects.Bomb.entityName(color);
 		EntitiesData[bomb_name] = {
 			texture_name: 'bomb',
 			color: color.buffer,
@@ -116,8 +112,8 @@ var Entities = (function() {
 
 		//for each player type
 		//@ts-ignore
-		Object.keys(Player.TYPES).map(key => Player.TYPES[key]).forEach(type_i => {
-			let name = Player.entityName(type_i, color);
+		Object.keys(Objects.Player.TYPES).map(key => Objects.Player.TYPES[key]).forEach(type_i => {
+			let name = Objects.Player.entityName(type_i, color);
 			//console.log(name);
 			EntitiesData[ name ] = {
 				texture_name: name,
@@ -128,26 +124,23 @@ var Entities = (function() {
 		});
 	});
 	
-	var ids = 0, key, l, entity_it, ii, obj_it;//data
+	var ids = 0, key: string, l: number, entity_it: EntityObjectSchema;
 
 	for(key in EntitiesData)//assigning id to each entity data
 		EntitiesData[key].id = ids++;
 
-	// console.log(EntitiesData)
+	// console.log(EntitiesData);
 
-	class Entities {
-		private rect: any;//TODO - assign type
-		private entities: EntityObjectSchema[];
+	var current_instance: Entities.EntitiesBase | null = null;
 
-		constructor(rect: any) {
-			$$.assert(GRAPHICS.isInitialized(), 'Graphics must be initialized');
+	export abstract class EntitiesBase {
+		public entities: EntityObjectSchema[];
 
+		constructor() {
 			if(current_instance === null)
 				current_instance = this;
 			else
 				throw new Error('Only single instance of Entities class is allowed');
-
-			this.rect = rect;//VBO rect
 
 			//creating list of entities
 			this.entities = [];
@@ -161,10 +154,7 @@ var Entities = (function() {
 					layer: data.layer !== undefined ? data.layer : DEFAULT_LAYER,
 					color: data.color || DEFAULT_COLOR,
 					
-					texture: GRAPHICS.TEXTURES.createFrom(
-						ASSETS.getTexture( data.texture_name ), 
-						data.linear === undefined ? DEFAULT_FILTERING : data.linear 
-					),
+					texture: this.generateTexture(data),
 					objects: []
 				});
 			}
@@ -172,9 +162,7 @@ var Entities = (function() {
 
 		destroy() {
 			console.log('removing existing entities');
-
 			this.entities.forEach(ent => {
-				ent.texture.destroy();
 				//@ts-ignore
 				ent.objects = null;
 			});
@@ -184,28 +172,8 @@ var Entities = (function() {
 			current_instance = null;
 		}
 
-		drawLayer(layer: number) {
-			// for(entity_it of this.entities) {
-			for(ii=0; ii<this.entities.length; ii++) {
-				entity_it = this.entities[ii];
-				if(entity_it.layer !== layer || entity_it.objects.length === 0)
-					continue;
-
-				//@ts-ignore
-				GRAPHICS.SHADERS.uniform_vec4('color', entity_it.color);
-				entity_it.texture.bind();
-
-				for(obj_it of entity_it.objects) {//drawing objects
-					//@ts-ignore
-					GRAPHICS.SHADERS.uniform_mat3('u_matrix', <Float32Array>obj_it.buffer);
-					this.rect.draw();
-				}
-			}
-		}
-
-		////////////////////////////////////////////////////////////
-		// STATIC METHODS
-		////////////////////////////////////////////////////////////
+		protected abstract generateTexture(texture_name: EntitySchema): 
+			GRAPHICS.ExtendedTexture | HTMLCanvasElement | HTMLImageElement;
 
 		//@entity_id - id of entity (or null for server cases)
 		//@object - instance of Object2D
@@ -248,11 +216,5 @@ var Entities = (function() {
 		public static LAYERS = LAYERS;
 	}
 
-	//@ts-ignore
-	Object.assign(Entities, EntitiesData);
-	//self.LAYERS = LAYERS;
-
-	return Entities;
-})();
-
-// var Entities = EntitiesScope.Entities;
+	Object.assign(Entities.EntitiesBase, EntitiesData);
+}

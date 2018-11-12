@@ -44,13 +44,16 @@ const EnemySpawner = (function(/*Object2D, Enemy, Movement*/) {
 			if(typeof Entities !== 'undefined') {
 				this.entity_name = enemy instanceof PoisonousEnemy ? POISONOUS_ENTITY_NAME:ETITY_NAME;
 				//@ts-ignore
-				Entities.addObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
 			}
 
 			//@ts-ignore
-			if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined') {//client side
+			if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined' &&
 				//@ts-ignore
-				this.emitter = Renderer.Class.addEmitter( 
+				Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL) 
+			{//client side
+				//@ts-ignore
+				this.emitter = Renderer.WebGL.addEmitter( 
 					//@ts-ignore
 					new Emitters.Spawner(enemy instanceof PoisonousEnemy) );
 			}
@@ -60,7 +63,7 @@ const EnemySpawner = (function(/*Object2D, Enemy, Movement*/) {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')
 				//@ts-ignore
-				Entities.removeObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
 
 			if(this.enemy) {
 				this.enemy.spawning = false;

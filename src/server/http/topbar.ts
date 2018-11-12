@@ -1,7 +1,7 @@
 /*jshint multistr: true */
 const topbar_html = "<div id='topbar'>\
 	<div class='topbar_side' style='text-align: left;'>\
-		<a href='/' target='_self' ><img src='/img/icons/logo.png' /></a>\
+		<a href='/' target='_self'><img src='/img/icons/logo.png' style='vertical-align: bottom;' /></a>\
 	</div>\
 	\
 	<div class='links'>\

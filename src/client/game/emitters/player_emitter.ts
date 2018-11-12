@@ -2,8 +2,12 @@
 
 // const PlayerEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 100;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	//NOTE - scale is Player.INITIAL_SCALE*0.8
 	const SCALE = 0.05*0.8, /*SPEED = 0.1,*/ ALPHA = 0.2;
@@ -12,7 +16,7 @@ namespace Emitters {
 
 	var i: number, alpha_l: number;
 
-	export class Player extends GRAPHICS.Emitter {
+	export class Player extends Graphics.Emitter {
 		private player: Object2D;
 		private alphas: Float32Array;
 
@@ -26,7 +30,7 @@ namespace Emitters {
 			this.alphas = new Float32Array(PARTICLES);
 
 			for(i=0; i<PARTICLES; i++) {
-				this.data[i*vals + 0] = NaN;//(Math.random() * 2.0 - 1.0) * GRAPHICS.getAspect();//x
+				this.data[i*vals + 0] = NaN;//(Math.random() * 2.0 - 1.0) * Graphics.getAspect();//x
 				this.data[i*vals + 1] = NaN;//Math.random() * 2.0 - 1.0;//yy
 				this.data[i*vals + 2] = 0;//0.05 * Math.random() + 0.025;
 

@@ -32,23 +32,28 @@ namespace COMMON {
 		});
 		return switcher;
 	}
-	export function createOptionsList(options: string[], on_select: (state: string) => void) {
+	export function createOptionsList(_options: string[], on_select: (state: string) => void) {
 		let options_list = $$.create('DIV').addClass('options_list');
+		try {
+			_options.forEach(opt => {
+				options_list.addChild(
+					$$.create('BUTTON').setText(opt).on('click', function() {
+						//prevent from selecting already selected option
+						if(this.className.indexOf('selected') !== -1)
+							return;
+						options_list.getChildren('BUTTON.selected').removeClass('selected');
+						this.addClass('selected');
 
-		options.forEach(opt => {
-			options_list.addChild(
-				$$.create('BUTTON').setText(opt).on('click', function() {
-					//prevent from selecting already selected option
-					if(this.className.indexOf('selected') !== -1)
-						return;
-					options_list.getChildren('BUTTON.selected').removeClass('selected');
-					this.addClass('selected');
-
-					if(typeof on_select === 'function')
-						on_select(opt);
-				})
-			);
-		});
+						if(typeof on_select === 'function')
+							on_select(opt);
+					})
+				);
+			});
+		}
+		catch(e) {
+			console.log(e);
+			//return options_list;
+		}
 		$$.assert(options_list.selectOption === undefined, 
 			'object already has "selectOption" property assigned');
 
@@ -67,7 +72,7 @@ namespace COMMON {
 				return options_list.getChildren('BUTTON.selected').innerHTML;
 			}
 			catch(e) {
-				return options.length > 0 ? options[0] : '';
+				return _options.length > 0 ? _options[0] : '';
 			}
 		};
 

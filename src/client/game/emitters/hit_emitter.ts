@@ -1,16 +1,21 @@
 ///<reference path="../../engine/graphics.ts"/>
+///<reference path="../webgl_renderer.ts"/>
 
 //const HitEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 50;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	const SCALE = 0.15;
 	const SCALE_SPEED = (SCALE / 0.5);//0.5 seconds effect duration
 
 	var i: number, j: number;
 
-	export class Hit extends GRAPHICS.Emitter {
+	export class Hit extends Graphics.Emitter {
 		private index: number;
 		private indexes: number[];
 
@@ -38,7 +43,7 @@ namespace Emitters {
 
 		hit(x: number, y: number, damage: boolean) {
 			//discard hits beyond camera view
-			if(Renderer.Class.getCurrentInstance().withinVisibleArea(x, y, 0.2) === false)
+			if(Renderer.WebGL.getCurrentInstance().withinVisibleArea(x, y, 0.2) === false)
 				return;
 
 			this.data[this.index*vals + 0] = x;

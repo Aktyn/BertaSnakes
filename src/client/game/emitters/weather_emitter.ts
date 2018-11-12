@@ -2,11 +2,15 @@
 ///<reference path="../../../include/utils/vector.ts"/>
 
 namespace Emitter {
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	var aspect: number, i: number;
 
-	export class Weather extends GRAPHICS.Emitter {
+	export class Weather extends Graphics.Emitter {
 		protected velocities_data: Float32Array;
 
 		constructor(name: string, particles_count: number, is_additive = true) {
@@ -22,7 +26,7 @@ namespace Emitter {
 		}
 
 		update(delta: number, camera: VectorScope.Vector) {
-			aspect = GRAPHICS.getAspect();
+			aspect = Graphics.getAspect();
 
 			for(i=0; i<this.count; i++) {
 				this.data[i*vals + 0] += this.velocities_data[i*2+0] * delta;

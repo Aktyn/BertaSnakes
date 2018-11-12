@@ -2,19 +2,6 @@
 
 // const SETTINGS = (function() {
 namespace SETTINGS {
-	/*interface SettingsI {
-		game_panel_auto_hide: boolean;
-		weather_particles: boolean;
-		painter_resolution: string;
-		shadows_type: string;
-		menu_background_effect: boolean;
-		menu_click_effect: boolean;
-		chat_auto_hide_show: boolean;
-
-		save(): void;
-
-		[index: string]: any;
-	}*/
 	const PREFIX = 'BS_';//Berta Snakes
 	const COOKIE_LIFETIME = 1000 * 60 * 60 * 24 * 7;//7 days (in miliseconds)
 
@@ -27,6 +14,7 @@ namespace SETTINGS {
 	//GAME
 	export var game_panel_auto_hide = true;
 	export var weather_particles = true;
+	export var canvas_rendering = false;
 	
 	export var painter_resolution = Device.info.is_mobile ? 'MEDIUM' : 'HIGH';//'LOW', 'MEDIUM', 'HIGH'
 	export var shadows_type = 'LONG';//'LONG', 'FLAT;
@@ -39,21 +27,16 @@ namespace SETTINGS {
 	export var chat_auto_hide_show = !Device.info.is_mobile;//DISABLE FOR MOBIL
 
 	export function saveAsCookies() {
-		/*Object.getOwnPropertyNames(self).forEach(prop => {
-			if(typeof self[prop] !== 'function') 
-				setCookie(PREFIX + prop, self[prop]);
-		});*/
 		setCookie(PREFIX + 'game_panel_auto_hide', game_panel_auto_hide);
 		setCookie(PREFIX + 'weather_particles', weather_particles);
+		setCookie(PREFIX + 'canvas_rendering', canvas_rendering);
 		setCookie(PREFIX + 'painter_resolution', painter_resolution);
 		setCookie(PREFIX + 'shadows_type', shadows_type);
 		setCookie(PREFIX + 'menu_background_effect', menu_background_effect);
 		setCookie(PREFIX + 'menu_click_effect', menu_click_effect);
 		setCookie(PREFIX + 'chat_auto_hide_show', chat_auto_hide_show);
 	}
-	//};
 	
-
 	function getCookie(name: string) {
 	    try {
 	    	//@ts-ignore
@@ -83,6 +66,8 @@ namespace SETTINGS {
 		PREFIX + 'game_panel_auto_hide' ) || game_panel_auto_hide, typeof game_panel_auto_hide);
 	weather_particles = <boolean>cast(getCookie(
 		PREFIX + 'weather_particles' ) || weather_particles, typeof weather_particles);
+	canvas_rendering = <boolean>cast(getCookie(
+		PREFIX + 'canvas_rendering' ) || canvas_rendering, typeof canvas_rendering);
 	painter_resolution = <string>cast(getCookie(
 		PREFIX + 'painter_resolution' ) || painter_resolution, typeof painter_resolution);
 	shadows_type = <string>cast(getCookie(
@@ -93,10 +78,4 @@ namespace SETTINGS {
 		PREFIX + 'menu_click_effect' ) || menu_click_effect, typeof menu_click_effect);
 	chat_auto_hide_show = <boolean>cast(getCookie(
 		PREFIX + 'chat_auto_hide_show' ) || chat_auto_hide_show, typeof chat_auto_hide_show);
-	/*Object.getOwnPropertyNames(self).forEach(prop => {
-		if(typeof self[prop] !== 'function')
-			self[prop] = cast(getCookie( PREFIX + prop ) || self[prop], typeof self[prop]);
-	});*/
-
-	//return self;
-}//)();
+}

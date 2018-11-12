@@ -1,10 +1,17 @@
 ///<reference path="object2d.ts"/>
 
 //namespace Object2DScope {
-var Object2DSmooth = (function(Object2D) {
+// var Object2DSmooth = (function(Object2D) {
+namespace Objects {
+	try {
+		var _Object2D_: typeof Object2D = require('./object2d');
+	}
+	catch(e) {
+		var _Object2D_ = Object2D;
+	}
 
 	//@ts-ignore
-	class Object2DSmooth extends Object2D {
+	export class Object2DSmooth extends _Object2D_ {
 		private static SMOOTHNESS = 20;
 		private static POS_SMOOTHNESS = 20;
 		private static PI_2 = Math.PI * 2.0;
@@ -83,15 +90,13 @@ var Object2DSmooth = (function(Object2D) {
 		}
 	}
 
-	return Object2DSmooth;
-//}
-})(
-	typeof Object2D !== 'undefined' ? Object2D : require('./object2d.js')
-);
+	//return Object2DSmooth;
+
+}//)();
 
 //var Object2DSmooth = Object2DScope.Object2DSmooth;
 
 try {//export for NodeJS
-	module.exports = Object2DSmooth;
+	module.exports = Objects.Object2DSmooth;
 }
 catch(e) {}

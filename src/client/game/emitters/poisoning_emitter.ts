@@ -2,14 +2,18 @@
 
 // const PoisoningEmitter = (function() {
 namespace Emitters {
+	if(typeof GRAPHICS === 'undefined')
+		throw "GRAPHICS module must be loaded before Renderer.WebGL";
+	var Graphics = GRAPHICS;
+	
 	const PARTICLES = 50;
-	const vals = GRAPHICS.Emitter.VALUES_PER_PARTICLE;
+	const vals = Graphics.Emitter.VALUES_PER_PARTICLE;
 
 	const SCALE = 0.08, ALPHA = 0.5, FADING_DURATION = 1, SPEED = 0.1;
 
 	var i: number;
 
-	export class Poisoning extends GRAPHICS.Emitter {
+	export class Poisoning extends Graphics.Emitter {
 		private x_movements: Float32Array;
 		private speeds: Float32Array;
 

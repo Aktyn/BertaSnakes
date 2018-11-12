@@ -56,7 +56,7 @@ namespace Objects {
 				//@ts-ignore
 				this.entity_name = Bullet.entityName(parent.painter.color);//clientside only
 				//@ts-ignore
-				Entities.addObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
 			}
 		}
 
@@ -64,7 +64,7 @@ namespace Objects {
 			//@ts-ignore
 			if(typeof Entities !== 'undefined')
 				//@ts-ignore
-				Entities.removeObject(Entities[this.entity_name].id, this);
+				Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
 		}
 
 		get color() {
