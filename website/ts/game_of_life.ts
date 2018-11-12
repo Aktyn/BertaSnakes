@@ -144,6 +144,7 @@
 	//styling and appending canvas to page
 	Object.assign(canvas.style, {
 		'image-rendering': 'pixelated',
+		'pointer-events': 'none',
 
 		//position in center of the screen
 		'position': 'fixed',

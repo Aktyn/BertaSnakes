@@ -10,6 +10,8 @@
 
 ///<reference path="lobby_stage.ts"/>
 
+///<reference path="../engine/sound.ts"/>
+
 namespace Stages {
 	export class GAME_STAGE extends Stages.StageBase {
 		private static makeRankWidget = (rank: number, rank_reward: number) => {

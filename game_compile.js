@@ -27,7 +27,7 @@ process.argv.forEach(function (val) {
 		code = code.replace(/.use strict./i, `'use strict';
 			console.log('%clogs disabled\\n¯\\\\_(ツ)_/¯', 
 				'color: #f44336; font-weight: bold; font-size: 25px;');
-			console.log = console.info = function() {};`);
+			console.log = console.info = function() {}`);
 	}
 });
 

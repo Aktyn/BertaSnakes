@@ -163,14 +163,12 @@ const $$ : $_static_func = (function() {
 		loadScript: function(source, async, onload) {
 			assert(!!document.head, 'Document head not found');
 			let script = static_methods.create('SCRIPT');
-			script.setAttribute('type', 'text/javascript');
-			script.setAttribute('src', source);
-			script.setAttribute('async', String(!!async));
-			//script.async = !!async;
+			script.setAttrib('type', 'text/javascript');
+			script.setAttrib('src', source);
+			script.setAttrib('async', String(!!async));
 
 			//searching for arleady loaded script
-
-			if( (fromQuery('SCRIPT')).some((s: any) => s.src.indexOf(source) != -1)) {
+			if(fromQuery(`img[src='${source}']`).length > 0) {
 				if(typeof onload === 'function')
 					onload();
 				return;

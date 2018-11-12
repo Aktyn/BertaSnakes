@@ -442,3 +442,49 @@ html:-webkit-full-screen .hide_in_fullscreen {
 html:-fullscreen .hide_in_fullscreen {
   	display: none;
 }
+
+/* VOLUME SLIDER */
+.slider_widget_container {
+	height: 30px;
+	padding: 12.5px 10px;
+}
+
+.slider_widget_container * {
+	pointer-events: none;
+}
+
+.slider_widget_container > .slider_widget {
+	/*position: absolute;*/
+	left: 24px;
+	margin: 0px 0px;
+	height: 5px;
+	/*width: 200px;*/
+	background: #a8a8a8;
+	border-radius: 15px;
+}
+
+.slider_widget_container > .slider_widget > .slider {
+	height: 5px;
+	width: 0px;
+	position: absolute;
+	background: #4db6ac;
+	border: none;
+	border-radius: 10px;
+	outline: none;
+}
+
+.slider_widget_container > .slider_widget > .handle {
+	width: 20px;
+  	height: 20px;
+	border-radius: 20px;
+  	background: #009688;
+  	position: absolute;
+  	margin-left: -8px;
+  	margin-top: -8px;
+  	cursor: pointer;
+  	outline: none;
+}
+
+.slider_widget_container:hover > .slider_widget > .handle {
+	background: #4db6ac;
+}

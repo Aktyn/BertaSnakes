@@ -20,10 +20,12 @@ namespace Popup {
 				if(is_enabled)
 					switcher.addClass('on');
 				return switcher;
-			})( 
-				COMMON.createSwitcher(onSwitch)
-			)
+			})( COMMON.createSwitcher(onSwitch) )
 		);
+	}
+
+	function createSlider(onChange: (value: number) => void, current_value: number) {
+		return COMMON.createSlider(onChange).setValue(current_value);
 	}
 
 	export class SettingsPop extends Stages.PopupBase {
@@ -71,6 +73,7 @@ namespace Popup {
 
 		close() {
 			Settings.saveAsCookies();
+			Sounds.updateVolumes(Settings.sound_effects);
 			this.popup_html.remove();
 			super.close();
 		}
@@ -118,7 +121,31 @@ namespace Popup {
 				return helper;
 			};
 
+			var sound_label = $$.create('LABEL')
+				.setText(`Sound Effects (${Math.round(Settings.sound_effects*100)}%):`);
+			if(Math.round(Settings.sound_effects*100) === 69) {
+				sound_label.setText('Sound Effects ').addChild(
+					$$.create('SPAN').setStyle({'color': '#f55'}).setText('(69%)').on('click', () => {
+						$$.loadScript('webjs/game_of_life.js', true);
+						this.close();
+					})
+				);
+			}
+			else if(Settings.sound_effects < 0.005)//less than half of a percent
+				sound_label.setText('Sound Effects (Muted)');
 			div.addChild(
+				$$.create('DIV').addChild(
+					sound_label
+				).addChild(
+					createSlider((value) => {
+						if(value < 0.005)//less than half of a percent
+							sound_label.setText('Sound Effects (Muted)');
+						else
+							sound_label.setText(`Sound Effects (${Math.round(value*100)}%):`);
+						Settings.sound_effects = value;
+					}, Settings.sound_effects)
+				)
+			).addChild(
 				createSwitcherEntry('Auto hide right panel:', (enabled) => {
 					Settings.game_panel_auto_hide = enabled;
 				}, Settings.game_panel_auto_hide)
@@ -149,17 +176,22 @@ namespace Popup {
 					Settings.weather_particles = enabled;
 				}, Settings.weather_particles)
 			).addChild(
-				createSwitcherEntry('Canvas rendering* (experimental):', (enables) => {
+				createSwitcherEntry('Canvas rendering*', (enables) => {
 					Settings.canvas_rendering = enables;
 				}, Settings.canvas_rendering)
 			).addChild(
-				$$.create('DIV').setStyle({
-				    'display': 'block',
-				    'margin-top': '50px',
-				    'margin-right': '-100vw',
-				    'color': '#657075',
-				    'font-size': '15px'
-				}).setText('* Option not recommended unless your browser doesn\'t support webgl')
+				$$.create('DIV').addChild(
+					$$.create('SPAN').html(`* Experimental option not recommended unless\
+						your browser doesn\'t support webgl`).setStyle({
+							'display': 'block',
+							'width': '200%',
+							'margin-right': '-100vw',
+							'margin-top': '50px',
+							'color': '#657075',
+				    		'font-size': '15px',
+				    		'white-space': 'pre-line'
+						})
+				)
 			);
 		}
 

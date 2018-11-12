@@ -32,8 +32,59 @@ namespace COMMON {
 		});
 		return switcher;
 	}
+
+	export function createSlider(onChange: (value: number) => void) {
+		interface Slider extends $_face {
+			setValue: (value: number) => this;
+		}
+
+		const width = 200;
+
+		var slider = $$.create('DIV').addClass('slider');
+		var handle = $$.create('SPAN').addClass('handle');
+
+		var slider_main = $$.create('DIV').addClass('slider_widget').addChild([slider, handle])
+			.setStyle({'width': width + 'px'});
+
+		var slider_widget = <Slider>$$.create('DIV').addClass('slider_widget_container').addChild(
+			slider_main
+		).setStyle({'display': 'inline-block'});
+
+		slider_widget.setValue = (value) => {
+			slider.setStyle({'width': Math.round(width * value) + 'px'});
+			handle.setStyle({'margin-left': Math.round(value*width - 8) + 'px'});
+			return slider_widget;
+		};
+
+		var onUserEvent = (e: MouseEvent) => {
+			if(e.buttons > 0) {
+				var clickX = e.clientX - slider_main.getBoundingClientRect().left;
+				var new_val = Math.max(0, Math.min(width, clickX)) / width;
+				
+				slider_widget.setValue( new_val );
+				onChange(new_val);
+			}
+
+			e.preventDefault();
+			// e.stopPropagation();
+			e.stopImmediatePropagation();
+		};
+
+		//TODO - mobile events
+		slider_widget.on('mousemove', 	e => onUserEvent(<MouseEvent>e));
+		slider_widget.on('mouseup', 	e => onUserEvent(<MouseEvent>e));
+
+		slider_widget.on('mousedown', (e) => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		});
+
+		return slider_widget;
+	}
+
 	export function createOptionsList(_options: string[], on_select: (state: string) => void) {
-		let options_list = $$.create('DIV').addClass('options_list');
+		let options_list = $$.create('DIV').addClass('options_list')
+			.setStyle({'display': 'inline-flex'});
 		try {
 			_options.forEach(opt => {
 				options_list.addChild(

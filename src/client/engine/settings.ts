@@ -12,6 +12,7 @@ namespace SETTINGS {
 
 	//var self: SettingsI = {//DEFAULT SETTINGS VALUES
 	//GAME
+	export var sound_effects = 0.5;//0 -> 1
 	export var game_panel_auto_hide = true;
 	export var weather_particles = true;
 	export var canvas_rendering = false;
@@ -27,6 +28,7 @@ namespace SETTINGS {
 	export var chat_auto_hide_show = !Device.info.is_mobile;//DISABLE FOR MOBIL
 
 	export function saveAsCookies() {
+		setCookie(PREFIX + 'sound_effects', sound_effects);
 		setCookie(PREFIX + 'game_panel_auto_hide', game_panel_auto_hide);
 		setCookie(PREFIX + 'weather_particles', weather_particles);
 		setCookie(PREFIX + 'canvas_rendering', canvas_rendering);
@@ -62,6 +64,8 @@ namespace SETTINGS {
 	}
 
 	//loads settings from cookies
+	sound_effects = <number>cast(getCookie(
+		PREFIX + 'sound_effects' ) || sound_effects, typeof sound_effects);
 	game_panel_auto_hide = <boolean>cast(getCookie(
 		PREFIX + 'game_panel_auto_hide' ) || game_panel_auto_hide, typeof game_panel_auto_hide);
 	weather_particles = <boolean>cast(getCookie(

@@ -38,6 +38,7 @@ export default {
 
 		app.use('/css', express.static(dir + '/assets/css'));
 		app.use('/img', express.static(dir + '/assets/img'));
+		app.use('/sounds', express.static(dir + '/assets/sounds'));
 		app.use('/html', express.static(dir + '/website/html'));
 		app.use('/webjs', express.static(dir + '/website/js'));
 		//app.use('/admin_page/admin.js', express.static(dir + '/admin_page/admin.js'));
