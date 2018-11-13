@@ -32,7 +32,7 @@ fs.readdir(sources, (err, files) => {
 			jsCode: [{src: code}],
 			externs: '$$',
 			
-			languageOut: 'ES5',
+			languageOut: 'ES6',
 			compilationLevel: run_simple ? 'SIMPLE' : 'ADVANCED',
 			warningLevel: 'VERBOSE'
 		};
