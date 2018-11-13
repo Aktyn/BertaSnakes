@@ -56,23 +56,28 @@ namespace COMMON {
 			return slider_widget;
 		};
 
-		var onUserEvent = (e: MouseEvent) => {
-			if(e.buttons > 0) {
-				var clickX = e.clientX - slider_main.getBoundingClientRect().left;
-				var new_val = Math.max(0, Math.min(width, clickX)) / width;
-				
-				slider_widget.setValue( new_val );
-				onChange(new_val);
-			}
+		function onSlide(x_val: number) {
+			var new_val = Math.max(0, Math.min(width, x_val)) / width;
+			
+			slider_widget.setValue( new_val );
+			onChange(new_val);
+		}
+
+		var onUserEvent = (e: Event) => {
+			if(e instanceof MouseEvent && e.buttons > 0)
+				onSlide( e.clientX - slider_main.getBoundingClientRect().left );
+			else if(e instanceof TouchEvent && e.touches.length > 0)
+				onSlide( e.touches[0].clientX - slider_main.getBoundingClientRect().left );
 
 			e.preventDefault();
-			// e.stopPropagation();
 			e.stopImmediatePropagation();
 		};
 
-		//TODO - mobile events
-		slider_widget.on('mousemove', 	e => onUserEvent(<MouseEvent>e));
-		slider_widget.on('mouseup', 	e => onUserEvent(<MouseEvent>e));
+		slider_widget.on('touchmove', 	e => onUserEvent(e));
+		slider_widget.on('touchstart', 	e => onUserEvent(e));
+
+		slider_widget.on('mousemove', 	e => onUserEvent(e));
+		slider_widget.on('mouseup', 	e => onUserEvent(e));
 
 		slider_widget.on('mousedown', (e) => {
 			e.preventDefault();

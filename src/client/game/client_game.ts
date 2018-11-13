@@ -3,6 +3,7 @@
 ///<reference path="canvas_renderer.ts"/>
 ///<reference path="../engine/assets.ts"/>
 ///<reference path="../engine/settings.ts"/>
+///<reference path="../engine/sound.ts"/>
 
 ///<reference path="emitters/hit_emitter.ts"/>
 ///<reference path="emitters/explosion_emitter.ts"/>
@@ -276,6 +277,9 @@ namespace ClientGame {
 					this.explosionEffect(data[index + 2], data[index + 3], 
 						GameCore.GET_PARAMS().small_explosion_radius);
 
+					if(p_h === this.renderer.focused)
+						Sounds.EFFECTS.hit.play();
+
 					index += 6;
 					break;
 				case _NetworkCodes_.ON_PLAYER_BOUNCE:
@@ -292,6 +296,9 @@ namespace ClientGame {
 							p_h.x - data[index + 5] * p_h.width, 
 							p_h.y - data[index + 6] * p_h.height, false);
 					}
+
+					if(p_h === this.renderer.focused)
+						Sounds.EFFECTS.wallHit.play();
 
 					index += 7;
 					break;
@@ -421,6 +428,9 @@ namespace ClientGame {
 						this.bullets.push( bullet );
 					}
 
+					if(p_h === this.renderer.focused)
+						Sounds.EFFECTS.shoot.play();
+
 					index += 3 + number_of_bullets * 4;
 					break;
 				//player_index, bullet_id, pos_x, pos_y, rot
@@ -432,6 +442,9 @@ namespace ClientGame {
 					bullet.id = data[index+2];
 
 					this.bullets.push( bullet );
+
+					if(p_h === this.renderer.focused)
+						Sounds.EFFECTS.shoot.play();
 
 					index += 6;
 					break;
@@ -453,6 +466,9 @@ namespace ClientGame {
 					}
 					this.explosionEffect(data[index+2], data[index+3], 
 						GameCore.GET_PARAMS().bomb_explosion_radius);
+
+					//TODO - calculate distance to focused player
+					Sounds.EFFECTS.explode.play();
 
 					index += 4;
 					break;
@@ -509,6 +525,9 @@ namespace ClientGame {
 							this.emitters.push( heal_emitter );
 							//}
 						}
+
+						if(p_h === this.renderer.focused)
+							Sounds.EFFECTS.collect.play();
 					}
 
 					index += 2;
@@ -527,9 +546,10 @@ namespace ClientGame {
 							Renderer.WebGL.addEmitter( blast_emitter );
 							this.emitters.push( blast_emitter );
 						}
+
+						//if(p_h === this.renderer.focused)
+						Sounds.EFFECTS.shoot.play();
 					}
-					//super.paintHole(data[index+1],data[index+2],
-					//	GameCore.GET_PARAMS().energy_blast_radius);
 
 					index += 4;
 					break;
@@ -565,6 +585,9 @@ namespace ClientGame {
 					var yy = p_h.y - data[index + 9] * p_h.height;
 
 					this.explosionEffect(xx, yy, GameCore.GET_PARAMS().explosion_radius);
+
+					if(p_h === this.renderer.focused)
+						Sounds.EFFECTS.hit.play();
 
 					index += 10;
 					break;
@@ -617,6 +640,9 @@ namespace ClientGame {
 
 					index += 4;
 
+					if(p_h === this.renderer.focused)
+						Sounds.EFFECTS.collect.play();
+
 					break;
 				//player_index, spawning_duration death_pos_x and y, explosion_radius
 				case _NetworkCodes_.ON_PLAYER_DEATH:
@@ -637,9 +663,11 @@ namespace ClientGame {
 					p_h.deaths++;
 					this.renderer.GUI.onPlayerDeath( data[index + 1] | 0 );
 
-					if(p_h === this.renderer.focused)
+					if(p_h === this.renderer.focused) {
 						this.renderer.GUI.addNotification(
 							'You died. Respawn in ' + data[index + 2] + ' seconds');
+						Sounds.EFFECTS.explode.play();
+					}
 
 					index += 6;
 					break;
