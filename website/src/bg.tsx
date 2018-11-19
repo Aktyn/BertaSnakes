@@ -1,19 +1,19 @@
 /* animated background */
-
 ///<reference path="utils.ts"/>
-var BackgroundEffect = (function() {
+///<reference path="compatibility.ts"/>
+
+function runBackground() {
 	console.info("Initializing animated background");
 
-	var canv = <HTMLCanvasElement><any>$$.create("CANVAS");
+	var canv = document.createElement('canvas');
 	$$.expand(canv, $$.getScreenSize());//sets width and height
-	var ctx = <CanvasRenderingContext2D> canv.getContext("2d", {antialias: true});
+	var ctx = canv.getContext("2d", {antialias: true}) as CanvasRenderingContext2D;
 	if(ctx === null)
 		return;
 
 	$$.expand(canv.style, {
 		"z-index": "-1",
 		display: "inline-block",
-		// background: "#f55",
 		position: "fixed",
 		margin: "0px",
 		padding: "0px",
@@ -21,9 +21,9 @@ var BackgroundEffect = (function() {
 		top: "0px"
 	}, true);
 
-	$$.load(function() {
-		$$(document.body).appendAtBeginning(canv);
-		$$(document.body).style.background = "none";//needed for proper display
+	$$.onPageLoaded(function() {
+		$$.appendAtBeginning(canv, document.body);
+		document.body.style.background = "none";//needed for proper display
 	});
 
 	interface Dot {
@@ -53,7 +53,7 @@ var BackgroundEffect = (function() {
 			var data = sessionStorage.getItem('background_state');
 			if(data != null) {
 				console.log("Restoring background state");
-				dots = <Dot[]>JSON.parse(data);
+				dots = JSON.parse(data) as Dot[];
 			}
 			else {
 				dots = [];
@@ -167,9 +167,9 @@ var BackgroundEffect = (function() {
 		};
 		tick();
 
-		function onResize(res: resolution) {
+		function onResize(res: Resolution) {
 			$$.expand(canv, res, true);//sets width and height
-			ctx = <CanvasRenderingContext2D>canv.getContext("2d", {antialias: true});
+			ctx = canv.getContext("2d", {antialias: true}) as CanvasRenderingContext2D;
 		}
 
 		window.addEventListener('resize', () => onResize($$.getScreenSize()), false);
@@ -177,4 +177,4 @@ var BackgroundEffect = (function() {
 
 		window.addEventListener('unload', save, false);
 	})();
-})();
+}

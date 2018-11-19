@@ -40,7 +40,8 @@ export default {
 		app.use('/img', express.static(dir + '/assets/img'));
 		app.use('/sounds', express.static(dir + '/assets/sounds'));
 		app.use('/html', express.static(dir + '/website/html'));
-		app.use('/webjs', express.static(dir + '/website/js'));
+		app.use('/webjs', express.static(dir + '/website/out'));
+		app.use('/egg', express.static(dir + '/website/egg'));
 		//app.use('/admin_page/admin.js', express.static(dir + '/admin_page/admin.js'));
 
 		//allow access to folder with compiled client-side game code
@@ -50,11 +51,12 @@ export default {
 		app.use('/shaders', express.static(dir + '/assets/shaders'));
 		app.use('/maps', express.static(dir + '/assets/maps'));
 
-		app.get('/', (req, resp) => {
+		/*app.get('/', (req, resp) => {//COPIED BELOW!!!
 			Actions.storeVisit(req);
-			resp.send(Pages.homepage);
-		});
-		app.get('/admin', (req, resp) => resp.send(Pages.admin));
+			//resp.send(Pages.homepage);
+			resp.send(Pages.index);
+		});*/
+		/*app.get('/admin', (req, resp) => resp.send(Pages.admin));
 		app.get('/forum', (req, resp) => resp.send(Pages.forum));
 		app.get('/info', (req, resp) => resp.send(Pages.info));
 		app.get('/gallery', (req, resp) => resp.send(Pages.gallery));
@@ -63,7 +65,7 @@ export default {
 		app.get(/game\/[0-9]+/, (req, resp) => resp.send(Pages.game));// eg. /game/69
 		app.get('/account', (req, resp) => resp.send(Pages.account));
 		app.get('/login', (req, resp) => resp.send(Pages.login));
-		app.get('/register', (req, resp) => resp.send(Pages.register));
+		app.get('/register', (req, resp) => resp.send(Pages.register));*/
 		app.get('/verify', (req, resp) => {//account verification
 			Actions.verifyAccount( req.query.code ).then(nick => {
 				resp.send('Welcome ' + nick + '<br>Your account has been verified.<br>' + 
@@ -76,13 +78,12 @@ export default {
 		});
 		app.get('/play', (req, resp) => resp.send(Pages.play));
 
-		//requests
+		//API requests
 		app.get('/get_list_of_maps', (req, resp) => {
 			resp.send(list_of_maps);
 		});
 		app.post('/restore_session', Actions.restoreSession);
-		//app.post('/search_user', Actions.search_user);
-		//app.post('/search_game', Actions.search_game);
+		
 		app.post('/ranking_request', Actions.fetch_ranking);
 		app.post('/user_info', Actions.get_user_info);
 		app.post('/game_info', Actions.get_game_info);
@@ -102,7 +103,13 @@ export default {
 		app.post('/statistics_request', Actions.get_statistics);
 
 		//TODO Page.not_found
-		app.get('*', (req, res) => res.status(404).send(Pages.not_found));
+		//app.get('*', (req, res) => res.status(404).send(Pages.not_found));
+
+		app.get('*', (req, resp) => {
+			Actions.storeVisit(req);
+			//resp.send(Pages.homepage);
+			resp.send(Pages.index);
+		});
 
 		app.listen(port, () => console.log('Listening on:', port));
 

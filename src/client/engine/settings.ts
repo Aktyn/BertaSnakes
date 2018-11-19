@@ -12,7 +12,7 @@ namespace SETTINGS {
 
 	//var self: SettingsI = {//DEFAULT SETTINGS VALUES
 	//GAME
-	export var sound_effects = 0.5;//0 -> 1
+	export var sound_effects = Device.info.is_mobile ? 1.0 : 0.5;//0 -> 1
 	export var game_panel_auto_hide = true;
 	export var weather_particles = true;
 	export var canvas_rendering = false;

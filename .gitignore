@@ -4,5 +4,6 @@ MySQL_Schemas/
 debug_tools/
 NOTES.txt
 compiled/
-website/js/
+website/out/
+website_deprecated/
 run_dev

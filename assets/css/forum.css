@@ -1,7 +1,8 @@
 main.forum_main {
+	min-width: 100vw;
 	align-self: stretch;
 	justify-self: stretch;
-	height: auto;
+	height: 100%;
 
 	display: grid;
 	grid-template-areas: 
@@ -10,6 +11,9 @@ main.forum_main {
 	grid-template-columns: fit-content(100%) fit-content(100%) auto;
 	grid-template-rows: 55px auto;
 	grid-gap: 0px;
+
+	align-items: initial;
+    justify-items: initial;
 }
 
 main.forum_main a {
@@ -44,7 +48,9 @@ main.forum_main nav > a {
 	padding: 15px;
 
 	box-sizing: border-box;
-	
+	border-right: 4px solid #fff0;
+
+	transition: border-color 400ms ease-in-out;
 }
 
 main.forum_main nav > a:not(:last-child) {
@@ -52,8 +58,8 @@ main.forum_main nav > a:not(:last-child) {
 }
 
 main.forum_main nav > a.current {
-	border-right: 4px solid #9CCC65;
-	margin-left: 4px;
+	border-right-color: #9CCC65;
+	/*margin-left: 4px;*/
 }
 
 main.forum_main nav > a:hover {
@@ -148,13 +154,17 @@ main.forum_main table.threads_list tr:not(:first-child):not(:last-child) {
 	border-bottom: 1px solid #ffffff25;
 }
 
-main.forum_main table.threads_list tr:not(:first-child):hover {
+main.forum_main table.threads_list tr:not(:first-child):not(.pager):hover {
 	background-color: #00BCD430;
 	cursor: pointer;
 }
 
 main.forum_main table.threads_list tr:nth-child(even) {
 	background-color: none;
+}
+
+main.forum_main table.threads_list tr.pager td {
+	text-align: center;
 }
 /*
 main.forum_main table.threads_list tr td {
@@ -234,7 +244,8 @@ main.forum_main article textarea:focus {
 }
 
 main.forum_main article textarea::placeholder, #subject_input::placeholder {
-	color: #96a4aa;
+	/*color: #96a4aa;*/
+	color: #fff5;
 	font-weight: bold;
 }
 
@@ -263,6 +274,10 @@ main.forum_main section .post_header {
 	background-color: #26323820;
 	/*border-bottom: 1px solid #fff2;*/
 	text-align: left;
+}
+
+main.forum_main section .post_header > a {
+	margin-right: 20px;
 }
 
 /*link to user's page*/

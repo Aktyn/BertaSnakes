@@ -11,4 +11,5 @@ smooth_background: false,
 
 //background_scale: 5,//5
 
-weather: "dust"
+weather: "clouds"
+//dust

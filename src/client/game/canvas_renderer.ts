@@ -51,6 +51,7 @@ namespace Renderer {
 			};
 
 			$$(window).on('resize', onResize);
+			//@ts-ignore
 			$$(this.foreground.canvas).on('wheel', (e) => this.zoom((<WheelEvent>e).wheelDelta / 120));
 		}
 

@@ -8,10 +8,10 @@ const compile = require('google-closure-compiler-js').compile;
 const fs = require('fs');
 const path = require('path');
 
-const sources = __dirname + '/js/';
+const sources = __dirname + '/out/';
 
 const ignored_files = [];
-const files_for_simple_compilation = ['utils.js'];
+// const files_for_simple_compilation = ['utils.js'];
 
 function postModify(code) {
 	return '"use strict";' + code;
@@ -21,7 +21,7 @@ fs.readdir(sources, (err, files) => {
 	files.forEach(file => {
 		if( ignored_files.indexOf(file) !== -1 )
 			return;//ignore
-		var run_simple = files_for_simple_compilation.indexOf(file) !== -1;
+		//var run_simple = files_for_simple_compilation.indexOf(file) !== -1;
 		file = path.join(sources, file);
 		console.log( file );
 		
@@ -33,7 +33,7 @@ fs.readdir(sources, (err, files) => {
 			externs: '$$',
 			
 			languageOut: 'ES6',
-			compilationLevel: run_simple ? 'SIMPLE' : 'ADVANCED',
+			compilationLevel: 'ADVANCED',//'SIMPLE', 'ADVANCED'
 			warningLevel: 'VERBOSE'
 		};
 		const out = compile(flags);

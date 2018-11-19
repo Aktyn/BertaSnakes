@@ -2,6 +2,7 @@
 ///<reference path="webgl_entities.ts"/>
 ///<reference path="emitters/dust_emitter.ts"/>
 ///<reference path="emitters/snow_emitter.ts"/>
+///<reference path="emitters/clouds_emitter.ts"/>
 
 // const Renderer = (function() {
 namespace Renderer {
@@ -68,6 +69,7 @@ namespace Renderer {
 
 			$$(window).on('resize', onResize);
 			
+			//@ts-ignore
 			game_canvas.on('wheel', (e) => this.zoom((<WheelEvent>e).wheelDelta / 120));
 
 			let drag_data = {x: 0, y: 0, dragging: false};
@@ -113,6 +115,9 @@ namespace Renderer {
 						break;
 					case 'snow':
 						this.weather_emitter = new Emitters.Snow();
+						break;
+					case 'clouds':
+						this.weather_emitter = new Emitters.Clouds();
 						break;
 				}
 

@@ -35,9 +35,7 @@ class Chart {
 	private ctx: CanvasRenderingContext2D;
 
 	constructor(width: number = 512, height: number = 256) {
-		this.canvas = <HTMLCanvasElement><HTMLElement> $$.create('CANVAS').setStyle({
-		    // 'border': '1px solid #abc'
-		});
+		this.canvas = document.createElement('canvas');
 		this.canvas.width = width;
 		this.canvas.height = height;
 

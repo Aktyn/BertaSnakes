@@ -39,6 +39,7 @@ function createScriptNode(doc: Document, src: string, async= false) {
 interface Options {
 	title?: string;
 	isPlayPage?: boolean;
+	//emptyPage?: boolean;
 	modify?: undefined | ( (arg: Document) => any );
 }
 
@@ -65,7 +66,7 @@ function createAndSerialize(options: Options) {
 				<div class='double-bounce2' style='background-color: rgb(244, 244, 244);'></div>\
 			</div>";
 	}
-	else {
+	else {// if(!options.emptyPage) {
 		document.head.innerHTML += "<link rel='stylesheet' href='css/main.css'>";
 		document.head.appendChild( createScriptNode(document, 'webjs/utils.js') );
 		document.head.appendChild( createScriptNode(document, 'webjs/main.js') );
@@ -81,10 +82,21 @@ function createAndSerialize(options: Options) {
 }
 
 export default {//PAGES
+	index: fs.readFileSync('website/index.html', 'utf8'),
+	/*createAndSerialize({modify: (document: Document) => {
+		//react
+		document.head.appendChild( createScriptNode(document, 
+			'https://unpkg.com/react@16.4.1/umd/react.production.min.js') );
+		document.head.appendChild( createScriptNode(document, 
+			'https://unpkg.com/react-dom@16.4.1/umd/react-dom.production.min.js') );
+		document.head.appendChild( createScriptNode(document, 'webjs/index.js', true) );
+
+		document.body.innerHTML += fs.readFileSync('website/index.html', 'utf8');
+	}, emptyPage: true}),*/
 	not_found: createAndSerialize({modify: (document: Document) => {
 		document.body.innerHTML += 'Not found :(';
 	}}),
-	admin: createAndSerialize({modify: (document: Document) => {
+	/*admin: createAndSerialize({modify: (document: Document) => {
 		document.head.appendChild( createScriptNode(document, 'webjs/chart.js', true) );
 		document.head.appendChild( createScriptNode(document, 'webjs/admin.js', true) );
 		document.body.innerHTML += fs.readFileSync('website/html/admin.html', 'utf8');
@@ -129,7 +141,7 @@ export default {//PAGES
 	register: createAndSerialize({modify: (document: Document) => {
 		document.head.appendChild( createScriptNode(document, 'webjs/register.js') );
 		document.body.innerHTML += fs.readFileSync('website/html/register_form.html', 'utf8');
-	}}),
+	}}),*/
 	play: createAndSerialize({/*title: 'Berta Snakes v'+global.APP_VERSION.replace(/_/g, '.'), */
 		isPlayPage: true})
 };

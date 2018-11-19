@@ -4,7 +4,7 @@ import * as crypto from 'crypto';
 import Email from './email';
 import DatabaseUtils, {UserInfoI, THREAD_CATEGORY} from './../database_utils';
 
-const ROWS_PER_PAGE = 20;//users ranking page
+const ROWS_PER_PAGE = 20;//(20) users ranking page
 
 const session_cookie_name = 'user_session';
 const INITIAL_CUSTOM_USER_DATA = JSON.stringify({//user's custom_data assigned during account creation
