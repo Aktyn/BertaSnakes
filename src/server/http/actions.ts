@@ -4,6 +4,8 @@ import * as crypto from 'crypto';
 import Email from './email';
 import DatabaseUtils, {UserInfoI, THREAD_CATEGORY} from './../database_utils';
 
+import Cache from './cache';
+
 const ROWS_PER_PAGE = 20;//(20) users ranking page
 
 const session_cookie_name = 'user_session';
@@ -16,7 +18,7 @@ const INITIAL_CUSTOM_USER_DATA = JSON.stringify({//user's custom_data assigned d
 	avaible_ships: [0]
 });
 
-//console.log(INITIAL_CUSTOM_USER_DATA);
+var cached_buffer;
 
 const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 function randomString(len: number) {
@@ -95,12 +97,20 @@ function sendResponse(resp: any, data: any) {
 }
 
 export default {//Actions
-	storeVisit: (req: any) => {
-		DatabaseUtils.addVisitEntry(getIP(req), req.headers['user-agent']);
+	storeVisit: (req: any, resp: any) => {
+		DatabaseUtils.addVisitEntry(getIP(req), req.headers['user-agent'], null);
+		resp.end();
 	},
 
 	fetch_ranking: (req: any, resp: any) => {
 		let page_nr = req.body.page || 0;
+
+		if(page_nr == 0) {//very often requested page
+			if( (cached_buffer = Cache.getCache('ranking_first_page')) ) {
+				sendResponse(resp, cached_buffer.data);
+				return;
+			}
+		}
 
 		DatabaseUtils.searchTopRankUsers(page_nr, ROWS_PER_PAGE).then((res) => {
 			let response: any = {
@@ -123,49 +133,20 @@ export default {//Actions
 			});
 			
 			sendResponse(resp, response);
+			if(page_nr == 0)
+				Cache.createCache('ranking_first_page', 1000 * 60 * 10, response);//10 minutes
 		}).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
 	},
-
-	/*search_user: (req: any, resp: any) => {
-		DatabaseUtils.searchUsers(req.body.username || '').then(res => {
-			let response: any = {
-				result: 'SUCCESS',
-				user_infos: []//array to fill with mysql response data
-			};
-			res.forEach(user_info => response.user_infos.push({
-				ID: 			user_info.id,
-				NICK: 			user_info.nickname,
-				REGISTER_DATE: 	user_info.register_date,
-				LAST_SEEN: 		user_info.last_login,
-				CUSTOM_DATA: 	user_info.custom_data,
-			}));
-			
-			sendResponse(resp, response);
-		}).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
-	},
-	search_game: (req: any, resp: any) => {
-		DatabaseUtils.searchGames(req.body.gamename || '').then(res => {
-			let response: any = {
-				result: 'SUCCESS',
-				game_infos: []
-			};
-			res.forEach(game_info => response.game_infos.push({
-				ID: 		game_info.id,
-				NAME: 		game_info.name,
-				MAP: 		game_info.map,
-				TIME: 		game_info.time,
-				DURATION: 	game_info.duration,
-				GAME_RESULT:game_info.result
-			}));
-			
-			sendResponse(resp, response);
-		}).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
-	},*/
 
 	/* jshint ignore:start */ //ignore async/await statements
 	async restoreSession(req: any, resp: any) {
 		const session_key = getUserSessionKey(req);
 		let res = await DatabaseUtils.checkSession(session_key);
+
+		if(req.body.store === true || req.body.store === 'true') {
+			DatabaseUtils.addVisitEntry(getIP(req), req.headers['user-agent'], 
+				res.length > 0 ? res[0].id : null);
+		}
 
 		if(res.length < 1)
 			return sendResponse(resp, {result: 'NO_SESSION'});
@@ -282,6 +263,8 @@ export default {//Actions
 				throw new Error('user_info variable has become null');
 			DatabaseUtils.updateLastLogin( getIP(req), user_info.id );
 
+			DatabaseUtils.addVisitEntry(getIP(req), req.headers['user-agent'], user_info.id);
+
 			sendResponse(resp, {
 				result: 'SUCCESS',
 				user_key: sess_keys.userkey//public session key for logged user
@@ -391,6 +374,14 @@ export default {//Actions
 	get_threads: (req: any, resp: any) => {
 		let page_nr = req.body.page || 0;
 
+		//only caching news category is good idea since it is not changing much ofter
+		if(page_nr == 0 && req.body.category == THREAD_CATEGORY.NEWS) {
+			if( (cached_buffer = Cache.getCache('news_threads')) ) {
+				sendResponse(resp, cached_buffer.data);
+				return;
+			}
+		}
+
 		DatabaseUtils.getThreads(req.body.category, page_nr, ROWS_PER_PAGE).then(res => {
 			let response: any = {
 				result: 'SUCCESS',
@@ -417,6 +408,8 @@ export default {//Actions
 			});
 
 			sendResponse(resp, response);
+			if(page_nr == 0 && req.body.category == THREAD_CATEGORY.NEWS)
+				Cache.createCache('news_threads', 1000 * 60 * 60 * 12, response);//12 hours
 		}).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
 	},
 
@@ -543,11 +536,23 @@ export default {//Actions
 
 		//console.log( req.body );
 
-		//custom query - TODO
-		let stats_query = "SELECT * FROM `BertaBall`.`visits`\
+		interface VisitRowJSON {
+			nickname: string;
+			ip: string; 
+			time: string;
+		}
+
+		/*let stats_query = "SELECT * FROM `BertaBall`.`visits`\
 			WHERE `time` >= '" + req.body.from + "' AND `time` < '" + req.body.to + "'\
-			ORDER BY `time` DESC LIMIT 1000;";
-		DatabaseUtils.customQuery(stats_query).then((res: {ip: string; time: string;}[]) => {
+			ORDER BY `time` DESC LIMIT 1000;";*/
+		let stats_query = "SELECT visits.id, visits.ip, visits.user_agent, visits.time, users.nickname\
+			FROM `BertaBall`.`visits`\
+				LEFT JOIN `BertaBall`.`users` ON `visits`.`account_id` = `users`.`id`\
+			WHERE `visits`.`time` >= '" + req.body.from + "' AND\
+				`visits`.`time` < '" + req.body.to + "'\
+			ORDER BY `visits`.`id`\
+			DESC LIMIT 1000;";
+		DatabaseUtils.customQuery(stats_query).then((res: VisitRowJSON[]) => {
 			let response: any = {
 				result: 'SUCCESS',
 				VISITS: []
@@ -555,6 +560,7 @@ export default {//Actions
 
 		    res.forEach(_visit => {
 		    	response.VISITS.push({
+		    		NICK: _visit.nickname,
 					IP: _visit.ip,
 					TIME: _visit.time
 				});
@@ -566,6 +572,12 @@ export default {//Actions
 	/* jshint ignore:end */
 
 	get_latest_news: (req: any, resp: any) => {
+		
+		if( (cached_buffer = Cache.getCache('latest_news')) ) {
+			sendResponse(resp, cached_buffer.data);
+			return;
+		}
+
 		DatabaseUtils.getLatestNews().then(res => {
 		    let response: any = {
 				result: 'SUCCESS',
@@ -582,6 +594,7 @@ export default {//Actions
 		    });
 
 		    sendResponse(resp, response);
+		    Cache.createCache('latest_news', 1000 * 60 * 60 * 12, response);//12 hours
 	    }).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
 	}
 };

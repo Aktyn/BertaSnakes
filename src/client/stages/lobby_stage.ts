@@ -67,7 +67,7 @@ namespace Stages {
 			header.addChild(
 				$$.create('DIV').addClass('account_short_info').setStyle({
 					'padding': '0px 10px',
-					'borderRight': '1px solid #556c78'
+					'borderRight': '1px solid #fff4'//#556c78
 				}).addChild(
 					$$.create('IMG').setStyle({//TODO - user personal avatar (for registered users)
 						'display': 'inline-block',
@@ -100,7 +100,7 @@ namespace Stages {
 			//separator
 			header.addChild(
 				$$.create('DIV').setStyle({
-					'border-right': '1px solid rgb(85, 108, 120)',
+					'border-right': '1px solid #fff4',//rgb(85, 108, 120)
 					// 'height': '100%'
 					'height': '50px'
 				})

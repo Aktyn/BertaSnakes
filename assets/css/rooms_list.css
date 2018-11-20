@@ -10,7 +10,8 @@
 	height: 50px;
 	line-height: 30px;
 	/*background: rgb(55, 71, 79);*/
-	background-color: #0005;
+	/*background-color: #0005;*/
+	background-color: #133b4054;
 	z-index: 2;
 	margin: 0px;
 	padding: 10px;
@@ -18,7 +19,8 @@
 }
 
 .rooms_list > .rooms_list_control_panel {
-	background: #40535d;
+	/*background: #40535d;*/
+	background: #133b4054;
 	
 	display: table;
 	width: 100%;
@@ -26,7 +28,7 @@
   	padding: 0px 10px;
   	line-height: 45px;
   	text-align: center;
-  	/*border-right: 2px solid #40535d;*/
+  	border-right: 2px solid #0002;
 }
 
 .rooms_list > .rooms_list_control_panel > * {
@@ -40,8 +42,10 @@
 	/*height: auto;*/
 	width: 100%;
 	overflow-y: auto;
-	background: rgb(85, 108, 120);
-	border-right: 2px solid #40535d;
+	/*background: rgb(85, 108, 120);*/
+	background: #133b4054;
+	border-right: 2px solid #0002;
+	/*#40535d;*/
 }
 
 .rooms_list > div.list_container > div.html_list {

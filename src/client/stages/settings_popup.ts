@@ -126,7 +126,7 @@ namespace Popup {
 			if(Math.round(Settings.sound_effects*100) === 69) {
 				sound_label.setText('Sound Effects ').addChild(
 					$$.create('SPAN').setStyle({'color': '#f55'}).setText('(69%)').on('click', () => {
-						$$.loadScript('webjs/game_of_life.js', true);
+						$$.loadScript('egg/game_of_life.js', true);
 						this.close();
 					})
 				);

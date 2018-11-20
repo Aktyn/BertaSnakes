@@ -24,7 +24,7 @@ class WebPage extends React.Component<any, {logged_in: boolean, current: string}
 
 		//checking session
 		if( document.cookie.match(/user_session/i) !== null ) {//detect user_session cookie
-			$$.postRequest('restore_session', {}, (pre_res) => {
+			$$.postRequest('restore_session', {store: true}, (pre_res) => {
 				if(pre_res === undefined)
 					return;
 				var res = JSON.parse(pre_res);
@@ -34,8 +34,10 @@ class WebPage extends React.Component<any, {logged_in: boolean, current: string}
 				this.onSession( logged_in );
 			});
 		}
-		else
+		else {
+			$$.postRequest('store_visit', {});
 			this.onSession( false );
+		}
 
 		PageNavigator.onUrlChange(() => {
 			var logged = this.state.logged_in;

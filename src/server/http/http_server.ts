@@ -4,11 +4,11 @@
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-//import fs from 'fs';
+import * as fs from 'fs';
 //import http from 'http';
 import * as path from 'path';
 
-import Pages from './pages';
+// import Pages from './pages';
 import Actions from './actions';
 
 const app = express();
@@ -42,7 +42,6 @@ export default {
 		app.use('/html', express.static(dir + '/website/html'));
 		app.use('/webjs', express.static(dir + '/website/out'));
 		app.use('/egg', express.static(dir + '/website/egg'));
-		//app.use('/admin_page/admin.js', express.static(dir + '/admin_page/admin.js'));
 
 		//allow access to folder with compiled client-side game code
 		app.use('/js', express.static(dir + '/compiled'));
@@ -50,22 +49,7 @@ export default {
 
 		app.use('/shaders', express.static(dir + '/assets/shaders'));
 		app.use('/maps', express.static(dir + '/assets/maps'));
-
-		/*app.get('/', (req, resp) => {//COPIED BELOW!!!
-			Actions.storeVisit(req);
-			//resp.send(Pages.homepage);
-			resp.send(Pages.index);
-		});*/
-		/*app.get('/admin', (req, resp) => resp.send(Pages.admin));
-		app.get('/forum', (req, resp) => resp.send(Pages.forum));
-		app.get('/info', (req, resp) => resp.send(Pages.info));
-		app.get('/gallery', (req, resp) => resp.send(Pages.gallery));
-		app.get('/ranking', (req, resp) => resp.send(Pages.ranking));
-		app.get(/user\/[0-9]+/, (req, resp) => resp.send(Pages.user));// eg. /user/2674
-		app.get(/game\/[0-9]+/, (req, resp) => resp.send(Pages.game));// eg. /game/69
-		app.get('/account', (req, resp) => resp.send(Pages.account));
-		app.get('/login', (req, resp) => resp.send(Pages.login));
-		app.get('/register', (req, resp) => resp.send(Pages.register));*/
+		
 		app.get('/verify', (req, resp) => {//account verification
 			Actions.verifyAccount( req.query.code ).then(nick => {
 				resp.send('Welcome ' + nick + '<br>Your account has been verified.<br>' + 
@@ -76,13 +60,17 @@ export default {
 				//TODO resp.send(Pages.verify_error);
 			});
 		});
-		app.get('/play', (req, resp) => resp.send(Pages.play));
+
+		const play_page_html = fs.readFileSync('assets/html/play.html', 'utf8')
+			.replace('{{GAME_SCRIPT}}', global.APP_VERSION + '.js');
+		app.get('/play', (req, resp) => resp.send(play_page_html));
 
 		//API requests
 		app.get('/get_list_of_maps', (req, resp) => {
 			resp.send(list_of_maps);
 		});
 		app.post('/restore_session', Actions.restoreSession);
+		app.post('/store_visit', Actions.storeVisit);
 		
 		app.post('/ranking_request', Actions.fetch_ranking);
 		app.post('/user_info', Actions.get_user_info);
@@ -102,13 +90,10 @@ export default {
 		app.post('/ban_user_admin_request', Actions.ban_user);
 		app.post('/statistics_request', Actions.get_statistics);
 
-		//TODO Page.not_found
-		//app.get('*', (req, res) => res.status(404).send(Pages.not_found));
-
+		const website_index_html = fs.readFileSync('website/index.html', 'utf8');
 		app.get('*', (req, resp) => {
-			Actions.storeVisit(req);
-			//resp.send(Pages.homepage);
-			resp.send(Pages.index);
+			//Actions.storeVisit(req);
+			resp.send(website_index_html);
 		});
 
 		app.listen(port, () => console.log('Listening on:', port));

@@ -37,9 +37,10 @@ class Account extends React.Component<any, AccountState> {
 	}
 
 	loadAccountInfo() {
-		$$.postRequest('/restore_session', {fetch_games: true, page: Account.extractUserGamesPage()}, 
-			(raw_res) => 
-		{
+		$$.postRequest('/restore_session', {
+			fetch_games: true, 
+			page: Account.extractUserGamesPage()
+		}, (raw_res) => {
 			this.setState({
 				loaded: true,
 				raw_result: raw_res

@@ -2,7 +2,8 @@
 
 interface VisitJSON {
 	IP: string, 
-	TIME: string
+	TIME: string,
+	NICK: string
 }
 
 interface AdminState {
@@ -59,7 +60,6 @@ class Admin extends React.Component<any, AdminState> {
 			if(unparsed_res === undefined)
 				return;
 			let res: {result: string, VISITS: VisitJSON[]} = JSON.parse(unparsed_res);
-
 			//console.log( res );
 
 			if(res.result !== 'SUCCESS')
@@ -101,11 +101,12 @@ class Admin extends React.Component<any, AdminState> {
 
 		return <div style={{maxHeight: '500px', overflowY: 'auto'}}>
 			<table className='dark_evens' style={{width: '100%'}}>
-				<tr><th>IP</th><th>TIME</th></tr>
+				<tr><th>NICK</th><th>TIME</th><th>IP</th></tr>
 				{this.state.visits.map(v => {
 					return <tr>
-						<td style={cell_style}>{v.IP}</td>
+						<td style={cell_style}>{v.NICK}</td>
 						<td style={cell_style}>{v.TIME}</td>
+						<td style={cell_style}>{v.IP}</td>
 					</tr>;
 				})}
 			</table>
@@ -113,10 +114,8 @@ class Admin extends React.Component<any, AdminState> {
 	}
 
 	renderVisitsChart(visits: VisitJSON[]) {
-		//console.log('generating visits chart', visits);
-
 		let chart = new Chart(800, 400);
-
+		
 		let daily_visits: {[index: string]: number} = {};
 
 		visits.map((visit) => visit.TIME.replace(/\ [0-9]{2}:[0-9]{2}/, ''))
@@ -127,9 +126,9 @@ class Admin extends React.Component<any, AdminState> {
 		}).map(key => {
 			return {x_value: key, y_value: daily_visits[key]};
 		});
+		//console.log(chart_data);
 		chart.feedWithData(chart_data);
 
-		//return chart.getCanvas();
 		if(this.chartContainer !== null) {
 			this.chartContainer.innerHTML = '';
 			this.chartContainer.appendChild(chart.getCanvas());

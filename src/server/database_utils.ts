@@ -136,9 +136,10 @@ const self = {
 		});
 	},
 
-	addVisitEntry: (ip: string, user_agent: string) =>
-		self.customQuery("INSERT INTO `visits` (`ip`, `user_agent`, `time`) VALUES ('" + 
-			ip + "', '" + user_agent + "', '" + UTILS.currentTime() + "')"),
+	addVisitEntry: (ip: string, user_agent: string, account_id: number | null) =>
+		self.customQuery("INSERT INTO `visits` (`ip`, `user_agent`, `time`, `account_id`) VALUES ('" + 
+			ip + "', '" + user_agent + "', '" + UTILS.currentTime() + "', " + 
+			(account_id || 'NULL') + ")"),
 
 	checkSession: (session_key: string) =>//returns mysql query result
 		<Promise<UserInfoI[]>>self.customQuery("SELECT * FROM `users` WHERE `session_key`='" + session_key + "' AND `register_hash` != 'banned' LIMIT 1;"),
@@ -151,21 +152,9 @@ const self = {
 		self.customQuery("UPDATE `users` SET `ip` = '" + ip + "', `last_login` = '" + 
 			UTILS.currentTime() + "' WHERE `users`.`id` = " + user_id + ";"),
 
-	/*searchUsers: username =>//deprecated cause no limit restrictions
-		self.customQuery("SELECT * FROM `users` WHERE `nickname` LIKE '%" + username + "%'");*/
-
-	/*searchGames: gamename =>  /same as above
-		self.customQuery("SELECT * FROM `games` WHERE `name` LIKE '%" + gamename + 
-			"%' ORDER BY `time` DESC");*/
-
 	searchTopRankUsers: (page_id: number, rows_per_page: number) =>
 		<Promise<UserRankInfoI[]>>self.customQuery("(SELECT `id`, `nickname`, `rank` FROM `BertaBall`.`users` ORDER BY `rank` DESC LIMIT " + (page_id*rows_per_page) + ", " + rows_per_page + ") UNION (SELECT COUNT(*), NULL, NULL FROM `BertaBall`.`users`);"),
 
-	// getUserGames: (user_id, page_id, rows_per_page) => //ORDER BY `time` DESC
-	// 	self.customQuery("SELECT * FROM `games` WHERE `result` LIKE '%" + 
-	// 	"\"user_id\":" + user_id + ",%' ORDER BY `time` DESC LIMIT 20");
-
-	//ORDER BY `time` DESC
 	getUserGames: (user_id: number, page_id: number, rows_per_page: number) => 
 		<Promise<GameInfoI[]>>self.customQuery("(SELECT `id`, `name`, `map`, `gamemode`, `duration`, `time`, `result` FROM `games` \
 			WHERE `result` LIKE '%" + "\"user_id\":" + user_id + ",%' \

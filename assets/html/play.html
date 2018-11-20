@@ -4,20 +4,21 @@
 		<base href='/' target='_self'>
 		<meta charset='utf-8'>
 		<meta name='author' content='Aktyn'>
-		<meta name='viewport' content='width=device-width, minimum-scale=0.5, initial-scale=1, maximum-scale=2'>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
 		<meta name='theme-color' content='#40535d'>
 		<meta name='keywords' content='Berta, Snakes, BertaSnakes, multiplayer, game, browser, Aktyn'>
 		<meta name='google' content='notranslate'>
 		<meta name='Description' content='Web version of Berta Snakes.'>
 		<title>Berta Snakes</title>
 		<link rel='stylesheet' href='css/main.css'>
+		<link rel='stylesheet' type='text/css' href='css/game.css'>
 		<link rel='icon' href='/img/icons/icon.png' type='image/png'>
-		<script type='text/javascript' 
-			src='https://unpkg.com/react@16.4.1/umd/react.production.min.js'></script>
-		<script type='text/javascript' 
-			src='https://unpkg.com/react-dom@16.4.1/umd/react-dom.production.min.js'></script>
-		<script type='text/javascript' src='webjs/index.js'></script>
+		<script type='text/javascript' src='{{GAME_SCRIPT}}' async></script>
 	<head>
 	<body>
+		<div class='spinner'>
+			<div class='double-bounce1' style='background-color: rgb(244, 244, 244);'></div>
+			<div class='double-bounce2' style='background-color: rgb(244, 244, 244);'></div>
+		</div>
 	</body>
 </html>
