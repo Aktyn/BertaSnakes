@@ -28,37 +28,41 @@ class WebPage extends React.Component<any, {logged_in: boolean, current: string}
 				if(pre_res === undefined)
 					return;
 				var res = JSON.parse(pre_res);
-				let logged_in = res.result === 'SUCCESS';
+
+				Session.set(res);
+
+				/*let logged_in = res.result === 'SUCCESS';
 				if(logged_in === false)//remove cookie
 					document.cookie = "user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-				this.onSession( logged_in );
+				this.onSession( logged_in );*/
+				this.setState({logged_in: Session.loggedIn()});
 			});
 		}
 		else {
 			$$.postRequest('store_visit', {});
-			this.onSession( false );
+			this.setState({logged_in: false});
 		}
 
 		PageNavigator.onUrlChange(() => {
-			var logged = this.state.logged_in;
+			/*var logged = this.state.logged_in;
 			if( (logged === true && document.cookie.match(/user_session/i) === null) || 
 				(logged === false && document.cookie.match(/user_session/i) !== null) ) 
 			{
 				logged = !logged;
-			}
+			}*/
 
 			this.setState({
-				logged_in: logged,
+				logged_in: Session.loggedIn(),
 				current: PageNavigator.getCurrentPageName()
 			});
 		});
 	}
 
-	onSession(is_logged_in: boolean) {
+	/*onSession(is_logged_in: boolean) {
 		this.setState({
 			logged_in: is_logged_in
 		});
-	}
+	}*/
 
 	render() {
 		return <React.Fragment>

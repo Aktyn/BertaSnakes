@@ -399,3 +399,53 @@ body > main {
 	padding: 20px;
 	text-align: left;
 }
+
+.avatar_uploader {
+	width: 100px;
+	height: 100px;
+	margin: auto;
+	background-image: url('../img/no_avatar.png');
+	/*background-image: url('../img/account.png');*/
+	background-repeat: no-repeat;
+	background-size: contain;
+	/*background-size: 61.8%;*/
+	background-position: center;
+	/*background-color: #aaa;*/
+
+	/*border-radius: 50px;*/
+	cursor: pointer;
+
+	position: relative;
+}
+
+.avatar_uploader::after {
+	content: " ";
+}
+
+.avatar_uploader:hover::after {
+	content: "Click to upload image";
+	display: flex;
+	/*font-weight: bold;*/
+	width: 100px;
+	height: 100px;
+	color: #333;
+	background-color: #fff5;
+	/*border-radius: 50px;*/
+
+	align-items: center;
+}
+
+.avatar_uploader.current_avatar:hover::after {
+	content: "Click to remove";
+	font-weight: bold;
+	background-color: #fffa;
+}
+
+.avatar_uploader input {
+	width: 100px;
+	height: 100px;
+	position: absolute;
+	left: 0px; top: 0px;
+	opacity: 0;
+	cursor: pointer;
+}

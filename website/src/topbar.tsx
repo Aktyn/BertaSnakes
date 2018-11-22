@@ -1,6 +1,6 @@
 ///<reference path="link.tsx"/>
 ///<reference path="page_navigator.ts"/>
-
+///<reference path="session.ts"/>
 
 class Topbar extends React.Component<{logged_in: boolean, current: string}, {}> {
 	private static MENU_LINKS: {[index: string]: string} = {
@@ -11,6 +11,18 @@ class Topbar extends React.Component<{logged_in: boolean, current: string}, {}> 
 
 	constructor(props: any) {
 		super(props);
+	}
+
+	getAvatarPath() {
+		if(this.props.logged_in) {
+			//console.log(Session.getData().AVATAR);
+			var avatar = Session.getData().AVATAR;
+			if(avatar === null)
+				return 'img/no_avatar.png';
+			return '/avatars/' + Session.getData().AVATAR;
+		}
+		else
+			return 'img/account.png';
 	}
 
 	render() {
@@ -33,8 +45,12 @@ class Topbar extends React.Component<{logged_in: boolean, current: string}, {}> 
 			
 			<div className='topbar_side'>
 				<Link href={this.props.logged_in ? "/account" : "/login"}>
-					<img className='icon_btn' style={{maxHeight: '40px'}}
-						src={this.props.logged_in ? "img/account_on.png" : "img/account.png"} />
+					<img className='icon_btn' style={{
+						maxHeight: '40px', 
+						maxWidth: '40px', 
+						marginBottom: '5px',
+						opacity: 1
+					}} src={this.getAvatarPath()} />
 				</Link>
 			</div>
 		</div>;

@@ -1,6 +1,10 @@
 /* jshint multistr:true */
 
 import * as crypto from 'crypto';
+import * as path from 'path';
+const Canvas = require('canvas');
+const Image = Canvas.Image;
+import * as fs from 'fs';
 import Email from './email';
 import DatabaseUtils, {UserInfoI, THREAD_CATEGORY} from './../database_utils';
 
@@ -19,6 +23,42 @@ const INITIAL_CUSTOM_USER_DATA = JSON.stringify({//user's custom_data assigned d
 });
 
 var cached_buffer;
+
+function convertImage(file_path: string) {//crop and rescale user's avatar image
+	return new Promise(async (resolve, reject) => {
+		//@ts-ignore
+		fs.readFile(file_path, function(err: Error, squid: string) {
+			if(err) throw err;
+			var image = new Image();
+			
+			image.onload = () => {
+				const canvas = new Canvas(128, 128);
+	  			const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+	  			var aspect = image.width / image.height;
+	  			if(image.width >= image.height)
+		  			ctx.drawImage(image, 64 - 64*aspect, 0, 128 * aspect, 128);
+		  		else
+		  			ctx.drawImage(image, 0, 64 - 64/aspect, 128, 128/aspect);
+			 
+			 	var new_path = file_path.replace(/\..+$/i, '.png');
+		  		var out = fs.createWriteStream( new_path ), 
+		    		stream = canvas.pngStream();
+				 
+				stream.on('data', function(chunk: any) {
+				 	out.write(chunk);
+				});
+				 
+				stream.on('end', function() {
+				 	resolve(new_path);
+				});
+			};
+			image.onerror = (e: string | Event) => reject(e);
+
+			image.src = squid;
+		});
+	});
+}
 
 const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 function randomString(len: number) {
@@ -138,7 +178,6 @@ export default {//Actions
 		}).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
 	},
 
-	/* jshint ignore:start */ //ignore async/await statements
 	async restoreSession(req: any, resp: any) {
 		const session_key = getUserSessionKey(req);
 		let res = await DatabaseUtils.checkSession(session_key);
@@ -154,13 +193,17 @@ export default {//Actions
 		//silently updating last_seen date and ip information
 		DatabaseUtils.updateLastLogin( getIP(req), res[0].id );
 
+		//var nickBase64 = Buffer.from(res[0].nickname).toString('base64');
+		//console.log(nickBase64, res[0].avatar);
+
 		let response: any = {
 			result: 		'SUCCESS',
 			ID: 			res[0].id,
 			NICK: 			res[0].nickname,
+			EMAIL: 			res[0].email,
+			AVATAR: 		res[0].avatar,
 			REGISTER_DATE: 	res[0].register_date,
 			LAST_SEEN: 		res[0].last_login,
-			EMAIL: 			res[0].email,
 			CUSTOM_DATA: 	res[0].custom_data,
 		};
 
@@ -191,7 +234,44 @@ export default {//Actions
 			});
 		}
 
-		sendResponse(resp, response);	
+		sendResponse(resp, response);
+	},
+
+	async fetch_account_games(req: any, resp: any) {
+		let page_nr = req.body.page || 0;
+
+		const session_key = getUserSessionKey(req);
+		let res = await DatabaseUtils.checkSession(session_key);
+		if(res.length < 1)
+			return sendResponse(resp, {result: 'NO_SESSION'});
+
+		let games = await DatabaseUtils.getUserGames(res[0].id, page_nr, ROWS_PER_PAGE);
+
+		let response: any = {
+			result: 'SUCCESS',
+			GAMES: []
+		};
+
+		games.forEach((game_info, index: number) => {
+			if(index === games.length-1) {
+				response.total_games = game_info.id;
+				response.page = ~~page_nr;
+				response.rows_per_page = ROWS_PER_PAGE;
+			}
+			else {
+				response.GAMES.push({
+					ID: game_info.id,
+					NAME: game_info.name,
+					MAP: game_info.map,
+					GAMEMODE: game_info.gamemode,
+					DURATION: game_info.duration,
+					TIME: game_info.time,
+					RESULT: game_info.result
+				});
+			}
+		});
+
+		sendResponse(resp, response);
 	},
 
 	async get_user_info(req: any, resp: any) {
@@ -321,7 +401,6 @@ export default {//Actions
 			sendResponse(resp, {result: 'SUCCESS'});
 		}).catch(e => sendResponse(resp, {result: 'EMAIL_SEND_ERROR'}));
 	},
-	/* jshint ignore:end */
 
 	get_game_info: function(req: any, resp: any) {
 		DatabaseUtils.findGameByID( req.body.id ).then(res => {
@@ -446,7 +525,6 @@ export default {//Actions
 		}).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
 	},
 
-	/* jshint ignore:start */ //ignore async/await statements
 	async submit_answer(req: any, resp: any) {
 		if(validateText(req.body.content) === false)
 			return sendResponse(resp, {result: 'ERROR'});
@@ -542,9 +620,6 @@ export default {//Actions
 			time: string;
 		}
 
-		/*let stats_query = "SELECT * FROM `BertaBall`.`visits`\
-			WHERE `time` >= '" + req.body.from + "' AND `time` < '" + req.body.to + "'\
-			ORDER BY `time` DESC LIMIT 1000;";*/
 		let stats_query = "SELECT visits.id, visits.ip, visits.user_agent, visits.time, users.nickname\
 			FROM `BertaBall`.`visits`\
 				LEFT JOIN `BertaBall`.`users` ON `visits`.`account_id` = `users`.`id`\
@@ -569,7 +644,6 @@ export default {//Actions
 		    sendResponse(resp, response);
 		}).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
 	},
-	/* jshint ignore:end */
 
 	get_latest_news: (req: any, resp: any) => {
 		
@@ -596,5 +670,78 @@ export default {//Actions
 		    sendResponse(resp, response);
 		    Cache.createCache('latest_news', 1000 * 60 * 60 * 12, response);//12 hours
 	    }).catch((e: Error) => sendResponse(resp, {result: 'ERROR'}));
+	},
+
+	upload_avatar: async (req: any, resp: any, file: any) => {
+		//check if user is logged in and retrieve his avatar file name
+		const session_key = getUserSessionKey(req);
+		let res = await DatabaseUtils.checkSession(session_key);
+
+		if(res.length < 1)
+			return resp.status(500).send('User not logged in');
+
+		var base64Nick = Buffer.from(res[0].nickname).toString('base64');
+
+		//console.log( Buffer.from(base64Nick, 'base64').toString('ascii') );
+
+		var ext = file.mimetype.replace(/^.+\//gi, '');
+		var image_file = 
+			path.join(__dirname, '..', '..', '..', `uploads/user_avatars/${base64Nick}.${ext}`);
+		file.mv(image_file, async (err: any): Promise<any> => {
+			if(err) {
+				console.log(err);
+				return resp.status(500).send(err);
+			}
+
+			try {
+				await convertImage(image_file);
+				ext = 'png';
+
+				await DatabaseUtils.customQuery("UPDATE `BertaBall`.`users`\
+					SET `avatar` = '" + base64Nick + "." + ext + "'\
+					WHERE `id` = " + res[0].id + ";");
+
+				
+
+				setTimeout(() => {
+					var folder_path = path.join(__dirname, '..', '..', '..', `uploads/user_avatars`);
+					fs.readdir(folder_path, 
+						(err: Error, files: string[]) => 
+					{
+						if(err) throw err;
+						files.forEach(f => {
+							if(f.endsWith('.jpg') || f.endsWith('.jpeg'))
+								fs.unlink(folder_path + '/' + f, function(err){
+							        if(err) return console.log(err);
+							        console.log('file deleted:', f);
+							   });
+						});
+					});
+				}, 100);
+
+				resp.status(200).send(`${base64Nick}.${ext}`);
+			}
+			catch(e) {
+				return resp.status(500).send(e);
+			}
+		});
+	},
+
+	remove_avatar: async (req: any, resp: any, file: any) => {
+		const session_key = getUserSessionKey(req);
+		let res = await DatabaseUtils.checkSession(session_key);
+
+		if(res.length < 1)
+			return sendResponse(resp, {result: 'NO_SESSION'});
+
+		if(res[0].avatar !== null) {
+			var update_res = await DatabaseUtils.customQuery("UPDATE `BertaBall`.`users`\
+				SET `avatar` = NULL\
+				WHERE `id` = " + res[0].id + ";");
+			if(update_res.changedRows > 0)
+				return sendResponse(resp, {result: 'SUCCESS'});
+			else
+				return sendResponse(resp, {result: 'DATABASE_ERROR'});
+		}
 	}
 };

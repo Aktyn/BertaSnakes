@@ -69,6 +69,7 @@ export interface UserInfoI {
 	nickname: string;
 	password: string;
 	email: string;
+	avatar: string;
 	register_hash: string;
 	register_date: string;
 	last_login: string;

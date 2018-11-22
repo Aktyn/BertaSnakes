@@ -24,10 +24,11 @@ interface FriendInfoI {
 interface UserJsonI {
 	id: number;
 	nick: string;
+	avatar: string | null;
 	level: number;
 	rank: number;
 
-	[index: string]: number | string;
+	[index: string]: number | string | null;
 }
 
 class UserInfo {
@@ -42,13 +43,15 @@ class UserInfo {
 
 	public nick: string;
 
+	public avatar: string | null;
+
 	public connection: any = null;
 	public room: RoomInfo | null = null;
 
 	public lobby_subscriber = false;
 
 	//@id - database id for registered accounts
-	constructor(id?: number, nick?: string, custom_data?: any) {
+	constructor(id?: number, nick?: string, custom_data?: any, _avatar?: string | null) {
 		this._id = id || 0;
 		if(this._id === 0) {//is guest
 			this._id = UserInfo.guest_id--;
@@ -57,7 +60,9 @@ class UserInfo {
 		else if(nick)
 			this.nick = nick;
 		else
-			this.nick = 'Error#69';
+			this.nick = 'Error#0000';
+
+		this.avatar = _avatar || null;
 
 		try {
 			if(typeof custom_data === 'string')
@@ -106,6 +111,7 @@ class UserInfo {
 		return JSON.stringify({
 			id: this.id,
 			nick: this.nick,
+			avatar: this.avatar,
 			level: this.level,//this.level
 			rank: this.rank
 		});
@@ -119,7 +125,7 @@ class UserInfo {
 		return new UserInfo(json_data['id'], json_data['nick'], {
 			level: json_data['level'],
 			rank: json_data['rank']
-		});
+		}, json_data['avatar']);
 	}
 
 	//PRIVATE AND PUBLIC DATA (for server-side threads comunications)
@@ -127,6 +133,7 @@ class UserInfo {
 		return JSON.stringify({
 			id: this.id,
 			nick: this.nick,
+			avatar: this.avatar,
 			custom_data: this.custom_data,//this.level
 			friends: this.friends,
 			lobby_subscriber: this.lobby_subscriber
@@ -139,7 +146,7 @@ class UserInfo {
 			full_json_data = JSON.parse(full_json_data);
 		
 		let user = new UserInfo(full_json_data['id'], full_json_data['nick'], 
-			full_json_data['custom_data']);
+			full_json_data['custom_data'], full_json_data['avatar']);
 		user.friends = full_json_data['friends'];
 		user.lobby_subscriber = full_json_data['lobby_subscriber'];
 		return user;

@@ -11,6 +11,7 @@ import * as path from 'path';
 // import Pages from './pages';
 import Actions from './actions';
 
+const fileUpload = require('express-fileupload');
 const app = express();
 // app.use(bodyParser());
 app.use(bodyParser.json());
@@ -36,8 +37,17 @@ export default {
 
 		console.log('Initializing HTTP server at port:', port);
 
+		app.use(fileUpload({
+			limits: { 
+				fileSize: 1 * 1024 * 1024,//1 MB
+				files: 1
+			},
+			abortOnLimit: true
+		}));
+
 		app.use('/css', express.static(dir + '/assets/css'));
 		app.use('/img', express.static(dir + '/assets/img'));
+		app.use('/avatars', express.static(dir + '/uploads/user_avatars'));
 		app.use('/sounds', express.static(dir + '/assets/sounds'));
 		app.use('/html', express.static(dir + '/website/html'));
 		app.use('/webjs', express.static(dir + '/website/out'));
@@ -70,7 +80,26 @@ export default {
 			resp.send(list_of_maps);
 		});
 		app.post('/restore_session', Actions.restoreSession);
+		app.post('/fetch_account_games', Actions.fetch_account_games);
 		app.post('/store_visit', Actions.storeVisit);
+
+
+		app.post('/upload_avatar_request', (req, resp): any => {
+			//@ts-ignore
+			if (Object.keys(req.files).length === 0 || req.files.avatar_file === undefined) {
+				return resp.status(400).send('No files were uploaded.');
+			}
+
+			//@ts-ignore
+			var file = req.files.avatar_file;
+			if(file.data.length >= 1024*1024*1) {
+				try { resp.status(413).send('File to big'); } catch(e) {}
+				return;
+			}
+			
+			Actions.upload_avatar(req, resp, file);
+		});
+		app.post('/remove_avatar_request', Actions.remove_avatar);
 		
 		app.post('/ranking_request', Actions.fetch_ranking);
 		app.post('/user_info', Actions.get_user_info);

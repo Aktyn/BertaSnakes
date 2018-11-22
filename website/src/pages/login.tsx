@@ -69,6 +69,7 @@ class Login extends React.Component<any, any> {
 
 			// location.href = '/account';
 			PageNavigator.redirect('/account');
+			location.reload();
 		});
 	}
 

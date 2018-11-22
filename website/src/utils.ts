@@ -38,14 +38,14 @@ const $$ = {
 		//@ts-ignore
 		document.head.appendChild( script );
 	},
-	postRequest: function(php_file: string, params: any, callback?: (arg?: string) => void) {
+	postRequest: function(url: string, params: any, callback?: (arg?: string) => void) {
 		try {
 			if(typeof params !== 'string')//format params object to string
 				params = Object.keys(params).map(pname => pname + '=' + params[pname]).join('&');
 				//params = Object.entries(params).map((entry) => entry.join("=")).join("&");
-
+			
 			let xmlhttp = new XMLHttpRequest();
-			xmlhttp.open('POST', php_file, true);
+			xmlhttp.open('POST', url, true);
 
 			xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
 				if(typeof callback !== 'function') return;

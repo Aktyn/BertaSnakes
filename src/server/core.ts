@@ -920,7 +920,8 @@ export default {
 					//this.removeConnection(connection);
 					return;
 				}
-				var new_user = new UserInfo(new_id, res[0].nickname, res[0].custom_data);
+				var new_user = new UserInfo(new_id, res[0].nickname, 
+					res[0].custom_data, res[0].avatar);
 				try {
 					//
 					new_user.friends = JSON.parse( res[0].friends );

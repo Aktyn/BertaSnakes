@@ -69,18 +69,18 @@ namespace Stages {
 					'padding': '0px 10px',
 					'borderRight': '1px solid #fff4'//#556c78
 				}).addChild(
-					$$.create('IMG').setStyle({//TODO - user personal avatar (for registered users)
+					$$.create('IMG').setStyle({//user personal avatar (for registered users)
 						'display': 'inline-block',
 						'height': '100%',
 						'width': '30px',
-						'opacity': '0.5'
-					}).setAttrib('src', 'img/account.png')
+						//'opacity': '0.8'
+					}).setAttrib('id', 'account_avatar')
 				).addChild(
 					$$.create('DIV').addClass('account_nick').html('offline').setStyle({
 						'display': 'inline-block',
 						'height': 'auto',
 						'padding': '0px 10px',
-						'color': '#6e8f9e',
+						'color': '#bcc7ce',
 					})
 				).on('click', () => {
 					let user = Network.getCurrentUser();
@@ -197,7 +197,12 @@ namespace Stages {
 		}
 
 		refreshAccountInfo() {
-			let user = Network.getCurrentUser() || {nick: 'offline', level: '0', id: -1};
+			let user = Network.getCurrentUser() || {
+				nick: 'offline', 
+				level: '0', 
+				id: -1,
+				avatar: null
+			};
 
 			$$('.account_short_info').getChildren('.account_nick').html( user.nick );
 			//$$('.account_short_info').getChildren('.account_level').html( user.level.toString() );
@@ -213,6 +218,11 @@ namespace Stages {
 				$$('#warning_for_guest').setStyle({'display': 'none'});
 				$$('.account_short_info').removeClass('disabled');
 			}
+			
+			if(user.avatar)
+				$$('#account_avatar').setAttrib('src', '/avatars/' + user.avatar);
+			else
+				$$('#account_avatar').setAttrib('src', 'img/no_avatar.png');
 		}
 
 		onServerConnected() {
