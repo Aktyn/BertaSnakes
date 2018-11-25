@@ -10,7 +10,6 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "canvas": "^1.6.13",
-    "canvas-prebuilt": "^2.0.0-alpha.14",
     "express": "^4.16.4",
     "express-fileupload": "^1.0.0",
     "ip": "^1.1.5",

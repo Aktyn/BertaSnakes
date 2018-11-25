@@ -19,7 +19,7 @@ class Topbar extends React.Component<{logged_in: boolean, current: string}, {}> 
 			var avatar = Session.getData().AVATAR;
 			if(avatar === null)
 				return 'img/no_avatar.png';
-			return '/avatars/' + Session.getData().AVATAR;
+			return 'avatars/' + Session.getData().AVATAR;
 		}
 		else
 			return 'img/account.png';
@@ -29,7 +29,7 @@ class Topbar extends React.Component<{logged_in: boolean, current: string}, {}> 
 		return <div id='topbar'>
 			<div className='topbar_side' style={{textAlign: 'left'}}>
 				<Link href='/'>
-					<img src='/img/icons/logo.png' style={{verticalAlign: 'bottom'}} />
+					<img src='img/icons/logo.png' style={{verticalAlign: 'bottom'}} />
 				</Link>
 			</div>
 			

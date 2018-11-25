@@ -2,6 +2,8 @@
 ///<reference path="bg.tsx"/>
 ///<reference path="webpage.tsx"/>
 
+const homepage = '/bs/';
+
 $$.onPageLoaded(() => {
 	$$.runAsync(runBackground);
 	ReactDOM.render(<WebPage />, document.body);
@@ -23,7 +25,7 @@ $$.onPageLoaded(() => {
 			$$.loadScript('egg/egg.js', true);
 		else */
 		if(type_str === 'gameoflife')
-			$$.loadScript('egg/game_of_life.js', true);
+			$$.loadScript(`egg/game_of_life.js`, true);
 	}, false);
 
 	//$$.loadScript('egg/game_of_life.js', true);

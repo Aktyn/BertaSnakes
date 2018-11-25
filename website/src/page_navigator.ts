@@ -15,6 +15,7 @@ namespace PageNavigator {
 	}, false);
 
 	export function redirect(url: string) {
+		url = url.replace(/^\//, homepage || '/');
 		if (typeof (history.pushState) !== "undefined") {
             var obj = {Page: 'page', Url: url};
             history.pushState(obj, 'page', url);
@@ -47,7 +48,8 @@ namespace PageNavigator {
 	export function getCurrentPageName() {
 		try {
 			//@ts-ignore
-			return '/' + window.location.pathname.match(/\/([a-z]*)/i)[1];
+			return '/' + window.location.pathname.replace(homepage, '/')
+				.match(/\/([a-z]*)/i)[1];
 		}
 		catch(e) {
 			return window.location.pathname;

@@ -45,7 +45,7 @@ const $$ = {
 				//params = Object.entries(params).map((entry) => entry.join("=")).join("&");
 			
 			let xmlhttp = new XMLHttpRequest();
-			xmlhttp.open('POST', url, true);
+			xmlhttp.open('POST', url.replace(/^\//i, homepage || '/'), true);
 
 			xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
 				if(typeof callback !== 'function') return;

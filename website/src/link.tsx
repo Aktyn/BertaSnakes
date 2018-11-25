@@ -31,8 +31,8 @@ class Link extends React.Component<LinkProps, any> {
 						e.stopPropagation();
 					PageNavigator.redirect(this.props.href);
 				}} style={{
-					backgroundImage: this.props.vertical ? 'url(/img/icons/more_vert.png)' 
-						: 'url(/img/icons/more_hor.png)',
+					backgroundImage: this.props.vertical ? 'url(img/icons/more_vert.png)' 
+						: 'url(img/icons/more_hor.png)',
 					backgroundSize: 'cover',
 					display: 'inline-block',
 					height: '30px',

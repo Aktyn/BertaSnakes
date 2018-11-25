@@ -37,7 +37,7 @@ class Ranking extends React.Component<any, RankingState> {
 	}
 
 	loadRanking() {
-		$$.postRequest('/ranking_request', {page: Ranking.extractPageID()}, (pre_res) => {
+		$$.postRequest('ranking_request', {page: Ranking.extractPageID()}, (pre_res) => {
 			this.setState({
 				loaded: true,
 				raw_result: pre_res

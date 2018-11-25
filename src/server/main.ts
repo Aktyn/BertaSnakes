@@ -2,12 +2,17 @@ declare global {
 	namespace NodeJS {
 		export interface Global {
 			_CLIENT_: boolean;
+			_HOMEPATH_: string;
 			// DATE_VERSION: string; //deprecated idea
 			APP_VERSION: string;
 		}
 	}
 }
 global._CLIENT_ = false;
+global._HOMEPATH_ = process.env.npm_config_homepath || '/';
+if(global._HOMEPATH_ !== '/')
+	global._HOMEPATH_ = '/' + global._HOMEPATH_.replace(/^\/(.+)\/$/i, '$1') + '/';
+// console.log(global._HOMEPATH_);
 
 import * as fs from 'fs';
 var app_version;
