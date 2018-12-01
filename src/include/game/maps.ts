@@ -200,7 +200,7 @@ const Maps: MapObjectI = (function() {
 	//loading list of files in MAP_FOLDER
 	if(typeof module === 'undefined') {
 		//client side
-		fetch('/get_list_of_maps').then(resp => resp.json())
+		fetch('get_list_of_maps').then(resp => resp.json())
 			.then(loadMaps).catch(printErr);
 	}
 	else {

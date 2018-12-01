@@ -220,7 +220,7 @@ namespace Stages {
 			}
 			
 			if(user.avatar)
-				$$('#account_avatar').setAttrib('src', '/avatars/' + user.avatar);
+				$$('#account_avatar').setAttrib('src', 'avatars/' + user.avatar);
 			else
 				$$('#account_avatar').setAttrib('src', 'img/no_avatar.png');
 		}

@@ -52,8 +52,8 @@
     "build:game": "tsc -p ./src/tsconfig-client.json",
     "build:game:live": "nodemon -e js,ts --watch src/client --watch src/include --exec tsc -p ./src/tsconfig-client.json",
     "compile:game": "node ./game_compile -disable-logs",
-    "test": "nodejs compiled/server/main 1337",
-    "start": "nodejs compiled/server/main 80",
+    "test": "node compiled/server/main 1337",
+    "start": "node compiled/server/main 80",
     "publish": "run-s -c -n clean build:website compile:website build:server build:game compile:game"
   },
   "keywords": [

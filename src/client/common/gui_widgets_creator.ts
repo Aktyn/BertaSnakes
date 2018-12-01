@@ -244,7 +244,7 @@ const WIDGETS_CREATOR = (function() {
 			let wearing_skill: SkillsScope.SkillData | null = null;
 
 			let btn_left = $$.create('BUTTON').setStyle({
-				'backgroundImage': 'url(../img/icons/arrow.png)',
+				'backgroundImage': 'url(img/icons/arrow.png)',
 				'width': '15px',
 				'height': '15px',
 				'transform': 'rotate(90deg)',
@@ -261,7 +261,7 @@ const WIDGETS_CREATOR = (function() {
 			});
 
 			let btn_right = $$.create('BUTTON').setStyle({
-				'backgroundImage': 'url(../img/icons/arrow.png)',
+				'backgroundImage': 'url(img/icons/arrow.png)',
 				'width': '15px',
 				'height': '15px',
 				'transform': 'rotate(270deg)',

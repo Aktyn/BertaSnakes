@@ -115,7 +115,7 @@ namespace ClientGame {
 		private static LEFT_PANEL_WIDTH = 200;
 		private static NOTIFICATION_LIFETIME = 5 * 1000;
 
-		public static EMOTS_FOLDER = '/img/textures/emoticons/';
+		public static EMOTS_FOLDER = 'img/textures/emoticons/';
 
 		public static EMOTS = [//NOTE - use uppercase letters for key values
 			{	file_name: 'hand.png', 		key: 'Q'	},

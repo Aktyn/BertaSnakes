@@ -145,7 +145,7 @@ class Account extends React.Component<any, AccountState> {
 	        	}
 			};
 
-			xhr.open("post", '/upload_avatar_request', true);
+			xhr.open("post", 'upload_avatar_request', true);
 
 			var formdata = new FormData();
            	formdata.append('avatar_file', file, file.name);

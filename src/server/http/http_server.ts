@@ -73,7 +73,8 @@ export default {
 		});
 
 		const play_page_html = fs.readFileSync('assets/html/play.html', 'utf8')
-			.replace('{{GAME_SCRIPT}}', global.APP_VERSION + '.js');
+			.replace('{{GAME_SCRIPT}}', global.APP_VERSION + '.js')
+			.replace(/{{homedir}}/gi, global._HOMEPATH_);
 		app.get(`${global._HOMEPATH_}play`, (req, resp) => resp.send(play_page_html));
 
 		//API requests

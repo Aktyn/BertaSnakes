@@ -394,7 +394,7 @@ class Forum extends React.Component<any, ForumState> {
 			return <React.Fragment>
 				<h1 id='thread_subject'>
 					{thread_data.subject}
-					<img src='/img/icons/arrow.png' className='icon_btn' style={{
+					<img src='img/icons/arrow.png' className='icon_btn' style={{
 						height: '30px',
 		  				width: 'auto',
 		  				float: 'right',

@@ -23,8 +23,6 @@ class Home extends React.Component<any, HomeState> {
 				loaded: true,
 				raw_result: res_str
 			});
-
-			
 		});
 	}
 
@@ -40,26 +38,6 @@ class Home extends React.Component<any, HomeState> {
 
 		if(res.result !== 'SUCCESS')
 			return 'Error';
-
-		/*
-		$$.create('DIV').setClass('news_entry').addChild(
-			$$.create('H2').addChild(//_new entry header
-				$$.create('SPAN').setText( _new.TIME )
-			).addChild(
-				$$.create('LABEL').setText( _new.SUBJECT )
-			).addChild(
-				$$.create('A').setStyle({
-					backgroundImage: 'url(/img/icons/more_vert.png)',
-					backgroundSize: 'cover',
-					display: 'inline-block',
-					height: '30px',
-					width: '30px'
-				}).addClass('icon_btn').setAttrib('href', '/forum/?c=1&thread=' + _new.THREAD_ID)
-			)
-		).addChild(
-			$$.create('SECTION').setText( _new.CONTENT )
-		);
-		*/
 
 		return <div className='homepage'>
 			<article id='news_list'>

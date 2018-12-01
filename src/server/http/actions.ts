@@ -75,7 +75,11 @@ function validateText(text: string, max_len = 2048) {//@bool
 	return true;
 }
 
-var getIP = (req: any) => req.connection.remoteAddress.replace(/::ffff:/, '');
+var getIP = (req: any) => {
+	if(!req.connection.remoteAddress)
+		return '';
+	return req.connection.remoteAddress.replace(/::ffff:/, '');
+};
 
 function getUserSessionKey(req: any) {
 	try {
