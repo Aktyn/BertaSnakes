@@ -456,7 +456,7 @@ namespace Components {
 						.addChild($$.create('BR'))
 						.addChild(
 							$$.create('BUTTON').addClass('iconic_button').addClass('iconic_empty')
-								.setText('GO FOR IT').on('click', () => location.href = '/login')
+								.setText('GO FOR IT').on('click', () => location.href = 'login')
 								.setStyle({'margin-top': '10px'})
 						)
 				).addChild(

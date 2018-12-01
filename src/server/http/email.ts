@@ -12,8 +12,6 @@ if(!email_pass) {
 	}
 	catch(e) {
 		console.error(
-			'Cannot prompt user for email password since server is running in nodemon');
-		console.error(
 			'You must specify email password adding --emailpass=PASSWORD to console npm command');
 		process.exit();
 	}
@@ -36,13 +34,13 @@ export default {
 		return new Promise((resolve, reject) => {
 			let msg = 'Congratulations! Your account has been successfuly registered. ' + 
 				'Once you open below link in your browser, you will be able to login.';
-			let link = 'http://' + ip.address() + '/verify?code=' + code;
+			let link = `http://${ip.address()}${global._HOMEPATH_}verify?code=${code}`;
 
 			let opts = Object.assign({
 				subject: 'Account verification',
 				to: target_email,
 				text: msg + '\n' + link,
-				html: '<p>' + msg + '</p>' + '<a href="' + link + '">verification link</a>'
+				html: `<p>${msg}</p><a href='${link}'>verification link</a>`
 			}, basic_options);
 
 			console.log('Sending verification email to:', target_email, 'with code:', code);

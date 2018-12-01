@@ -131,6 +131,9 @@ class GamePanel extends Chat {
 				panel_slider.blur();
 			});
 
+		var user = Network.getCurrentUser();
+		console.log(user && user.avatar);
+
 		this.panel_widget = $$.create('DIV').addClass('game_gui_right').setStyle({
 			'width': '' + GamePanel.RIGHT_PANEL_WIDTH + 'px'
 		}).addChild(//panel header
@@ -143,7 +146,10 @@ class GamePanel extends Chat {
 					})
 			).addChild(
 				$$.create('IMG').addClass('icon_btn')
-					.setAttrib('src', 'img/account.png').on('click', () => {
+					.setAttrib('src', (user && user.avatar) ? 
+						'avatars/' + user.avatar : 
+						'img/account.png'
+					).on('click', () => {
 						let curr_stage = Stages.getCurrent();
 						if(curr_stage)
 							curr_stage.popup(Popup.Account);

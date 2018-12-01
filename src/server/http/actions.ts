@@ -625,8 +625,8 @@ export default {//Actions
 		}
 
 		let stats_query = "SELECT visits.id, visits.ip, visits.user_agent, visits.time, users.nickname\
-			FROM `BertaBall`.`visits`\
-				LEFT JOIN `BertaBall`.`users` ON `visits`.`account_id` = `users`.`id`\
+			FROM `visits`\
+				LEFT JOIN `users` ON `visits`.`account_id` = `users`.`id`\
 			WHERE `visits`.`time` >= '" + req.body.from + "' AND\
 				`visits`.`time` < '" + req.body.to + "'\
 			ORDER BY `visits`.`id`\
@@ -701,11 +701,9 @@ export default {//Actions
 				await convertImage(image_file);
 				ext = 'png';
 
-				await DatabaseUtils.customQuery("UPDATE `BertaBall`.`users`\
+				await DatabaseUtils.customQuery("UPDATE `users`\
 					SET `avatar` = '" + base64Nick + "." + ext + "'\
 					WHERE `id` = " + res[0].id + ";");
-
-				
 
 				setTimeout(() => {
 					var folder_path = path.join(__dirname, '..', '..', '..', `uploads/user_avatars`);
@@ -739,7 +737,7 @@ export default {//Actions
 			return sendResponse(resp, {result: 'NO_SESSION'});
 
 		if(res[0].avatar !== null) {
-			var update_res = await DatabaseUtils.customQuery("UPDATE `BertaBall`.`users`\
+			var update_res = await DatabaseUtils.customQuery("UPDATE `users`\
 				SET `avatar` = NULL\
 				WHERE `id` = " + res[0].id + ";");
 			if(update_res.changedRows > 0)

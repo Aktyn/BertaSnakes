@@ -2,15 +2,27 @@ const MySQL = require('mysql');
 /* jshint multistr:true */
 
 
-enum STATUS {
-    ERROR,
-    PENDING,
-    SUCCESS
+const STATUS = {//TODO - convert to javascript
+    ERROR: 0,
+    PENDING: 1,
+    SUCCESS: 2
 }
 
 var status = STATUS.PENDING;
 
 var prompt = require('prompt-sync')();
+
+var mysql_login = process.env.npm_config_mysqllogin;
+if(!mysql_login) {
+	try {//ask user to type password in console
+		mysql_login = prompt('MySQL login: ');
+	}
+	catch(e) {
+		console.error(
+			'You must specify mysql login adding --mysqllogin=LOGIN to console npm command');
+		process.exit();
+	}
+}
 
 var mysql_pass = process.env.npm_config_mysqlpass;
 if(!mysql_pass) {
@@ -19,8 +31,6 @@ if(!mysql_pass) {
 	}
 	catch(e) {
 		console.error(
-			'Cannot prompt user for email password since server is running in nodemon');
-		console.error(
 			'You must specify mysql password adding --mysqlpass=PASSWORD to console npm command');
 		process.exit();
 	}
@@ -28,7 +38,7 @@ if(!mysql_pass) {
 
 var connection = MySQL.createConnection({
 	host: "localhost",
-	user: "root",
+	user: String(mysql_login),
 	password: String(mysql_pass),
 	database: "BertaBall"
 });
@@ -154,7 +164,7 @@ const self = {
 			UTILS.currentTime() + "' WHERE `users`.`id` = " + user_id + ";"),
 
 	searchTopRankUsers: (page_id: number, rows_per_page: number) =>
-		<Promise<UserRankInfoI[]>>self.customQuery("(SELECT `id`, `nickname`, `rank` FROM `BertaBall`.`users` ORDER BY `rank` DESC LIMIT " + (page_id*rows_per_page) + ", " + rows_per_page + ") UNION (SELECT COUNT(*), NULL, NULL FROM `BertaBall`.`users`);"),
+		<Promise<UserRankInfoI[]>>self.customQuery("(SELECT `id`, `nickname`, `rank` FROM `users` ORDER BY `rank` DESC LIMIT " + (page_id*rows_per_page) + ", " + rows_per_page + ") UNION (SELECT COUNT(*), NULL, NULL FROM `users`);"),
 
 	getUserGames: (user_id: number, page_id: number, rows_per_page: number) => 
 		<Promise<GameInfoI[]>>self.customQuery("(SELECT `id`, `name`, `map`, `gamemode`, `duration`, `time`, `result` FROM `games` \
@@ -162,7 +172,7 @@ const self = {
 			ORDER BY `time` DESC \
 			LIMIT " + (page_id*rows_per_page) + ", " + rows_per_page +  ") \
 			UNION \
-			(SELECT COUNT(*), NULL, NULL, NULL, NULL, NULL, NULL FROM `BertaBall`.`games` \
+			(SELECT COUNT(*), NULL, NULL, NULL, NULL, NULL, NULL FROM `games` \
 			WHERE `result` LIKE '%" + "\"user_id\":" + user_id + ",%' );"),
 
 	findGameByID: (game_id: number) =>
@@ -209,7 +219,7 @@ const self = {
 
 	getThreadCategory: (thread_id: number) =>
 		<Promise<THREAD_CATEGORY | null>>self.customQuery("SELECT `threads`.`category`\
-			FROM `BertaBall`.`threads`\
+			FROM `threads`\
 			WHERE threads.id = " + thread_id + " LIMIT 1;")
 		.then(res => res.length > 0 ? Number(res[0].category) : null),
 
@@ -220,20 +230,20 @@ const self = {
 			ORDER BY `threads`.`last_post_time` DESC \
 			LIMIT " + (page_id*rows_per_page) + ", " + rows_per_page +  ")\
 			UNION \
-			(SELECT COUNT(*), NULL, NULL, NULL, NULL, NULL, NULL, NULL FROM `BertaBall`.`threads` \
+			(SELECT COUNT(*), NULL, NULL, NULL, NULL, NULL, NULL, NULL FROM `threads` \
 			WHERE `category` = " + category + ");"),
 
 	getThreadContent: (thread_id: number, page_id: number, rows_per_page: number) =>
-		<Promise<PostInfoI[]>>self.customQuery("(SELECT `posts`.*, `users`.`nickname` FROM `BertaBall`.`posts` \
-			INNER JOIN `BertaBall`.`users` ON `posts`.`author_id` = `users`.`id` \
+		<Promise<PostInfoI[]>>self.customQuery("(SELECT `posts`.*, `users`.`nickname` FROM `posts` \
+			INNER JOIN `users` ON `posts`.`author_id` = `users`.`id` \
 			WHERE `thread_id` = " + thread_id + " \
 			ORDER BY `id` ASC \
 			LIMIT " + (page_id*rows_per_page) + ", " + rows_per_page +  ")\
 			UNION \
-			(SELECT `threads`.`subject`, NULL, NULL, NULL, NULL, NULL FROM `BertaBall`.`threads` \
+			(SELECT `threads`.`subject`, NULL, NULL, NULL, NULL, NULL FROM `threads` \
 			WHERE `threads`.`id` = " + thread_id + ") \
 			UNION \
-			(SELECT COUNT(*), NULL, NULL, NULL, NULL, NULL FROM `BertaBall`.`posts` \
+			(SELECT COUNT(*), NULL, NULL, NULL, NULL, NULL FROM `posts` \
 			WHERE `thread_id` = " + thread_id + ");"),
 
 	getLatestNews: () =>
@@ -243,12 +253,12 @@ const self = {
 			    `posts`.`time`,\
 			    `posts`.`content`\
 			FROM\
-			    `BertaBall`.`threads`\
+			    `threads`\
 			        JOIN\
-			    `BertaBall`.`posts` ON `posts`.`id` = (SELECT \
+			    `posts` ON `posts`.`id` = (SELECT \
 			            `posts`.`id`\
 			        FROM\
-			            `BertaBall`.`posts`\
+			            `posts`\
 			        WHERE\
 			            `posts`.`thread_id` = `threads`.`id`\
 			        ORDER BY `posts`.`id` DESC\

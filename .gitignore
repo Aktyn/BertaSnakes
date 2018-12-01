@@ -3,7 +3,7 @@ node_modules/
 debug_tools/
 NOTES.txt
 compiled/
-uploads/
+uploads/user_avatars/*
 website/out/
 website_deprecated/
 run_dev

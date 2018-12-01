@@ -63,11 +63,12 @@ export default {
 		
 		app.get(`${global._HOMEPATH_}verify`, (req, resp) => {//account verification
 			Actions.verifyAccount( req.query.code ).then(nick => {
-				resp.send('Welcome ' + nick + '<br>Your account has been verified.<br>' + 
-					'<a href="/">homepage</a>');
+				resp.send(`Welcome ${nick}<br>Your account has been verified.<br>
+					<a href='${global._HOMEPATH_}'>homepage</a>`);
 				//resp.send(Pages.verify); //<-- TODO
 			}).catch(e => {
-				resp.send('Verification link is invalid or expired.');
+				resp.send(`Verification link is invalid or expired.<br>
+					<a href='${global._HOMEPATH_}'>homepage</a>`);
 				//TODO resp.send(Pages.verify_error);
 			});
 		});

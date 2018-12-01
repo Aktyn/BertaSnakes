@@ -227,6 +227,30 @@ body > main {
 	justify-items: center;
 }
 
+body > main > * {
+	animation: 			fade_in 0.5s cubic-bezier(.36,.07,.19,.97);
+	-webkit-animation: 	fade_in 0.5s cubic-bezier(.36,.07,.19,.97); /* Safari 4+ */
+  	-moz-animation:    	fade_in 0.5s cubic-bezier(.36,.07,.19,.97); /* Fx 5+ */
+  	-o-animation:      	fade_in 0.5s cubic-bezier(.36,.07,.19,.97); /* Opera 12+ */
+}
+
+@-webkit-keyframes fade_in {
+	0%   { opacity: 0; }
+	100% { opacity: 1; }
+}
+@-moz-keyframes fade_in{
+	0%   { opacity: 0; }
+	100% { opacity: 1; }
+}
+@-o-keyframes fade_in {
+	0%   { opacity: 0; }
+	100% { opacity: 1; }
+}
+@keyframes fade_in {
+	0%   { opacity: 0; }
+	100% { opacity: 1; }
+}
+
 .container {
 	background: #fff;
 
