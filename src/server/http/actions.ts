@@ -688,9 +688,16 @@ export default {//Actions
 
 		//console.log( Buffer.from(base64Nick, 'base64').toString('ascii') );
 
+		var avatars_dir = path.join(__dirname, '..', '..', '..', 'uploads', 'user_avatars');
+		try {
+			fs.mkdirSync(avatars_dir);
+		} catch (err) {
+			if (err.code !== 'EEXIST') throw Error(err);
+		}
+
 		var ext = file.mimetype.replace(/^.+\//gi, '');
-		var image_file = 
-			path.join(__dirname, '..', '..', '..', `uploads/user_avatars/${base64Nick}.${ext}`);
+		var image_file = path.join(avatars_dir, `${base64Nick}.${ext}`);
+
 		file.mv(image_file, async (err: any): Promise<any> => {
 			if(err) {
 				console.log(err);
@@ -706,14 +713,14 @@ export default {//Actions
 					WHERE `id` = " + res[0].id + ";");
 
 				setTimeout(() => {
-					var folder_path = path.join(__dirname, '..', '..', '..', `uploads/user_avatars`);
-					fs.readdir(folder_path, 
+					//var folder_path = path.join(__dirname, '..', '..', '..', `uploads/user_avatars`);
+					fs.readdir(avatars_dir, 
 						(err: Error, files: string[]) => 
 					{
 						if(err) throw err;
 						files.forEach(f => {
 							if(f.endsWith('.jpg') || f.endsWith('.jpeg'))
-								fs.unlink(folder_path + '/' + f, function(err){
+								fs.unlink(avatars_dir + '/' + f, function(err){
 							        if(err) return console.log(err);
 							        console.log('file deleted:', f);
 							   });

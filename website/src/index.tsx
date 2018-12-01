@@ -2,7 +2,7 @@
 ///<reference path="bg.tsx"/>
 ///<reference path="webpage.tsx"/>
 
-const homepage = '/berta/';
+const homepage = '/bs/';
 
 $$.onPageLoaded(() => {
 	$$.runAsync(runBackground);
