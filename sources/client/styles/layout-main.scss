@@ -1,0 +1,20 @@
+.layout-main {
+	min-height: 100vh;
+
+	display: grid;
+	grid-template-areas: "header" "content" "footer";
+	grid-template-columns: 100%;
+	grid-template-rows: fit-content(100%) auto fit-content(100%);
+
+	.header {
+		grid-area: header;
+	}
+
+	.footer {
+		grid-area: footer;
+	}
+
+	.layout-content {
+		grid-area: content;
+	}
+}

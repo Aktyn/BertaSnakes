@@ -1,1 +1,1 @@
-BertaSnakes game
+Multiplayer browser game

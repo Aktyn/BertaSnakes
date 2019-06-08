@@ -1,9 +1,4 @@
-.jshintrc
 node_modules/
-debug_tools/
 NOTES.txt
-compiled/
-uploads/user_avatars/*
-website/out/
-website_deprecated/
+dist/
 run_dev

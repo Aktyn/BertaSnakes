@@ -1,0 +1,94 @@
+@import './global.scss';
+@import './scrollbars.scss';
+
+//cubic-bezier(.36,.07,.19,.97)
+//cubic-bezier(.87,-.41,.19,1.44)
+
+* {
+	font-family: RobotoRegular, Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	vertical-align: middle;
+	background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+body, html, textarea, input, button {
+    padding: 0px;
+    margin: 0px;
+
+    box-sizing: border-box;
+    vertical-align: middle;
+
+    text-shadow: 0px 1px 1px #0003;
+}
+
+body, html {
+    background-color: nth($palette, 6);
+    color: #fff;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    outline: none;
+    cursor: pointer;
+
+    &:hover {
+        color: #80CBC4;
+    }
+}
+
+hr {
+    width: 100%;
+    border: none;
+    height: 1px;
+    background-color: nth($palette, 5);
+}
+
+textarea, input {
+    border: 1px solid rgb(169, 169, 169);
+    outline: none;
+    padding: 2px 5px;
+    color: #455a64;
+    font-size: 13px;
+}
+
+textarea:focus, input:focus {
+    border-color: #e57373;
+}
+
+button {
+    outline: none;
+    
+    border: none;
+    /*1px solid #CFD8DC;*/
+    line-height: 100%;
+    font-weight: bold;
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 5px 10px;
+    color: #455a64;
+    box-shadow: 0px 1px 3px #0008;
+
+    &:not(:disabled) {
+        cursor: pointer;
+
+        &:hover {
+            color: #607D8B;
+            box-shadow: 0px 2px 3px #0008;
+        }
+
+        &:active {
+            color: #f44336;
+            box-shadow: 0px 0px 3px #0008;
+        }
+    }
+
+    &:disabled {
+        background-color: #B0BEC5;
+        box-shadow: none;
+    }
+}

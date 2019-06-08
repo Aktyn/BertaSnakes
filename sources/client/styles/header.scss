@@ -1,0 +1,154 @@
+@import './global.scss';
+
+$size: 200px;
+$bottomSize: 20px;
+
+.header {
+	grid-area: header;
+
+	box-shadow: 0px 0px 10px #0008;
+
+	.upper {
+		position: relative;
+		height: $size;
+		overflow: hidden;
+
+		.background {
+			position: absolute;
+			height: 100%;
+			left: 0px;
+			right: 0px;
+			top: 0px;
+
+			background-image: url('../img/header_bgs/header1.png');
+			background-size: cover;
+
+			z-index: 1;
+		}
+
+		.header-content {
+			background-color: #006064a0;
+
+			* {
+				font-family: LuckiestGuy, Roboto-Regular, Arial;
+			}
+
+			position: absolute;
+			z-index: 2;
+			width: 100%;
+			height: $size;
+			left: 0px;
+			top: 0px;
+
+			display: grid;
+			grid-template-areas: "navigator play separator";
+			grid-template-columns: 1fr fit-content(100%) 1fr;
+			grid-template-rows: auto;
+
+			.play-btn-wrapper {
+				grid-area: play;
+				// filter: drop-shadow(0px 3px 3px #0006);
+				filter: drop-shadow(0px 5px 3px #0004);
+				user-select: none;
+
+				& > * {
+					$anim-func: 0.5s cubic-bezier(.36,.07,.19,.97);
+
+					display: block;
+					line-height: $size;
+					height: $size;
+					
+					font-size: 50px;
+
+					padding: 0px 50px;
+					
+					text-shadow: 0px 2px 5px #0004;
+					clip-path: polygon(0% 50%, 25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%);
+
+					background-color: #5a9698;
+		
+					position: relative;
+					z-index: 2;
+
+					transition: color $anim-func, background-color $anim-func;
+
+					&::before {
+						content: "";
+						position: absolute;
+						display: block;
+						z-index: 1;
+						left: 0px;
+						top: 0px;
+						margin: auto;
+						height: 100%;
+						width: 100%;
+						background-color: #fff;
+						clip-path: polygon(0% 50%, 25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%);
+						transform: scale(0);
+						opacity: 0;
+
+						transition: transform $anim-func, opacity $anim-func;
+					}
+
+					&:hover {
+						background-color: #ef5350;
+						color: #ef5350;
+						&::before {
+							opacity: 1;
+							transform: scale(0.85, 0.9);
+						}
+					}
+
+					span {
+						position: relative;
+						z-index: 2;
+					}
+				}
+			}
+
+			nav {
+				grid-area: navigator;
+				display: flex;
+				flex-direction: column;
+				flex-wrap: wrap;
+				align-items: center;
+			   	justify-content: center;
+
+				& > * {
+					display: block;
+					font-size: 30px;
+					&:hover {
+						color: #ef9a9a;
+					}
+				}
+			}
+		}
+	}
+
+	.header-bottom {
+		width: 100%;
+		height: $bottomSize;
+		background-color: nth($palette, 8);
+
+		display: grid;
+		grid-template-columns: fit-content(100%) fit-content(100%);
+		align-items: center;
+		justify-content: space-between;
+
+		.home-link {
+			width: $bottomSize;
+			height: $bottomSize;
+
+			background-image: url('../img/icons/home.svg');
+			opacity: 0.4;
+
+			&:hover {
+				opacity: 1;
+			}
+		}
+	}
+
+	@media (max-width: 800px) {
+		
+	}
+}

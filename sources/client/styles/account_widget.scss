@@ -1,0 +1,77 @@
+@import './global.scss';
+
+$size: 150px;
+
+.account-widget {
+	position: absolute;
+	z-index: 90;
+	top: 0px;
+	right: 0px;
+	
+	filter: drop-shadow(0px 0px 3px #0008);
+	.account-widget-content {
+		width: $size;
+		height: $size;
+		background-color: #fff;
+
+		clip-path: polygon(0% 0%, 100% 0%, 100% 100%);
+		position: relative;
+
+		.indicator {
+			position: absolute;
+
+			&.no-avatar {
+				width: $size;
+				height: $size;
+				left: 0px;
+				transform: rotate(45deg);
+				line-height: $size * 0.61;
+				font-family: LuckiestGuy, Roboto-Regular, Arial;
+			}
+			&:not(.no-avatar) {
+				left: $size * 0.475;
+				top: $size * 0.025;
+				width: $size / 2;
+				height: $size / 2;
+				line-height: $size / 2;
+			}
+			
+			color: #263238;
+			cursor: pointer;
+			&:hover {
+				color: #e57373;
+			}
+			font-size: 30px;
+			white-space: nowrap;
+
+			button {
+				font-family: inherit;
+				box-shadow: none;
+				border: none;
+				font-size: inherit;
+				color: inherit;
+				font-weight: inherit;
+				padding: 0px;
+				background-color: transparent;
+			}
+
+			.avatar-circle {
+				display: inline-block;
+				width: $size/2;
+				height: $size/2;
+				
+				border-radius: $size;
+				background-color: #ef5350;
+
+				img {
+					width: $size/3;
+					height: $size/3;
+				}
+
+				&:hover {
+					background-color: #e57373;
+				}
+			}
+		}
+	}
+}
