@@ -10,7 +10,10 @@ const enum ERROR_CODES {
 	INCORRECT_DATABASE_RESPONSE,
 	SESSION_EXPIRED,
 
-	ACCOUNT_DOES_NOT_EXISTS
+	ACCOUNT_DOES_NOT_EXISTS,
+	USERNAME_TAKEN,
+	EMAIL_ALREADY_IN_USE,
+	CANNOT_SEND_EMAIL
 }
 
 export default ERROR_CODES;
@@ -27,5 +30,8 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.INCORRECT_DATABASE_RESPONSE: return 'Incorrect database response';
 		case ERROR_CODES.SESSION_EXPIRED: 		return 'Session expired';
 		case ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS: return 'Account does not exists';
+		case ERROR_CODES.USERNAME_TAKEN: 		return 'Username taken';
+		case ERROR_CODES.EMAIL_ALREADY_IN_USE:	return 'Email already registered';
+		case ERROR_CODES.CANNOT_SEND_EMAIL:		return 'Cannot send email';
 	}
 }

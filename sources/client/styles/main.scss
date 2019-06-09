@@ -54,6 +54,10 @@ textarea, input {
     padding: 2px 5px;
     color: #455a64;
     font-size: 13px;
+
+    &.incorrect {
+        background-color: #ffb8b8;
+    }
 }
 
 textarea:focus, input:focus {

@@ -3,8 +3,10 @@ import ERROR_CODES from '../common/error_codes';
 import Cookies from './utils/cookies';
 
 export interface AccountSchema {
-	id: number;
+	id: string;
 	username: string;
+	email: string;
+	verified: boolean;
 }
 
 let current_account: AccountSchema | null = null;
@@ -16,13 +18,12 @@ function onLogIn(account: AccountSchema | null) {
 }
 
 let token = Cookies.getCookie('token');
-if(token) {
-	//try to login via cookie token
+if(token) {//try to login via cookie token
 	ServerApi.postRequest('/token_login', {token}).then(res => {
 		if(res.error === ERROR_CODES.SUCCESS && typeof res.account === 'object' &&
-			typeof res.account.id === 'number' && typeof res.account.username === 'string') 
+			typeof res.account.id === 'string' && typeof res.account.username === 'string') 
 		{
-			onLogIn({id: res.account.id, username: res.account.username});
+			onLogIn(res.account);
 			console.log('Logged in via token', current_account);
 		}
 	}).catch(e => {
@@ -52,10 +53,10 @@ export default {
 			let res = await ServerApi.postRequest('/login', {nick, password});
 			if(res.error)
 				return res;
-			if(!res.token || !res.expiration_time || !res.id || !res.username)
+			if(!res.token || !res.expiration_time || !res.account)
 				return {error: ERROR_CODES.INCORRECT_SERVER_RESPONSE};
 
-			onLogIn({id: res.id, username: res.username});
+			onLogIn(res.account);
 
 			this.setToken(res.token, res.expiration_time);
 
@@ -66,10 +67,25 @@ export default {
 		}
 	},
 
+	async register(nick: string, password: string, email: string) {
+		try {
+			let res = await ServerApi.postRequest('/register', {nick, password, email});
+			if(res.error)
+				return res;
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+
+		//automatically log in after creating account
+		return await this.login(nick, password);
+	},
+
 	logout() {
 		Cookies.removeCookie('token');
 		token = null;
 		onLogIn(null);
+		//TODO - send request to server for removing session
 	},
 
 	setToken(_token: string, _expires: number) {

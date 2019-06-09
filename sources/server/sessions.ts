@@ -1,39 +1,35 @@
-import * as crypto from 'crypto';
 import Database from './database';
 import ERROR_CODES, {errorMsg} from '../common/error_codes';
 import Config from '../common/config';
-
-const MAX_LEN = 64;//same value as in account_sidepop.tsx
+import {sha256} from './utils';
 
 Database.onConnect(() => Database.clearExpiredSessions());
 
 export default {
 	async login(nick: string, password: string) {
-		nick = nick.substr(0, MAX_LEN);
-		const hashed_password = crypto.createHash('sha256')
-			.update( password.substr(0, MAX_LEN) ).digest('base64');
+		nick = nick.substr(0, Config.MAX_LOGIN_LENGTH);
+		const hashed_password = sha256(password.substr(0, Config.MAX_PASSWORD_LENGTH));
 		let res = await Database.login(nick, hashed_password);
 		if(res.error)
 			return {error: res.error};
 
-		if(typeof res.id !== 'number') {
+		if(typeof res.account !== 'object') {
 			console.error('Incorrect database response');
 			return {error: ERROR_CODES.INCORRECT_DATABASE_RESPONSE};
 		}
 		
 		//generate token
-		const token = crypto.createHash('sha256')
-			.update( Date.now().toString() + res.id + nick ).digest('base64');
-		console.log(`token generated for user: ${nick} (${res.id})\n\ttoken: ${token}`);
+		const token = sha256(Date.now().toString() + res.account.id + nick);
+		console.log(`token generated for user: ${nick} (${res.account.id})\n\ttoken: ${token}`);
 
 		let expiration_time = Date.now() + Config.TOKEN_LIFETIME;
-		let insert_res = await Database.addSession(res.id, token, expiration_time);
+		let insert_res = await Database.addSession(res.account.id, token, expiration_time);
 		if(insert_res.error) {
 			console.error(errorMsg(insert_res.error));
 			return {error: insert_res.error};
 		}
 
-		return {error: ERROR_CODES.SUCCESS, token, expiration_time, id: res.id, username: res.username};
+		return {error: ERROR_CODES.SUCCESS, token, expiration_time, account: res.account};
 	},
 
 	async token_login(token: string) {
