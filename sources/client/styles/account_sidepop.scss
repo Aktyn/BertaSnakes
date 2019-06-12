@@ -1,0 +1,74 @@
+$avatarSize: 50px;
+
+.sidepop {
+	.account-details {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		justify-content: center;
+		grid-column-gap: 10px;
+
+		& > *:nth-child(odd) {
+			text-align: right;
+		}
+
+		& > *:nth-child(even) {
+			text-align: left;
+		}
+	}
+
+	.welcomer {
+		$offset: 10px;
+		padding: 0px;
+		margin: $offset 0px;
+
+		display: grid;
+		grid-template-areas: "separator welcome avatar";
+		grid-template-columns: $avatarSize+$offset auto $avatarSize+$offset;
+		align-items: center;
+		justify-content: space-between;
+
+		span {
+			grid-area: welcome;
+		}
+
+
+		.avatar-choser {
+			grid-area: avatar;
+			//box-shadow: 0px 2px 4px #0008;
+			border-radius: $avatarSize;
+			overflow: hidden;
+
+			position: relative;
+
+			&, .avatar, .avatar-select-btn {
+				height: $avatarSize;
+				width: $avatarSize;
+			}
+
+			.avatar, .avatar-select-btn {
+				position: absolute;
+				left: 0px;
+				top: 0px;
+			}
+
+			.avatar-select-btn {
+				box-shadow: none;
+				border: none;
+				background-color: #fff4;
+				opacity: 0;
+				transition: opacity 0.25s ease-in-out;
+				text-align: center;
+				margin: 0px;
+				padding: 0px;
+				font-weight: bold;
+				font-size: 12px;
+				color: #263238;
+
+				&:hover {
+					opacity: 1;
+				}
+			}
+		}
+	}
+}

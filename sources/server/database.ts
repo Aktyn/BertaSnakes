@@ -68,7 +68,8 @@ function extractAccountSchema(account: any) {
 		id: (account._id as ObjectId).toHexString(), 
 		username: account.username,
 		email: account.email,
-		verified: account.verification_code === ''
+		verified: account.verification_code === '',
+		avatar: account.avatar
 	};
 }
 
@@ -121,7 +122,7 @@ export default {
 		}
 	},
 
-	async getSession(_token: string) {
+	async getSession(_token: string) {//returns account's id
 		try {
 			let session_data = await getCollection(COLLECTIONS.sessions).findOne({
 				token: _token
@@ -158,6 +159,36 @@ export default {
 		catch(e) {
 			console.error(e);
 			return {error: ERROR_CODES.UNKNOWN};
+		}
+	},
+
+	async updateLastLoginTime(account_hex_id: string) {
+		try {
+			await getCollection(COLLECTIONS.accounts).updateOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			}, {
+				'$set': { last_login: Date.now() }
+			});
+		} catch(e) {
+			console.error(e);
+		}
+	},
+
+	async updateAvatar(account_hex_id: string, _avatar: string | null) {
+		try {
+			let res = await getCollection(COLLECTIONS.accounts).updateOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			}, {
+				'$set': {avatar: _avatar}
+			});
+
+			if(!res.result.ok)
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	},
 
@@ -202,7 +233,8 @@ export default {
 				email: _email,
 				verification_code: _verification_code,
 				creation_time: Date.now(),
-				last_login: Date.now()
+				last_login: Date.now(),
+				avatar: null
 			});
 
 			if(!insert_res.result.ok)
@@ -220,6 +252,57 @@ export default {
 		return getCollection(COLLECTIONS.accounts).deleteOne({
 			_id: ObjectId.createFromHexString(_hex_id)
 		});
+	},
+
+	async verifyAccount(session_token: string, _verification_code: string) {
+		try {
+			let session_account_id = await this.getSession(session_token);
+			if(!session_account_id)
+				return {error: ERROR_CODES.ACCOUNT_NOT_LOGGED_IN}
+
+			const accounts = getCollection(COLLECTIONS.accounts);
+			const object_id = ObjectId.createFromHexString(session_account_id);
+			let account = await accounts.findOne({
+				_id: object_id
+			});
+			if(!account)
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+			//console.log(account);
+			if(account.verification_code !== _verification_code)
+				return {error: ERROR_CODES.INCORRECT_VERIFICATION_CODE};
+			
+			let update_res = await accounts.updateOne({
+				_id: object_id
+			}, {
+				'$set': {verification_code: ''}
+			});
+
+			if(!update_res.result.ok)
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.UNKNOWN};
+		}
+	},
+
+	async getAccountVerificationCode(session_token: string) {
+		let session_account_id = await this.getSession(session_token);
+		if(!session_account_id)
+			return {error: ERROR_CODES.ACCOUNT_NOT_LOGGED_IN}
+
+		let account = await getCollection(COLLECTIONS.accounts).findOne({
+			_id: ObjectId.createFromHexString(session_account_id)
+		});
+		if(!account)
+			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+		return {
+			error: ERROR_CODES.SUCCESS, 
+			code: account.verification_code as string, 
+			email: account.email as string
+		};
 	},
 
 	/*

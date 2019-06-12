@@ -1,4 +1,5 @@
 node_modules/
 NOTES.txt
 dist/
+uploads/
 run_dev

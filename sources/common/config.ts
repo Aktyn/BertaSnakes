@@ -9,10 +9,14 @@ export default {
 	SERVER_PORT,
 	WEBSOCKET_PORT: 2674,
 
-	//one day
-	TOKEN_LIFETIME: 1000 * 60 * 60 * 24,// * 7,
+	
+	TOKEN_LIFETIME: 1000 * 60 * 60 * 24,// * 7, //one day
 	MAX_LOGIN_LENGTH: 64,
 	MAX_PASSWORD_LENGTH: 64,
+
+	MAXIMUM_IMAGE_FILE_SIZE: 1024*1024*2,//2MB
+	//server will scale uploaded avatar to this resolution before saving it as file
+	CONVERTED_AVATARS_RESOLUTION: 128,
 
 	START_GAME_COUNTDOWN: 1,//seconds
 	MINIMUM_GAME_DURATION: 1,

@@ -22,7 +22,7 @@ export default {
 	sendVerificationCode(code: string, target_email: string) {
 		return new Promise((resolve, reject) => {
 			let msg = 'Congratulations! Your account has been successfuly registered. ' + 
-				'Your verification code is: ' + code;
+				'Before you can enjoy full possibilities of BertaSnakes game you must verify your account with this code: ' + code;
 			//`http://${ip.address()}/verify?code=${code}`;
 
 			let opts = Object.assign({

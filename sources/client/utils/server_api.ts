@@ -4,6 +4,11 @@ import Config from '../../common/config';
 const HOST = window.SERVER_HOST || Config.api_server_url;
 console.log('Server host:', HOST);
 
+const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+function salt() {//returns short random string
+	return new Array(8).fill(0).map(a => CHARS[(Math.random()*CHARS.length)|0]);
+}
+
 function postRequest(to: string, data: string | {[index: string]: any}) {
 	if(!to.startsWith('/')) to = '/' + to;
 
@@ -26,9 +31,11 @@ export default {
 			return res.error === 0;//success
 		}
 		catch(e) {
-			//if(process.env.NODE_ENV === 'development')
-			//	console.error(e);
 			return false;
 		}
+	},
+
+	getAvatarPath(avatar: string) {
+		return `${Config.api_server_url}/uploads/avatars/${avatar}?${salt()}`;
 	}
 }

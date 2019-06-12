@@ -20,7 +20,7 @@ $size: 150px;
 		.indicator {
 			position: absolute;
 
-			&.no-avatar {
+			&.no-account {
 				width: $size;
 				height: $size;
 				left: 0px;
@@ -28,7 +28,7 @@ $size: 150px;
 				line-height: $size * 0.61;
 				font-family: LuckiestGuy, Roboto-Regular, Arial;
 			}
-			&:not(.no-avatar) {
+			&:not(.no-account) {
 				left: $size * 0.475;
 				top: $size * 0.025;
 				width: $size / 2;
@@ -57,19 +57,39 @@ $size: 150px;
 
 			.avatar-circle {
 				display: inline-block;
-				width: $size/2;
-				height: $size/2;
+				width: $size/3;
+				height: $size/3;
 				
 				border-radius: $size;
-				background-color: #ef5350;
-
-				img {
-					width: $size/3;
-					height: $size/3;
+				overflow: hidden;
+				&.empty { 
+					background-color: #90A4AE;//#ef5350;
+					box-shadow: 0px 2px 4px #0008;
+					line-height: $size/3;
+					img {
+						width: $size/4;
+						height: $size/4;
+					}
 				}
 
+				&:not(.empty) {
+					line-height: 0px;
+					img {
+						width: $size/3;
+						height: $size/3;
+					}
+				}
+				
+
+				transition: transform 0.4s cubic-bezier(.36,.07,.19,.97);
+
 				&:hover {
-					background-color: #e57373;
+					&.empty {
+						background-color: #B0BEC5;//#e57373;
+					}
+					&:not(.empty) {
+						transform: scale(1.2);
+					}
 				}
 			}
 		}

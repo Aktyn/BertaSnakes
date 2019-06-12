@@ -31,7 +31,8 @@ global.APP_VERSION = app_version.replace(/\./g, '_') || 'unknown version';
 import './database';//initializes database
 
 import HTTP_API from './http_api';
-HTTP_API.shareClientFiles();
+HTTP_API.shareUploads();
+HTTP_API.shareClientFiles();//must be last sharing function
 
 /*import Config from './../common/config';
 

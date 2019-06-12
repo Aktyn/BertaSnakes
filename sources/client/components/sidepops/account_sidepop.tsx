@@ -2,9 +2,14 @@ import * as React from 'react';
 import SidepopBase, {SidepopProps} from './sidepop_base';
 import Loader from '../loader';
 import ServerApi from '../../utils/server_api';
+import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
 import {errorMsg} from '../../../common/error_codes';
 import Config from '../../../common/config';
+import ERROR_CODES from '../../../common/error_codes';
+
+import './../../styles/account_sidepop.scss';
+const no_avatar_img = require('../../img/icons/account.svg');
 
 interface AccountSidepopProps extends SidepopProps {
 
@@ -15,6 +20,8 @@ interface AccountSidepopState {
 	register_view: boolean;
 	error?: string;
 	account: AccountSchema | null;
+	verify_info: boolean;
+	verification_resend: boolean;
 }
 
 const offsetTop = {marginTop: '10px'};
@@ -25,6 +32,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	private password_confirm_input: HTMLInputElement | null = null;
 	private email_input: 			HTMLInputElement | null = null;
 	private register_btn: 			HTMLButtonElement | null = null;
+	private verification_code_input:HTMLInputElement | null = null;
 
 	private register_confirm: NodeJS.Timeout | null = null;
 
@@ -33,7 +41,9 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	state: AccountSidepopState = {
 		loading: false,
 		register_view: false,//true temporary for tests
-		account: null
+		account: null,
+		verify_info: false,
+		verification_resend: false,
 	}
 
 	constructor(props: AccountSidepopProps) {
@@ -57,7 +67,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				//@ts-ignore
 				this.password_confirm_input.value = 'test_password';
 				//@ts-ignore
-				this.email_input.value = 'Aktyn3@gmail.com';//TODO - remove of course
+				this.email_input.value = 'xxxx@gmail.com';//TODO - remove of course
 			}
 			catch(e) {}
 		}
@@ -77,7 +87,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	}
 
 	private setError(msg: string) {
-		this.setState({error: msg, loading: false});
+		this.setState({error: msg, loading: false, verify_info: false});
 	}
 
 	private async tryLogin() {
@@ -162,18 +172,78 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		this.setState({account: Account.getAccount(), loading: false});
 	}
 
+	private async tryVerify() {
+		if(!this.verification_code_input)
+			return;
+		let code = this.verification_code_input.value;
+		//base64 text verification
+		if(!code.match(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/i))
+			return this.setError( errorMsg(ERROR_CODES.INCORRECT_VERIFICATION_CODE) );
+
+		this.setState({loading: true, error: undefined});
+
+		let res = await Account.verify(code);
+		if(res.error)
+			return this.setError( errorMsg(res.error) );
+		
+		this.setState({loading: false, error: undefined, verify_info: true, account: Account.getAccount()});
+	}
+
+	private async tryResendVerificationCode() {
+		this.setState({loading: true, error: undefined});
+		let res = await Account.requestVerificationCode();
+		if(res.error) {
+			if(res.error === ERROR_CODES.ACCOUNT_ALREADY_VERIFIED)
+				this.setState({account: Account.getAccount()});
+			return this.setError( errorMsg(res.error) );
+		}
+		this.setState({loading: false, error: undefined, verification_resend: true});
+	}
+
+	private async uploadAvatar(clear = false) {
+		try {
+			let image_data = clear ? null : await Utils.openImageFile();//URL string
+
+			this.setState({loading: true, error: undefined});
+
+			let res = await Account.uploadAvatar(image_data);
+			if(res.error)
+				return this.setError( errorMsg(res.error) );
+
+			this.setState({
+				loading: false, 
+				error: undefined, 
+				verification_resend: true,
+				account: Account.getAccount()//account data with new avatar
+			});
+		}
+		catch(e) {
+			this.setError( errorMsg(e) );
+		}
+	}
+
+	private clearAvatar() {
+		this.uploadAvatar(true);
+	}
+
 	private canReturn() {
 		return this.state.register_view;
 	}
 
 	private return() {
 		if(this.state.register_view) {
-			this.setState({register_view: false, error: undefined, loading: false});
+			this.setState({
+				register_view: false, 
+				error: undefined, 
+				loading: false, 
+				verify_info: false, 
+				verification_resend: false
+			});
 			return;
 		}
 	}
 
-	private formatInput(e: React.ChangeEvent<HTMLInputElement>) {
+	private removeWhitechars(e: React.ChangeEvent<HTMLInputElement>) {
 		//remove white characters
 		e.target.value = e.target.value.replace(/\s/g, '');
 	}
@@ -194,13 +264,14 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				ref={el => this.username_input = el} onKeyDown={e => {
 					if(e.keyCode === 13 && this.password_input)
 						this.password_input.focus();
-				}} onChange={this.formatInput} maxLength={Config.MAX_LOGIN_LENGTH} name='username' />
+				}} onChange={this.removeWhitechars} maxLength={Config.MAX_LOGIN_LENGTH} name='username'/>
 			<input key='login_password' className='fader-in' type='password' placeholder='Password' 
 				ref={el => this.password_input = el} style={offsetTop}
 				onKeyDown={e => {
 					if(e.keyCode === 13)
 						this.tryLogin();
-				}} onChange={this.formatInput} maxLength={Config.MAX_PASSWORD_LENGTH} name='password' />
+				}} onChange={this.removeWhitechars} maxLength={Config.MAX_PASSWORD_LENGTH} 
+				name='password' />
 			<button key='login_btn' className='fader-in' style={offsetTop} 
 				onClick={this.tryLogin.bind(this)}>LOG IN</button>
 			<hr />
@@ -208,7 +279,9 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			<br/>
 			<button key='register_view_btn' className='fader-in' style={offsetTop} 
 				onClick={() => {
-					this.setState({register_view: true, error: undefined, loading: false});
+					this.setState({
+						register_view: true, error: undefined, loading: false, verify_info: false
+					});
 				}}>REGISTER</button>
 		</section>;
 	}
@@ -220,7 +293,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				ref={el => this.username_input = el} onKeyDown={e => {
 					if(e.keyCode === 13 && this.password_input)
 						this.password_input.focus();
-				}} onChange={this.formatInput} maxLength={Config.MAX_LOGIN_LENGTH} />
+				}} onChange={this.removeWhitechars} maxLength={Config.MAX_LOGIN_LENGTH} />
 			<input key='register_password' className='fader-in' type='password' placeholder='Password' 
 				ref={el => this.password_input = el} style={offsetTop}
 				onKeyDown={e => {
@@ -228,7 +301,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 						this.password_confirm_input.focus();
 				}} onChange={e => {
 					this.checkPasswordsMatch();
-					this.formatInput(e);
+					this.removeWhitechars(e);
 				}} maxLength={Config.MAX_PASSWORD_LENGTH} />
 			<input key='register_password_confirm' className='fader-in' type='password' 
 				placeholder='Confirm password' 
@@ -238,7 +311,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 						this.email_input.focus();
 				}} onChange={e => {
 					this.checkPasswordsMatch();
-					this.formatInput(e);
+					this.removeWhitechars(e);
 				}} maxLength={Config.MAX_PASSWORD_LENGTH} />
 			<input key='email_input' className='fader-in' type='email' name='email'
 				placeholder='Email address' 
@@ -248,7 +321,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 						this.register_btn.focus();
 						this.tryRegister();
 					}
-				}} onChange={this.formatInput} maxLength={256} />
+				}} onChange={this.removeWhitechars} maxLength={256} />
 			<button key='register_btn' style={offsetTop} className='fader-in'
 				ref={el => this.register_btn = el} onClick={this.tryRegister.bind(this)}>CREATE</button>
 		</section>;
@@ -256,23 +329,71 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	private renderVerificationPrompt(account: AccountSchema) {
 		return <>
-			<hr />
+			<hr/>
 			<h2 key='not_verified_label' className='error fader-in'>Account is not verified</h2>
 			<div key='verification_panel' className='fader-in'>
-				<input type='text' placeholder='VERIFICATION CODE' style={{textAlign: 'center'}} />
-				<button style={offsetTop} onClick={() => {
-					//TODO
-				}}>VERIFY</button>
+				<input type='text' placeholder='VERIFICATION CODE' style={{textAlign: 'center'}}
+					ref={el => this.verification_code_input = el} onChange={this.removeWhitechars} />
+				<button style={offsetTop} onClick={this.tryVerify.bind(this)}>VERIFY</button>
+				{this.state.verification_resend ? 
+					<div className='success' style={offsetTop}>
+						Verification code has been sent. Expect an email soon.
+					</div>
+					:
+					<>
+						<p>No code?</p>
+						<button onClick={
+							this.tryResendVerificationCode.bind(this)}>RESEND VERIFICATION CODE</button>
+						<div style={{marginTop: '5px'}}>
+							Code will be sent to given email: {account.email}</div>
+					</>
+				}
 			</div>
-			<hr />
+			<hr/>
+		</>;
+	}
+
+	private renderAccountData(account: AccountSchema) {
+		return <>
+			<hr/>
+			{this.state.verify_info === true && 
+				<h2 key='verified_label' className='success fader-in'>Verification successfull</h2>}
+			<div key='account_email' className='fader-in account-details'>
+				<label>Email:</label><div>{account.email}</div>
+			</div>
+			<hr/>
 		</>;
 	}
 
 	private renderAccountSection(account: AccountSchema) {
-		//TODO - information about not verified account and resent verification link button
+		const no_avatar_style = account.avatar ? {
+			backgroundImage: `url(${ServerApi.getAvatarPath(account.avatar)})`,
+			backgroundSize: 'contain'
+		} : {
+			backgroundImage: `url(${no_avatar_img})`,
+			backgroundSize: '61%'
+		};
 		return <section>
-			<h1 key='welcome-key' className='fader-in'>Welcome {account.username}</h1>
-			{!account.verified && this.renderVerificationPrompt(account)}
+			<h1 key='welcome-key' className='fader-in welcomer'>
+				<span>Welcome {account.username}</span>
+				<div className='avatar-choser' style={account.avatar ? {} : {
+					backgroundColor: '#90A4AE',
+					boxShadow: '0px 2px 4px #0008'
+				}}>
+					<div key={account.avatar || 'no-avatar'} 
+						className='avatar' style={no_avatar_style}></div>
+					{
+						account.avatar ? <button className='avatar-select-btn'
+							onClick={this.clearAvatar.bind(this)}>CLEAR</button> 
+						:
+						<button className='avatar-select-btn' 
+							onClick={() => this.uploadAvatar()}>
+							UPLOAD<br/>({Config.MAXIMUM_IMAGE_FILE_SIZE/1024/1024}MB&nbsp;>)
+						</button>
+					}
+				</div>
+			</h1>
+			{account.verified ? this.renderAccountData(account) : this.renderVerificationPrompt(account)}
 			<button key='logout-btn' className='fader-in' onClick={() => {
 				Account.logout();
 			}}>LOG OUT</button>

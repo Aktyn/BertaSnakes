@@ -161,6 +161,15 @@ $targetW: 400px;
 		hr {
 			background-color: #B0BEC5;
 		}
+
+		table {
+			display: table;
+			width: 100%;
+
+			tbody {
+				width: 100%;
+			}
+		}
 	}
 
 	/*&.left-side  {

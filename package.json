@@ -34,7 +34,7 @@
     "@types/react-dom": "^16.8.3",
     "@types/react-router-dom": "^4.3.1",
     "body-parser": "^1.18.3",
-    "canvas": "^2.4.1",
+    "canvas": "^2.5.0",
     "email-exists": "^0.2.1",
     "express": "^4.16.4",
     "express-fileupload": "^1.1.1-alpha.3",

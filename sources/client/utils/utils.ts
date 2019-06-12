@@ -1,24 +1,42 @@
-// import Config from './../../common/config';
+import ERROR_CODES from '../../common/error_codes';
+import Config from '../../common/config';
 
-export default {//TODO - remove file or add smth
-	/*postRequest: function(to: string, data: string | {[index: string]: any}) {
-		if(!to.startsWith('/')) to = '/' + to;
+export default {
+	openImageFile(max_size = Config.MAXIMUM_IMAGE_FILE_SIZE): Promise<string> {
+		return new Promise((resolve, reject) => {
+			let file_input = document.createElement('input');
+			file_input.setAttribute('type', 'file');
+			file_input.setAttribute('accept', 'image/*');
+			file_input.onchange = (e) => {
+				try {
+					//@ts-ignore
+					let file: File = e.target.files[0];
+					if (!file) {
+						// reject(new Error('Cannot open file'));
+						reject( ERROR_CODES.CANNOT_OPEN_FILE );
+						return;
+					}
 
-		if(typeof data !== 'string')
-			data = JSON.stringify(data);
+					if(file.size > max_size) {
+						// reject(new Error('File too large'));
+						reject( ERROR_CODES.FILE_TOO_LARGE );
+						return;
+					}
 
-		return fetch(Config.api_server_url + to, {
-			method: "POST",
-			mode: process.env.NODE_ENV === 'development' ? 'cors' : 'same-origin',
-			headers: {"Content-Type": "application/json; charset=utf-8"},
-			body: data
-		}).then(res => res.json());
-	},
-
-	getScreenSize: function() {
-		return {
-			width: window.innerWidth,
-			height: window.innerHeight
-		}
-	}*/
+					let reader = new FileReader();
+					reader.onload = (e) => {
+						//@ts-ignore
+						resolve(e.target.result);
+					};
+					//reader.readAsText(file);
+					reader.readAsDataURL(file);
+				}
+				catch(e) {
+					console.error(e);
+					reject( ERROR_CODES.UNKNOWN );
+				}
+			};
+			file_input.click();
+		});
+	}
 };

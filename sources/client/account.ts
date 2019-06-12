@@ -7,6 +7,7 @@ export interface AccountSchema {
 	username: string;
 	email: string;
 	verified: boolean;
+	avatar: string | null;
 }
 
 let current_account: AccountSchema | null = null;
@@ -79,6 +80,55 @@ export default {
 
 		//automatically log in after creating account
 		return await this.login(nick, password);
+	},
+
+	async requestVerificationCode() {
+		try {
+			if(!current_account)
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			let res = await ServerApi.postRequest('/request_verification_code', {token});
+			if(res.error === ERROR_CODES.ACCOUNT_ALREADY_VERIFIED)
+				current_account.verified = true;
+			return res;
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+	},
+
+	async verify(code: string) {
+		try {
+			if(!current_account)
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			let res = await ServerApi.postRequest('/verify', {token, code});
+			if(res.error === ERROR_CODES.SUCCESS)
+				current_account.verified = true;
+			return res;
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+	},
+
+	//null in argument means - clear avatar
+	async uploadAvatar(image_data: string | null) {//URL encoded image data
+		try {
+			if(!current_account)
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			let res = await ServerApi.postRequest('/upload_avatar', {
+				token,
+				image: image_data
+			});
+			
+			if( (typeof res.avatar === 'string') || res.avatar === null)
+				current_account.avatar = res.avatar;
+
+			return res;
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
 	},
 
 	logout() {

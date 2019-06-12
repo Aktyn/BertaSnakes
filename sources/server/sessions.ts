@@ -29,6 +29,8 @@ export default {
 			return {error: insert_res.error};
 		}
 
+		Database.updateLastLoginTime(res.account.id);
+
 		return {error: ERROR_CODES.SUCCESS, token, expiration_time, account: res.account};
 	},
 
@@ -40,6 +42,8 @@ export default {
 		let account = await Database.getAccount(account_id);
 		if(!account)
 			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+
+		Database.updateLastLoginTime(account.id);
 
 		return {error: ERROR_CODES.SUCCESS, account};
 	}

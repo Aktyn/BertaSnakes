@@ -24,3 +24,7 @@ export function sha256(input: string) {
 export function md5(input: string) {
 	return crypto.createHash('md5').update( input ).digest('base64');
 }
+
+export function encodeBase64(input: string) {
+	return Buffer.from(input).toString('base64');;
+}
