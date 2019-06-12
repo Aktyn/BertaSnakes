@@ -16,7 +16,7 @@ interface AccountWidgetState {
 export default class AccountWidget extends React.Component<any, AccountWidgetState> {
 
 	state: AccountWidgetState = {
-		show_sidepop: true//true temporary for test
+		show_sidepop: false
 	}
 
 	private onLogIn: () => void;

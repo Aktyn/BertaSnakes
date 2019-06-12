@@ -43,6 +43,8 @@ import Core from './core';
 import HttpServer from './http/http_server';
 HttpServer.init();
 
+//TODO - websocket server module
+
 //running websocket server
 console.log('Running WebSocketServer at port:', Config.WEBSOCKET_PORT);
 // const WebSocketServer = require('ws').Server;

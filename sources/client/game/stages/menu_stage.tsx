@@ -1,25 +1,20 @@
 import * as React from 'react';
 import {Link} from 'react-router-dom';
 
-import StageBase, {BaseProps, BaseState, StageContext} from './stage_base';
+import StageBase, {BaseProps, BaseState} from './stage_base';
 import Network from './../engine/network';
 
 import HeaderNotifications from './header_notifications';
 
 import RoomView from './room_view';
-import Chat from './chat';
 
-import UserProfile, {UserProfileProps} from './popups/user_profile';
-
-// import './../../styles/menu_stage.scss';
+import './../../styles/menu_stage.scss';
 
 interface MenuState extends BaseState {
 	
 }
 
 export default class extends StageBase<BaseProps, MenuState> {
-	private chat: Chat | null = null;
-
 	state: MenuState = {
 
 	}
@@ -28,32 +23,25 @@ export default class extends StageBase<BaseProps, MenuState> {
 		super(props);
 	}
 
-	public onChatMessage(from: string, is_room_msg: boolean, id: number, msg: string) {
-		if(this.chat)
-			this.chat.onMessage(from, is_room_msg, id, msg);
-	}
-
 	render() {
-		return <StageContext.Provider value={{
-			onPrivateConversation: (user) => {
-				if(this.chat)
-					this.chat.openBookmark(user.id, user.nick);
-			},
-			openPopupStage: this.props.openPopupStage
-		}}><div className='menu-stage'>
+		return <div className='menu-stage'>
 			<header>
+				<div style={{justifySelf: 'left'}}>
+					<button className='account-btn' onClick={() => {
+						//TODO - open account sidepop
+					}}>{
+						this.props.account ? this.props.account.nick : 'OFFLINE'
+					}</button>
+				</div>
+
 				<HeaderNotifications ref={el=>this.notifications=el} />
-				<button className='account-widget' onClick={() => {
-					if(this.props.openPopupStage) {
-						this.props.openPopupStage(UserProfile.prototype, 
-							{user: this.props.account} as UserProfileProps);
-					}
-				}}>{
-					this.props.account ? this.props.account.nick : 'OFFLINE'
-				}</button>
-				<button className='glossy coin'>SHOP</button>
-				<button className='glossy settings'>SETTINGS</button>
-				<Link className='closer shaky-icon' to='/' onClick={Network.disconnect}></Link>
+				
+				<div style={{justifySelf: 'right'}}>
+					<button className='shop shaky-icon'></button>
+					<button className='settings shaky-icon' style={{marginLeft: '5px'}}></button>
+					<span className='separator'></span>
+					<Link className='closer shaky-icon' to='/' onClick={Network.disconnect}></Link>
+				</div>
 			</header>
 			<aside>
 				<h1>Avaible rooms</h1>
@@ -80,11 +68,11 @@ export default class extends StageBase<BaseProps, MenuState> {
 					</table>
 				</div>
 				<hr style={{marginBottom: '0px'}}/>
-				<Chat ref={el => this.chat = el} room={this.props.room} />
+				<span>TODO - chat</span>
 			</aside>
 			<main>
 				{this.props.room && <RoomView room={this.props.room} account={this.props.account} />}
 			</main>
-		</div></StageContext.Provider>;
+		</div>;
 	}
 }

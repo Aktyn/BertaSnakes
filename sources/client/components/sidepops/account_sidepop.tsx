@@ -359,7 +359,11 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			{this.state.verify_info === true && 
 				<h2 key='verified_label' className='success fader-in'>Verification successfull</h2>}
 			<div key='account_email' className='fader-in account-details'>
-				<label>Email:</label><div>{account.email}</div>
+				<label>Email:</label>
+				<div>{account.email}</div>
+				
+				<label>Registered since:</label>
+				<div>{new Date(account.creation_time).toLocaleDateString()}</div>
 			</div>
 			<hr/>
 		</>;

@@ -10,16 +10,10 @@ import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
-//popups
-import {PopupContext} from './stages/popups/popup_base';
-import UserProfile, {UserProfileProps,} from './stages/popups/user_profile';
-
 const TDD = true;
 
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;//changed from any to StageBase<any, any>
-	current_popup?: any;
-	popup_props?: UserProfileProps;
 }
 
 export default class extends React.Component<any, CoreState> {
@@ -28,13 +22,10 @@ export default class extends React.Component<any, CoreState> {
 
 	state: CoreState = {
 		current_stage: MenuStage.prototype,
-		current_popup: undefined,
 
 		account: null,
 		room: null,
 		rooms_list: [],
-
-		openPopupStage: this.openPopupStage.bind(this)
 	}
 
 	constructor(props: any) {
@@ -60,12 +51,6 @@ export default class extends React.Component<any, CoreState> {
 
 	componentWillUnmount() {
 		this.active = false;
-	}
-
-	openPopupStage(_popup_class: any, _popup_props?: UserProfileProps) {
-		if(this.state.current_popup)//there must not be a popup open
-			return;
-		this.setState({current_popup: _popup_class, popup_props: _popup_props});
 	}
 
 	notify(...msg: string[]) {
@@ -192,13 +177,13 @@ export default class extends React.Component<any, CoreState> {
 
 					this.notify('You have been kicked from the room');
 					break;
-				case NetworkCodes.RECEIVE_CHAT_MESSAGE:
+				/*case NetworkCodes.RECEIVE_CHAT_MESSAGE:
 					if(this.currentStage) {
 						this.currentStage.onChatMessage(
 							data['from'], data['public'], data['id'], data['msg']);
 					}
 					//this.chat.onMessage(data);
-					break;
+					break;*/
 				/*case NetworkCodes.START_GAME_COUNTDOWN:
 					this.room_view.onCountdown(data['remaining_time']);
 					break;
@@ -227,18 +212,6 @@ export default class extends React.Component<any, CoreState> {
 						{...this.state} />;
 				}
 			})()}
-			<PopupContext.Provider value={{
-				onClose: () => this.setState({current_popup: undefined})
-			}}>
-			{this.state.current_popup && (() => {
-				switch(this.state.current_popup) {
-					default: return <div>ERROR</div>;
-					case UserProfile.prototype:	return (this.state.popup_props && 
-						<UserProfile {...this.state.popup_props} />
-					);
-				}
-			})()}
-			</PopupContext.Provider>
 		</React.Fragment>;
 	}
 }

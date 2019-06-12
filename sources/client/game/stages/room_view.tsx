@@ -11,7 +11,7 @@ import MapsPreview, {updateMapPreview} from './maps_preview';
 
 import NumberInput from '../../components/number_input';
 import OptionsList from '../../components/options_list';
-import UsersList from '../../components/users_list';
+// import UsersList from '../../components/users_list';//TODO
 
 // import '../../styles/room_view.scss';
 
@@ -174,8 +174,8 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					</div>
 				</section>
 				<section className='users-list-container'>
-					<UsersList users={this.props.room.users} me={this.props.account} 
-						am_i_owner={!!am_i_owner} />
+					{/*<UsersList users={this.props.room.users} me={this.props.account} 
+						am_i_owner={!!am_i_owner} />*/}
 				</section>
 			</div>
 		</div>;

@@ -69,7 +69,8 @@ function extractAccountSchema(account: any) {
 		username: account.username,
 		email: account.email,
 		verified: account.verification_code === '',
-		avatar: account.avatar
+		avatar: account.avatar,
+		creation_time: account.creation_time
 	};
 }
 

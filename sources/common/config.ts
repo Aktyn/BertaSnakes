@@ -8,7 +8,6 @@ export default {
 
 	SERVER_PORT,
 	WEBSOCKET_PORT: 2674,
-
 	
 	TOKEN_LIFETIME: 1000 * 60 * 60 * 24,// * 7, //one day
 	MAX_LOGIN_LENGTH: 64,

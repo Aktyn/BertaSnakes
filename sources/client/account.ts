@@ -8,6 +8,7 @@ export interface AccountSchema {
 	email: string;
 	verified: boolean;
 	avatar: string | null;
+	creation_time: number;
 }
 
 let current_account: AccountSchema | null = null;
