@@ -7,21 +7,12 @@ const page_root = document.getElementById('page');//same as in index.tsx
 if(!page_root)
 	throw new Error('Main page element not found');
 
-/*export const enum SIDE {
-	LEFT, RIGHT
-}*/
-
 export interface SidepopProps {
-	//side: SIDE;
 	onClose: () => void;
 }
 
 class SidepopContainer extends React.Component<SidepopProps, any> {
 	private sidepop_el: HTMLDivElement;
-
-	/*static defaultProps = {
-		//side: SIDE.RIGHT
-	}*/
 
 	constructor(props: SidepopProps) {
 		super(props);
@@ -36,8 +27,6 @@ class SidepopContainer extends React.Component<SidepopProps, any> {
 
 	componentDidMount() {
 		(page_root as HTMLDivElement).appendChild(this.sidepop_el);
-		//if(this.props.side === SIDE.LEFT)
-		//	this.sidepop_el.classList.add('left-side');
 	}
 
 	componentWillUnmount() {
@@ -57,7 +46,6 @@ interface SidepopWrapperProps extends SidepopProps {
 export default class SidepopBase extends React.Component<SidepopWrapperProps, any> {
 
 	static defaultProps = {
-		//side: SIDE.RIGHT
 		show_navigator: false,
 		navigator_return: undefined
 	}

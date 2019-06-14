@@ -8,7 +8,7 @@ $iconsSize: 20px;
 	grid-template-areas: 'header header' 'aside main' 'footer footer';
 	grid-template-columns: fit-content(100%) auto;
 	grid-template-rows: fit-content(100%) auto fit-content(100%);
-	align-items: center;
+	// align-items: center;
 
 	header {
 		grid-area: header;
@@ -68,9 +68,11 @@ $iconsSize: 20px;
 	}
 
 	.separator {
-		height: $iconsSize;
-		width: 1px;
 		display: inline-block;
+		min-height: $iconsSize;
+		height: auto;
+		align-self: stretch;
+		width: 1px;
 		background-color: #fff2;
 		margin: 0px 6px;
 	}

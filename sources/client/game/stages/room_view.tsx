@@ -21,7 +21,7 @@ const GAMEMODES_NAMES = [
 
 interface RoomViewProps {
 	room: RoomInfo;
-	account: UserInfo | null;
+	current_user: UserInfo | null;
 	//onRoomLeaveRequest: () => void;
 }
 
@@ -54,7 +54,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 
 	componentDidUpdate() {
 		var room_owner = this.props.room.getOwner();
-		var am_i_owner = room_owner && this.props.account && room_owner.id === this.props.account.id;
+		var am_i_owner = room_owner && this.props.current_user && room_owner.id === this.props.current_user.id;
 
 		if(!am_i_owner && this.state.edit_mode)
 			this.setState({edit_mode: false});
@@ -115,13 +115,13 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 			return this.renderEditMode();
 
 		var room_owner = this.props.room.getOwner();
-		var am_i_owner = room_owner && this.props.account && room_owner.id === this.props.account.id;
+		var am_i_owner = room_owner && this.props.current_user && room_owner.id === this.props.current_user.id;
 
 		let free_sit = this.props.room.getTakenSits() !== this.props.room.sits.length;
-		let am_i_sitting = this.props.account ? 
-			this.props.room.isUserSitting(this.props.account.id) : false;
-		let am_i_ready = this.props.account ? 
-			this.props.room.isUserReady(this.props.account.id) : false;
+		let am_i_sitting = this.props.current_user ? 
+			this.props.room.isUserSitting(this.props.current_user.id) : false;
+		let am_i_ready = this.props.current_user ? 
+			this.props.room.isUserReady(this.props.current_user.id) : false;
 
 		return <div className='room-view'>
 			<nav>
@@ -174,7 +174,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					</div>
 				</section>
 				<section className='users-list-container'>
-					{/*<UsersList users={this.props.room.users} me={this.props.account} 
+					{/*<UsersList users={this.props.room.users} me={this.props.current_user} 
 						am_i_owner={!!am_i_owner} />*/}
 				</section>
 			</div>

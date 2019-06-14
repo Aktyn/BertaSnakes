@@ -1,10 +1,10 @@
 import * as React from 'react';
 import UserInfo from '../../../common/user_info';
 import RoomInfo from '../../../common/room_info';
-import HeaderNotifications from './header_notifications';
+import HeaderNotifications from '../../components/header_notifications';
 
 export interface BaseProps {
-	account: UserInfo | null,
+	current_user: UserInfo | null,
 	room: RoomInfo | null,//current room
 	rooms_list: RoomInfo[];
 }

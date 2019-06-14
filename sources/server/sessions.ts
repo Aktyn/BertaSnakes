@@ -35,7 +35,7 @@ export default {
 	},
 
 	async token_login(token: string) {
-		let account_id = await Database.getSession(token);
+		/*let account_id = await Database.getSession(token);
 		if(!account_id)
 			return {error: ERROR_CODES.SESSION_EXPIRED};
 		
@@ -45,6 +45,7 @@ export default {
 
 		Database.updateLastLoginTime(account.id);
 
-		return {error: ERROR_CODES.SUCCESS, account};
+		return {error: ERROR_CODES.SUCCESS, account};*/
+		return await Database.getAccountFromToken(token);
 	}
 }

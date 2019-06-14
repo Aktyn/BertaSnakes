@@ -1,22 +1,29 @@
-//const UserInfo = (function() {
-// var guest_id = -1000;//NOTE that guests ids are negative
-
-// const INITIAL_RANK = 1000;//new account's rank
 import RoomInfo from './room_info';
+import Config from './config';
 
-export interface UserCustomData {
+export interface UserPublicData {
 	nick: string;
 	level: number;
 	rank: number;
-	exp: number;
-	coins: number;
-	ship_type: number;
-	skills: (number | null)[];
-	avaible_ships: number[];
-	avaible_skills: number[];
+	avatar: string | null;
 }
 
-export interface FriendInfoI {
+export interface UserPrivateData {
+	verified: boolean;
+
+	exp: number;
+	coins: number;
+	
+	available_skills: number[];
+	skills: (number | null)[];//chosen skills
+
+	available_ships: number[];
+	ship_type: number;//chosen ship
+}
+
+export interface UserCustomData extends UserPublicData, UserPrivateData {}
+
+/*export interface FriendInfoI {
 	id: number;
 	nick: string;
 	online?: boolean;
@@ -30,179 +37,164 @@ export interface UserJsonI {
 	rank: number;
 
 	[index: string]: number | string | null;
-}
+}*/
 
 export default class UserInfo {
 	private static guest_id = -1000;
+	private static user_id = 0;
 
-	private static INITIAL_RANK = 1000;
+	readonly id: number;
+	readonly account_id?: string;
 
-	private _id: number;
-	
-	public custom_data: UserCustomData;
-	public friends: FriendInfoI[];
-
-	public nick: string;
-
-	public avatar: string | null;
+	public custom_data: UserPublicData & Partial<UserCustomData>;
+	//public friends: FriendInfoI[];
 
 	public connection: any = null;
 	public room: RoomInfo | null = null;
 
-	public lobby_subscriber = false;
+	//public lobby_subscriber = false;
 
 	//@id - database id for registered accounts
-	constructor(id?: number, nick?: string, custom_data?: any, _avatar?: string | null) {
-		this._id = id || 0;
-		if(this._id === 0) {//is guest
-			this._id = UserInfo.guest_id--;
-			this.nick = "Guest#" + Math.abs(this._id);
-		}
-		else if(nick)
-			this.nick = nick;
-		else
-			this.nick = 'Error#0000';
+	constructor(_id: number, _custom_data: UserPublicData | UserCustomData, _account_id?: string) {
+		this.id = _id;
+		if(this.id === 0)
+			throw new Error('Creating guest this way is deprecated. Use UserInfo.createGuest() instead');
 
-		this.avatar = _avatar || null;
+		this.account_id = _account_id;
 
-		try {
-			if(typeof custom_data === 'string')
-				custom_data = JSON.parse(custom_data);
-			else if(typeof custom_data !== 'object') {
-				//console.error('custom_data must be a JSON format');
-				custom_data = {};
-			}
-		}
-		catch(e) {
-			console.error(e);
-			custom_data = {};
-		}
-		this.custom_data = custom_data;
-		this.friends = [];
+		this.custom_data = _custom_data;
 
-		//filling data gaps with default values
-
-		//NOTE - level is never 0
-		this.custom_data['level'] = this.custom_data['level'] || this.custom_data.level || 1;
-		this.custom_data['rank'] = 
-			this.custom_data['rank'] || this.custom_data.rank || UserInfo.INITIAL_RANK;
-		this.custom_data['exp'] = this.custom_data['exp'] || this.custom_data.exp || 0;
-		this.custom_data['coins'] = this.custom_data['coins'] || this.custom_data.coins || 0;
-		this.custom_data['ship_type'] = 
-			this.custom_data['ship_type'] || this.custom_data.ship_type || 0;
-		this.custom_data['skills'] = this.custom_data['skills'] || this.custom_data.skills || 
-			[null, null, null, null, null, null];
-
-		this.custom_data['avaible_ships'] = 
-			this.custom_data['avaible_ships'] || this.custom_data.avaible_ships || [0];
-		this.custom_data['avaible_skills'] = 
-			this.custom_data['avaible_skills'] || this.custom_data.avaible_skills || [];
-
-		//this.level = custom_data['level'] || 1;
-
-		//this.lobby_subscriber = false;
-
-		//use only serverside
+		//use only server-side
 		// this.connection = null;
 		// this.room = null;
 	}
 
-	//STORES ONLY PUBLIC DATA
-	toJSON() {
+	public static createGuest() {
+		let id = UserInfo.guest_id--;
+
+		return new UserInfo(id, {
+			nick: "Guest#" + Math.abs(id),
+			level: 1,
+			rank: Config.INITIAL_RANK,
+			avatar: null,
+
+			verified: false,
+			exp: 0,
+			coins: 0,
+			
+			available_skills: [],//no skills available initially
+			skills: new Array(Config.skills_slots).fill(null),
+
+			available_ships: [0],//first ship is available for everyone
+			ship_type: 0//and selected by default
+		} as UserCustomData);
+	}
+
+	public static nextUserId() {
+		return ++UserInfo.user_id;
+	}
+
+	public isGuest() {
+		return this.id < 0;
+	}
+
+	public get nick() {
+		return this.custom_data.nick;
+	}
+
+	public get avatar() {
+		return this.custom_data.avatar;
+	}
+
+	public get rank() {
+		return this.custom_data.rank;
+	}
+
+	public get level() {
+		return this.custom_data.level;
+	}
+
+	private getPublicData(): UserPublicData {
+		return {
+			nick: this.custom_data.nick,
+			level: this.custom_data.level,
+			rank: this.custom_data.rank,
+			avatar: this.custom_data.avatar
+		};
+	}
+
+	//RETURNS ONLY PUBLIC DATA AND ID
+	public toJSON() {
 		return JSON.stringify({
 			id: this.id,
-			nick: this.nick,
-			avatar: this.avatar,
-			level: this.level,//this.level
-			rank: this.rank
+			data: this.getPublicData()
 		});
 	}
 
-	//GETS ONLY PUBLIC DATA
-	static fromJSON(json_data: string | UserJsonI) {
+	//GETS ONLY PUBLIC DATA AND ID
+	public static fromJSON(json_data: string | {id: number, data: UserPublicData}) {
 		if(typeof json_data === 'string')
-			json_data = <UserJsonI>JSON.parse(json_data);
+			json_data = <{id: number, data: UserPublicData}>JSON.parse(json_data);
 		
-		return new UserInfo(json_data['id'], json_data['nick'], {
-			level: json_data['level'],
-			rank: json_data['rank']
-		}, json_data['avatar']);
+		let public_data = json_data['data'];
+		public_data = {
+			nick: public_data['nick'],
+			level: public_data['level'],
+			rank: public_data['rank'],
+			avatar: public_data['avatar']
+		};
+		return new UserInfo(json_data['id'], public_data);
 	}
 
-	//PRIVATE AND PUBLIC DATA (for server-side threads comunications)
-	toFullJSON() {
+	//PRIVATE AND PUBLIC DATA (for server-side threads communications)
+	public toFullJSON() {
 		return JSON.stringify({
 			id: this.id,
-			nick: this.nick,
-			avatar: this.avatar,
-			custom_data: this.custom_data,//this.level
-			friends: this.friends,
-			lobby_subscriber: this.lobby_subscriber
+			data: this.custom_data
 		});
 	}
 
 	//PRIVATE AND PUBLIC ...
-	static fromFullJSON(full_json_data: any) {
+	static fromFullJSON(full_json_data: string | {id: number, data: UserCustomData}) {
 		if(typeof full_json_data === 'string')
-			full_json_data = JSON.parse(full_json_data);
-		
-		let user = new UserInfo(full_json_data['id'], full_json_data['nick'], 
-			full_json_data['custom_data'], full_json_data['avatar']);
-		user.friends = full_json_data['friends'];
-		user.lobby_subscriber = full_json_data['lobby_subscriber'];
+			full_json_data = <{id: number, data: UserCustomData}>JSON.parse(full_json_data);
+
+		let full_data = full_json_data['data'];
+		full_data = {
+			nick: full_data['nick'],
+			level: full_data['level'],
+			rank: full_data['rank'],
+			avatar: full_data['avatar'],
+
+			verified: full_data['verified'],
+			exp: full_data['exp'],
+			coins: full_data['coins'],
+			available_skills: full_data['available_skills'],
+			skills: full_data['skills'],
+			available_ships: full_data['available_ships'],
+			ship_type: full_data['ship_type']
+		};
+
+		let user = new UserInfo(full_json_data['id'], full_data);
+
+		//user.friends = full_json_data['friends'];
+		//user.lobby_subscriber = full_json_data['lobby_subscriber'];
 		return user;
 	}
 
-	/*get lobby_subscriber() {
-		return this._lobby_subscriber;
-	}
+	public updateData(fresh_data: UserCustomData) {
+		//nick should never change so it is commented
+		//this.custom_data.nick = fresh_data['nick'];
+		this.custom_data.level = fresh_data['level'];
+		this.custom_data.rank = fresh_data['rank'];
+		this.custom_data.avatar = fresh_data['avatar'];
 
-	set lobby_subscriber(value) {
-		this._lobby_subscriber = value;
-	}*/
-
-	isGuest() {
-		return this._id < 0;
-	}
-
-	get id() {
-		return this._id;
-	}
-
-	set id(val) {
-		throw new Error('User id cannot be changed');
-	}
-
-	/*get nick() {
-		return this._nick;
-	}
-
-	set nick(_nick) {
-		this._nick = _nick || '';
-	}*/
-
-	get level() {//deprecated
-		return this.custom_data['level'] || 1;//this._level;
-	}
-
-	getLevel() {
-		return this.custom_data['level'] || 1;
-	}
-
-	set level(_level) {
-		//this.custom_data['level'] = _level;
-		throw new Error('Level can be changed only through custom_data');
-	}
-
-	get rank() {
-		return this.custom_data['rank'] || UserInfo.INITIAL_RANK;
-	}
-
-	getRank() {
-		return this.custom_data['rank'] || UserInfo.INITIAL_RANK;
-	}
-
-	set rank(value) {
-		throw new Error('User\'s rank can be changed only through custom_data');
+		this.custom_data.verified = fresh_data['verified'];
+		this.custom_data.exp = fresh_data['exp'];
+		this.custom_data.coins = fresh_data['coins'];
+		this.custom_data.available_skills = fresh_data['available_skills'];
+		this.custom_data.skills = fresh_data['skills'];
+		this.custom_data.available_ships = fresh_data['available_ships'];
+		this.custom_data.ship_type = fresh_data['ship_type'];		
 	}
 }

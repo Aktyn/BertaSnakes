@@ -2,19 +2,36 @@ import ServerApi from './utils/server_api';
 import ERROR_CODES from '../common/error_codes';
 import Cookies from './utils/cookies';
 
-export interface AccountSchema {
+/*export interface AccountSchema {
 	id: string;
-	username: string;
+
+	username: string,
 	email: string;
 	verified: boolean;
-	avatar: string | null;
+	avatar: string;
 	creation_time: number;
-}
+
+	level: number;
+	rank: number;
+
+	exp: number;
+	coins: number;
+
+	available_skills: number[];
+	skills: (number | null)[];//chosen skills
+
+	available_ships: number[];
+	ship_type: number;
+}*/
+
+import {AccountSchema as AccountSchemaDB} from '../server/database';
+export interface AccountSchema extends AccountSchemaDB {}
 
 let current_account: AccountSchema | null = null;
 let on_login_listeners: ((account: AccountSchema | null) => void)[] = [];
 
 function onLogIn(account: AccountSchema | null) {
+	//console.log(account);
 	current_account = account;
 	on_login_listeners.forEach(l => l(account));
 }
@@ -37,6 +54,10 @@ if(token) {//try to login via cookie token
 export default {
 	getAccount() {//null if user is not logged in
 		return current_account;
+	},
+
+	getToken() {
+		return token;
 	},
 
 	addLoginListener(listener: (account: AccountSchema | null) => void) {

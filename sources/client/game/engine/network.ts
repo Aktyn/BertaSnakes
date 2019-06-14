@@ -1,9 +1,9 @@
 /* Client network handling */
-
-import NetworkCodes, {NetworkPackage} from './../../../common/network_codes';
-import UserInfo from './../../../common/user_info';
-import RoomInfo from './../../../common/room_info';
-import Config from './../../../common/config';
+import ERROR_CODES from '../../../common/error_codes';
+import NetworkCodes, {NetworkPackage} from '../../../common/network_codes';
+import UserInfo from '../../../common/user_info';
+import RoomInfo from '../../../common/room_info';
+import Config from '../../../common/config';
 
 //@ts-ignore
 // window.WebSocket = window.WebSocket || window.MozWebSocket;
@@ -16,7 +16,7 @@ interface ListenersSchema {
 	onServerData: (data: Float32Array) => void
 }
 
-var Listeners: ListenersSchema | null = null;
+var listeners: ListenersSchema | null = null;
 var socket: WebSocket | null = null;
 var CurrentUser: UserInfo | null = null;
 var CurrentRoom: RoomInfo | null = null;
@@ -29,7 +29,10 @@ const HANDLERS = {
 		switch(json_data['type']) {
 			//default: 
 			//	throw new Error('Incorrect type value in JSON message');
-			case NetworkCodes.PLAYER_ACCOUNT:
+			case NetworkCodes.ON_USER_DATA:
+				CurrentUser = UserInfo.fromFullJSON(json_data['user']);
+				break;
+			/*case NetworkCodes.PLAYER_ACCOUNT:
 				//console.log(json_data, json_data['user_info']);
 				try {
 					CurrentUser = UserInfo.fromFullJSON(json_data['user_info']);
@@ -101,13 +104,13 @@ const HANDLERS = {
 				if(CurrentRoom == null)
 					throw new Error('CurrentRoom is empty');
 				CurrentRoom.updateData( json_data['room_info'] );
-				break;
+				break;*/
 		}
 		//let curr = Stages.getCurrent();
 		//if(curr !== null)//passing message forward
 		//	curr.onServerMessage(json_data);
-		if(Listeners)
-			Listeners.onServerMessage(json_data);
+		if(listeners)
+			listeners.onServerMessage(json_data);
 	},
 
 	handleByteBuffer: (function() {
@@ -116,8 +119,8 @@ const HANDLERS = {
 			let reader = new FileReader();
 			reader.onload = function() {
 				try {
-					if(Listeners)
-						Listeners.onServerData( new Float32Array(<ArrayBuffer>reader.result) )
+					if(listeners)
+						listeners.onServerData( new Float32Array(<ArrayBuffer>reader.result) )
 				}
 				catch(e) {
 					console.error(e);
@@ -137,8 +140,8 @@ const HANDLERS = {
 			}
 
 			//none of readers are free
-			console.log('all package receivers are overloaded');
-			setTimeout(HANDLERS.handleByteBuffer, 1, data);//TODO - try with 0
+			console.warn('all package receivers are overloaded');
+			setTimeout(HANDLERS.handleByteBuffer, 1, data);
 		};
 	})()
 }
@@ -160,30 +163,37 @@ function sendJSON(data: NetworkPackage | string) {
 		if(socket === null)
 			throw new Error('socket is null');
 		socket.send( data );
+		return true;
 	}
 	catch(e) {
 		console.error('Cannot send message (' + data + '), reason:', e);
+		return false;
 	}
 }
 
 const Network = {
-	assignListeners: function(listeners: ListenersSchema) {
-		Listeners = listeners;
+	assignListeners(_listeners: ListenersSchema) {
+		listeners = _listeners;
 	},
 
-	connect: function() {
+	clearListeners() {
+		listeners = null;
+	},
+
+	connect() {
 		if(socket !== null) {
-			console.log('Websocket connection already estabilished');
+			console.log('Websocket connection already established');
 			return;
 		}
-		console.log('Connecting to websocket server');
-		socket = new WebSocket('ws://' + window.location.hostname + ':' + Config.WEBSOCKET_PORT);
+		const server_address = 'ws://' + window.location.hostname + ':' + Config.WEBSOCKET_PORT;
+		console.log('Connecting to websocket server:', server_address);
+		socket = new WebSocket(server_address);
 
 		socket.onopen = function() {
 			connection_attempts = 0;
 
-		   	if(Listeners)
-		   		Listeners.onServerConnected();
+		   	if(listeners)
+		   		listeners.onServerConnected();
 		};
 
 		socket.onmessage = function(message) {
@@ -193,7 +203,7 @@ const Network = {
 			try {
 				if(typeof message.data === 'string')//JSON object
 					HANDLERS.handleJSON( JSON.parse(message.data) );
-				else if(typeof message.data === 'object')//object - propably array buffer
+				else if(typeof message.data === 'object')//object - probably array buffer
 					HANDLERS.handleByteBuffer( message.data );
 				else 
 					throw new Error('Incorrect message type');
@@ -209,8 +219,8 @@ const Network = {
 			CurrentUser = null;
 			CurrentRoom = null;
 			socket = null;
-			if(Listeners)
-		   		Listeners.onServerDisconnect();
+			if(listeners)
+		   		listeners.onServerDisconnect();
 		};
 		socket.onerror = function(error) {
 			restoreConnection();
@@ -218,7 +228,7 @@ const Network = {
 		};
 	},
 
-	disconnect: function() {
+	disconnect() {
 		if(restore_timeout) {
 			clearTimeout(restore_timeout);
 			restore_timeout = null;
@@ -228,79 +238,89 @@ const Network = {
 		socket = null;
 	},
 
-	getCurrentUser: function() {
+	getCurrentUser() {
 		return CurrentUser;
 	},
-	getCurrentRoom: function() {
+	getCurrentRoom() {
 		return CurrentRoom;
 	},
-	amISitting: function() {
+
+	login( session_token: string | null ) {
+		if( !sendJSON({'type': NetworkCodes.LOGIN, 'token': session_token}) )
+			return ERROR_CODES.CANNOT_SEND_JSON_MESSAGE;
+		return ERROR_CODES.SUCCESS;
+	},
+	requestAccountData() {
+		sendJSON( {'type': NetworkCodes.ACCOUNT_DATA_REQUEST} );
+	},
+
+	////////////////////////////////////////
+	//BELOW FUNCTIONS ARE BEFORE PROJECT RENEVAL
+
+	amISitting() {
 		if(CurrentRoom === null || CurrentUser === null)
 			return false;
 		return CurrentRoom.isUserSitting(CurrentUser.id);
 	},
-	subscribeLobby: function() {
+	subscribeLobby() {
 		sendJSON( {'type': NetworkCodes.SUBSCRIBE_LOBBY_REQUEST} );
 	},
-	joinRoom: function(id: number) {//@id - target room name
+	joinRoom(id: number) {//@id - target room name
 		sendJSON( {'type': NetworkCodes.JOIN_ROOM_REQUEST, 'id': id} );
 	},
-	leaveRoom: function() {//leaves current room
+	leaveRoom() {//leaves current room
 		if(CurrentRoom === null)
 			throw new Error('CurrentRoom is null');
 		sendJSON( {'type': NetworkCodes.LEAVE_ROOM_REQUEST, 'id': CurrentRoom.id} );
 	},
-	createRoom: function() {
+	createRoom() {
 		sendJSON( {'type': NetworkCodes.CREATE_ROOM_REQUEST} );
 	},
-	sendRoomMessage: function(msg: string) {
+	sendRoomMessage(msg: string) {
 		sendJSON( {'type': NetworkCodes.SEND_ROOM_MESSAGE, 'msg': msg} );
 	},
-	sendPrivateMessage: function(msg: string, target_user_id: number) {
+	sendPrivateMessage(msg: string, target_user_id: number) {
 		sendJSON( {'type': NetworkCodes.SEND_PRIVATE_MESSAGE, 
 			'msg': msg, 'user_id': target_user_id} );
 	},
-	sendAddFriendRequest: function(user_id: number) {
+	sendAddFriendRequest(user_id: number) {
 		sendJSON( {'type': NetworkCodes.ADD_FRIEND_REQUEST, 'user_id': user_id} );
 	},
-	sendRemoveFriendRequest: function(user_id: number) {
+	sendRemoveFriendRequest(user_id: number) {
 		sendJSON( {'type': NetworkCodes.REMOVE_FRIEND_REQUEST, 'user_id': user_id} );
 	},
-	sendSitRequest: function() {
+	sendSitRequest() {
 		sendJSON( {'type': NetworkCodes.SIT_REQUEST} );
 	},
-	sendStandUpRequest: function() {
+	sendStandUpRequest() {
 		sendJSON( {'type': NetworkCodes.STAND_REQUEST} );
 	},
-	sendReadyRequest: function() {
+	sendReadyRequest() {
 		sendJSON( {'type': NetworkCodes.READY_REQUEST} );
 	},
-	requestAccountData: function() {
-		sendJSON( {'type': NetworkCodes.ACCOUNT_DATA_REQUEST} );
-	},
-	requestShipUse: function(type: number) {//TODO - check this types
+	requestShipUse(type: number) {//TODO - check this types
 		sendJSON( {'type': NetworkCodes.SHIP_USE_REQUEST, 'ship_type': type} );
 	},
-	requestShipBuy: function(type: number) {
+	requestShipBuy(type: number) {
 		sendJSON( {'type': NetworkCodes.SHIP_BUY_REQUEST, 'ship_type': type} );
 	},
-	requestSkillBuy: function(skill_id: number) {
+	requestSkillBuy(skill_id: number) {
 		sendJSON( {'type': NetworkCodes.SKILL_BUY_REQUEST, 'skill_id': skill_id} );
 	},
-	requestSkillUse: function(skill_id: number) {
+	requestSkillUse(skill_id: number) {
 		sendJSON( {'type': NetworkCodes.SKILL_USE_REQUEST, 'skill_id': skill_id} );
 	},
-	requestSkillPutOff: function(skill_id: number) {
+	requestSkillPutOff(skill_id: number) {
 		sendJSON( {'type': NetworkCodes.SKILL_PUT_OFF_REQUEST, 'skill_id': skill_id} );
 	},
 	//@skills - array of skill indexes and nulls
-	requestSkillsOrder: function(skills: (number | null)[]) {
+	requestSkillsOrder(skills: (number | null)[]) {
 		sendJSON( {'type': NetworkCodes.SKILLS_ORDER_REQUEST, 'skills': skills} );
 	},
-	requestUserKick: function(user_id: number) {
+	requestUserKick(user_id: number) {
 		sendJSON( {'type': NetworkCodes.USER_KICK_REQUEST, 'user_id': user_id} );
 	},
-	sendRoomUpdateRequest: function(name: string, sits_number: number, duration: number, 
+	sendRoomUpdateRequest(name: string, sits_number: number, duration: number, 
 		map: string, gamemode: number) 
 	{
 		sendJSON({
@@ -312,7 +332,7 @@ const Network = {
 			'duration': duration
 		});
 	},
-	confirmGameStart: function() {
+	confirmGameStart() {
 		sendJSON( {'type': NetworkCodes.START_GAME_CONFIRM} );
 	},
 
@@ -323,7 +343,7 @@ const Network = {
 		CurrentGameHandle = null;
 	},*/
 
-	sendByteBuffer: function(buffer: Uint8Array) {
+	sendByteBuffer(buffer: Uint8Array) {
 		try {
 			if(socket !== null)
 				socket.send( buffer );

@@ -2,15 +2,16 @@ import * as React from 'react';
 
 import Network from './engine/network';
 import NetworkCodes, {NetworkPackage} from './../../common/network_codes';
+import Account from '../account';
 //import UserInfo from './../../common/user_info';
-import RoomInfo, {RoomCustomData} from './../../common/room_info';
+// import RoomInfo, {RoomCustomData} from './../../common/room_info';
 
 //main stages
 import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
-const TDD = true;
+// const TDD = true;
 
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;//changed from any to StageBase<any, any>
@@ -23,7 +24,7 @@ export default class extends React.Component<any, CoreState> {
 	state: CoreState = {
 		current_stage: MenuStage.prototype,
 
-		account: null,
+		current_user: null,
 		room: null,
 		rooms_list: [],
 	}
@@ -50,6 +51,7 @@ export default class extends React.Component<any, CoreState> {
 	}
 
 	componentWillUnmount() {
+		Network.clearListeners();
 		this.active = false;
 	}
 
@@ -60,12 +62,14 @@ export default class extends React.Component<any, CoreState> {
 
 	onServerConnected() {
 		console.log('server connected');
+
+		Network.login( Account.getToken() );
 	}
 
 	onServerDisconnected() {
 		console.log('server disconnected');
 		if(this.active) {
-			this.setState({account: null, room: null, rooms_list: []});
+			this.setState({current_user: null, room: null, rooms_list: []});
 			//TODO - open info about server connection lost with reconnect button
 		}
 	}
@@ -77,7 +81,10 @@ export default class extends React.Component<any, CoreState> {
 
 		try {
 			switch(data['type']) {
-				case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
+				case NetworkCodes.ON_USER_DATA:
+					this.setState({current_user: Network.getCurrentUser()});
+					break;
+				/*case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
 					this.notify('Your account is already logged in game.',
 						'Check other browser tabs.');
 					break;
@@ -89,18 +96,18 @@ export default class extends React.Component<any, CoreState> {
 						Network.subscribeLobby();
 					}
 
-					/*if(TDD) {
-						this.openPopupStage(UserProfile.prototype, {user: Network.getCurrentUser()} as 
-							UserProfileProps);
-					}*/
+					// if(TDD) {
+					// 	this.openPopupStage(UserProfile.prototype, {user: Network.getCurrentUser()} as 
+					// 		UserProfileProps);
+					// }
 				}	break;
 				case NetworkCodes.ACCOUNT_DATA:
 					this.setState({account: Network.getCurrentUser()});
 					break;
-				/*case NetworkCodes.TRANSACTION_ERROR:
-					if(this.current_popup instanceof Popup.Account)
-						this.current_popup.onTransactionError(data['error_detail']);
-					break;*/
+				// case NetworkCodes.TRANSACTION_ERROR:
+				// 	if(this.current_popup instanceof Popup.Account)
+				// 		this.current_popup.onTransactionError(data['error_detail']);
+				// 	break;
 				case NetworkCodes.SUBSCRIBE_LOBBY_CONFIRM: {
 					var curr_user = Network.getCurrentUser();
 					if(curr_user !== null)
@@ -119,15 +126,15 @@ export default class extends React.Component<any, CoreState> {
 						Network.joinRoom(this.state.rooms_list[0].id);
 					}
 				}	break;
-				/*case NetworkCodes.ADD_FRIEND_CONFIRM:
-					this.notifications.addNotification(
-						'User has been added to your friends list');
-					break;
-				case NetworkCodes.REMOVE_FRIEND_CONFIRM:
-					this.notifications.addNotification(
-						'User has been removed from your friends list');
-					Network.requestAccountData();//request updated data
-					break;*/
+				// case NetworkCodes.ADD_FRIEND_CONFIRM:
+				// 	this.notifications.addNotification(
+				// 		'User has been added to your friends list');
+				// 	break;
+				// case NetworkCodes.REMOVE_FRIEND_CONFIRM:
+				// 	this.notifications.addNotification(
+				// 		'User has been removed from your friends list');
+				// 	Network.requestAccountData();//request updated data
+				// 	break;
 				case NetworkCodes.ON_ROOM_CREATED: {
 					//this.rooms_list.pushRoomInfo( RoomInfo.fromJSON(data['room_info']) );
 					let _rooms_list = this.state.rooms_list;
@@ -176,7 +183,7 @@ export default class extends React.Component<any, CoreState> {
 					this.setState({room: Network.getCurrentRoom()});
 
 					this.notify('You have been kicked from the room');
-					break;
+					break;*/
 				/*case NetworkCodes.RECEIVE_CHAT_MESSAGE:
 					if(this.currentStage) {
 						this.currentStage.onChatMessage(

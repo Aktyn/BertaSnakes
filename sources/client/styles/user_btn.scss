@@ -1,0 +1,34 @@
+@import './global.scss';
+
+.user-btn {
+	$size: 30px;
+
+	background-color: nth($palette, 9);
+	border: 1px solid #0000;
+	box-sizing: border-box;
+	padding: 0px 8px;
+	border-radius: 5px;
+	height: $size;
+	line-height: $size - 2px;
+	cursor: pointer;
+
+	color: nth($palette, 1) !important;
+	box-shadow: none !important;
+
+	$transFunc: 0.2s ease-in-out;
+
+	transition: border-color $transFunc, background-color $transFunc, color $transFunc;
+
+	&:hover {
+		border-color: #e57373;
+		// background-color: #BF360C;
+		background-color: nth($palette, 8);
+		color: #ef9a9a !important;
+	}
+
+	img {
+		max-height: 80%;
+		margin-right: 4px;
+		border-radius: $size;
+	}
+}

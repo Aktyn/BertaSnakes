@@ -34,6 +34,11 @@ import HTTP_API from './http_api';
 HTTP_API.shareUploads();
 HTTP_API.shareClientFiles();//must be last sharing function
 
+import Config from '../common/config';
+
+import Core from './core';
+Core.runAt( Config.WEBSOCKET_PORT );
+
 /*import Config from './../common/config';
 
 import Connection from './connection';
@@ -41,46 +46,4 @@ import Core from './core';
 
 // require('./http/http_server.js').init();
 import HttpServer from './http/http_server';
-HttpServer.init();
-
-//TODO - websocket server module
-
-//running websocket server
-console.log('Running WebSocketServer at port:', Config.WEBSOCKET_PORT);
-// const WebSocketServer = require('ws').Server;
-import {Server} from 'ws';
-const websock = new Server({ port: Config.WEBSOCKET_PORT });
-
-websock.on('connection', function(ws, req) {
-	(<any>ws).isAlive = true;
-	ws.on('pong', () => {
-		(<any>ws).isAlive = true;//heartbeat
-	});
-
-	//new client connection
-	let connection = new Connection(ws, req);
-
-	Core.addConnection(connection);
-
-	ws.on('message', function(message) {
-		Core.onMessage(connection, message);
-	});
-
-	ws.on('close', () => {// close user connection
-		console.log('connection close:', connection.id);
-		Core.removeConnection(connection);
-	});
-});
-
-//detecting dead connections
-setInterval(function ping() {
-	websock.clients.forEach((ws) => {
-		if((<any>ws).isAlive === false) {//connection doesn't send pong in time
-			console.log('removing dead connection');
-			return ws.terminate();
-		}
-
-		(<any>ws).isAlive = false;
-		ws.ping(() => {});
-	});
-}, 30 * 1000);//check every 30 seconds*/
+HttpServer.init();*/

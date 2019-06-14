@@ -1,6 +1,7 @@
 import {MongoClient, Db, ObjectId} from 'mongodb';
 import {getArgument} from './utils';
 import ERROR_CODES from '../common/error_codes';
+import Config from '../common/config';
 
 const uri = 'mongodb://localhost:27017';
 const DB_NAME = 'BertaSnakes';
@@ -63,14 +64,48 @@ MongoClient.connect(uri, {
 	visit_counter: number;
 }*/
 
-function extractAccountSchema(account: any) {
+export interface AccountSchema {
+	id: string;
+
+	username: string,
+	email: string;
+	verified: boolean;
+	avatar: string;
+	creation_time: number;
+
+	level: number;
+	rank: number;
+
+	exp: number;
+	coins: number;
+
+	available_skills: number[];
+	skills: (number | null)[];//chosen skills
+
+	available_ships: number[];
+	ship_type: number;
+}
+
+function extractAccountSchema(account: any): AccountSchema {
 	return {
 		id: (account._id as ObjectId).toHexString(), 
-		username: account.username,
-		email: account.email,
+		username: account.username || 'Noname',
+		email: account.email || '',
 		verified: account.verification_code === '',
-		avatar: account.avatar,
-		creation_time: account.creation_time
+		avatar: account.avatar || null,
+		creation_time: account.creation_time || Date.now(),
+
+		level: account.level || 1,
+		rank: account.rank || Config.INITIAL_RANK,
+
+		exp: account.exp || 0,
+		coins: account.coins || 0,
+
+		available_skills: account.available_skills || [],
+		skills: account.skills || new Array(Config.skills_slots).fill(null),
+
+		available_ships: account.available_ships || [],
+		ship_type: account.ship_type || 0
 	};
 }
 
@@ -210,6 +245,31 @@ export default {
 		}
 	},
 
+	async getAccountFromToken(_token: string) {
+		/*let account_id = await this.getSession(token);
+		if(!account_id)
+			return {error: ERROR_CODES.SESSION_EXPIRED};
+		let account = await this.getAccount(account_id);
+		if(!account)
+			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+		return { error: ERROR_CODES.SUCCESS, account };*/
+
+		let session_data = await getCollection(COLLECTIONS.sessions).findOne({
+			token: _token
+		});
+		if(!session_data || session_data.expiration <= Date.now() || 
+			typeof session_data.account_id !== 'object')
+		{
+			return {error: ERROR_CODES.SESSION_EXPIRED};
+		}
+		let account = await getCollection(COLLECTIONS.accounts).findOne({
+			_id: session_data.account_id
+		});
+		if(!account)
+			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+		return { error: ERROR_CODES.SUCCESS, account: extractAccountSchema(account) }
+	},
+
 	async insertAccount(_nick: string, _hashed_password: string, _email: string, 
 		_verification_code: string) 
 	{
@@ -235,7 +295,19 @@ export default {
 				verification_code: _verification_code,
 				creation_time: Date.now(),
 				last_login: Date.now(),
-				avatar: null
+				avatar: null,
+
+				level: 1,
+				rank: Config.INITIAL_RANK,
+
+				exp: 0,
+				coins: 0,
+
+				available_skills: [],
+				skills: new Array(Config.skills_slots).fill(null),
+
+				available_ships: [],
+				ship_type: 0
 			});
 
 			if(!insert_res.result.ok)

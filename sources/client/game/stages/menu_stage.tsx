@@ -4,8 +4,8 @@ import {Link} from 'react-router-dom';
 import StageBase, {BaseProps, BaseState} from './stage_base';
 import Network from './../engine/network';
 
-import HeaderNotifications from './header_notifications';
-
+import HeaderNotifications from '../../components/header_notifications';
+import UserBtn from '../../components/user_btn';
 import RoomView from './room_view';
 
 import './../../styles/menu_stage.scss';
@@ -27,11 +27,7 @@ export default class extends StageBase<BaseProps, MenuState> {
 		return <div className='menu-stage'>
 			<header>
 				<div style={{justifySelf: 'left'}}>
-					<button className='account-btn' onClick={() => {
-						//TODO - open account sidepop
-					}}>{
-						this.props.account ? this.props.account.nick : 'OFFLINE'
-					}</button>
+					<UserBtn user={this.props.current_user} />
 				</div>
 
 				<HeaderNotifications ref={el=>this.notifications=el} />
@@ -67,11 +63,10 @@ export default class extends StageBase<BaseProps, MenuState> {
 						</tbody>
 					</table>
 				</div>
-				<hr style={{marginBottom: '0px'}}/>
-				<span>TODO - chat</span>
 			</aside>
 			<main>
-				{this.props.room && <RoomView room={this.props.room} account={this.props.account} />}
+				{this.props.room && <RoomView room={this.props.room} 
+					current_user={this.props.current_user} />}
 			</main>
 		</div>;
 	}

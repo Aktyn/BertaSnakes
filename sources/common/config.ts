@@ -21,5 +21,8 @@ export default {
 	MINIMUM_GAME_DURATION: 1,
 	MAXIMUM_GAME_DURATION: 30,
 
+	INITIAL_RANK: 1000,
+	skills_slots: 6,
+
 	MAXIMUM_SITS: 8
 }

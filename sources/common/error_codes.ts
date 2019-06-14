@@ -24,7 +24,10 @@ const enum ERROR_CODES {
 
 	//files
 	CANNOT_OPEN_FILE,
-	FILE_TOO_LARGE
+	FILE_TOO_LARGE,
+
+	//network
+	CANNOT_SEND_JSON_MESSAGE,
 }
 
 export default ERROR_CODES;
@@ -55,5 +58,8 @@ export function errorMsg(code: ERROR_CODES) {
 		//files
 		case ERROR_CODES.CANNOT_OPEN_FILE: 		return 'Cannot open file';
 		case ERROR_CODES.FILE_TOO_LARGE:		return 'File too large';
+
+		//network
+		case ERROR_CODES.CANNOT_SEND_JSON_MESSAGE:return 'Cannot send json message';
 	}
 }

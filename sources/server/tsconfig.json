@@ -1,7 +1,7 @@
 {
     "include": [
         "./main.ts",
-        "./game_process.ts",
+        //"./game_process.ts",
     ],
     "exclude": [
         "./../../node_modules"

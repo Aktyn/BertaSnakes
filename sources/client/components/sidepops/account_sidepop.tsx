@@ -1,7 +1,7 @@
 import * as React from 'react';
 import SidepopBase, {SidepopProps} from './sidepop_base';
-import Loader from '../loader';
 import ServerApi from '../../utils/server_api';
+import Loader from '../loader';
 import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
 import {errorMsg} from '../../../common/error_codes';
@@ -9,6 +9,7 @@ import Config from '../../../common/config';
 import ERROR_CODES from '../../../common/error_codes';
 
 import './../../styles/account_sidepop.scss';
+
 const no_avatar_img = require('../../img/icons/account.svg');
 
 interface AccountSidepopProps extends SidepopProps {
@@ -33,8 +34,10 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	private email_input: 			HTMLInputElement | null = null;
 	private register_btn: 			HTMLButtonElement | null = null;
 	private verification_code_input:HTMLInputElement | null = null;
+	private clear_avatar_btn:		HTMLButtonElement | null = null;
 
 	private register_confirm: NodeJS.Timeout | null = null;
+	private clear_avatar_confirm: NodeJS.Timeout | null = null;
 
 	private onLogIn: (account: AccountSchema | null) => void;
 
@@ -82,8 +85,10 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	componentWillUnmount() {
 		Account.removeLoginListener( this.onLogIn );
-		if(this.register_confirm)
-			clearTimeout(this.register_confirm);
+		for(let timeout of [this.register_confirm, this.clear_avatar_confirm]) {
+			if(timeout)
+				clearTimeout(timeout);
+		}
 	}
 
 	private setError(msg: string) {
@@ -186,7 +191,12 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		if(res.error)
 			return this.setError( errorMsg(res.error) );
 		
-		this.setState({loading: false, error: undefined, verify_info: true, account: Account.getAccount()});
+		this.setState({
+			loading: false, 
+			error: undefined, 
+			verify_info: true, 
+			account: Account.getAccount()
+		});
 	}
 
 	private async tryResendVerificationCode() {
@@ -223,6 +233,17 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	}
 
 	private clearAvatar() {
+		if(!this.clear_avatar_confirm) {
+			if(this.clear_avatar_btn)
+				this.clear_avatar_btn.innerText = 'REMOVE AVATAR?';
+			this.clear_avatar_confirm = setTimeout(() => {
+				if(this.clear_avatar_btn)
+					this.clear_avatar_btn.innerText = 'CLEAR';
+				this.clear_avatar_confirm = null;
+			}, 5000) as never;
+			return;
+		}
+		
 		this.uploadAvatar(true);
 	}
 
@@ -318,7 +339,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				ref={el => this.email_input = el} style={offsetTop}
 				onKeyDown={e => {
 					if(e.keyCode === 13 && this.register_btn) {
-						this.register_btn.focus();
+						//this.register_btn.focus();
 						this.tryRegister();
 					}
 				}} onChange={this.removeWhitechars} maxLength={256} />
@@ -364,10 +385,27 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				
 				<label>Registered since:</label>
 				<div>{new Date(account.creation_time).toLocaleDateString()}</div>
+
+				<label>Rank:</label>
+				<div>{account.rank}</div>
+
+				<label>Level:</label>
+				<div>{account.level}</div>
+
+				<label>Experience:</label>
+				<div>{account.exp}</div>
+
+				<label>TODO:</label>
+				<div>ships and skills choicers as separate components</div>
+
+				<label>Coins:</label>
+				<div>{account.coins}</div>
 			</div>
+			<button key='shop_btn' className='fader-in' 
+				style={offsetTop}>SHOP</button>
 			<hr/>
 		</>;
-	}
+	}//💸
 
 	private renderAccountSection(account: AccountSchema) {
 		const no_avatar_style = account.avatar ? {
@@ -375,7 +413,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			backgroundSize: 'contain'
 		} : {
 			backgroundImage: `url(${no_avatar_img})`,
-			backgroundSize: '61%'
+			backgroundSize: '61%',
 		};
 		return <section>
 			<h1 key='welcome-key' className='fader-in welcomer'>
@@ -387,7 +425,8 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 					<div key={account.avatar || 'no-avatar'} 
 						className='avatar' style={no_avatar_style}></div>
 					{
-						account.avatar ? <button className='avatar-select-btn'
+						account.avatar ? <button className='avatar-select-btn' 
+							ref={el => this.clear_avatar_btn = el}
 							onClick={this.clearAvatar.bind(this)}>CLEAR</button> 
 						:
 						<button className='avatar-select-btn' 

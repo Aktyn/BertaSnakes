@@ -1,11 +1,15 @@
 export interface NetworkPackage {
-	type: number;
+	type: NetworkCodes;
 	[index: string]: any;
 }
 
 const enum NetworkCodes {
 	//TO SERVER
-	SUBSCRIBE_LOBBY_REQUEST = 0,
+	LOGIN = 0,//{token: string}
+	ACCOUNT_DATA_REQUEST,//request update, returns same data as LOGIN response
+
+
+	SUBSCRIBE_LOBBY_REQUEST,
 	JOIN_ROOM_REQUEST,//@id - 'number' (target room id)
 	LEAVE_ROOM_REQUEST,//@id - 'number' (current room id)
 	CREATE_ROOM_REQUEST,
@@ -16,7 +20,7 @@ const enum NetworkCodes {
 	SIT_REQUEST,
 	STAND_REQUEST,
 	READY_REQUEST,
-	ACCOUNT_DATA_REQUEST,
+	
 	SHIP_USE_REQUEST,//@ship_type - 'number'
 	SHIP_BUY_REQUEST,// ------- // -------
 	SKILL_BUY_REQUEST,//@skill_id - 'number'
@@ -30,6 +34,9 @@ const enum NetworkCodes {
 	START_GAME_CONFIRM,
 
 	//FROM SERVER
+	ON_USER_DATA,//user: UserInfo to json data
+
+
 	ACCOUNT_ALREADY_LOGGED_IN,
 	PLAYER_ACCOUNT,//gives user info to client (stored in @user_info property) (+ custom_data)
 	ACCOUNT_DATA,//complete user's custom_data + friends as an array
@@ -89,9 +96,11 @@ const enum NetworkCodes {
 	WAVE_INFO,//wave_number
 	SPAWN_ENEMY,//enemy_class_index: 0, object_id: 0, pos_x: 0, pos_y: 0, rot
 	SPAWN_ITEM,//item_id: 0, item_type: 0, item_x: 0, item_y
-	//enemy_id: 0, player_index: 0, pos_x: 0, pos_y: 0, player_rot: 0, player_hp: 0, player_points: 0, bounce_x and y
+	//enemy_id: 0, player_index: 0, pos_x: 0, pos_y: 0, player_rot: 0, player_hp: 0, player_points: 0, 
+	//bounce_x and y
 	ON_PLAYER_ENEMY_COLLISION,
-	//ON_ENEMY_BULLET_COLLISION,//enemy_id: 0, enemy_hp: 0, bullet_id: 0, player_index: 0, hit_x: 0, hit_y
+	//ON_ENEMY_BULLET_COLLISION,//enemy_id: 0, enemy_hp: 0, bullet_id: 0, player_index: 0, 
+	//hit_x: 0, hit_y: 0
 
 	ON_ENEMY_ATTACKED,//enemy_id: 0, damage: 0, player_index: 0, new_enemy_hp: 0, hit_x: 0, hit_y
 	ON_PLAYER_ATTACKED,//attacker_index: 0, damage: 0, victim_index: 0, new_victim_hp: 0, hit_x: 0, hit_y
@@ -123,10 +132,12 @@ const enum NetworkCodes {
 
 	ON_ENERGY_BLAST,//pos_x: 0, pos_y: 0, player_color_index
 
-	COUNT_DEBUGGER,
+	CODES_COUNT,
 };
 
-if(NetworkCodes.COUNT_DEBUGGER > 255)
+//TODO - separate enumarator for sending byte buffers
+
+if(NetworkCodes.CODES_COUNT > 255)
 	console.error('More than 256 unique network codes exists!!!');
 
 export default NetworkCodes;

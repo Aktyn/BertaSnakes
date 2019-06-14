@@ -33,7 +33,7 @@ Multi-player browser game.
 			<li>All necessary ports as well as host address are specified inside src/common/config.ts</li>
 			<li>Server uses MongoDB to store accounts data, sessions, etc. MongoDB credentials should be given in parameters while running server</li>
 			<li>Server send emails via nodemailer from gmail account. Gmail address and password must also be specified while running server. You should allow access of unsecured applications in google account settings to be able to send mails remotely from server.</li>
-			<li>Summarizing, the complete command to run server with all it's functionality is: <pre>npm run server:dev MONGO_USER="value" MONGO_PASS="value" EMAIL_ADDRESS="example_value@gmail.com" EMAIL_PASSWORD="value"</pre></li>
+			<li>Summarizing, the complete command to run server with all it's functionality is: <pre>npm run server:run MONGO_USER="value" MONGO_PASS="value" EMAIL_ADDRESS="example_value@gmail.com" EMAIL_PASSWORD="value"</pre></li>
 			<li>Same goes for running server in dev mode (npm run server:dev)</li>
 		</ul>
 	</li>
