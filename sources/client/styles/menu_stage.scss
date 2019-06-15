@@ -5,22 +5,30 @@ $iconsSize: 20px;
 .menu-stage {
 	display: grid;
 	height: 100vh;
-	grid-template-areas: 'header header' 'aside main' 'footer footer';
-	grid-template-columns: fit-content(100%) auto;
-	grid-template-rows: fit-content(100%) auto fit-content(100%);
+	grid-template-areas: 'header' 'panels';//'header header' 'aside main';
+	grid-template-columns: auto;//fit-content(100%) auto;
+	grid-template-rows: fit-content(100%) auto;
 	// align-items: center;
+	// 
 
 	header {
 		grid-area: header;
 		background-color: nth($palette, 8);
+		width: 100vw;
 
 		display: grid;
 		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
 		justify-content: space-between;
 
-		& > * {
+		@media (max-width: 350px) {
+			grid-template-columns: 100%;
+			grid-template-rows: auto fit-content(100%) auto;
+		}
+
+		& > :not(.notification) {
 			padding: 4px 5px;
+			white-space: nowrap;
 		}
 
 		.closer {
@@ -35,12 +43,18 @@ $iconsSize: 20px;
 			background-image: url('./../img/icons/coin.png');
 		}
 
-		.closer, .settings, .shop {//icon buttons
+		.friends {
+			background-image: url('./../img/icons/chat.svg');
+		}
+
+		.closer, .settings, .shop, .friends {//icon buttons
 			width: $iconsSize;
 			height: $iconsSize;
 			background-color: transparent;
 			box-shadow: none;
 			display: inline-block;
+
+			margin: 5px 0px;
 
 			opacity: 0.61;
 			transition: opacity 0.2s ease-in-out;
@@ -51,20 +65,125 @@ $iconsSize: 20px;
 		}
 	}
 
-	aside {
-		grid-area: aside;
+	section {
+		grid-area: panels;
 
-		height: 100%;
-		background-color: nth($palette, 8);
-		align-self: stretch;
+		display: grid;
+		grid-template-areas: "aside room chat";
+		grid-template-columns: fit-content(100%) auto fit-content(100%);
+		grid-template-rows: auto;
 
-		h1 {
-			font-size: 16px;
+		position: relative;//used for responsiveness
+
+		aside {
+			grid-area: aside;
+			background-color: yellow;
+
+			height: 100%;
+			width: auto;
+			background-color: nth($palette, 8);
+			align-self: stretch;
+			justify-self: start;
+
+			display: grid;
+			grid-template-columns: auto;
+			grid-template-rows: fit-content(100%) fit-content(100%) fit-content(100%) fit-content(100%);
+
+			h1 {
+				font-size: 16px;
+			}
+
+			hr {
+				background-color: #fff2;
+				margin: 10px 0px;
+			}
+
+			.rooms-list-toogler {
+				display: none;
+			}
+
+			.rooms-list-container {
+				height: auto;
+				overflow: auto;
+			}
 		}
-	}
 
-	main {
-		grid-area: main;
+		main {
+			grid-area: room;
+			width: auto;
+		}
+
+		.side-chat-container {
+			grid-area: chat;
+			display: inline-block;
+		}
+
+		//SECTION RESPONSIVENESS
+		@media (max-width: 900px) {//at this point - aside panels should be hideable
+			display: block;
+
+			overflow: hidden;
+
+			aside, .side-chat-container {
+				position: absolute;
+				top: 0px;
+				box-shadow: 0px 0px 4px #0008;
+			}
+
+			aside {
+				left: 0px;
+				right: auto;
+
+				grid-template-rows: fit-content(100%) fit-content(100%) fit-content(100%) auto;
+
+				$togglerMargin: 5px;
+
+				.info-header {
+					display: none;
+				}
+				.rooms-list-toogler {
+					&::before {
+						content: "";
+						display: inline-block;
+						height: 27px;
+						width: 27px;
+						float: left;
+						margin-right: 5px;
+						transform: rotate(0deg);
+						background-image: url('../img/icons/arrow_left.svg');
+						transform-origin: center;
+						vertical-align: middle;
+					}
+					&::after {
+						width: 20px;
+					}
+					padding: 0px;
+					display: inline-block;
+					margin: $togglerMargin;					
+				}
+
+				&, .rooms-list-toogler, .rooms-list-toogler::before {
+					transition: transform 0.5s cubic-bezier(.36,.07,.19,.97);
+				}
+
+				&.hidden {
+					transform: translateX(-100%);
+
+					.rooms-list-toogler {
+						transform: translateX(calc(100% + 10px));
+
+						&::before {
+							transform: rotate(180deg) translateY(2px);
+						}
+					}
+				}
+			}
+
+			.side-chat-container {
+				left: auto;
+				right: 0px;
+			}
+		}
 	}
 
 	.separator {

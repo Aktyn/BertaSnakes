@@ -45,6 +45,7 @@ export default class UserInfo {
 
 	readonly id: number;
 	readonly account_id?: string;
+	readonly session_token?: string;
 
 	public custom_data: UserPublicData & Partial<UserCustomData>;
 	//public friends: FriendInfoI[];
@@ -55,12 +56,17 @@ export default class UserInfo {
 	//public lobby_subscriber = false;
 
 	//@id - database id for registered accounts
-	constructor(_id: number, _custom_data: UserPublicData | UserCustomData, _account_id?: string) {
+	constructor(_id: number, _custom_data: UserPublicData | UserCustomData, _account_id?: string,
+		_session_token?: string) 
+	{
 		this.id = _id;
 		if(this.id === 0)
 			throw new Error('Creating guest this way is deprecated. Use UserInfo.createGuest() instead');
 
 		this.account_id = _account_id;
+		this.session_token = _session_token;
+
+		//console.log(this.account_id, this.session_token);
 
 		this.custom_data = _custom_data;
 
@@ -83,7 +89,7 @@ export default class UserInfo {
 			coins: 0,
 			
 			available_skills: [],//no skills available initially
-			skills: new Array(Config.skills_slots).fill(null),
+			skills: new Array(Config.SKILLS_SLOTS).fill(null),
 
 			available_ships: [0],//first ship is available for everyone
 			ship_type: 0//and selected by default

@@ -2,28 +2,6 @@ import ServerApi from './utils/server_api';
 import ERROR_CODES from '../common/error_codes';
 import Cookies from './utils/cookies';
 
-/*export interface AccountSchema {
-	id: string;
-
-	username: string,
-	email: string;
-	verified: boolean;
-	avatar: string;
-	creation_time: number;
-
-	level: number;
-	rank: number;
-
-	exp: number;
-	coins: number;
-
-	available_skills: number[];
-	skills: (number | null)[];//chosen skills
-
-	available_ships: number[];
-	ship_type: number;
-}*/
-
 import {AccountSchema as AccountSchemaDB} from '../server/database';
 export interface AccountSchema extends AccountSchemaDB {}
 
@@ -36,20 +14,32 @@ function onLogIn(account: AccountSchema | null) {
 	on_login_listeners.forEach(l => l(account));
 }
 
-let token = Cookies.getCookie('token');
-if(token) {//try to login via cookie token
-	ServerApi.postRequest('/token_login', {token}).then(res => {
+async function loginFromToken() {
+	if(current_account)
+		return {error: ERROR_CODES.ACCOUNT_ALREADY_LOGGED_IN}
+	try {
+		let res = await ServerApi.postRequest('/token_login', {token});
+
 		if(res.error === ERROR_CODES.SUCCESS && typeof res.account === 'object' &&
 			typeof res.account.id === 'string' && typeof res.account.username === 'string') 
 		{
 			onLogIn(res.account);
 			console.log('Logged in via token', current_account);
+			return {error: ERROR_CODES.SUCCESS};
 		}
-	}).catch(e => {
+		else
+			return {error: res.error || ERROR_CODES.UNKNOWN};
+	}
+	catch(e) {
 		if(process.env.NODE_ENV === 'development')
 			console.error(e);
-	});
+		return {error: ERROR_CODES.SERVER_UNREACHABLE};
+	}
 }
+
+let token = Cookies.getCookie('token');
+if(token) //try to login via cookie token
+	loginFromToken();
 
 export default {
 	getAccount() {//null if user is not logged in
@@ -70,6 +60,8 @@ export default {
 		let listener_i = on_login_listeners.indexOf(listener);
 		on_login_listeners.splice(listener_i, 1);
 	},
+
+	loginFromToken,
 
 	async login(nick: string, password: string) {
 		try {

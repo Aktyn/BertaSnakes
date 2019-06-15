@@ -6,17 +6,21 @@ import Network from './../engine/network';
 
 import HeaderNotifications from '../../components/header_notifications';
 import UserBtn from '../../components/user_btn';
+import RoomsList from '../../components/rooms_list';
 import RoomView from './room_view';
+import AccountSidepop, {VIEWS} from '../../components/sidepops/account_sidepop';
 
 import './../../styles/menu_stage.scss';
 
 interface MenuState extends BaseState {
-	
+	account_view?: VIEWS;
+	hide_rooms_list: boolean;
 }
 
 export default class extends StageBase<BaseProps, MenuState> {
 	state: MenuState = {
-
+		account_view: undefined,
+		hide_rooms_list: false
 	}
 
 	constructor(props: any) {
@@ -28,46 +32,51 @@ export default class extends StageBase<BaseProps, MenuState> {
 			<header>
 				<div style={{justifySelf: 'left'}}>
 					<UserBtn user={this.props.current_user} />
+
+					{this.props.current_user && !this.props.current_user.isGuest() && <>
+						<button className='shop shaky-icon' style={{marginLeft: '10px'}}
+							onClick={() => this.setState({account_view: VIEWS.SHOP})}></button>
+
+						<button className='friends shaky-icon' style={{marginLeft: '10px'}}
+							onClick={() => this.setState({account_view: VIEWS.FRIENDS})}></button>
+					</>}
 				</div>
 
-				<HeaderNotifications ref={el=>this.notifications=el} />
+				<HeaderNotifications />
 				
 				<div style={{justifySelf: 'right'}}>
-					<button className='shop shaky-icon'></button>
-					<button className='settings shaky-icon' style={{marginLeft: '5px'}}></button>
+					<button className='settings shaky-icon'></button>
 					<span className='separator'></span>
 					<Link className='closer shaky-icon' to='/' onClick={Network.disconnect}></Link>
 				</div>
 			</header>
-			<aside>
-				<h1>Avaible rooms</h1>
-				<div className='options'>
-					<button className='glossy add' onClick={Network.createRoom}>
-						CREATE
-					</button>
-				</div>
-				<div className='rooms_list'>
-					<table>
-						<tbody>
-							{this.props.rooms_list.map((room, i) => {
-								let is_current = this.props.room && this.props.room.id === room.id;
-								return <tr key={i} onClick={()=>Network.joinRoom(room.id)}
-										className={is_current ? 'current' : ''}>
-									<td>{room.name}</td>
-									<td>{room.getTakenSits()}/{room.sits.length}</td>
-									<td>{room.duration} min</td>
-									<td>{room.map}</td>
-									<td>{room.gamemode}</td>
-								</tr>;
-							})}
-						</tbody>
-					</table>
-				</div>
-			</aside>
-			<main>
-				{this.props.room && <RoomView room={this.props.room} 
-					current_user={this.props.current_user} />}
-			</main>
+			<section>
+				<aside className={this.state.hide_rooms_list ? 'hidden' : ''}>
+					<h1 className='info-header'>Avaible rooms</h1>
+					<div style={{textAlign: 'right'}}>
+						<button className='rooms-list-toogler glossy' onClick={() => {
+							this.setState({hide_rooms_list: !this.state.hide_rooms_list});
+						}}>{this.state.hide_rooms_list ? 'SHOW' : 'HIDE'}</button>
+					</div>
+					<div className='options'>
+						<button className='glossy add' 
+							onClick={Network.createRoom} style={{marginBottom: '20px'}}>CREATE</button>
+					</div>
+					<div className='rooms-list-container'>
+						<RoomsList rooms={this.props.rooms_list} current_room={this.props.current_room} />
+					</div>
+				</aside>
+				<main>
+					{this.props.current_room && this.props.current_user && <RoomView 
+						room={this.props.current_room} current_user={this.props.current_user} />}
+				</main>
+				<aside className='side-chat-container'>{this.props.current_room && 'TODO - chat'}</aside>
+			</section>
+			{this.state.account_view && <AccountSidepop force_view={this.state.account_view}
+			onClose={() => {
+				this.setState({account_view: undefined});
+				Network.requestAccountData();
+			}} />}
 		</div>;
 	}
 }

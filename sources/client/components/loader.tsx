@@ -1,7 +1,7 @@
+import '../styles/loader.scss';
+
 import * as React from 'react';
 import Loadable from 'react-loadable';
-
-import '../styles/loader.scss';
 
 interface LoaderProps extends Loadable.LoadingComponentProps {
 	color: string;

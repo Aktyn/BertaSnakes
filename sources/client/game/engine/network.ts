@@ -5,6 +5,8 @@ import UserInfo from '../../../common/user_info';
 import RoomInfo from '../../../common/room_info';
 import Config from '../../../common/config';
 
+import Account from '../../account';
+
 //@ts-ignore
 // window.WebSocket = window.WebSocket || window.MozWebSocket;
 // if(typeof WebSocket === 'undefined') throw new Error('No websocket support');
@@ -31,6 +33,9 @@ const HANDLERS = {
 			//	throw new Error('Incorrect type value in JSON message');
 			case NetworkCodes.ON_USER_DATA:
 				CurrentUser = UserInfo.fromFullJSON(json_data['user']);
+				break;
+			case NetworkCodes.ON_CURRENT_ROOM_DATA:
+				CurrentRoom = RoomInfo.fromJSON(json_data['room']);
 				break;
 			/*case NetworkCodes.PLAYER_ACCOUNT:
 				//console.log(json_data, json_data['user_info']);
@@ -163,11 +168,11 @@ function sendJSON(data: NetworkPackage | string) {
 		if(socket === null)
 			throw new Error('socket is null');
 		socket.send( data );
-		return true;
+		return ERROR_CODES.SUCCESS;
 	}
 	catch(e) {
-		console.error('Cannot send message (' + data + '), reason:', e);
-		return false;
+		console.error('Cannot send message, reason:', e);
+		return ERROR_CODES.CANNOT_SEND_JSON_MESSAGE;;
 	}
 }
 
@@ -189,9 +194,10 @@ const Network = {
 		console.log('Connecting to websocket server:', server_address);
 		socket = new WebSocket(server_address);
 
-		socket.onopen = function() {
+		socket.onopen = async function() {
 			connection_attempts = 0;
 
+			await Account.loginFromToken();
 		   	if(listeners)
 		   		listeners.onServerConnected();
 		};
@@ -209,7 +215,7 @@ const Network = {
 					throw new Error('Incorrect message type');
 			}
 			catch(e) {
-				console.log(e);
+				console.log(e, message && message.data);
 			}
 		};
 
@@ -245,19 +251,26 @@ const Network = {
 		return CurrentRoom;
 	},
 
-	login( session_token: string | null ) {
-		if( !sendJSON({'type': NetworkCodes.LOGIN, 'token': session_token}) )
-			return ERROR_CODES.CANNOT_SEND_JSON_MESSAGE;
-		return ERROR_CODES.SUCCESS;
+	login() {
+		return sendJSON({'type': NetworkCodes.LOGIN, 'token': Account.getToken()});
 	},
 	requestAccountData() {
-		sendJSON( {'type': NetworkCodes.ACCOUNT_DATA_REQUEST} );
+		return sendJSON({'type': NetworkCodes.ACCOUNT_DATA_REQUEST, 'token': Account.getToken()});
+	},
+	createRoom() {
+		return sendJSON({'type': NetworkCodes.CREATE_ROOM_REQUEST});
+	},
+	requestRoomsList() {
+		return sendJSON({'type': NetworkCodes.ROOM_LIST_REQUEST});
+	},
+	joinRoom(id: number) {//@id - target room name
+		return sendJSON({'type': NetworkCodes.JOIN_ROOM_REQUEST, 'id': id});
 	},
 
 	////////////////////////////////////////
 	//BELOW FUNCTIONS ARE BEFORE PROJECT RENEVAL
 
-	amISitting() {
+	/*amISitting() {
 		if(CurrentRoom === null || CurrentUser === null)
 			return false;
 		return CurrentRoom.isUserSitting(CurrentUser.id);
@@ -265,16 +278,11 @@ const Network = {
 	subscribeLobby() {
 		sendJSON( {'type': NetworkCodes.SUBSCRIBE_LOBBY_REQUEST} );
 	},
-	joinRoom(id: number) {//@id - target room name
-		sendJSON( {'type': NetworkCodes.JOIN_ROOM_REQUEST, 'id': id} );
-	},
+	
 	leaveRoom() {//leaves current room
 		if(CurrentRoom === null)
 			throw new Error('CurrentRoom is null');
 		sendJSON( {'type': NetworkCodes.LEAVE_ROOM_REQUEST, 'id': CurrentRoom.id} );
-	},
-	createRoom() {
-		sendJSON( {'type': NetworkCodes.CREATE_ROOM_REQUEST} );
 	},
 	sendRoomMessage(msg: string) {
 		sendJSON( {'type': NetworkCodes.SEND_ROOM_MESSAGE, 'msg': msg} );
@@ -334,7 +342,7 @@ const Network = {
 	},
 	confirmGameStart() {
 		sendJSON( {'type': NetworkCodes.START_GAME_CONFIRM} );
-	},
+	},*/
 
 	/*assignCurrentGameHandle: function(game: ClientGame.Game) {
 		CurrentGameHandle = game;

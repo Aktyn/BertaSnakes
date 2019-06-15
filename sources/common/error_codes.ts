@@ -16,6 +16,7 @@ const enum ERROR_CODES {
 	ACCOUNT_DOES_NOT_EXISTS,
 	ACCOUNT_NOT_VERIFIED,
 	ACCOUNT_ALREADY_VERIFIED,
+	ACCOUNT_ALREADY_LOGGED_IN,
 	USERNAME_TAKEN,
 	EMAIL_ALREADY_IN_USE,
 	CANNOT_SEND_EMAIL,
@@ -49,6 +50,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS: return 'Account does not exists';
 		case ERROR_CODES.ACCOUNT_NOT_VERIFIED:	return 'Account is not verified';
 		case ERROR_CODES.ACCOUNT_ALREADY_VERIFIED: return 'Account is already verified';
+		case ERROR_CODES.ACCOUNT_ALREADY_LOGGED_IN:return 'Account already logged in';
 		case ERROR_CODES.USERNAME_TAKEN: 		return 'Username taken';
 		case ERROR_CODES.EMAIL_ALREADY_IN_USE:	return 'Email already registered';
 		case ERROR_CODES.CANNOT_SEND_EMAIL:		return 'Cannot send email';

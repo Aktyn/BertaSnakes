@@ -2,7 +2,7 @@ $navSize: 25px;
 $targetW: 400px;
 
 .sidepop-container {
-	//overlay blocking rest of the page
+	//overlay that blocks rest of the page
 	content: "";
 	display: block;
 	position: fixed;
@@ -36,6 +36,7 @@ $targetW: 400px;
 		width: $targetW;
 		max-width: 100vw;
 		height: 100vh;
+		overflow: auto;
 		background: #fff;
 
 		color: #455a64;
@@ -160,6 +161,7 @@ $targetW: 400px;
 
 		hr {
 			background-color: #B0BEC5;
+			margin: 15px 0px;
 		}
 
 		table {
@@ -170,14 +172,27 @@ $targetW: 400px;
 				width: 100%;
 			}
 		}
-	}
 
-	/*&.left-side  {
-		background: yellow;
-		left: 0px;
-	}
+		/* width */
+		&::-webkit-scrollbar {
+		    width: 8px;
+		    height: 6px;
+		}
 
-	&:not(.left-side) .sidepop {
-		right: 0px;
-	}*/
+		/* Track */
+		&::-webkit-scrollbar-track {
+		    background: #78909C; 
+		}
+
+		/* Handle */
+		&::-webkit-scrollbar-thumb {
+		    background: #90A4AE; 
+		    border-radius: 8px;
+		}
+
+		/* Handle on hover */
+		&::-webkit-scrollbar-thumb:hover {
+		    background: #B0BEC5; 
+		}
+	}
 }

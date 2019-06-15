@@ -102,7 +102,7 @@ function extractAccountSchema(account: any): AccountSchema {
 		coins: account.coins || 0,
 
 		available_skills: account.available_skills || [],
-		skills: account.skills || new Array(Config.skills_slots).fill(null),
+		skills: account.skills || new Array(Config.SKILLS_SLOTS).fill(null),
 
 		available_ships: account.available_ships || [],
 		ship_type: account.ship_type || 0
@@ -304,7 +304,7 @@ export default {
 				coins: 0,
 
 				available_skills: [],
-				skills: new Array(Config.skills_slots).fill(null),
+				skills: new Array(Config.SKILLS_SLOTS).fill(null),
 
 				available_ships: [],
 				ship_type: 0

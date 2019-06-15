@@ -2,30 +2,30 @@ import * as React from 'react';
 
 import Network from './engine/network';
 import NetworkCodes, {NetworkPackage} from './../../common/network_codes';
-import Account from '../account';
 //import UserInfo from './../../common/user_info';
-// import RoomInfo, {RoomCustomData} from './../../common/room_info';
+import RoomInfo, {RoomCustomData} from './../../common/room_info';
+//import HeaderNotifications from '../components/header_notifications';
 
 //main stages
 import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
-// const TDD = true;
+const TDD1 = true;//auto room joining
 
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;//changed from any to StageBase<any, any>
 }
 
 export default class extends React.Component<any, CoreState> {
-	private currentStage: StageBase<any, any> | null = null;
+	//private currentStage: StageBase<any, any> | null = null;
 	private active = false;
 
 	state: CoreState = {
 		current_stage: MenuStage.prototype,
 
 		current_user: null,
-		room: null,
+		current_room: null,
 		rooms_list: [],
 	}
 
@@ -55,23 +55,23 @@ export default class extends React.Component<any, CoreState> {
 		this.active = false;
 	}
 
-	notify(...msg: string[]) {
-		if(this.currentStage && this.currentStage.notifications)
-			this.currentStage.notifications.add(...msg);
-	}
+	//DEPRECATED: Use: HeaderNotification.push(...messages);
+	/*notify(...msg: string[]) {
+		if(this.currentStage && this.currentStage.HeaderNotifications)
+			this.currentStage.HeaderNotifications.add(...msg);
+	}*/
 
 	onServerConnected() {
 		console.log('server connected');
+		//HeaderNotifications.push('Server connection established');
 
-		Network.login( Account.getToken() );
+		Network.login();
 	}
 
 	onServerDisconnected() {
-		console.log('server disconnected');
-		if(this.active) {
-			this.setState({current_user: null, room: null, rooms_list: []});
-			//TODO - open info about server connection lost with reconnect button
-		}
+		console.log('server disconnected, todo - popup with lost connection info and reconnect button');
+		if(this.active)
+			this.setState({current_user: null, current_room: null, rooms_list: []});
 	}
 
 	onServerMessage(data: NetworkPackage) {
@@ -82,8 +82,31 @@ export default class extends React.Component<any, CoreState> {
 		try {
 			switch(data['type']) {
 				case NetworkCodes.ON_USER_DATA:
+					if(!this.state.current_user)//first login
+						Network.requestRoomsList();
 					this.setState({current_user: Network.getCurrentUser()});
 					break;
+				case NetworkCodes.ON_CURRENT_ROOM_DATA:
+					this.setState({current_room: Network.getCurrentRoom()})
+					break;
+				case NetworkCodes.ON_SINGLE_LIST_ROOM_DATA: {
+					let rooms = this.state.rooms_list;
+					let updated_room = RoomInfo.fromJSON(data['room']);
+					rooms.push( updated_room );
+					
+					if(TDD1 && this.state.rooms_list.length === 0)
+						Network.joinRoom( updated_room.id );
+
+					this.setState({rooms_list: rooms});
+				}	break;
+				case NetworkCodes.ON_ENTIRE_LIST_ROOMS_DATA: {
+					let room_datas: RoomCustomData[] = JSON.parse(data['rooms']);
+					let rooms = room_datas.map(data => RoomInfo.fromJSON(data));
+					this.setState({rooms_list: rooms});
+
+					if(TDD1 && rooms.length > 0)
+						Network.joinRoom( rooms[0].id );
+				}	break;
 				/*case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
 					this.notify('Your account is already logged in game.',
 						'Check other browser tabs.');
@@ -127,11 +150,11 @@ export default class extends React.Component<any, CoreState> {
 					}
 				}	break;
 				// case NetworkCodes.ADD_FRIEND_CONFIRM:
-				// 	this.notifications.addNotification(
+				// 	this.HeaderNotifications.addNotification(
 				// 		'User has been added to your friends list');
 				// 	break;
 				// case NetworkCodes.REMOVE_FRIEND_CONFIRM:
-				// 	this.notifications.addNotification(
+				// 	this.HeaderNotifications.addNotification(
 				// 		'User has been removed from your friends list');
 				// 	Network.requestAccountData();//request updated data
 				// 	break;
@@ -213,9 +236,9 @@ export default class extends React.Component<any, CoreState> {
 			{(() => {
 				switch(this.state.current_stage) {
 					default: return <div>ERROR</div>;
-					case MenuStage.prototype:	return <MenuStage ref={el=>this.currentStage=el} 
+					case MenuStage.prototype:	return <MenuStage /*ref={el=>this.currentStage=el}*/ 
 						{...this.state} />;
-					case GameStage.prototype:	return <GameStage ref={el=>this.currentStage=el} 
+					case GameStage.prototype:	return <GameStage /*ref={el=>this.currentStage=el}*/ 
 						{...this.state} />;
 				}
 			})()}

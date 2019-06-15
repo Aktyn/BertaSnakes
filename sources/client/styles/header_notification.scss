@@ -1,0 +1,31 @@
+$duration: 8000ms;
+
+:export {
+	duration: $duration
+}
+
+@import './global.scss';
+
+.notification {
+	color: #B2DFDB;
+	font-weight: bold;
+
+	animation: pop-in $duration cubic-bezier(.36,.07,.19,.97) forwards;
+
+	@keyframes pop-in {
+		0% {
+			opacity: 0;
+			transform: translateY(-50px);
+		}
+
+		10%, 90% {
+			opacity: 1;
+			transform: translateY(0px);
+		}
+
+		100% {
+			opacity: 0;
+			transform: translateY(50px);
+		}
+	}
+}

@@ -1,0 +1,29 @@
+@import './global.scss';
+
+.rooms-list {
+	// background-color: nth($palette, 9);
+	// color: nth($palette, 1);
+
+	width: 100%;
+	border-collapse: collapse;
+
+	tr {
+		cursor: pointer;
+		// border-top: 1px solid;
+		// border-bottom: 1px solid;
+		// border-color: #fff0;
+		// 
+		// transition: background-color 0.2s ease-in-out;
+
+		&:hover {
+			background-color: nth($palette, 7);
+			// border-color: #e57373;
+			// color: #e57373 !important;
+		}
+
+		td {
+			text-align: left;
+			padding: 10px 5px;
+		}
+	}
+}

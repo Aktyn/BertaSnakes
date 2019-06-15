@@ -1,6 +1,25 @@
-import Connections from './connections';
+import Connections, {Connection} from './connections';
 import {Server} from 'ws';
+import {handleJSON} from './message_handler';
+
 let open_port = 0;//can be initialized to zero since it is falsy value
+
+function onMessage(connection: Connection, message: any) {
+	try {
+		if(typeof message === 'string')//stringified JSON object
+			handleJSON( connection, JSON.parse(message) );
+		else if(typeof message === 'object') {//object - propably array buffer
+			/*if(this.user && this.user.room && this.user.room.game_process) {
+				this.user.room.game_process.send( 
+					{user_id: this.user.id, data: message} );
+			}*/
+		}
+		else console.error('Message must by type of string or object');
+	}
+	catch(e) {
+		console.log('Message handle error: ', e);
+	}
+}
 
 export default {
 	runAt( port: number ) {//port for websocket server
@@ -22,7 +41,8 @@ export default {
 			let connection = Connections.add(ws, req);
 
 			ws.on('message', function(message) {
-				connection.onMessage(message);
+				//connection.onMessage(message);
+				onMessage(connection, message);
 			});
 
 			ws.on('close', () => {// close user connection

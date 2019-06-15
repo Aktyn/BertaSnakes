@@ -7,12 +7,22 @@ const enum NetworkCodes {
 	//TO SERVER
 	LOGIN = 0,//{token: string}
 	ACCOUNT_DATA_REQUEST,//request update, returns same data as LOGIN response
+	CREATE_ROOM_REQUEST,
+	ROOM_LIST_REQUEST,
+	JOIN_ROOM_REQUEST,//@id - 'number' (target room id)
 
+	//FROM SERVER
+	ON_USER_DATA,//user: UserInfo as json string
+	ON_CURRENT_ROOM_DATA,//room: RoomCustomData as json string or null
+	ON_SINGLE_LIST_ROOM_DATA,//room: RoomCustomData as json string or null
+	ON_ENTIRE_LIST_ROOMS_DATA,//rooms: RoomCustomData[] as json string
+
+
+	//BELOW CODES ARE BEFORE 2019
 
 	SUBSCRIBE_LOBBY_REQUEST,
-	JOIN_ROOM_REQUEST,//@id - 'number' (target room id)
+	
 	LEAVE_ROOM_REQUEST,//@id - 'number' (current room id)
-	CREATE_ROOM_REQUEST,
 	SEND_ROOM_MESSAGE,//@msg - 'string'
 	SEND_PRIVATE_MESSAGE,//@msg - 'string', @user_id - 'number'
 	ADD_FRIEND_REQUEST,//@user_id - 'number'
@@ -33,8 +43,7 @@ const enum NetworkCodes {
 	ROOM_UPDATE_REQUEST,
 	START_GAME_CONFIRM,
 
-	//FROM SERVER
-	ON_USER_DATA,//user: UserInfo to json data
+	
 
 
 	ACCOUNT_ALREADY_LOGGED_IN,

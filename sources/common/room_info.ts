@@ -1,75 +1,63 @@
-////<reference path="user_info.ts"/>
 import UserInfo from './user_info';
+import Config from './config';
+import Maps from './game/maps';
 
-// const RoomInfo = (function() {
-// var id = 0;
-
-// const DEFAULT_SITS = 1;//
-// const DEFAULT_MAP = 'Open Maze';//'Empty';
-// const DEFAULT_DURATION = 180;//seconds
+export const enum GAME_MODES {
+	COOPERATION,
+	COMPETITITON
+}
 
 export interface RoomCustomData {
 	id: number;
 	name: string;
 	map: string;
-	gamemode: number;
+	gamemode: GAME_MODES;
 	duration: number;
 	sits: number[];
 	readys: boolean[];
-	[index: string]: any;
 }
 
 export default class RoomInfo {
-	private static id = 0;
+	private static room_id = 0;
 
-	private static DEFAULT_SITS = 1;
-	private static DEFAULT_MAP = 'Simple Maze';//'Empty', 'Open Maze', 'Simple Maze', 'Snowflake'
-	private static DEFAULT_DURATION = 3;//minutes
+	//private static DEFAULT_MAP = 'Simple Maze';//'Empty', 'Open Maze', 'Simple Maze', 'Snowflake'
 
-	private static generateName(id: number) {
-		return '#' + id.toString();
-	}
+	readonly id: number;
+	readonly name: string;
 
-	public static MODES = {//@enum
-		COOPERATION: 0,
-		COMPETITION: 1
-	};
+	public map = Config.DEFAULT_MAP;
+	public duration = Config.DEFAULT_GAME_DURATION;
+	public sits = new Array(Config.DEFAULT_SITS).fill(0);//0 means empty sit
+	public readys = new Array(Config.DEFAULT_SITS).fill(false);
+	public users: UserInfo[] = [];
+	public gamemode = Config.DEFAULT_GAME_MODE;
 
-	private _id: number;
-	public name: string;
-	public map: string;
-	public duration: number;
-	public sits: number[];
-	public readys: boolean[];
-	public users: UserInfo[];
-	public gamemode: number;
+	// public onUserConfirm: ((user_id: number) => void) | null = null;
 
-	public onUserConfirm: ((user_id: number) => void) | null = null;
+	//if not null => game is running
 	public game_process: any = null;//TODO - set type of ChildProcess
 
-	constructor(_id?: number, _name?: string) {
-		this._id = _id || ++RoomInfo.id;
-		this.name = _name || RoomInfo.generateName(this.id);//("#" + this.id);
-		this.map = RoomInfo.DEFAULT_MAP;//name of chosen map
-		this.duration = RoomInfo.DEFAULT_DURATION;//game duration in seconds
-		// + Array(~~(Math.random()*15)).fill().map(x => 'x').join('');
-		this.sits = [];//NOTE - stores only users ids and zeros (in case of empty sit)
-		for(let i=0; i<RoomInfo.DEFAULT_SITS; i++)
-			this.sits.push(0);
-		//stores booleans - true corresponds to ready user (same order as sits)
-		this.readys = this.sits.map(sit => false);
+	constructor(_id: number, _name: string) {
+		this.id = _id;
+		this.name = _name;
+
 		this.users = [];//contains UserInfo instances
 
-		this.gamemode = RoomInfo.MODES.COOPERATION;//default
-
+		if( !(this.map in Maps) ) {
+			console.error('Given map name is not correct:', this.map);
+			this.map = Object.keys(Maps)[0];//failback to first map
+		}
 		//use only serverside
 		//this.confirmations = null;//if not null => waiting for confirmations before start
 		//this.onUserConfirm = null;//handle to callback
-		//this.game_process = null;//if not null => game is running
 	}
 
-	toJSON(): string {
-		return JSON.stringify({
+	public static nextRoomId() {
+		return ++RoomInfo.room_id;
+	}
+
+	public getData(): RoomCustomData {
+		return {
 			id: this.id,
 			name: this.name,
 			map: this.map,
@@ -77,7 +65,11 @@ export default class RoomInfo {
 			duration: this.duration,
 			sits: this.sits,
 			readys: this.readys
-		});
+		};
+	}
+
+	toJSON(): string {
+		return JSON.stringify( this.getData() );
 	}
 
 	static fromJSON(json_data: string | RoomCustomData) {
@@ -96,7 +88,22 @@ export default class RoomInfo {
 		return room;
 	}
 
-	updateData(json_data: RoomInfo | string | RoomCustomData) {
+	addUser(user: UserInfo) {
+		if( this.users.find(u => u.id === user.id) )//user already in room - do not duplticate entry
+			return;
+		user.room = this;
+		this.users.push(user);
+	}
+
+	getTakenSits() {
+		let counter = 0;
+		for(let sit of this.sits)
+			if(sit !== 0) counter++;
+		return counter;
+		//return this.sits.filter(sit => sit !== 0).length || 0;
+	}
+
+	/*updateData(json_data: RoomInfo | string | RoomCustomData) {
 		if(json_data instanceof RoomInfo) {//update from RoomInfo instance
 			if(this.id !== json_data.id)
 				throw Error('id mismatch');
@@ -132,10 +139,6 @@ export default class RoomInfo {
 
 	get taken_sits() {//returns number (deprecated)
 		return this.sits.filter(sit => sit !== 0).length;
-	}
-
-	getTakenSits() {
-		return this.sits.filter(sit => sit !== 0).length || 0;
 	}
 
 	getUserByID(user_id: number) {
@@ -211,17 +214,6 @@ export default class RoomInfo {
 		return this.readys.every(r => r === true);
 	}
 
-	addUser(user: UserInfo) {
-		for(let u of this.users) {
-			if(u.id === user.id) {//user already in room - do not duplticate entry
-				user.room = this;
-				return;
-			}
-		}
-		this.users.push(user);
-		user.room = this;
-	}
-
 	removeUser(user: number | UserInfo): boolean {
 		if(typeof user === 'number') {//user id
 			for(let u of this.users) {
@@ -239,5 +231,5 @@ export default class RoomInfo {
 			return true;
 		}
 		return false;
-	}
+	}*/
 }

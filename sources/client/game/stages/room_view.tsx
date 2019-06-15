@@ -1,66 +1,66 @@
 import * as React from 'react';
 // import {Link} from 'react-router-dom';
 
-import Config from '../../../common/config';
+// import Config from '../../../common/config';
 
-import Network from '../engine/network';
+// import Network from '../engine/network';
 import RoomInfo from '../../../common/room_info';
 import UserInfo from '../../../common/user_info';
 
-import MapsPreview, {updateMapPreview} from './maps_preview';
+// import MapsPreview, {updateMapPreview} from './maps_preview';
 
-import NumberInput from '../../components/number_input';
-import OptionsList from '../../components/options_list';
+// import NumberInput from '../../components/number_input';
+// import OptionsList from '../../components/options_list';
 // import UsersList from '../../components/users_list';//TODO
 
 // import '../../styles/room_view.scss';
 
-const GAMEMODES_NAMES = [
+/*const GAMEMODES_NAMES = [
 	'Cooperation', 'Competition'
-];
+];*/
 
 interface RoomViewProps {
 	room: RoomInfo;
-	current_user: UserInfo | null;
+	current_user: UserInfo;
 	//onRoomLeaveRequest: () => void;
 }
 
 interface RoomViewState {
 	edit_mode: boolean;
-	gamemode_option: string;
+	//gamemode_option: string;
 }
 
 export default class extends React.Component<RoomViewProps, RoomViewState> {
-	private name_input: HTMLInputElement | null = null;
-	private sits_input: NumberInput | null = null;
-	private duration_input: NumberInput | null = null;
-	private gamemode_input: OptionsList | null = null;
-	private map_input: MapsPreview | null = null;
+	// private name_input: HTMLInputElement | null = null;
+	// private sits_input: NumberInput | null = null;
+	// private duration_input: NumberInput | null = null;
+	// private gamemode_input: OptionsList | null = null;
+	// private map_input: MapsPreview | null = null;
 	
 	state: RoomViewState = {
 		edit_mode: false,
-		gamemode_option: GAMEMODES_NAMES[this.props.room.gamemode]
+		//gamemode_option: GAMEMODES_NAMES[this.props.room.gamemode]
 	}
 
 	constructor(props: RoomViewProps) {
 		super(props);
 	}
 
-	shouldComponentUpdate(next_props: RoomViewProps) {
-		if(next_props.room.id !== this.props.room.id && this.state.edit_mode)
-			this.setState({edit_mode: false});
-		return true;
-	}
+	//shouldComponentUpdate(next_props: RoomViewProps) {
+		//if(next_props.room.id !== this.props.room.id && this.state.edit_mode)
+		//	this.setState({edit_mode: false});
+		//return true;
+	//}
 
 	componentDidUpdate() {
-		var room_owner = this.props.room.getOwner();
+		/*var room_owner = this.props.room.getOwner();
 		var am_i_owner = room_owner && this.props.current_user && room_owner.id === this.props.current_user.id;
 
 		if(!am_i_owner && this.state.edit_mode)
-			this.setState({edit_mode: false});
+			this.setState({edit_mode: false});*/
 	}
 
-	renderClockWidget(minutes: number) {
+	/*renderClockWidget(minutes: number) {
 		let angle = (minutes / Config.MAXIMUM_GAME_DURATION) * 158;
 
 		return <span className='clock_chart'>
@@ -108,10 +108,10 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 				}}>APPLY</button>
 			</div>
 		</div>;
-	}
+	}*/
 
 	render() {
-		if(this.state.edit_mode)
+		/*if(this.state.edit_mode)
 			return this.renderEditMode();
 
 		var room_owner = this.props.room.getOwner();
@@ -174,10 +174,11 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					</div>
 				</section>
 				<section className='users-list-container'>
-					{/*<UsersList users={this.props.room.users} me={this.props.current_user} 
-						am_i_owner={!!am_i_owner} />*/}
+					{//<UsersList users={this.props.room.users} me={this.props.current_user} 
+						am_i_owner={!!am_i_owner} />//}
 				</section>
 			</div>
-		</div>;
+		</div>;*/
+		return <div>{this.props.room.name}</div>;
 	}
 }

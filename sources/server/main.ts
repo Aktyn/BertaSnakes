@@ -36,7 +36,7 @@ HTTP_API.shareClientFiles();//must be last sharing function
 
 import Config from '../common/config';
 
-import Core from './core';
+import Core from './game/core';
 Core.runAt( Config.WEBSOCKET_PORT );
 
 /*import Config from './../common/config';

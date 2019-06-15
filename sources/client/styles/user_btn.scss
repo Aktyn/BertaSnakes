@@ -11,6 +11,8 @@
 	height: $size;
 	line-height: $size - 2px;
 	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
 
 	color: nth($palette, 1) !important;
 	box-shadow: none !important;

@@ -1,12 +1,24 @@
 import * as React from 'react';
 
+//@ts-ignore
+import variables from '../styles/header_notification.scss';
+
 interface NotificationsState {
 	current?: string;
 }
 
-const DURATION = 1000 * 8;
+try {
+	var DURATION = parseInt(variables.duration) || (1000 * 8);
+}
+catch(e) {
+	console.error(e);
+	var DURATION = 1000 * 8;
+}
+// console.log(variables, DURATION);
 
 export default class HeaderNotifications extends React.Component<any, NotificationsState> {
+	private static instances: Set<HeaderNotifications> = new Set();
+
 	private quene: string[] = [];
 	private queneTimeout: number | null = null;
 
@@ -16,11 +28,22 @@ export default class HeaderNotifications extends React.Component<any, Notificati
 
 	constructor(props: any) {
 		super(props);
+
+		//test
+		/*setTimeout(() => {
+			for(let i=1; i<=10; i++)
+				this.add('notification test ' + i);
+		}, 1000);*/
+	}
+
+	componentDidMount() {
+		HeaderNotifications.instances.add(this);
 	}
 
 	componentWillUnmount() {
 		if(this.queneTimeout)
 			clearTimeout(this.queneTimeout);
+		HeaderNotifications.instances.delete(this);
 	}
 
 	private onExpire() {
@@ -37,7 +60,7 @@ export default class HeaderNotifications extends React.Component<any, Notificati
 			this.setState({current: undefined});
 	}
 
-	add(...msg: string[]) {
+	public add(msg: string[]) {
 		if(this.state.current) {
 			this.quene.push(...msg);
 		}
@@ -50,7 +73,18 @@ export default class HeaderNotifications extends React.Component<any, Notificati
 		}
 	}
 
-	render() {
-		return <div ref={el=>this.holder=el} className='notification'>{this.state.current}</div>;
+	public render() {
+		return (this.state.current === undefined ? <div></div> :
+			<div ref={el=>this.holder=el} className='notification'>{this.state.current}</div>
+		);
+	}
+
+	public static push(...msg: string[]) {
+		if(HeaderNotifications.instances.size === 0) {
+			console.error('No HeaderNofication instance, cannot push notification message');
+			return;
+		}
+
+		HeaderNotifications.instances.forEach(instance => instance.add(msg));
 	}
 }
