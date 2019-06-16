@@ -1,6 +1,6 @@
 import * as React from 'react';
 import RoomInfo from '../../common/room_info';
-// import Network from './../engine/network';
+import Network from '../game/engine/network';
 
 import '../styles/rooms_list.scss';
 
@@ -20,7 +20,7 @@ export default class RoomsList extends React.Component<RoomsListProps, any> {
 		return <table className='rooms-list'><tbody>
 			{this.props.rooms.map((room, i) => {
 				let is_current = this.props.current_room && this.props.current_room.id === room.id;
-				return <tr key={i} /*onClick={()=>Network.joinRoom(room.id)}*/
+				return <tr key={i} onClick={() => Network.joinRoom(room.id)}
 						className={is_current ? 'current' : ''}>
 					<td>{room.name}</td>
 					<td>{room.getTakenSits()}/{room.sits.length}</td>

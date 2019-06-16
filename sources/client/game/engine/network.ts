@@ -32,10 +32,39 @@ const HANDLERS = {
 			//default: 
 			//	throw new Error('Incorrect type value in JSON message');
 			case NetworkCodes.ON_USER_DATA:
+				if( !json_data['user'] )//user log out
+					CurrentUser = null;
 				CurrentUser = UserInfo.fromFullJSON(json_data['user']);
 				break;
-			case NetworkCodes.ON_CURRENT_ROOM_DATA:
-				CurrentRoom = RoomInfo.fromJSON(json_data['room']);
+			case NetworkCodes.ON_ROOM_JOINED:
+				try {
+					CurrentRoom = RoomInfo.fromJSON(json_data['room']);
+					for(let user_public_data of json_data['users'])
+						CurrentRoom.addUser( UserInfo.fromJSON(user_public_data) );
+				}
+				catch(e) {
+					console.error(e);
+				}
+				break;
+			case NetworkCodes.ON_ROOM_LEFT:
+				if(CurrentRoom && json_data['room_id'] === CurrentRoom.id)
+					CurrentRoom = null;
+				else
+					console.warn('No room to left from');
+				break;
+			case NetworkCodes.ON_USER_LEFT_ROOM:
+				if(CurrentRoom && CurrentRoom.id === json_data['room_id'] && 
+					typeof json_data['user_id'] === 'number')
+				{
+					CurrentRoom.removeUserById( json_data['user_id'] );
+				}
+				//ON_USER_LEFT_ROOM,//user_id: number, room_id: number
+				break;
+			case NetworkCodes.ON_USER_JOINED_ROOM:
+				if(!CurrentRoom)
+					break;
+				CurrentRoom.addUser( UserInfo.fromJSON(json_data['user']) );
+				//ON_USER_JOINED_ROOM,//user: UserCustomData, room_id: number
 				break;
 			/*case NetworkCodes.PLAYER_ACCOUNT:
 				//console.log(json_data, json_data['user_info']);
@@ -264,7 +293,14 @@ const Network = {
 		return sendJSON({'type': NetworkCodes.ROOM_LIST_REQUEST});
 	},
 	joinRoom(id: number) {//@id - target room name
+		if(CurrentRoom && CurrentRoom.id === id)
+			return ERROR_CODES.CANNOT_JOIN_CURRENT_ROOM;
 		return sendJSON({'type': NetworkCodes.JOIN_ROOM_REQUEST, 'id': id});
+	},
+	leaveRoom() {//leaves current room
+		if(CurrentRoom === null)
+			throw new Error('CurrentRoom is null');
+		sendJSON( {'type': NetworkCodes.LEAVE_ROOM_REQUEST} );
 	},
 
 	////////////////////////////////////////
@@ -279,11 +315,6 @@ const Network = {
 		sendJSON( {'type': NetworkCodes.SUBSCRIBE_LOBBY_REQUEST} );
 	},
 	
-	leaveRoom() {//leaves current room
-		if(CurrentRoom === null)
-			throw new Error('CurrentRoom is null');
-		sendJSON( {'type': NetworkCodes.LEAVE_ROOM_REQUEST, 'id': CurrentRoom.id} );
-	},
 	sendRoomMessage(msg: string) {
 		sendJSON( {'type': NetworkCodes.SEND_ROOM_MESSAGE, 'msg': msg} );
 	},

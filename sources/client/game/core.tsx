@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import Network from './engine/network';
 import NetworkCodes, {NetworkPackage} from './../../common/network_codes';
-//import UserInfo from './../../common/user_info';
+// import UserInfo from './../../common/user_info';
 import RoomInfo, {RoomCustomData} from './../../common/room_info';
 //import HeaderNotifications from '../components/header_notifications';
 
@@ -86,21 +86,30 @@ export default class extends React.Component<any, CoreState> {
 						Network.requestRoomsList();
 					this.setState({current_user: Network.getCurrentUser()});
 					break;
-				case NetworkCodes.ON_CURRENT_ROOM_DATA:
+				case NetworkCodes.ON_ROOM_LEFT:
+				case NetworkCodes.ON_ROOM_JOINED:
+				case NetworkCodes.ON_USER_LEFT_ROOM:
+				case NetworkCodes.ON_USER_JOINED_ROOM:
 					this.setState({current_room: Network.getCurrentRoom()})
 					break;
-				case NetworkCodes.ON_SINGLE_LIST_ROOM_DATA: {
+				case NetworkCodes.ON_ROOM_CREATED: {
 					let rooms = this.state.rooms_list;
 					let updated_room = RoomInfo.fromJSON(data['room']);
 					rooms.push( updated_room );
 					
-					if(TDD1 && this.state.rooms_list.length === 0)
+					if(TDD1 && !this.state.current_room)
 						Network.joinRoom( updated_room.id );
 
 					this.setState({rooms_list: rooms});
 				}	break;
+				case NetworkCodes.ON_ROOM_REMOVED: {
+					let updated_rooms = this.state.rooms_list.filter(r => {
+						return r.id !== data['room_id'];
+					});
+					this.setState({rooms_list: updated_rooms});
+				}	break;
 				case NetworkCodes.ON_ENTIRE_LIST_ROOMS_DATA: {
-					let room_datas: RoomCustomData[] = JSON.parse(data['rooms']);
+					let room_datas: RoomCustomData[] = data['rooms'];
 					let rooms = room_datas.map(data => RoomInfo.fromJSON(data));
 					this.setState({rooms_list: rooms});
 
@@ -189,7 +198,7 @@ export default class extends React.Component<any, CoreState> {
 					break;
 				case NetworkCodes.CREATE_ROOM_CONFIRM:
 					//joining created room
-					Network.joinRoom( JSON.parse(data['room_info'])['id'] );
+					Network.joinRoom( data['room_info']['id'] );
 					break;
 				case NetworkCodes.LEAVE_ROOM_CONFIRM:
 					this.setState({room: null});

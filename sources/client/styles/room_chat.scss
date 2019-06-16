@@ -1,0 +1,96 @@
+@import './global.scss';
+
+$width: 250px;
+
+.room-chat {
+	width: $width;
+	height: 100%;
+	// overflow: hidden;
+	background-color: nth($palette, 8);
+
+	display: grid;
+	grid-template-areas: "nav" "users" "main";
+	grid-template-columns: auto;
+	grid-template-rows: fit-content(100%) 1fr 1fr;
+
+	& > * {
+		max-width: $width;
+	}
+
+	nav {
+		grid-area: nav;
+		text-align: right;
+	}
+
+	.rooms-chat-toggler {
+		margin: 5px;
+		display: none;
+	}
+
+	@media (max-width: 900px) {//at this point - room-chat panel should be hideable
+		position: absolute;
+		top: 0px;
+
+		left: auto;
+		right: 0px;
+		z-index: 9;
+		box-shadow: 0px 0px 4px #0008;
+
+		& {
+			transition: transform 0.5s cubic-bezier(.36,.07,.19,.97);
+		}
+
+		.rooms-chat-toggler {
+			transition: transform 0.5s 0.5s cubic-bezier(.36,.07,.19,.97);
+		}
+
+		.rooms-chat-toggler {
+			display: inline-block;
+			transform: translateX(0px);
+		}
+
+		&.hidden {
+			transform: translateX(100%);
+
+			.rooms-chat-toggler {
+				transform: translateX(-$width);
+			}
+		}
+		
+	}
+	
+
+	.users-list {
+		grid-area: users;
+	}
+
+	.room-chat-main {
+		grid-area: main;
+
+		display: grid;
+		grid-template-areas: "messages" "bottom";
+		grid-template-columns: $width;
+		grid-template-rows: auto fit-content(100%);
+
+		max-width: 100%;
+
+		.messages-container {
+			grid-area: messages;
+
+		}
+
+		.bottom {
+			grid-area: bottom;
+			max-width: 100%;
+
+			display: inline-grid;
+			grid-template-columns: fit-content(100%) auto fit-content(100%);
+			justify-content: center;
+
+			input {
+				width: min-content !important;
+				min-width: auto;
+			}
+		}
+	}
+}

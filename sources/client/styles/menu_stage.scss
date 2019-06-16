@@ -5,6 +5,8 @@ $iconsSize: 20px;
 .menu-stage {
 	display: grid;
 	height: 100vh;
+	width: 100%;
+	// overflow: hidden;
 	grid-template-areas: 'header' 'panels';//'header header' 'aside main';
 	grid-template-columns: auto;//fit-content(100%) auto;
 	grid-template-rows: fit-content(100%) auto;
@@ -65,7 +67,7 @@ $iconsSize: 20px;
 		}
 	}
 
-	section {
+	& > section {
 		grid-area: panels;
 
 		display: grid;
@@ -73,11 +75,12 @@ $iconsSize: 20px;
 		grid-template-columns: fit-content(100%) auto fit-content(100%);
 		grid-template-rows: auto;
 
+		overflow: hidden;
+
 		position: relative;//used for responsiveness
 
-		aside {
+		.left-aside {
 			grid-area: aside;
-			background-color: yellow;
 
 			height: 100%;
 			width: auto;
@@ -98,7 +101,7 @@ $iconsSize: 20px;
 				margin: 10px 0px;
 			}
 
-			.rooms-list-toogler {
+			.rooms-list-toggler {
 				display: none;
 			}
 
@@ -110,13 +113,23 @@ $iconsSize: 20px;
 
 		main {
 			grid-area: room;
+			display: grid;
+			grid-template-columns: auto;
+			grid-template-rows: fit-content(100%);
+			align-self: stretch;
+			max-height: 100%;
+			height: -moz-fit-content;
+			height: -webkit-fill-available;
 			width: auto;
+			overflow: auto;
 		}
 
-		.side-chat-container {
+		/*.side-chat-container {
 			grid-area: chat;
-			display: inline-block;
-		}
+			// display: inline-block;
+			height: 100%;
+			overflow: hidden;
+		}*/
 
 		//SECTION RESPONSIVENESS
 		@media (max-width: 900px) {//at this point - aside panels should be hideable
@@ -124,15 +137,18 @@ $iconsSize: 20px;
 
 			overflow: hidden;
 
-			aside, .side-chat-container {
+			/*.left-aside, .side-chat-container {
+				
+			}*/
+
+			.left-aside {
 				position: absolute;
 				top: 0px;
-				box-shadow: 0px 0px 4px #0008;
-			}
 
-			aside {
 				left: 0px;
 				right: auto;
+				z-index: 10;
+				box-shadow: 0px 0px 4px #0008;
 
 				grid-template-rows: fit-content(100%) fit-content(100%) fit-content(100%) auto;
 
@@ -141,48 +157,51 @@ $iconsSize: 20px;
 				.info-header {
 					display: none;
 				}
-				.rooms-list-toogler {
-					&::before {
+				.rooms-list-toggler {
+					&::after {
 						content: "";
 						display: inline-block;
 						height: 27px;
 						width: 27px;
-						float: left;
-						margin-right: 5px;
+						float: right;
+						margin-left: 5px;
 						transform: rotate(0deg);
 						background-image: url('../img/icons/arrow_left.svg');
 						transform-origin: center;
 						vertical-align: middle;
 					}
-					&::after {
+					&::before {
+						content: "";
+						display: inline-block;
 						width: 20px;
 					}
 					padding: 0px;
 					display: inline-block;
-					margin: $togglerMargin;					
+					margin: $togglerMargin;		
 				}
 
-				&, .rooms-list-toogler, .rooms-list-toogler::before {
+				&, .rooms-list-toggler, .rooms-list-toggler::after {
 					transition: transform 0.5s cubic-bezier(.36,.07,.19,.97);
 				}
 
 				&.hidden {
 					transform: translateX(-100%);
 
-					.rooms-list-toogler {
+					.rooms-list-toggler {
 						transform: translateX(calc(100% + 10px));
 
-						&::before {
-							transform: rotate(180deg) translateY(2px);
+						&::after {
+							transform: rotate(180deg);// translateY(2px);
 						}
 					}
 				}
 			}
 
-			.side-chat-container {
+			/*.side-chat-container {
+				z-index: 9;
 				left: auto;
 				right: 0px;
-			}
+			}*/
 		}
 	}
 

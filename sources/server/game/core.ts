@@ -1,6 +1,6 @@
 import Connections, {Connection} from './connections';
 import {Server} from 'ws';
-import {handleJSON} from './message_handler';
+import {handleJSON, onDisconnect} from './message_handler';
 
 let open_port = 0;//can be initialized to zero since it is falsy value
 
@@ -47,6 +47,7 @@ export default {
 
 			ws.on('close', () => {// close user connection
 				console.log('connection close:', connection.id);
+				onDisconnect(connection);
 				Connections.remove(connection);
 			});
 		});

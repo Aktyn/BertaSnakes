@@ -1,11 +1,15 @@
 import RoomInfo from './room_info';
 import Config from './config';
+import {Connection} from '../server/game/connections';
 
 export interface UserPublicData {
 	nick: string;
 	level: number;
 	rank: number;
 	avatar: string | null;
+
+	skills: (number | null)[];//chosen skills
+	ship_type: number;//chosen ship
 }
 
 export interface UserPrivateData {
@@ -15,10 +19,7 @@ export interface UserPrivateData {
 	coins: number;
 	
 	available_skills: number[];
-	skills: (number | null)[];//chosen skills
-
 	available_ships: number[];
-	ship_type: number;//chosen ship
 }
 
 export interface UserCustomData extends UserPublicData, UserPrivateData {}
@@ -50,7 +51,7 @@ export default class UserInfo {
 	public custom_data: UserPublicData & Partial<UserCustomData>;
 	//public friends: FriendInfoI[];
 
-	public connection: any = null;
+	public connection: Connection | null = null;//only server-side use
 	public room: RoomInfo | null = null;
 
 	//public lobby_subscriber = false;
@@ -120,21 +121,27 @@ export default class UserInfo {
 		return this.custom_data.level;
 	}
 
-	private getPublicData(): UserPublicData {
+	public getPublicData(): UserPublicData {
 		return {
 			nick: this.custom_data.nick,
 			level: this.custom_data.level,
 			rank: this.custom_data.rank,
-			avatar: this.custom_data.avatar
+			avatar: this.custom_data.avatar,
+			skills: this.custom_data.skills,
+			ship_type: this.custom_data.ship_type
 		};
 	}
 
 	//RETURNS ONLY PUBLIC DATA AND ID
 	public toJSON() {
-		return JSON.stringify({
+		/*return JSON.stringify({
 			id: this.id,
 			data: this.getPublicData()
-		});
+		});*/
+		return {
+			id: this.id,
+			data: this.getPublicData()
+		};
 	}
 
 	//GETS ONLY PUBLIC DATA AND ID
@@ -147,17 +154,23 @@ export default class UserInfo {
 			nick: public_data['nick'],
 			level: public_data['level'],
 			rank: public_data['rank'],
-			avatar: public_data['avatar']
+			avatar: public_data['avatar'],
+			skills: public_data['skills'],
+			ship_type: public_data['ship_type']
 		};
 		return new UserInfo(json_data['id'], public_data);
 	}
 
 	//PRIVATE AND PUBLIC DATA (for server-side threads communications)
 	public toFullJSON() {
-		return JSON.stringify({
+		// return JSON.stringify({
+		// 	id: this.id,
+		// 	data: this.custom_data
+		// });
+		return {
 			id: this.id,
 			data: this.custom_data
-		});
+		};
 	}
 
 	//PRIVATE AND PUBLIC ...

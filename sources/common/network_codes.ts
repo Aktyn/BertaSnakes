@@ -10,19 +10,23 @@ const enum NetworkCodes {
 	CREATE_ROOM_REQUEST,
 	ROOM_LIST_REQUEST,
 	JOIN_ROOM_REQUEST,//@id - 'number' (target room id)
+	LEAVE_ROOM_REQUEST,//leave current room
 
 	//FROM SERVER
-	ON_USER_DATA,//user: UserInfo as json string
-	ON_CURRENT_ROOM_DATA,//room: RoomCustomData as json string or null
-	ON_SINGLE_LIST_ROOM_DATA,//room: RoomCustomData as json string or null
-	ON_ENTIRE_LIST_ROOMS_DATA,//rooms: RoomCustomData[] as json string
+	ON_USER_DATA,//user: UserCustomDaata
+	ON_ROOM_JOINED,//room: RoomCustomData, users: UserPublicData[]
+	ON_ROOM_LEFT,//room_id: number
+	ON_ROOM_CREATED,//room: RoomCustomData
+	ON_ENTIRE_LIST_ROOMS_DATA,//rooms: RoomCustomData[]
+	ON_ROOM_REMOVED,//room_id: number
 
+	ON_USER_LEFT_ROOM,//user_id: number, room_id: number
+	ON_USER_JOINED_ROOM,//user: UserPublicData, room_id: number
 
 	//BELOW CODES ARE BEFORE 2019
 
-	SUBSCRIBE_LOBBY_REQUEST,
+	/*SUBSCRIBE_LOBBY_REQUEST,
 	
-	LEAVE_ROOM_REQUEST,//@id - 'number' (current room id)
 	SEND_ROOM_MESSAGE,//@msg - 'string'
 	SEND_PRIVATE_MESSAGE,//@msg - 'string', @user_id - 'number'
 	ADD_FRIEND_REQUEST,//@user_id - 'number'
@@ -43,9 +47,6 @@ const enum NetworkCodes {
 	ROOM_UPDATE_REQUEST,
 	START_GAME_CONFIRM,
 
-	
-
-
 	ACCOUNT_ALREADY_LOGGED_IN,
 	PLAYER_ACCOUNT,//gives user info to client (stored in @user_info property) (+ custom_data)
 	ACCOUNT_DATA,//complete user's custom_data + friends as an array
@@ -62,10 +63,8 @@ const enum NetworkCodes {
 	ON_KICKED,
 
 	USER_JOINED_ROOM,//@user_info - JSON format of UserInfo
-	USER_LEFT_ROOM,//@user_id - number: 0, @room_info - JSON format of RoomInfo
 
-	ON_ROOM_REMOVED,//@room_id - 'number' (removed room id)
-	ON_ROOM_CREATED,//@room_info - JSON data of RoomInfo instance
+	
 	ON_ROOM_UPDATE,//@room_info - JSON data of RoomInfo instance
 
 	RECEIVE_CHAT_MESSAGE,//@from - user nickname: 0, @public - boolean: 0, @msg - string message
@@ -140,7 +139,7 @@ const enum NetworkCodes {
 	ON_INSTANT_HEAL,//player_index
 
 	ON_ENERGY_BLAST,//pos_x: 0, pos_y: 0, player_color_index
-
+	*/
 	CODES_COUNT,
 };
 

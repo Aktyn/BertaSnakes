@@ -1,7 +1,8 @@
 import * as React from 'react';
+import Loader from '../loader';
 import SidepopBase, {SidepopProps} from './sidepop_base';
 import ServerApi from '../../utils/server_api';
-import Loader from '../loader';
+
 import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
 // import {offsetTop, removeWhitechars} from './sidepops_common';

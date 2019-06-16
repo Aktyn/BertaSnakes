@@ -9,16 +9,20 @@
 
 	tr {
 		cursor: pointer;
-		// border-top: 1px solid;
-		// border-bottom: 1px solid;
-		// border-color: #fff0;
-		// 
-		// transition: background-color 0.2s ease-in-out;
+		width: 100%;
+		$animFunc: 0.3s ease-in-out;
+		transition: box-shadow $animFunc, background-color $animFunc;
+		&.current {
+			background-color: #AED58140;
+			box-shadow: 0px 0px 0px 1px #8BC34AC0 inset;
+			box-sizing: border-box;
+			margin: 0px -6px;
+			cursor: auto;
+		}
 
-		&:hover {
+		&:not(.current):hover {
+			
 			background-color: nth($palette, 7);
-			// border-color: #e57373;
-			// color: #e57373 !important;
 		}
 
 		td {

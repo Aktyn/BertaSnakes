@@ -78,5 +78,13 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 			if(typeof data.id === 'number')
 				RoomManager.joinRoom(connection, data.id);
 			break;
+		case NetworkCodes.LEAVE_ROOM_REQUEST:
+			RoomManager.leaveRoom(connection);
+			break;
 	}
-};
+}
+
+export function onDisconnect(connection: Connection) {
+	if( connection.getRoom() )
+		RoomManager.leaveRoom(connection);
+}

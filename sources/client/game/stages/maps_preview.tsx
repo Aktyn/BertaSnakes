@@ -81,7 +81,7 @@ export default class extends React.Component<MapsPreviewProps, MapsPreviewState>
 	render() {
 		return <div className='map_previews_list'>{isReady() && Object.keys(Maps).map((map_name, i)=>{
 			return <div key={map_name} 
-				className={`${map_name===this.state.value ? 'selected' : ''} map_preview`}
+				className={`${map_name === this.state.value ? 'selected ' : ''}map_preview`}
 				onClick={() => this.setState({value: map_name})}>
 				<label>{map_name}</label>
 				<canvas width={150} height={150} 

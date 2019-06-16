@@ -5,6 +5,8 @@ import NetworkCodes from '../../common/network_codes';
 
 let connections: Map<number, Connection> = new Map();
 
+type NotString<T> = Exclude<T, string>;
+
 export class Connection {
 	private static counter = 0;
 	readonly id: number;
@@ -23,18 +25,6 @@ export class Connection {
 	private get client_ip(): string {
 		return this.req.connection.remoteAddress.replace(/::ffff:/, '');
 	}
-	/*get ip(): string {
-		return this.client_ip;
-	}
-
-	get user() {
-		return this._user;
-	}
-	
-	set user(_user: UserInfo | null) {
-		if( (this._user = _user) )
-			this._user.connection = this;
-	}*/
 
 	/*private close() {
 		this.socket.close();
@@ -46,10 +36,11 @@ export class Connection {
 		return this.user.room;
 	}
 
-	private send(data: any) {//TODO - data type
+	//stringifies serializable object before sending over socket
+	private send<T>(data: T & NotString<T>) {//stringified json
 		if(this.socket.readyState !== 1)//socket not open
 			return;
-		this.socket.send(data);
+		this.socket.send( JSON.stringify(data) );
 	}
 
 	public isInLobby() {
@@ -58,20 +49,22 @@ export class Connection {
 
 	loginAsGuest() {
 		this.user = UserInfo.createGuest();
+		this.user.connection = this;
 
-		this.send(JSON.stringify({
+		this.send({
 			type: NetworkCodes.ON_USER_DATA,
 			user: this.user.toFullJSON()
-		}));
+		});
 	}
 
 	loginAsUser(account_id: string, session_token: string, data: UserCustomData) {
 		this.user = new UserInfo(UserInfo.nextUserId(), data, account_id, session_token);
+		this.user.connection = this;
 
-		this.send(JSON.stringify({
+		this.send({
 			type: NetworkCodes.ON_USER_DATA,
 			user: this.user.toFullJSON()
-		}));
+		});
 	}
 
 	updateUserData(fresh_data: UserCustomData | null) {
@@ -81,40 +74,85 @@ export class Connection {
 		if(fresh_data)
 			this.user.updateData(fresh_data);
 
-		this.send(JSON.stringify({
+		this.send({
 			type: NetworkCodes.ON_USER_DATA,
 			user: this.user.toFullJSON()
-		}));
-	}
-
-	updateCurrentRoomData() {//sends user's current room data
-		if(!this.user)
-			throw new Error('This connection has no user');
-
-		this.send(JSON.stringify({
-			type: NetworkCodes.ON_CURRENT_ROOM_DATA,
-			room: this.user.room ? this.user.room.toJSON() : null//NULL means that user left room
-		}));
-	}
-
-	updateRoomListData(room: RoomInfo) {//send data for user's rooms list
-		if(!this.user)
-			throw new Error('This connection has no user');
-
-		this.send(JSON.stringify({
-			type: NetworkCodes.ON_SINGLE_LIST_ROOM_DATA,
-			room: room.toJSON()
-		}));
+		});
 	}
 
 	sendRoomsList(rooms_list: RoomInfo[]) {
 		if(!this.user)
 			throw new Error('This connection has no user');
 
-		this.send(JSON.stringify({
+		this.send({
 			type: NetworkCodes.ON_ENTIRE_LIST_ROOMS_DATA,
-			rooms: JSON.stringify(rooms_list.map(room => room.getData()))
-		}));
+			rooms: rooms_list.map(room => room.toJSON())
+		});
+	}
+
+	onRoomCreated(room: RoomInfo) {//send data for user's rooms list
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_ROOM_CREATED,
+			room: room.toJSON()
+		});
+	}
+
+	onRoomRemove(room: RoomInfo) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_ROOM_REMOVED,
+			room_id: room.id
+		});
+	}
+
+	onRoomJoined() {//sends user's current room data
+		if(!this.user)
+			throw new Error('This connection has no user');
+		if(!this.user.room)
+			throw new Error('User has no room assigned');
+
+		this.send({
+			type: NetworkCodes.ON_ROOM_JOINED,
+			room: this.user.room.toJSON(),
+			users: this.user.room.getUsersPublicData()
+		});
+	}
+
+	onRoomLeft(left_room_id: number) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_ROOM_LEFT,
+			room_id: left_room_id
+		});
+	}
+
+	onUserLeftRoom(user_id: number, room_id: number) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_USER_LEFT_ROOM,
+			user_id: user_id,
+			room_id: room_id
+		});
+	}
+
+	onUserJoinedRoom(user: UserInfo, room_id: number) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_USER_JOINED_ROOM,
+			user: user.toJSON(),
+			room_id: room_id
+		});
 	}
 }
 
@@ -127,8 +165,8 @@ export default {
 	},
 
 	remove(connection: Connection) {
-		//TODO - remove user from rooms
-
+		if(connection.user)
+			connection.user.connection = null;
 		if( !connections.delete(connection.id) )
 			console.error('Cannot delete connection. Object not found in map structure.');
 	},
