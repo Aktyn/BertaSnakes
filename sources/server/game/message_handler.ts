@@ -1,4 +1,4 @@
-import {Connection} from './connections';
+import Connections, {Connection} from './connections';
 import NetworkCodes, {NetworkPackage} from '../../common/network_codes';
 import ERROR_CODES from '../../common/error_codes';
 import Database, {AccountSchema} from '../database';
@@ -24,12 +24,28 @@ function AccountSchema2UserCustomData(account: AccountSchema): UserCustomData {
 	};
 }
 
+function findDuplicateSession(account_id: string) {
+	return new Promise((resolve: (result: boolean) => void, reject) => {
+		Connections.forEachAccountUser(connection => {
+			if(connection.user && connection.user.account_id === account_id)
+				resolve(true);
+		});
+		resolve(false);
+	});
+}
+
 async function loginAsUser(connection: Connection, token: string) {
 	let res = await Database.getAccountFromToken(token);
 	if(res.error !== ERROR_CODES.SUCCESS || !res.account)//LOGIN AS GUEST
 		connection.loginAsGuest();
-	else
-		connection.loginAsUser(res.account.id, token, AccountSchema2UserCustomData(res.account));
+	else {
+		if( true === await findDuplicateSession(res.account.id) ) {
+			connection.loginAsGuest();
+			connection.sendAccountAlreadyLoggedInError();
+		}
+		else
+			connection.loginAsUser(res.account.id, token, AccountSchema2UserCustomData(res.account));
+	}
 }
 
 export async function handleJSON(connection: Connection, data: NetworkPackage) {
@@ -52,8 +68,11 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 				break;
 			if(!connection.user.isGuest() && connection.user.account_id) {
 				//user logged out or session expired
-				if(typeof data.token !== 'string' || connection.user.session_token !== data.token)
+				if(typeof data.token !== 'string' || connection.user.session_token !== data.token) {
+					if( connection.getRoom() )
+						RoomManager.leaveRoom(connection);
 					connection.loginAsGuest();
+				}
 				else {
 					let account_schema = await Database.getAccount(connection.user.account_id);
 					if(!account_schema)
@@ -62,8 +81,11 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 				}
 			}
 			else {
-				if(typeof data.token === 'string')//user just logged in
+				if(typeof data.token === 'string') {//user just logged in
+					if( connection.getRoom() )
+						RoomManager.leaveRoom(connection);
 					loginAsUser(connection, data.token);
+				}
 				else
 					connection.updateUserData(null);
 			}
@@ -80,6 +102,27 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 			break;
 		case NetworkCodes.LEAVE_ROOM_REQUEST:
 			RoomManager.leaveRoom(connection);
+			break;
+		case NetworkCodes.USER_KICK_REQUEST:
+			if(typeof data.user_id === 'number')
+				RoomManager.kickUser(connection, data.user_id);
+			break;
+		case NetworkCodes.ROOM_SETTINGS_UPDATE_REQUEST:
+			if(typeof data.name === 'string' && typeof data.map === 'string' && 
+				typeof data.gamemode === 'number' && typeof data.sits_number === 'number' && 
+				typeof data.duration === 'number')
+			{
+				RoomManager.updateRoomSettings(connection, data as never);
+			}
+			break;
+		case NetworkCodes.SIT_REQUEST:
+			RoomManager.sitUser(connection);
+			break;
+		case NetworkCodes.STAND_REQUEST:
+			RoomManager.stand(connection);
+			break;
+		case NetworkCodes.READY_REQUEST:
+			RoomManager.readyUser(connection);
 			break;
 	}
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-// import './../styles/options_list.scss';
+import '../styles/options_list.scss';
 
 
 interface OptionsListProps {
@@ -23,7 +23,7 @@ export default class extends React.Component<OptionsListProps, OptionsListState>
 		super(props);
 	}
 
-	get value() {
+	public get value() {
 		return this.state.value;
 	}
 
@@ -36,7 +36,6 @@ export default class extends React.Component<OptionsListProps, OptionsListState>
 
 	render() {
 		return <div className='options-list'>{this.props.options.map((opt, i) => {
-
 			return <button key={i} className={this.state.value===opt ? 'current':''} onClick={() => {
 				if(this.state.value === opt)
 					return;

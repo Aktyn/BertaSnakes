@@ -5,8 +5,6 @@ import {offsetTop, removeWhitechars} from './sidepops_common';
 import Config from '../../../common/config';
 import ServerApi from '../../utils/server_api';
 
-const no_avatar_img = require('../../img/icons/account.svg');
-
 function renderVerificationPrompt(self: AccountSidepop, account: AccountSchema,
 	tryVerify: () => Promise<void>, tryResendVerificationCode: () => Promise<void>) {
 	return <>
@@ -78,10 +76,8 @@ export default function renderAccountSection(self: AccountSidepop, account: Acco
 	tryVerify: () => Promise<void>, tryResendVerificationCode: () => Promise<void>) 
 {
 	const no_avatar_style = account.avatar ? {
-		backgroundImage: `url(${ServerApi.getAvatarPath(account.avatar)})`,
 		backgroundSize: 'contain'
 	} : {
-		backgroundImage: `url(${no_avatar_img})`,
 		backgroundSize: '61%',
 	};
 
@@ -93,7 +89,10 @@ export default function renderAccountSection(self: AccountSidepop, account: Acco
 				boxShadow: '0px 2px 4px #0008'
 			}}>
 				<div key={account.avatar || 'no-avatar'} 
-					className='avatar' style={no_avatar_style}></div>
+					className='avatar' style={{
+						backgroundImage: `url(${ServerApi.getAvatarPath(account.avatar)})`,
+						...no_avatar_style
+					}}></div>
 				{
 					account.avatar ? <button className='avatar-select-btn' 
 						ref={el => self.clear_avatar_btn = el}

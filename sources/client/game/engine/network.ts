@@ -2,7 +2,7 @@
 import ERROR_CODES from '../../../common/error_codes';
 import NetworkCodes, {NetworkPackage} from '../../../common/network_codes';
 import UserInfo from '../../../common/user_info';
-import RoomInfo from '../../../common/room_info';
+import RoomInfo, {RoomSettings} from '../../../common/room_info';
 import Config from '../../../common/config';
 
 import Account from '../../account';
@@ -58,14 +58,20 @@ const HANDLERS = {
 				{
 					CurrentRoom.removeUserById( json_data['user_id'] );
 				}
-				//ON_USER_LEFT_ROOM,//user_id: number, room_id: number
 				break;
 			case NetworkCodes.ON_USER_JOINED_ROOM:
 				if(!CurrentRoom)
 					break;
 				CurrentRoom.addUser( UserInfo.fromJSON(json_data['user']) );
-				//ON_USER_JOINED_ROOM,//user: UserCustomData, room_id: number
 				break;
+			case NetworkCodes.ON_ROOM_DATA_UPDATE: {
+				if(!CurrentRoom)
+					break;
+				let updated_room = RoomInfo.fromJSON(json_data['room']);
+				if(CurrentRoom.id === updated_room.id)
+					CurrentRoom.updateData( updated_room );
+					// CurrentRoom.updateSettings( updated_room.getSettings() )
+			}	break;
 			/*case NetworkCodes.PLAYER_ACCOUNT:
 				//console.log(json_data, json_data['user_info']);
 				try {
@@ -299,8 +305,31 @@ const Network = {
 	},
 	leaveRoom() {//leaves current room
 		if(CurrentRoom === null)
-			throw new Error('CurrentRoom is null');
-		sendJSON( {'type': NetworkCodes.LEAVE_ROOM_REQUEST} );
+			return ERROR_CODES.USER_IS_NOT_IN_ROOM;
+		return sendJSON({'type': NetworkCodes.LEAVE_ROOM_REQUEST});
+	},
+	sendRoomUpdateRequest(settings: RoomSettings) 
+	{
+		return sendJSON({
+			'type': NetworkCodes.ROOM_SETTINGS_UPDATE_REQUEST, 
+			'name': settings.name,
+			'map': settings.map,
+			'gamemode': settings.gamemode,
+			'sits_number': settings.sits_number,
+			'duration': settings.duration
+		});
+	},
+	kickUser(user_id: number) {
+		return sendJSON({'type': NetworkCodes.USER_KICK_REQUEST, 'user_id': user_id});
+	},
+	sendSitRequest() {
+		return sendJSON({'type': NetworkCodes.SIT_REQUEST});
+	},
+	sendStandUpRequest() {
+		return sendJSON({'type': NetworkCodes.STAND_REQUEST});
+	},
+	sendReadyRequest() {
+		return sendJSON({'type': NetworkCodes.READY_REQUEST});
 	},
 
 	////////////////////////////////////////
@@ -328,15 +357,6 @@ const Network = {
 	sendRemoveFriendRequest(user_id: number) {
 		sendJSON( {'type': NetworkCodes.REMOVE_FRIEND_REQUEST, 'user_id': user_id} );
 	},
-	sendSitRequest() {
-		sendJSON( {'type': NetworkCodes.SIT_REQUEST} );
-	},
-	sendStandUpRequest() {
-		sendJSON( {'type': NetworkCodes.STAND_REQUEST} );
-	},
-	sendReadyRequest() {
-		sendJSON( {'type': NetworkCodes.READY_REQUEST} );
-	},
 	requestShipUse(type: number) {//TODO - check this types
 		sendJSON( {'type': NetworkCodes.SHIP_USE_REQUEST, 'ship_type': type} );
 	},
@@ -355,21 +375,6 @@ const Network = {
 	//@skills - array of skill indexes and nulls
 	requestSkillsOrder(skills: (number | null)[]) {
 		sendJSON( {'type': NetworkCodes.SKILLS_ORDER_REQUEST, 'skills': skills} );
-	},
-	requestUserKick(user_id: number) {
-		sendJSON( {'type': NetworkCodes.USER_KICK_REQUEST, 'user_id': user_id} );
-	},
-	sendRoomUpdateRequest(name: string, sits_number: number, duration: number, 
-		map: string, gamemode: number) 
-	{
-		sendJSON({
-			'type': NetworkCodes.ROOM_UPDATE_REQUEST, 
-			'name': name,
-			'map': map,
-			'gamemode': gamemode,
-			'sits_number': sits_number,
-			'duration': duration
-		});
 	},
 	confirmGameStart() {
 		sendJSON( {'type': NetworkCodes.START_GAME_CONFIRM} );

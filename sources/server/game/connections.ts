@@ -90,6 +90,22 @@ export class Connection {
 		});
 	}
 
+	sendKickInfo(room: RoomInfo) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_KICKED_FROM_ROOM,
+			room_name: room.name
+		});
+	}
+
+	sendAccountAlreadyLoggedInError() {
+		this.send({
+			type: NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN,
+		});
+	}
+
 	onRoomCreated(room: RoomInfo) {//send data for user's rooms list
 		if(!this.user)
 			throw new Error('This connection has no user');
@@ -107,6 +123,16 @@ export class Connection {
 		this.send({
 			type: NetworkCodes.ON_ROOM_REMOVED,
 			room_id: room.id
+		});
+	}
+
+	onRoomUpdate(room: RoomInfo) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_ROOM_DATA_UPDATE,
+			room: room.toJSON()
 		});
 	}
 
@@ -175,6 +201,13 @@ export default {
 	forEachLobbyUser(func: (connection: Connection) => void) {
 		connections.forEach(connection => {
 			if( connection.isInLobby() )
+				func(connection);
+		});
+	},
+
+	forEachAccountUser(func: (connection: Connection) => void) {//each logged in user
+		connections.forEach(connection => {
+			if( connection.user && connection.user.account_id )
 				func(connection);
 		});
 	}

@@ -7,7 +7,6 @@ import ServerAPi from '../utils/server_api';
 import AccountSidepop from './sidepops/account_sidepop';
 
 import './../styles/account_widget.scss';
-const no_avatar = require('../img/icons/account.svg');
 
 interface AccountWidgetState {
 	show_sidepop: boolean;
@@ -41,8 +40,7 @@ export default class AccountWidget extends React.Component<any, AccountWidgetSta
 			<div className='account-widget-content' onClick={() => this.setState({show_sidepop: true})}>
 				<div className={`indicator ${acc ? '' : 'no-account'}`}>
 					{acc ? <span className={`avatar-circle ${!acc || !acc.avatar ? 'empty' : ''}`}>
-						<img src={acc.avatar ? 
-						ServerAPi.getAvatarPath(acc.avatar) : no_avatar} /></span> : 
+						<img src={ServerAPi.getAvatarPath(acc.avatar)} /></span> : 
 						<button>LOG IN</button>}
 				</div>
 			</div>

@@ -4,9 +4,11 @@ import Config from '../../common/config';
 const HOST = window.SERVER_HOST || Config.api_server_url;
 console.log('Server host:', HOST);
 
+const no_avatar_img = require('../img/icons/account.svg');
+
 const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 function salt() {//returns short random string
-	return new Array(8).fill(0).map(a => CHARS[(Math.random()*CHARS.length)|0]);
+	return new Array(8).fill(0).map(a => CHARS[(Math.random()*CHARS.length)|0]).join('');
 }
 
 function postRequest(to: string, data: string | {[index: string]: any}) {
@@ -35,7 +37,9 @@ export default {
 		}
 	},
 
-	getAvatarPath(avatar: string) {
+	getAvatarPath(avatar: string | null) {
+		if(avatar === null)
+			return no_avatar_img;
 		return `${Config.api_server_url}/uploads/avatars/${avatar}?${salt()}`;
 	}
 }

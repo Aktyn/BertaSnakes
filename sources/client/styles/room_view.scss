@@ -2,6 +2,28 @@
 	height: 100%;
 	overflow: auto;
 
+	@keyframes entry-slide-top {
+		0% {
+			opacity: 0;
+			transform: translateY(-50px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0px);
+		}
+	}
+
+	& > * {
+		opacity: 0;
+		animation: entry-slide-top 0.5s cubic-bezier(.36,.07,.19,.97) forwards;
+
+		@for $i from 1 through 10 {
+			&:nth-child( #{$i} ) {
+				animation-delay: ($i - 1) * 0.05s;
+			}
+		}
+	}
+
 	nav {
 		display: grid;
 		grid-template-areas: 'edit name leave';
@@ -132,6 +154,42 @@
 	.duration {
 		grid-area: duration;
 		display: block;
+	}
+
+	.settings-grid {
+		padding-top: 10px;
+
+		display: inline-grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: auto;
+		align-items: center;
+		grid-row-gap: 5px;
+		grid-column-gap: 10px;
+
+		& > *:nth-child(odd) {
+			justify-self: end;
+			font-weight: bold;
+		}
+		& > *:nth-child(even) {
+			justify-self: start;
+		}
+
+		@media (max-width: 450px) {
+			padding-top: 40px;
+			grid-template-columns: auto;
+
+			& > * {
+				justify-self: center !important;
+			}
+			& > label {
+				margin-top: 10px;
+			}
+		}
+	}
+
+	input {
+		border-radius: 5px;
+		padding: 5px;
 	}
 
 	.map_preview {

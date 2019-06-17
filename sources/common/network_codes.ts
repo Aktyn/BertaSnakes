@@ -5,23 +5,32 @@ export interface NetworkPackage {
 
 const enum NetworkCodes {
 	//TO SERVER
-	LOGIN = 0,//{token: string}
-	ACCOUNT_DATA_REQUEST,//request update, returns same data as LOGIN response
+	LOGIN = 0,//token: string
+	ACCOUNT_DATA_REQUEST,//token: string
 	CREATE_ROOM_REQUEST,
 	ROOM_LIST_REQUEST,
-	JOIN_ROOM_REQUEST,//@id - 'number' (target room id)
+	JOIN_ROOM_REQUEST,//id: number (target room id)
 	LEAVE_ROOM_REQUEST,//leave current room
+	//name: string, map: string, gamemode: number, sits_number: number, duration: number
+	ROOM_SETTINGS_UPDATE_REQUEST,
+	USER_KICK_REQUEST,//user_id: number
+	SIT_REQUEST,
+	STAND_REQUEST,
+	READY_REQUEST,
 
 	//FROM SERVER
 	ON_USER_DATA,//user: UserCustomDaata
 	ON_ROOM_JOINED,//room: RoomCustomData, users: UserPublicData[]
 	ON_ROOM_LEFT,//room_id: number
 	ON_ROOM_CREATED,//room: RoomCustomData
+	ON_ROOM_DATA_UPDATE,//room: RoomCustomData
 	ON_ENTIRE_LIST_ROOMS_DATA,//rooms: RoomCustomData[]
 	ON_ROOM_REMOVED,//room_id: number
 
 	ON_USER_LEFT_ROOM,//user_id: number, room_id: number
 	ON_USER_JOINED_ROOM,//user: UserPublicData, room_id: number
+	ON_KICKED_FROM_ROOM,//room_name: string
+	ACCOUNT_ALREADY_LOGGED_IN,
 
 	//BELOW CODES ARE BEFORE 2019
 
@@ -31,9 +40,6 @@ const enum NetworkCodes {
 	SEND_PRIVATE_MESSAGE,//@msg - 'string', @user_id - 'number'
 	ADD_FRIEND_REQUEST,//@user_id - 'number'
 	REMOVE_FRIEND_REQUEST,// ----- // -----
-	SIT_REQUEST,
-	STAND_REQUEST,
-	READY_REQUEST,
 	
 	SHIP_USE_REQUEST,//@ship_type - 'number'
 	SHIP_BUY_REQUEST,// ------- // -------
@@ -41,10 +47,8 @@ const enum NetworkCodes {
 	SKILL_USE_REQUEST,// ------- // -------
 	SKILL_PUT_OFF_REQUEST,// ------- // -------
 	SKILLS_ORDER_REQUEST,//@skills - array of skill indexes and nulls
-	USER_KICK_REQUEST,//@user_id - 'number'
 
 	//@name - room name: 0, @map - map name: 0, @sits_number - number: 0, @duration - number in seconds
-	ROOM_UPDATE_REQUEST,
 	START_GAME_CONFIRM,
 
 	ACCOUNT_ALREADY_LOGGED_IN,
@@ -59,8 +63,6 @@ const enum NetworkCodes {
 	CHANGE_ROOM_CONFIRM,//@old_room_id - number: 0, @room_info - json format room info: 0, @users...
 	LEAVE_ROOM_CONFIRM,
 	CREATE_ROOM_CONFIRM,
-
-	ON_KICKED,
 
 	USER_JOINED_ROOM,//@user_info - JSON format of UserInfo
 

@@ -132,22 +132,19 @@ export default class UserInfo {
 		};
 	}
 
-	//RETURNS ONLY PUBLIC DATA AND ID
+	//RETURNS ONLY PUBLIC DATA AND ID's
 	public toJSON() {
-		/*return JSON.stringify({
-			id: this.id,
-			data: this.getPublicData()
-		});*/
 		return {
 			id: this.id,
+			account_id: this.account_id,
 			data: this.getPublicData()
 		};
 	}
 
 	//GETS ONLY PUBLIC DATA AND ID
-	public static fromJSON(json_data: string | {id: number, data: UserPublicData}) {
+	public static fromJSON(json_data: string | {id:number, account_id?:string, data:UserPublicData}) {
 		if(typeof json_data === 'string')
-			json_data = <{id: number, data: UserPublicData}>JSON.parse(json_data);
+			json_data = <{id: number, account_id?: string, data: UserPublicData}>JSON.parse(json_data);
 		
 		let public_data = json_data['data'];
 		public_data = {
@@ -158,25 +155,24 @@ export default class UserInfo {
 			skills: public_data['skills'],
 			ship_type: public_data['ship_type']
 		};
-		return new UserInfo(json_data['id'], public_data);
+		return new UserInfo(json_data['id'], public_data, json_data['account_id']);
 	}
 
 	//PRIVATE AND PUBLIC DATA (for server-side threads communications)
 	public toFullJSON() {
-		// return JSON.stringify({
-		// 	id: this.id,
-		// 	data: this.custom_data
-		// });
 		return {
 			id: this.id,
+			account_id: this.account_id,
 			data: this.custom_data
 		};
 	}
 
 	//PRIVATE AND PUBLIC ...
-	static fromFullJSON(full_json_data: string | {id: number, data: UserCustomData}) {
-		if(typeof full_json_data === 'string')
-			full_json_data = <{id: number, data: UserCustomData}>JSON.parse(full_json_data);
+	static fromFullJSON(full_json_data: string | {id:number, account_id?:string, data:UserCustomData}) {
+		if(typeof full_json_data === 'string') {
+			full_json_data = 
+				<{id: number, account_id?: string, data: UserCustomData}>JSON.parse(full_json_data);
+		}
 
 		let full_data = full_json_data['data'];
 		full_data = {
@@ -194,7 +190,7 @@ export default class UserInfo {
 			ship_type: full_data['ship_type']
 		};
 
-		let user = new UserInfo(full_json_data['id'], full_data);
+		let user = new UserInfo(full_json_data['id'], full_data, full_json_data['account_id']);
 
 		//user.friends = full_json_data['friends'];
 		//user.lobby_subscriber = full_json_data['lobby_subscriber'];

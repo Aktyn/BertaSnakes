@@ -1,0 +1,40 @@
+@import 'global.scss';
+
+$size: 25px;
+
+.options-list {
+	height: $size;
+
+	background-color: #fff;
+	border-radius: $size;
+	overflow: hidden;
+
+   	box-shadow: 0px 2px 3px #0006;
+
+	& > * {//single options
+		box-shadow: none !important;
+		border: none;
+		border-radius: 0px;
+		background: transparent;
+		color: #455a64 !important;
+		padding: 0px 10px;
+		margin: 0px;
+
+		height: $size;
+		line-height: $size;
+
+		$animFunc: 0.2s ease-in-out;
+		transition: background-color $animFunc, color $animFunc;
+
+		&.current {
+			background-color: #4DB6AC;
+			color: #fff !important;
+			cursor: auto;
+		}
+
+		&:not(.current):hover {
+			// background-color: #B2DFDB;
+			color: #009688 !important;
+		}
+	}
+}

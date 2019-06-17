@@ -1,5 +1,5 @@
 import Connections, {Connection} from './connections';
-import RoomInfo from '../../common/room_info';
+import RoomInfo, {RoomSettings} from '../../common/room_info';
 
 const MINIMUM_ROOMS = 3;
 
@@ -11,6 +11,10 @@ function distributeRoomCreateEvent(room: RoomInfo) {//distribute room data for e
 
 function distributeRoomRemoveEvent(room: RoomInfo) {//distribute room remove event for everyone in lobby
 	Connections.forEachLobbyUser((conn) => conn.onRoomRemove(room));
+}
+
+function disbtributeRoomUpdateEvent(room: RoomInfo) {
+	Connections.forEachLobbyUser((conn) => conn.onRoomUpdate(room));
 }
 
 function addRoom(id: number, name: string) {
@@ -43,6 +47,14 @@ export default {
 		this.joinRoom(from_connection, room.id);
 	},
 
+	updateRoomSettings(from_connection: Connection, settings: RoomSettings) {
+		let room = from_connection.getRoom();
+		if(!room || room.getOwner() !== from_connection.user)//only owner can update room settings
+			return;
+		room.updateSettings(settings);
+		disbtributeRoomUpdateEvent(room);
+	},
+
 	sendRoomsList(from_connection: Connection) {
 		if(from_connection.isInLobby())
 			from_connection.sendRoomsList( Array.from(rooms.values()) );
@@ -67,9 +79,6 @@ export default {
 				if(user.connection && from_user && room)
 					user.connection.onUserLeftRoom(from_user.id, room.id);
 			});
-
-			//ON_USER_LEFT_ROOM,//user_id: number, room_id: number
-			//ON_USER_JOINED_ROOM,//user: UserCustomData, room_id: number
 		}
 	},
 
@@ -90,5 +99,49 @@ export default {
 			if(user.connection && room && from_connection.user)
 				user.connection.onUserJoinedRoom(from_connection.user, room.id);
 		});
-	}
+	},
+
+	kickUser(from_connection: Connection, user_id: number) {
+		let room = from_connection.getRoom();
+		let from_user = from_connection.user;
+		
+		if( !room || !from_user || from_user.id === user_id)//user cannot kick himself
+			return;
+
+		let room_owner = room.getOwner();
+		if(room_owner && from_user.id === room_owner.id) {//user is room owner so he can kick
+			let user_to_kick = room.getUserByID(user_id);
+			if( !user_to_kick || !user_to_kick.connection )//no user to kick or is he not connected
+				return;
+
+			this.leaveRoom( user_to_kick.connection );
+
+			user_to_kick.connection.sendKickInfo(room);
+			//TODO: short ban for joining this room
+		}
+	},
+
+	sitUser(from_connection: Connection) {
+		let room = from_connection.getRoom();
+		if(!room || !from_connection.user)
+			return;
+		room.sitUser( from_connection.user );
+		disbtributeRoomUpdateEvent(room);
+	},
+
+	stand(from_connection: Connection) {
+		let room = from_connection.getRoom();
+		if(!room || !from_connection.user)
+			return;
+		room.standUpUser( from_connection.user );
+		disbtributeRoomUpdateEvent(room);
+	},
+
+	readyUser(from_connection: Connection) {
+		let room = from_connection.getRoom();
+		if(!room || !from_connection.user)
+			return;
+		room.setUserReady( from_connection.user );
+		disbtributeRoomUpdateEvent(room);
+	},
 }

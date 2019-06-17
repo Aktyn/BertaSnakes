@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-// import './../styles/number_input.scss';
+import './../styles/number_input.scss';
 
 interface NumberInputProps {
 	min: number;
@@ -89,10 +89,10 @@ export default class extends React.Component<NumberInputProps, NumberInputState>
 	render() {
 		return <div className='number-input' ref={el => this.widget = el}>
 			<button className='decrementer' onMouseDown={e => this.hold(e.nativeEvent, -1)}
-				onMouseUp={() => this.interval && clearInterval(this.interval)}></button>
+				onMouseUp={() => this.interval && clearInterval(this.interval)}>-</button>
 			<span className='value-displayer'>{this.state.value}{this.props.postfix}</span>
 			<button className='incrementer' onMouseDown={e => this.hold(e.nativeEvent, 1)}
-				onMouseUp={() => this.interval && clearInterval(this.interval)}></button>
+				onMouseUp={() => this.interval && clearInterval(this.interval)}>+</button>
 		</div>;
 	}
 }

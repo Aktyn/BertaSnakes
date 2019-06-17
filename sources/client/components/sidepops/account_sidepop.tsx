@@ -1,14 +1,10 @@
 import * as React from 'react';
-import Loader from '../loader';
 import SidepopBase, {SidepopProps} from './sidepop_base';
 import ServerApi from '../../utils/server_api';
 
 import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
-// import {offsetTop, removeWhitechars} from './sidepops_common';
-import {errorMsg} from '../../../common/error_codes';
-// import Config from '../../../common/config';
-import ERROR_CODES from '../../../common/error_codes';
+import ERROR_CODES, {errorMsg} from '../../../common/error_codes';
 
 //sections
 import renderRegisterSection from './register_section';
@@ -16,7 +12,6 @@ import renderAccountSection from './account_section';
 import renderLoginSection from './login_section';
 
 import './../../styles/account_sidepop.scss';
-
 
 export const enum VIEWS {//avoid 0 so this enum contains only truthy values
 	GENERAL = 1,
@@ -322,9 +317,8 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	render() {
 		return <SidepopBase onClose={this.props.onClose} show_navigator={true}
-			navigator_return={this.canReturn() ? this.return.bind(this) : undefined} >
-			{this.state.loading && <Loader color='#ef5350' />}
-			{this.state.error && <div className='error'>{this.state.error}</div>}
+			navigator_return={this.canReturn() ? this.return.bind(this) : undefined}
+			error={this.state.error} loading={this.state.loading} >
 			{this.renderView(this.state.view)}
 		</SidepopBase>;
 	}

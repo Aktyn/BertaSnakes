@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import Loader from '../loader';
 
 import './../../styles/sidepop.scss';
 
@@ -41,6 +42,9 @@ class SidepopContainer extends React.Component<SidepopProps, any> {
 interface SidepopWrapperProps extends SidepopProps {
 	show_navigator: boolean;
 	navigator_return?: () => void;
+
+	loading: boolean;
+	error?: string;
 }
 
 export default class SidepopBase extends React.Component<SidepopWrapperProps, any> {
@@ -67,6 +71,8 @@ export default class SidepopBase extends React.Component<SidepopWrapperProps, an
 		return <SidepopContainer /*side={this.props.side}*/ onClose={this.props.onClose}>
 			<div className='sidepop'>
 				{this.props.show_navigator && this.renderNavigator()}
+				{this.props.loading && <Loader color='#ef5350' />}
+				{this.props.error && <div className='error'>{this.props.error}</div>}
 				{this.props.children}
 			</div>
 		</SidepopContainer>;

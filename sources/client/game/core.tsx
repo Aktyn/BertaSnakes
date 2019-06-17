@@ -2,9 +2,9 @@ import * as React from 'react';
 
 import Network from './engine/network';
 import NetworkCodes, {NetworkPackage} from './../../common/network_codes';
-// import UserInfo from './../../common/user_info';
+import {UserCustomData} from './../../common/user_info';
 import RoomInfo, {RoomCustomData} from './../../common/room_info';
-//import HeaderNotifications from '../components/header_notifications';
+import HeaderNotifications from '../components/header_notifications';
 
 //main stages
 import StageBase, {BaseProps} from './stages/stage_base';
@@ -81,17 +81,29 @@ export default class extends React.Component<any, CoreState> {
 
 		try {
 			switch(data['type']) {
-				case NetworkCodes.ON_USER_DATA:
+				case NetworkCodes.ON_USER_DATA: {
 					if(!this.state.current_user)//first login
 						Network.requestRoomsList();
-					this.setState({current_user: Network.getCurrentUser()});
-					break;
+					let updated_user = Network.getCurrentUser();
+					this.setState({current_user: updated_user});
+
+					//updating room's user data
+					if(this.state.current_room && updated_user) {
+						let self_user = this.state.current_room.getUserByID(updated_user.id);
+						if(self_user) {
+							self_user.updateData( updated_user.custom_data as UserCustomData );
+							this.setState({current_room: this.state.current_room});
+						}
+					}
+				}	break;
+
 				case NetworkCodes.ON_ROOM_LEFT:
 				case NetworkCodes.ON_ROOM_JOINED:
 				case NetworkCodes.ON_USER_LEFT_ROOM:
 				case NetworkCodes.ON_USER_JOINED_ROOM:
-					this.setState({current_room: Network.getCurrentRoom()})
+					this.setState({current_room: Network.getCurrentRoom()});
 					break;
+
 				case NetworkCodes.ON_ROOM_CREATED: {
 					let rooms = this.state.rooms_list;
 					let updated_room = RoomInfo.fromJSON(data['room']);
@@ -102,12 +114,31 @@ export default class extends React.Component<any, CoreState> {
 
 					this.setState({rooms_list: rooms});
 				}	break;
+
+				case NetworkCodes.ON_ROOM_DATA_UPDATE: {
+					let rooms = this.state.rooms_list;
+					let updated_room = RoomInfo.fromJSON(data['room']);
+
+					for(let i=0; i<rooms.length; i++) {
+						if(rooms[i].id === updated_room.id) {
+							rooms[i].updateData(updated_room);
+							this.setState({rooms_list: rooms});
+							break;
+						}
+					}
+
+					let current_room = Network.getCurrentRoom();
+					if(current_room && updated_room.id === current_room.id)
+						this.setState({current_room: current_room});
+				}	break;
+
 				case NetworkCodes.ON_ROOM_REMOVED: {
 					let updated_rooms = this.state.rooms_list.filter(r => {
 						return r.id !== data['room_id'];
 					});
 					this.setState({rooms_list: updated_rooms});
 				}	break;
+
 				case NetworkCodes.ON_ENTIRE_LIST_ROOMS_DATA: {
 					let room_datas: RoomCustomData[] = data['rooms'];
 					let rooms = room_datas.map(data => RoomInfo.fromJSON(data));
@@ -116,6 +147,14 @@ export default class extends React.Component<any, CoreState> {
 					if(TDD1 && rooms.length > 0)
 						Network.joinRoom( rooms[0].id );
 				}	break;
+
+				case NetworkCodes.ON_KICKED_FROM_ROOM:
+					HeaderNotifications.push(`You have been kicked from: ${data['room_name']}`);
+					break;
+				case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
+					HeaderNotifications.push('Account already logged in game');
+					break;
+
 				/*case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
 					this.notify('Your account is already logged in game.',
 						'Check other browser tabs.');

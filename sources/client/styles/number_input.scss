@@ -1,0 +1,40 @@
+$size: 25px;
+
+.number-input {
+	background-color: #fff;
+	color: #455a64 !important;
+	font-weight: bold;
+	padding: 0px;
+
+	height: $size;
+	border-radius: $size;
+	overflow: hidden;
+	box-shadow: 0px 2px 3px #0006;
+
+	display: inline-grid;
+	grid-template-rows: auto;
+	grid-template-columns: $size auto $size;
+	align-items: center;
+
+	& > button {
+		height: $size;
+		line-height: $size;
+		border-radius: $size;
+		background-color: transparent;
+		box-shadow: none;
+		padding: 0px;
+		margin: 0px;
+
+		transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+
+		&:hover {
+			box-shadow: none;
+			transform: scale(1.2);
+		}
+	}
+
+	.value-displayer {
+		padding: 0px 3px;
+		min-width: $size*2;
+	}
+}

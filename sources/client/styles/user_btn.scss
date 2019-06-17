@@ -2,6 +2,7 @@
 
 .user-btn {
 	$size: 30px;
+	min-width: 180px;
 
 	background-color: nth($palette, 9);
 	border: 1px solid #0000;

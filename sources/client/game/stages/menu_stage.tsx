@@ -72,7 +72,8 @@ export default class extends StageBase<BaseProps, MenuState> {
 						room={this.props.current_room} current_user={this.props.current_user} />}
 				</main>
 				{
-					this.props.current_room && <RoomChat />
+					this.props.current_room && <RoomChat room={this.props.current_room}
+						current_user={this.props.current_user} />
 				}
 			</section>
 			{this.state.account_view && <AccountSidepop force_view={this.state.account_view}
