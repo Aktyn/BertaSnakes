@@ -13,18 +13,22 @@ import AccountSidepop, {VIEWS} from '../../components/sidepops/account_sidepop';
 
 import './../../styles/menu_stage.scss';
 
+interface MenuProps extends BaseProps {
+	indicate_room_deletion: boolean;
+}
+
 interface MenuState extends BaseState {
 	account_view?: VIEWS;
 	hide_rooms_list: boolean;
 }
 
-export default class extends StageBase<BaseProps, MenuState> {
+export default class extends StageBase<MenuProps, MenuState> {
 	state: MenuState = {
 		account_view: undefined,
 		hide_rooms_list: true//effect visible only in small screen
 	}
 
-	constructor(props: any) {
+	constructor(props: MenuProps) {
 		super(props);
 	}
 
@@ -62,6 +66,8 @@ export default class extends StageBase<BaseProps, MenuState> {
 					<div className='options'>
 						<button className='glossy add' 
 							onClick={Network.createRoom} style={{marginBottom: '20px'}}>CREATE</button>
+						<div className={`refresh-indicator${
+							this.props.indicate_room_deletion ? ' indicate' : ''}`}></div>
 					</div>
 					<div className='rooms-list-container'>
 						<RoomsList rooms={this.props.rooms_list} current_room={this.props.current_room} />

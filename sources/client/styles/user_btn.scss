@@ -19,14 +19,17 @@
 	box-shadow: none !important;
 
 	$transFunc: 0.2s ease-in-out;
-
 	transition: border-color $transFunc, background-color $transFunc, color $transFunc;
 
-	&:hover {
+	&:not(.disabled):hover {
 		border-color: #e57373;
 		// background-color: #BF360C;
 		background-color: nth($palette, 8);
 		color: #ef9a9a !important;
+	}
+
+	&.disabled {
+		cursor: auto;
 	}
 
 	img {

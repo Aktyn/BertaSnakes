@@ -25,6 +25,15 @@ export default class extends React.Component<UserBtnProps, UserBtnState> {
 		super(props);
 	}
 
+	private canOpenDetails() {
+		if( !this.props.user )
+			return false;
+		if(this.props.user.account_id)
+			return true;
+		let current = Network.getCurrentUser();
+		return (current && current.id === this.props.user.id);
+	}
+
 	renderUserBtn(user: UserInfo) {
 		if(user.isGuest())
 			return user.nick;
@@ -61,7 +70,7 @@ export default class extends React.Component<UserBtnProps, UserBtnState> {
 
 	render() {
 		return <>
-			<button className='user-btn' 
+			<button className={`user-btn${this.canOpenDetails() ? '' : ' disabled'}`} 
 				onClick={() => this.setState({show_sidepop: true})}>
 				{this.props.user ? 
 					this.renderUserBtn(this.props.user) : 'OFFLINE'

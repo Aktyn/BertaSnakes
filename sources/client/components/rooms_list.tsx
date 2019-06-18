@@ -21,8 +21,12 @@ export default class RoomsList extends React.Component<RoomsListProps, any> {
 		return <table className='rooms-list'><tbody>
 			{this.props.rooms.map((room, i) => {
 				let is_current = this.props.current_room && this.props.current_room.id === room.id;
-				return <tr key={i} onClick={() => Network.joinRoom(room.id)}
-						className={is_current ? 'current' : ''}>
+				
+				return <tr key={room.id} onClick={() => {
+					if(!room.to_remove)
+						Network.joinRoom(room.id);
+				}} className={`${is_current ? 'current' : ''} 
+					${room.to_remove ? 'to-remove' : ''}`.trim()}>
 					<td>
 						<div>{Utils.trimString(room.name, 20)}</div>
 						<strong>{room.map}</strong>

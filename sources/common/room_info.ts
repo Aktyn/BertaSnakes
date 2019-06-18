@@ -43,6 +43,8 @@ export default class RoomInfo {
 	private users: Map<number, UserInfo> = new Map();//contains UserInfo instances
 	public gamemode = Config.DEFAULT_GAME_MODE;
 
+	public to_remove = false;//client-side only user
+
 	// public onUserConfirm: ((user_id: number) => void) | null = null;
 
 	//if not null => game is running

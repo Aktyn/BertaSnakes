@@ -14,12 +14,14 @@ import GameStage from './stages/game_stage';
 const TDD1 = true;//auto room joining
 
 interface CoreState extends BaseProps {
-	current_stage: StageBase<any, any>;//changed from any to StageBase<any, any>
+	current_stage: StageBase<any, any>;
+	indicate_room_deletion: boolean;
 }
 
 export default class extends React.Component<any, CoreState> {
-	//private currentStage: StageBase<any, any> | null = null;
 	private active = false;
+	private room_refresh_tm: NodeJS.Timeout | null = null;
+	private room_deletion_tm: NodeJS.Timeout | null = null;
 
 	state: CoreState = {
 		current_stage: MenuStage.prototype,
@@ -27,6 +29,8 @@ export default class extends React.Component<any, CoreState> {
 		current_user: null,
 		current_room: null,
 		rooms_list: [],
+
+		indicate_room_deletion: false
 	}
 
 	constructor(props: any) {
@@ -43,28 +47,31 @@ export default class extends React.Component<any, CoreState> {
 			onServerData: this.onServerData.bind(this)
 		});
 		Network.connect();
-
-		/*if(Network.getCurrentRoom() !== null) {
-			this.room_view.onRoomJoined();
-			this.chat.onRoomJoined();
-		}*/
 	}
 
 	componentWillUnmount() {
 		Network.clearListeners();
 		this.active = false;
+		if(this.room_refresh_tm)
+			clearTimeout(this.room_refresh_tm);
+		if(this.room_deletion_tm)
+			clearTimeout(this.room_deletion_tm);
 	}
 
-	//DEPRECATED: Use: HeaderNotification.push(...messages);
-	/*notify(...msg: string[]) {
-		if(this.currentStage && this.currentStage.HeaderNotifications)
-			this.currentStage.HeaderNotifications.add(...msg);
-	}*/
+	private startRoomDeletion() {
+		this.setState({indicate_room_deletion: true});
+
+		this.room_deletion_tm = setTimeout(() => {
+			this.setState({
+				indicate_room_deletion: false, 
+				rooms_list: this.state.rooms_list.filter(r => !r.to_remove)
+			});
+			this.room_deletion_tm = null;
+		}, 2000) as never;//must be exactly 2 seconds
+	}
 
 	onServerConnected() {
 		console.log('server connected');
-		//HeaderNotifications.push('Server connection established');
-
 		Network.login();
 	}
 
@@ -133,10 +140,19 @@ export default class extends React.Component<any, CoreState> {
 				}	break;
 
 				case NetworkCodes.ON_ROOM_REMOVED: {
-					let updated_rooms = this.state.rooms_list.filter(r => {
-						return r.id !== data['room_id'];
-					});
-					this.setState({rooms_list: updated_rooms});
+					for(let room of this.state.rooms_list) {
+						if(room.id === data['room_id']) {
+							room.to_remove = true;
+							this.setState({rooms_list: this.state.rooms_list});
+							break;
+						}
+					}
+					if(!this.room_refresh_tm && !this.room_deletion_tm) {
+						this.room_refresh_tm = setTimeout(() => {
+							this.startRoomDeletion();
+							this.room_refresh_tm = null;
+						}, 3000) as never;//must be longer than 2 seconds
+					}
 				}	break;
 
 				case NetworkCodes.ON_ENTIRE_LIST_ROOMS_DATA: {

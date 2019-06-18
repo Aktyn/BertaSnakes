@@ -109,6 +109,42 @@ $iconsSize: 20px;
 				height: auto;
 				overflow: auto;
 			}
+
+			.refresh-indicator {
+				height: 1px;
+				background-color: #fff2;
+				width: 100%;
+				margin-bottom: 15px;
+
+				&::after {
+					content: "";
+					display: block;
+					height: 1px;
+					width: 100%;
+					background-color: #fff;
+				}
+
+				&.indicate::after {
+					animation: indicate-refresh 2s cubic-bezier(.36,.07,.19,.97) forwards;
+				}
+				&:not(.indicate)::after {
+					opacity: 0;
+				}
+
+				@keyframes indicate-refresh {
+					0% {
+						opacity: 0;
+						transform: scaleX(1);
+					}
+					50% {
+						opacity: 1;
+					}
+					100% {
+						opacity: 1;
+						transform: scaleX(0);
+					}
+				}
+			}
 		}
 
 		main {

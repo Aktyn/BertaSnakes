@@ -20,8 +20,13 @@
 			cursor: auto;
 		}
 
-		&:not(.current):hover {
-			
+		&.to-remove {
+			cursor: auto;
+			opacity: 0.61;
+			color: #B0BEC5 !important;
+		}
+
+		&:not(.current):not(.to-remove):hover {
 			background-color: nth($palette, 7);
 		}
 
