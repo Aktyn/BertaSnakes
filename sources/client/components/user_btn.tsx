@@ -35,8 +35,12 @@ export default class extends React.Component<UserBtnProps, UserBtnState> {
 	}
 
 	renderUserBtn(user: UserInfo) {
-		if(user.isGuest())
-			return user.nick;
+		if(user.isGuest()) {
+			return <>
+				<img src={ServerApi.getAvatarPath(user.avatar)} />
+				<span>{user.nick}</span>
+			</>;
+		}
 
 		return <>
 			<img src={ServerApi.getAvatarPath(user.avatar)} />

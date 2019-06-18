@@ -15,6 +15,7 @@
 
 	& > * {
 		opacity: 0;
+		will-change: transform, opacity;
 		animation: entry-slide-top 0.5s cubic-bezier(.36,.07,.19,.97) forwards;
 
 		@for $i from 1 through 10 {
@@ -92,6 +93,40 @@
 	.info-bar {
 		font-size: 15px;
 		display: block;
+
+		position: relative;
+		overflow: hidden;
+
+		&.pulsing {
+			@keyframes pulse {
+				0% {
+					opacity: 1;
+					transform: scaleX(0);
+				}
+				100% {
+					opacity: 0;
+					transform: scaleX(100);
+				}
+			}
+
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				left: 0px;
+				right: 0px;
+				width: 20px;
+				height: 20px;
+				border-radius: 20px;
+				top: 0px;
+				bottom: 0px;
+				margin: auto;
+
+				background-color: #fff8;
+
+				animation: pulse 1s cubic-bezier(.36,.07,.19,.97) infinite;
+			}
+		}
 	}
 
 	.users {

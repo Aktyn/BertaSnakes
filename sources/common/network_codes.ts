@@ -17,6 +17,7 @@ const enum NetworkCodes {
 	SIT_REQUEST,
 	STAND_REQUEST,
 	READY_REQUEST,
+	SEND_ROOM_CHAT_MESSAGE,//msg: string
 
 	//FROM SERVER
 	ON_USER_DATA,//user: UserCustomDaata
@@ -31,12 +32,16 @@ const enum NetworkCodes {
 	ON_USER_JOINED_ROOM,//user: UserPublicData, room_id: number
 	ON_KICKED_FROM_ROOM,//room_name: string
 	ACCOUNT_ALREADY_LOGGED_IN,
+	ON_ROOM_MESSAGE,//room_id: number, author_id: number, timestamp: number, content: string
+	GAME_COUNTDOWN_UPDATE,//room_id: number, time: number | null
+
+	ON_GAME_START,//room_id: number
+	ON_GAME_FAILED_TO_START,//room: RoomCustomData
 
 	//BELOW CODES ARE BEFORE 2019
 
 	/*SUBSCRIBE_LOBBY_REQUEST,
 	
-	SEND_ROOM_MESSAGE,//@msg - 'string'
 	SEND_PRIVATE_MESSAGE,//@msg - 'string', @user_id - 'number'
 	ADD_FRIEND_REQUEST,//@user_id - 'number'
 	REMOVE_FRIEND_REQUEST,// ----- // -----
@@ -51,30 +56,14 @@ const enum NetworkCodes {
 	//@name - room name: 0, @map - map name: 0, @sits_number - number: 0, @duration - number in seconds
 	START_GAME_CONFIRM,
 
-	ACCOUNT_ALREADY_LOGGED_IN,
-	PLAYER_ACCOUNT,//gives user info to client (stored in @user_info property) (+ custom_data)
-	ACCOUNT_DATA,//complete user's custom_data + friends as an array
 	TRANSACTION_ERROR,//goes with error_detail (string)
 	ADD_FRIEND_CONFIRM,//goes with user_id
 	REMOVE_FRIEND_CONFIRM,// ----- // -----
 	SUBSCRIBE_LOBBY_CONFIRM,//goes with array of JSON RoomInfo's in @rooms property
-	
-	JOIN_ROOM_CONFIRM,//goes with room users data (@users) and up to date room info (@room_info)
-	CHANGE_ROOM_CONFIRM,//@old_room_id - number: 0, @room_info - json format room info: 0, @users...
-	LEAVE_ROOM_CONFIRM,
-	CREATE_ROOM_CONFIRM,
-
-	USER_JOINED_ROOM,//@user_info - JSON format of UserInfo
-
-	
-	ON_ROOM_UPDATE,//@room_info - JSON data of RoomInfo instance
 
 	RECEIVE_CHAT_MESSAGE,//@from - user nickname: 0, @public - boolean: 0, @msg - string message
 	//RECEIVE_PRIVATE_MESSAGE,// ----------------- // -----------------
 
-	START_GAME_COUNTDOWN,//@game_duration - duration in seconds
-	START_GAME,//after countdown finish
-	START_GAME_FAIL,//@room_info - JSON data of RoomInfo instance
 	START_ROUND_COUNTDOWN,//sends by server after every player confirms game loaded
 
 	END_GAME,

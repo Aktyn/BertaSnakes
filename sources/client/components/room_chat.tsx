@@ -2,15 +2,17 @@ import * as React from 'react';
 
 import RoomInfo from '../../common/room_info';
 import UserInfo from '../../common/user_info';
+import Config from '../../common/config';
 import Network from '../game/engine/network';
 
 import ServerApi from '../utils/server_api';
+import Utils from '../utils/utils';
 
 import UserBtn from './user_btn';
 
 import '../styles/room_chat.scss';
 
-interface MessageSchema {
+export interface MessageSchema {
 	author: UserInfo;
 	timestamp: number;
 	content: string[];
@@ -40,6 +42,9 @@ function formatTime(timestamp: number) {
 
 export default class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
 	private chat_input: HTMLInputElement | null = null;
+	private messages_container: HTMLDivElement | null = null;
+
+	private sticks = true;
 
 	state: RoomChatState = {
 		hide_chat: true,
@@ -51,12 +56,19 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 		super(props);
 	}
 
-	componentDidMount() {
+	/*componentDidMount() {
 		//test
 		if(!this.chat_input)
 			return;
 		this.chat_input.value = 'Test message';
 		this.send();
+	}*/
+
+	componentDidUpdate() {
+		if(this.sticks && this.messages_container) {
+			this.messages_container.scrollTop = 
+				this.messages_container.scrollHeight + this.messages_container.clientHeight;
+		}
 	}
 
 	renderUsersList() {
@@ -92,7 +104,7 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 		return -1;
 	}
 
-	private pushMessage(msg: MessageSchema) {//TODO: make public
+	public pushMessage(msg: MessageSchema) {
 		let last_i = this.getPreviousMsgIndex(msg.timestamp);
 		let messages = this.state.messages;
 
@@ -112,16 +124,11 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 		if(msg.length < 1)
 			return;
 
-		console.log(msg);
+		//console.log(msg);
+
+		Network.sendRoomChatMessage(msg);
 
 		this.chat_input.value = '';
-
-		//just for tests:
-		this.pushMessage({
-			author: this.props.current_user,
-			timestamp: Date.now(),//TODO - set timestamp server-side
-			content: [msg]
-		});
 	}
 
 	private renderMessage(msg: MessageSchema) {
@@ -129,7 +136,7 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 			<img src={ServerApi.getAvatarPath(msg.author.avatar)} />
 			<div>
 				<label>
-					<strong>{msg.author.nick}</strong>
+					<strong>{Utils.trimString(msg.author.nick, 15)}</strong>
 					<span>{formatTime(msg.timestamp)}</span>
 				</label>
 				{msg.content.map((line, line_i) => {
@@ -151,13 +158,20 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 					this.setState({kicking_user: 0});
 				}}>{this.renderUsersList()}</section>
 				<section className='room-chat-main'>
-					<div className='messages-container'>{this.state.messages.map(this.renderMessage.bind(this))}</div>
+					<div className='messages-container' onScroll={() => {
+						if(!this.messages_container)
+							return;
+						this.sticks = this.messages_container.clientHeight + 
+							this.messages_container.scrollTop + 32 >= this.messages_container.scrollHeight;
+					}} ref={el => this.messages_container = el}>{
+						this.state.messages.map(this.renderMessage.bind(this))
+					}</div>
 					<div className='bottom'>
 						<input type='text' placeholder='Type message' ref={el => this.chat_input = el}
 							onKeyDown={e => {
 								if(e.keyCode === 13)
 									this.send();
-							}} maxLength={2048} />
+							}} maxLength={Config.MAXIMUM_MESSAGE_LENGTH} />
 						<button className='send-btn' onClick={this.send.bind(this)}></button>
 					</div>
 				</section>

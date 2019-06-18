@@ -7,7 +7,7 @@ import Network from './../engine/network';
 import HeaderNotifications from '../../components/header_notifications';
 import UserBtn from '../../components/user_btn';
 import RoomsList from '../../components/rooms_list';
-import RoomChat from '../../components/room_chat';
+import RoomChat, {MessageSchema} from '../../components/room_chat';
 import RoomView from './room_view';
 import AccountSidepop, {VIEWS} from '../../components/sidepops/account_sidepop';
 
@@ -15,6 +15,7 @@ import './../../styles/menu_stage.scss';
 
 interface MenuProps extends BaseProps {
 	indicate_room_deletion: boolean;
+	start_game_countdown: number | null;
 }
 
 interface MenuState extends BaseState {
@@ -23,6 +24,8 @@ interface MenuState extends BaseState {
 }
 
 export default class extends StageBase<MenuProps, MenuState> {
+	private chat: RoomChat | null = null;
+
 	state: MenuState = {
 		account_view: undefined,
 		hide_rooms_list: true//effect visible only in small screen
@@ -32,19 +35,30 @@ export default class extends StageBase<MenuProps, MenuState> {
 		super(props);
 	}
 
+	public onChatMessage(msg: MessageSchema) {
+		if(this.chat)
+			this.chat.pushMessage(msg);
+	}
+
 	render() {
 		return <div className='menu-stage'>
 			<header>
 				<div style={{justifySelf: 'left'}}>
 					<UserBtn user={this.props.current_user} />
 
-					{this.props.current_user && !this.props.current_user.isGuest() && <>
-						<button className='shop shaky-icon' style={{marginLeft: '10px'}}
-							onClick={() => this.setState({account_view: VIEWS.SHOP})}></button>
+					{
+						(this.props.current_user && !this.props.current_user.isGuest()) ?
+						<>
+							<button className='shop shaky-icon' style={{marginLeft: '10px'}}
+								onClick={() => this.setState({account_view: VIEWS.SHOP})}></button>
 
-						<button className='friends shaky-icon' style={{marginLeft: '10px'}}
-							onClick={() => this.setState({account_view: VIEWS.FRIENDS})}></button>
-					</>}
+							<button className='friends shaky-icon' style={{marginLeft: '10px'}}
+								onClick={() => this.setState({account_view: VIEWS.FRIENDS})}></button>
+						</> 
+						: 
+						<button className='glossy no-icon' style={{marginLeft: '10px'}}
+							onClick={Network.reconnect}>RECONNECT</button>
+				}
 				</div>
 
 				<HeaderNotifications />
@@ -70,16 +84,19 @@ export default class extends StageBase<MenuProps, MenuState> {
 							this.props.indicate_room_deletion ? ' indicate' : ''}`}></div>
 					</div>
 					<div className='rooms-list-container'>
-						<RoomsList rooms={this.props.rooms_list} current_room={this.props.current_room} />
+						<RoomsList rooms={this.props.rooms_list} 
+							current_room={this.props.current_room} />
 					</div>
 				</aside>
 				<main>
 					{this.props.current_room && this.props.current_user && <RoomView 
-						room={this.props.current_room} current_user={this.props.current_user} />}
+						room={this.props.current_room} current_user={this.props.current_user}
+						start_game_countdown={this.props.start_game_countdown} />}
 				</main>
 				{
 					this.props.current_room && <RoomChat room={this.props.current_room}
-						current_user={this.props.current_user} />
+						current_user={this.props.current_user}
+						ref={el => this.chat = el} />
 				}
 			</section>
 			{this.state.account_view && <AccountSidepop force_view={this.state.account_view}

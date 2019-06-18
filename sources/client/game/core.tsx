@@ -16,12 +16,15 @@ const TDD1 = true;//auto room joining
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;
 	indicate_room_deletion: boolean;
+	start_game_countdown: number | null;
 }
 
 export default class extends React.Component<any, CoreState> {
 	private active = false;
 	private room_refresh_tm: NodeJS.Timeout | null = null;
 	private room_deletion_tm: NodeJS.Timeout | null = null;
+
+	private stageHandle: MenuStage | GameStage | null = null;
 
 	state: CoreState = {
 		current_stage: MenuStage.prototype,
@@ -30,7 +33,8 @@ export default class extends React.Component<any, CoreState> {
 		current_room: null,
 		rooms_list: [],
 
-		indicate_room_deletion: false
+		indicate_room_deletion: false,
+		start_game_countdown: null
 	}
 
 	constructor(props: any) {
@@ -76,9 +80,15 @@ export default class extends React.Component<any, CoreState> {
 	}
 
 	onServerDisconnected() {
-		console.log('server disconnected, todo - popup with lost connection info and reconnect button');
-		if(this.active)
-			this.setState({current_user: null, current_room: null, rooms_list: []});
+		console.log('server disconnected');
+		if(this.active) {
+			this.setState({
+				current_user: null, 
+				current_room: null, 
+				rooms_list: [],
+				start_game_countdown: null
+			});
+		}
 	}
 
 	onServerMessage(data: NetworkPackage) {
@@ -106,6 +116,9 @@ export default class extends React.Component<any, CoreState> {
 
 				case NetworkCodes.ON_ROOM_LEFT:
 				case NetworkCodes.ON_ROOM_JOINED:
+				case NetworkCodes.ON_GAME_FAILED_TO_START:
+					this.setState({current_room: Network.getCurrentRoom(), start_game_countdown: null});
+					break;
 				case NetworkCodes.ON_USER_LEFT_ROOM:
 				case NetworkCodes.ON_USER_JOINED_ROOM:
 					this.setState({current_room: Network.getCurrentRoom()});
@@ -129,14 +142,14 @@ export default class extends React.Component<any, CoreState> {
 					for(let i=0; i<rooms.length; i++) {
 						if(rooms[i].id === updated_room.id) {
 							rooms[i].updateData(updated_room);
-							this.setState({rooms_list: rooms});
+							this.setState({rooms_list: rooms, start_game_countdown: null});
 							break;
 						}
 					}
 
 					let current_room = Network.getCurrentRoom();
 					if(current_room && updated_room.id === current_room.id)
-						this.setState({current_room: current_room});
+						this.setState({current_room: current_room, start_game_countdown: null});
 				}	break;
 
 				case NetworkCodes.ON_ROOM_REMOVED: {
@@ -167,52 +180,40 @@ export default class extends React.Component<any, CoreState> {
 				case NetworkCodes.ON_KICKED_FROM_ROOM:
 					HeaderNotifications.push(`You have been kicked from: ${data['room_name']}`);
 					break;
+
 				case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
 					HeaderNotifications.push('Account already logged in game');
 					break;
 
-				/*case NetworkCodes.ACCOUNT_ALREADY_LOGGED_IN:
-					this.notify('Your account is already logged in game.',
-						'Check other browser tabs.');
-					break;
-				case NetworkCodes.PLAYER_ACCOUNT: {
-					this.setState({account: Network.getCurrentUser()});
+				//room_id: number, author_id: number, timestamp: number, content: string
+				case NetworkCodes.ON_ROOM_MESSAGE: {
+					let room = Network.getCurrentRoom();
 
-					let user = Network.getCurrentUser();
-					if(user && user.lobby_subscriber === false) {
-						Network.subscribeLobby();
-					}
-
-					// if(TDD) {
-					// 	this.openPopupStage(UserProfile.prototype, {user: Network.getCurrentUser()} as 
-					// 		UserProfileProps);
-					// }
-				}	break;
-				case NetworkCodes.ACCOUNT_DATA:
-					this.setState({account: Network.getCurrentUser()});
-					break;
-				// case NetworkCodes.TRANSACTION_ERROR:
-				// 	if(this.current_popup instanceof Popup.Account)
-				// 		this.current_popup.onTransactionError(data['error_detail']);
-				// 	break;
-				case NetworkCodes.SUBSCRIBE_LOBBY_CONFIRM: {
-					var curr_user = Network.getCurrentUser();
-					if(curr_user !== null)
-						curr_user.lobby_subscriber = true;
-
-					let _rooms_list: RoomInfo[] = [];
-					data['rooms'].forEach((room_json: RoomCustomData) => {
-						//rooms_list.pushRoomInfo(RoomInfo.fromJSON(room_json));
-						_rooms_list.push( RoomInfo.fromJSON(room_json) );
-					});
-					this.setState({rooms_list: _rooms_list});
-					//if(Network.getCurrentRoom() != null)
-					//	rooms_list.onRoomJoined();
-
-					if(TDD) {
-						Network.joinRoom(this.state.rooms_list[0].id);
+					if(this.stageHandle && room && room.id === data['room_id']) {
+						let author = room.getUserByID( data['author_id'] );
+						if(author) {
+							this.stageHandle.onChatMessage({
+								author: author,
+								timestamp: data['timestamp'],
+								content: [ data['content'] ]
+							});
+						}
 					}
 				}	break;
+
+				case NetworkCodes.GAME_COUNTDOWN_UPDATE:
+					let room = Network.getCurrentRoom();
+					let time = data['time'];
+					if( room && room.id === data['room_id'] && (typeof time==='number' || time===null) )
+						this.setState( {start_game_countdown: time} );
+					break;
+
+				case NetworkCodes.ON_GAME_START:
+					console.log('TODO - start game stage');
+					//this.change(GAME_STAGE);
+					break;
+
+				
 				// case NetworkCodes.ADD_FRIEND_CONFIRM:
 				// 	this.HeaderNotifications.addNotification(
 				// 		'User has been added to your friends list');
@@ -222,68 +223,6 @@ export default class extends React.Component<any, CoreState> {
 				// 		'User has been removed from your friends list');
 				// 	Network.requestAccountData();//request updated data
 				// 	break;
-				case NetworkCodes.ON_ROOM_CREATED: {
-					//this.rooms_list.pushRoomInfo( RoomInfo.fromJSON(data['room_info']) );
-					let _rooms_list = this.state.rooms_list;
-					_rooms_list.push( RoomInfo.fromJSON(data['room_info']) );
-					this.setState({rooms_list: _rooms_list});
-				}	break;
-				case NetworkCodes.ON_ROOM_REMOVED:
-					this.setState({
-						rooms_list: this.state.rooms_list.filter(r => r.id !== data['room_id'])
-					});
-					//this.rooms_list.removeRoomByID( data['room_id'] );
-					break;
-				case NetworkCodes.ON_ROOM_UPDATE: {
-					let updated_room = RoomInfo.fromJSON(data['room_info']);
-
-					let _rooms_list = this.state.rooms_list;
-					for(var room of _rooms_list) {
-						if(room.id === updated_room.id) {
-							room.updateData(updated_room);
-							break;
-						}
-					}
-					if(this.active)
-						this.setState({rooms_list: _rooms_list, room: Network.getCurrentRoom()});
-				}	break;
-				case NetworkCodes.JOIN_ROOM_CONFIRM:
-				case NetworkCodes.CHANGE_ROOM_CONFIRM:
-					this.setState({room: Network.getCurrentRoom()});
-					break;
-				case NetworkCodes.CREATE_ROOM_CONFIRM:
-					//joining created room
-					Network.joinRoom( data['room_info']['id'] );
-					break;
-				case NetworkCodes.LEAVE_ROOM_CONFIRM:
-					this.setState({room: null});
-					break;
-				case NetworkCodes.USER_JOINED_ROOM:
-					//this.room_view.addUser( UserInfo.fromJSON(data['user_info']) );
-					this.setState({room: Network.getCurrentRoom()});
-					break;
-				case NetworkCodes.USER_LEFT_ROOM:
-					//this.room_view.removeUserByID( data['user_id'] );
-					this.setState({room: Network.getCurrentRoom()});
-					break;
-				case NetworkCodes.ON_KICKED:
-					this.setState({room: Network.getCurrentRoom()});
-
-					this.notify('You have been kicked from the room');
-					break;*/
-				/*case NetworkCodes.RECEIVE_CHAT_MESSAGE:
-					if(this.currentStage) {
-						this.currentStage.onChatMessage(
-							data['from'], data['public'], data['id'], data['msg']);
-					}
-					//this.chat.onMessage(data);
-					break;*/
-				/*case NetworkCodes.START_GAME_COUNTDOWN:
-					this.room_view.onCountdown(data['remaining_time']);
-					break;
-				case NetworkCodes.START_GAME:
-					this.change(GAME_STAGE);
-					break;*/
 			}
 		}
 		catch(e) {
@@ -296,16 +235,12 @@ export default class extends React.Component<any, CoreState> {
 	}
 
 	render() {
-		return <React.Fragment>
-			{(() => {
-				switch(this.state.current_stage) {
-					default: return <div>ERROR</div>;
-					case MenuStage.prototype:	return <MenuStage /*ref={el=>this.currentStage=el}*/ 
-						{...this.state} />;
-					case GameStage.prototype:	return <GameStage /*ref={el=>this.currentStage=el}*/ 
-						{...this.state} />;
-				}
-			})()}
-		</React.Fragment>;
+		switch(this.state.current_stage) {
+			default: return <div>ERROR</div>;
+			case MenuStage.prototype:	
+				return <MenuStage ref={el => this.stageHandle=el} {...this.state} />;
+			case GameStage.prototype:
+				return <GameStage ref={el => this.stageHandle=el} {...this.state} />;
+		}
 	}
 }

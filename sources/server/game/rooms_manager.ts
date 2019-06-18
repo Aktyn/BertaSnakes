@@ -1,5 +1,7 @@
 import Connections, {Connection} from './connections';
 import RoomInfo, {RoomSettings} from '../../common/room_info';
+import GameStarter from './game_starter';
+import Config from '../../common/config';
 
 const MINIMUM_ROOMS = 3;
 
@@ -141,7 +143,39 @@ export default {
 		let room = from_connection.getRoom();
 		if(!room || !from_connection.user)
 			return;
+		if( room.everyoneReady() )
+			return;
 		room.setUserReady( from_connection.user );
 		disbtributeRoomUpdateEvent(room);
+
+		if( room.everyoneReady() ) {
+			try {
+				GameStarter.start_countdown(room, Config.START_GAME_COUNTDOWN);
+			}
+			catch(e) {//countdown failure - unreading everyone
+				room.unreadyAll();
+				disbtributeRoomUpdateEvent(room);
+			}
+		}
 	},
+
+	sendRoomMessage(from_connection: Connection, msg: string) {
+		let room = from_connection.getRoom();
+		if(!room || !from_connection.user)
+			return;
+
+		//TODO - store few previous user message timestamps to prevent spamming
+
+		let message = {
+			author_id: from_connection.user.id,
+			timestamp: Date.now(),
+			content: msg.substr(0, Config.MAXIMUM_MESSAGE_LENGTH)
+		};
+		room.forEachUser(user => {
+			if(!user.connection)
+				return;
+			user.connection.sendRoomMessage((<RoomInfo>room).id, 
+				message.author_id, message.timestamp, message.content);
+		});
+	}
 }

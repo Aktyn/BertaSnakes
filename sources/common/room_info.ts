@@ -30,8 +30,6 @@ export interface RoomCustomData {
 export default class RoomInfo {
 	private static room_id = 0;
 
-	//private static DEFAULT_MAP = 'Simple Maze';//'Empty', 'Open Maze', 'Simple Maze', 'Snowflake'
-
 	readonly id: number;
 	public name: string;
 
@@ -48,7 +46,7 @@ export default class RoomInfo {
 	// public onUserConfirm: ((user_id: number) => void) | null = null;
 
 	//if not null => game is running
-	public game_process: any = null;//TODO - set type of ChildProcess
+	public game_process: any = null;
 
 	constructor(_id: number, _name: string) {
 		this.id = _id;

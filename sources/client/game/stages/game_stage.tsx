@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import StageBase, {BaseProps, BaseState} from './stage_base';
+import {MessageSchema} from '../../components/room_chat';
 
 interface GameState extends BaseState {
 
@@ -16,7 +17,7 @@ export default class extends StageBase<BaseProps, GameState> {
 		super(props);
 	}
 
-	public onChatMessage(from: string, is_room_msg: boolean, id: number, msg: string) {
+	public onChatMessage(msg: MessageSchema) {
 		
 	}
 

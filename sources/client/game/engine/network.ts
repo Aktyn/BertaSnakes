@@ -72,6 +72,11 @@ const HANDLERS = {
 					CurrentRoom.updateData( updated_room );
 					// CurrentRoom.updateSettings( updated_room.getSettings() )
 			}	break;
+			case NetworkCodes.ON_GAME_FAILED_TO_START:
+				if(CurrentRoom == null)
+					throw new Error('CurrentRoom is empty');
+				CurrentRoom.updateData( json_data['room'] );
+				break;
 			/*case NetworkCodes.PLAYER_ACCOUNT:
 				//console.log(json_data, json_data['user_info']);
 				try {
@@ -140,11 +145,7 @@ const HANDLERS = {
 				if(CurrentUser)
 					CurrentUser.room = null;
 				break;
-			case NetworkCodes.START_GAME_FAIL:
-				if(CurrentRoom == null)
-					throw new Error('CurrentRoom is empty');
-				CurrentRoom.updateData( json_data['room_info'] );
-				break;*/
+			*/
 		}
 		//let curr = Stages.getCurrent();
 		//if(curr !== null)//passing message forward
@@ -269,6 +270,11 @@ const Network = {
 		};
 	},
 
+	reconnect() {
+		if(socket === null)
+			Network.connect();
+	},
+
 	disconnect() {
 		if(restore_timeout) {
 			clearTimeout(restore_timeout);
@@ -331,6 +337,9 @@ const Network = {
 	sendReadyRequest() {
 		return sendJSON({'type': NetworkCodes.READY_REQUEST});
 	},
+	sendRoomChatMessage(msg: string) {
+		return sendJSON({'type': NetworkCodes.SEND_ROOM_CHAT_MESSAGE, 'msg': msg});
+	},
 
 	////////////////////////////////////////
 	//BELOW FUNCTIONS ARE BEFORE PROJECT RENEVAL
@@ -344,9 +353,6 @@ const Network = {
 		sendJSON( {'type': NetworkCodes.SUBSCRIBE_LOBBY_REQUEST} );
 	},
 	
-	sendRoomMessage(msg: string) {
-		sendJSON( {'type': NetworkCodes.SEND_ROOM_MESSAGE, 'msg': msg} );
-	},
 	sendPrivateMessage(msg: string, target_user_id: number) {
 		sendJSON( {'type': NetworkCodes.SEND_PRIVATE_MESSAGE, 
 			'msg': msg, 'user_id': target_user_id} );

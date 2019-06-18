@@ -41,7 +41,6 @@ export default {
 			let connection = Connections.add(ws, req);
 
 			ws.on('message', function(message) {
-				//connection.onMessage(message);
 				onMessage(connection, message);
 			});
 

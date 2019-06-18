@@ -165,8 +165,8 @@ export class Connection {
 
 		this.send({
 			type: NetworkCodes.ON_USER_LEFT_ROOM,
-			user_id: user_id,
-			room_id: room_id
+			user_id,
+			room_id
 		});
 	}
 
@@ -178,6 +178,48 @@ export class Connection {
 			type: NetworkCodes.ON_USER_JOINED_ROOM,
 			user: user.toJSON(),
 			room_id: room_id
+		});
+	}
+
+	sendRoomMessage(room_id: number, author_id: number, timestamp: number, content: string) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.ON_ROOM_MESSAGE,
+			room_id,
+			author_id,
+			timestamp,
+			content
+		});
+	}
+
+	sendCountdown(room_id: number, time: number | null) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+
+		this.send({
+			type: NetworkCodes.GAME_COUNTDOWN_UPDATE,
+			room_id,
+			time
+		});
+	}
+
+	sendOnGameStartEvent(room: RoomInfo) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+		this.send({
+			type: NetworkCodes.ON_GAME_START,
+			room_id: room.id,
+		});
+	}
+
+	sendGameStartFailure(room: RoomInfo) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+		this.send({
+			type: NetworkCodes.ON_GAME_FAILED_TO_START,
+			room: room.toJSON(),
 		});
 	}
 }

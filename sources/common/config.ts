@@ -19,7 +19,7 @@ export default {
 	//server will scale uploaded avatar to this resolution before saving it as file
 	CONVERTED_AVATARS_RESOLUTION: 128,
 
-	START_GAME_COUNTDOWN: 1,//seconds
+	START_GAME_COUNTDOWN: 5,//seconds
 
 	//room settings
 	MINIMUM_GAME_DURATION: 60,//seconds
@@ -27,9 +27,10 @@ export default {
 	MAXIMUM_GAME_DURATION: 1800,//seconds
 	MAXIMUM_ROOM_NAME_LENGTH: 64,
 	DEFAULT_GAME_MODE: GAME_MODES.COOPERATION,
-	DEFAULT_SITS: 3,
+	DEFAULT_SITS: 1,
 	MAXIMUM_SITS: 8,
 	DEFAULT_MAP: 'Simple Maze',
+	MAXIMUM_MESSAGE_LENGTH: 2048,
 
 	//user settings
 	INITIAL_RANK: 1000,

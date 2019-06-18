@@ -55,6 +55,8 @@ $targetW: 400px;
 			}
 		}
 
+		will-change: transform;
+
 		& > nav {
 			display: grid;
 			grid-template-columns: auto auto;

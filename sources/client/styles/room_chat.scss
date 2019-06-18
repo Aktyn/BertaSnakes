@@ -134,7 +134,7 @@ $width: 250px;
 					width: 100px;
 					top: 0px;
 					right: 0px;
-					background-color: #FFCCBC;
+					background-color: #fff;//#FFCCBC;
 					color: #ef5350;//#455a64;
 					font-weight: bold;
 					border: 1px solid #ef9a9a;
@@ -183,16 +183,18 @@ $width: 250px;
 			left: 0px;
 
 			$headerSize: 26px;
+			//$bodyW: $width - $headerSize - 10px;//10px - horizontal padding
 
 			& > * {//single message
-				padding: 5px 10px;
+				padding: 5px 5px;
 
 				display: grid;
 				
-				grid-template-columns: $headerSize auto;
-				grid-column-gap: 10px;
+				grid-template-columns: $headerSize calc(100% - (26px));//$headerSize
+				justify-content: space-between;
+				//grid-column-gap: 10px;
 
-				&:not(last-child) {
+				&:not(:last-child) {
 					border-bottom: 1px solid #fff1;
 				}
 
@@ -215,10 +217,10 @@ $width: 250px;
 						height: $headerSize;
 						line-height: $headerSize;
 
-
 						& > strong {
 							font-weight: bold;
 							font-size: 14px;
+							padding: 0px 5px;
 							// background-color: red;
 						}
 
@@ -230,6 +232,7 @@ $width: 250px;
 					& > div {//message content
 						text-align: left;
 						color: nth($palette, 1);
+						word-wrap: break-word;
 					}
 				}
 			}

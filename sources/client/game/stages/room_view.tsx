@@ -32,6 +32,7 @@ const ClockWidget: React.SFC<{seconds: number}> = (props) => {
 interface RoomViewProps {
 	room: RoomInfo;
 	current_user: UserInfo;
+	start_game_countdown: number | null;
 }
 
 interface RoomViewState {
@@ -140,10 +141,14 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 				</section>
 			</section>
 			<hr key={'hr4'} />
-			<section key='section2' className='info-bar'>{
+			<section key='section2' className={`info-bar${
+				this.props.start_game_countdown ? ' pulsing' : ''}`}>{
 				free_sit ? 'Waiting for everyone to take a sit' : (
 					this.props.room.everyoneReady() ? 
-						'Everyone ready. Starting game' : 'Waiting for everyone to be ready'
+						<span>Everyone ready. Starting game{this.props.start_game_countdown &&
+							<span> in {this.props.start_game_countdown}&nbsp;sec</span>}</span>
+						: 
+						'Waiting for everyone to be ready'
 				)
 			}</section>
 			<hr key={'hr5'} />
@@ -155,9 +160,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					</button>
 					<button className='glossy no-icon' 
 						disabled={!am_i_sitting || free_sit || am_i_ready} 
-						onClick={Network.sendReadyRequest}>
-						READY
-					</button>
+						onClick={Network.sendReadyRequest}>READY</button>
 				</div>
 				<div className='sits-list'>
 					{this.props.room.sits.map((sit, i) => {

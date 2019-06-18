@@ -124,6 +124,10 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 		case NetworkCodes.READY_REQUEST:
 			RoomManager.readyUser(connection);
 			break;
+		case NetworkCodes.SEND_ROOM_CHAT_MESSAGE:
+			if(typeof data.msg === 'string')
+				RoomManager.sendRoomMessage(connection, data.msg);
+			break;
 	}
 }
 
