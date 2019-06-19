@@ -12,9 +12,8 @@ export class SkillObject {
 	}
 
 	canBeUsed(avaible_energy: number) {
-		return avaible_energy+0.001 >= this.data.energy_cost && 
-				this.cooldown <= 0;// && 
-				//this._in_use === false;
+		return avaible_energy+0.001 >= this.data.energy_cost && this.cooldown <= 0;
+		// && this._in_use === false;
 	}
 
 	isContinous() {
@@ -58,7 +57,7 @@ export interface SkillData {
 	description: string;
 	lvl_required: number;
 	price: number;
-	create: (/*skill: SkillData*/) => SkillObject;
+	create: () => SkillObject;
 }
 
 interface SkillsSchema {
@@ -120,7 +119,8 @@ const Skills: SkillsSchema = {//SCHEMA
 		texture_name: 'bounce_shot_skill',
 
 		name: 'Bounce Shot',
-		description: 'Shoot bullets that bounces off the walls. \nCauses stronger damage than regular ones.',
+		description: 
+			'Shoot bullets that bounces off the walls. \nCauses stronger damage than regular ones.',
 		lvl_required: 5,
 		price: 1000//coins
 	},

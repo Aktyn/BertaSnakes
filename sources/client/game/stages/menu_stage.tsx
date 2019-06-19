@@ -47,14 +47,14 @@ export default class extends StageBase<MenuProps, MenuState> {
 					<UserBtn user={this.props.current_user} />
 
 					{
-						(this.props.current_user && !this.props.current_user.isGuest()) ?
-						<>
+						this.props.current_user ?
+						(!this.props.current_user.isGuest() && <>
 							<button className='shop shaky-icon' style={{marginLeft: '10px'}}
 								onClick={() => this.setState({account_view: VIEWS.SHOP})}></button>
 
 							<button className='friends shaky-icon' style={{marginLeft: '10px'}}
 								onClick={() => this.setState({account_view: VIEWS.FRIENDS})}></button>
-						</> 
+						</>)
 						: 
 						<button className='glossy no-icon' style={{marginLeft: '10px'}}
 							onClick={Network.reconnect}>RECONNECT</button>

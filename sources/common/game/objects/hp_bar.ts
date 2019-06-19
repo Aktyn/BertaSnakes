@@ -1,5 +1,9 @@
 import Object2D from './object2d';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	var EntitiesBase = require('../../../client/game/entities');
+
 const SCALE = 0.004;//HEIGHT SCALE
 //const WIDENNESS = 8;//WIDTH = SCALE * WIDENNESS * hp
 const HEIGHT_OFFSET = 1.3;//multiplier
@@ -23,16 +27,16 @@ export default class HpBar extends Object2D {
 		this.regeneration = regeneration;// || 0;//auto healing
 
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')//client side
+		if(typeof EntitiesBase !== 'undefined')//client side
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[ETITY_NAME].id, this);
+			EntitiesBase.addObject(EntitiesBase[ETITY_NAME].id, this);
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')
+		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[ETITY_NAME].id, this);
+			EntitiesBase.removeObject(EntitiesBase[ETITY_NAME].id, this);
 	}
 
 	get hp() {

@@ -2,6 +2,10 @@ import Object2D from './object2d';
 import Colors, {ColorI} from './../common/colors';
 import Player from './player';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	var EntitiesBase = require('../../../client/game/entities');
+
 const SCALE = 0.075, GROW_SCALE = 0.075, SHAKING_RADIUS = 0.02;
 const DELAY_TIME = 2, SHAKING_TIME = 2;
 
@@ -29,19 +33,19 @@ export default class Bomb extends Object2D {
 		this.timer = 0;
 
 		//@ts-ignore
-		if(typeof Entities !== 'undefined') {
+		if(typeof EntitiesBase !== 'undefined') {
 			//@ts-ignore
 			this.entity_name = Bomb.entityName(parent.painter.color);//clientside only
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
 		}
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')
+		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
 		
 	}
 

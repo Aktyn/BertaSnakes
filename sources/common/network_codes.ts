@@ -18,6 +18,7 @@ const enum NetworkCodes {
 	STAND_REQUEST,
 	READY_REQUEST,
 	SEND_ROOM_CHAT_MESSAGE,//msg: string
+	START_GAME_CONFIRMATION,
 
 	//FROM SERVER
 	ON_USER_DATA,//user: UserCustomDaata
@@ -52,10 +53,7 @@ const enum NetworkCodes {
 	SKILL_USE_REQUEST,// ------- // -------
 	SKILL_PUT_OFF_REQUEST,// ------- // -------
 	SKILLS_ORDER_REQUEST,//@skills - array of skill indexes and nulls
-
-	//@name - room name: 0, @map - map name: 0, @sits_number - number: 0, @duration - number in seconds
-	START_GAME_CONFIRM,
-
+	
 	TRANSACTION_ERROR,//goes with error_detail (string)
 	ADD_FRIEND_CONFIRM,//goes with user_id
 	REMOVE_FRIEND_CONFIRM,// ----- // -----

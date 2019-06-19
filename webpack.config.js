@@ -141,12 +141,16 @@ module.exports = {
 						}
 					}
 				]
+			},
+			{
+				test: /\.(fs|vs|glsl|txt)$/i,
+				use: 'raw-loader',
 			}
 		],
 	},
 
 	plugins: [
-		new webpack.DefinePlugin({
+		new webpack.DefinePlugin({//TODO - try change to _UPDATE_TIME_ instead _GLOBALS_ container
 			_GLOBALS_: JSON.stringify({
 				update_time: Date.now(),
 			}),

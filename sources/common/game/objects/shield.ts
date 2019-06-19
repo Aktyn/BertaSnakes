@@ -1,6 +1,10 @@
 import Object2D from './object2d';
 import Colors, {ColorI} from './../common/colors';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	var EntitiesBase = require('../../../client/game/entities');
+
 const SCALE_FACTOR = 1.9;
 const GROWING_TIME = 0.4, SHRINKING_TIME = 2.0;
 
@@ -32,18 +36,18 @@ export default class Shield extends Object2D {
 		//this.timer = 0;
 
 		//@ts-ignore
-		if(typeof Entities !== 'undefined') {
+		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = Shield.entityName(this.color);//clientside only
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
 		}
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')
+		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
 	}
 
 	update(delta: number) {
@@ -64,6 +68,6 @@ export default class Shield extends Object2D {
 	}
 
 	static entityName(color: ColorI) {
-		return 'SHIELD_' + (<ColorI[]>Colors.PLAYERS_COLORS).indexOf(color);
+		return 'SHIELD_' + Colors.PLAYERS_COLORS.indexOf(color);
 	}
 }

@@ -5,8 +5,8 @@ import Player from './objects/player';
 import RocketEnemy from './objects/rocket_enemy';
 import PoisonousEnemy from './objects/poisonous_enemy';
 import EnemySpawner from './objects/enemy_spawner';
-import Vector from './../utils/vector';
-import Item from './objects/item';
+import {Vec2f} from '../utils/vector';
+import Item, {ITEM_TYPES} from './objects/item';
 
 export interface InitDataSchema {
 	id: number;
@@ -59,7 +59,7 @@ const STAINS = [[[-0.07,-0.23,0.57],[0.18,0.46,0.53],[0.26,0.08,0.85],[0.07,0.18
 
 const ENEMY_CLASSES = [PoisonousEnemy, RocketEnemy];
 //NOTE - sum of this array must be equal to 1 and it must be sorted with ascending order
-const ENEMY_SPAWN_PROPABILITES = [0.03, 0.97];//0.03, 0.97
+const ENEMY_SPAWN_PROPABILITES = [0.03, 0.97];
 
 var InterfaceWith = function(ParentInstance: any, Interface: any) {
 	Object.getOwnPropertyNames(Interface).forEach(prop => {
@@ -69,14 +69,14 @@ var InterfaceWith = function(ParentInstance: any, Interface: any) {
 };
 
 /////////////
-var vec2: Vector = new Vector.Vec2f(), p_i: number, st_i: number;
+var vec2 = new Vec2f(), p_i: number, st_i: number;
 
 export default class GameCore extends GameMap {
 	private last_respawn_angle = Math.PI / 2.0;
 
 	constructor() {
 		super();
-		//if(!_CLIENT_) {//interface only server side becouse collision are handling on server
+		//if(!_CLIENT_) {//interface only server side because collision are handling on server
 		if(typeof module !== 'undefined') {
 			console.log( 'Assigning collision detecting methods to GameCore instance' );
 			InterfaceWith(this, CollisionDetector);//assigns CollisionDetector interface
@@ -114,11 +114,11 @@ export default class GameCore extends GameMap {
 			// player.movement.speed = player.movement.maxSpeed;
 
 			//super.addPlayer( player );
-			this.players.push( <any>player );
+			this.players.push( player );
 		}
 	}
 
-	respawnPlayer(player: any) {
+	respawnPlayer(player: Player/*any*/) {
 		player.spawning = true;
 		player.effects.clearAll();
 
@@ -154,12 +154,10 @@ export default class GameCore extends GameMap {
 	}
 
 
-	spawnItem(type: any) {
+	spawnItem(type: ITEM_TYPES) {
 		//@ts-ignore
 		if( this.findRandomEmptySpot(this, EnemySpawner.SCALE, vec2) === false )
 			return null;//no empty spot found
-
-
 
 		let item = new Item(type);
 		item.setPos(vec2.x, vec2.y);
@@ -192,7 +190,7 @@ export default class GameCore extends GameMap {
 
 	findPlayerIndexByColor(color: ColorI) {
 		for(p_i=0; p_i<this.players.length; p_i++) {
-			if((<any>this.players[p_i]).painter.color === color)//NOTE strict equal operator
+			if(this.players[p_i].painter.color === color)//NOTE strict equal operator
 				return p_i;
 		}
 		return -1;//in case player with given color is not found

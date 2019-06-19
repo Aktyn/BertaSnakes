@@ -52,7 +52,8 @@ export default class PaintLayer {
 	private spawn_thickness = 0;
 
 	constructor() {
-		if(_CLIENT_) {//client-side only
+		//TODO - enumerate PAINTER_RESOLUTION: LOW, MEDIUM AND HIGH and pass it through constructor
+		/*if(_CLIENT_) {//client-side only
 			//var applyResolution = function() {
 			//@ts-ignore
 			if(typeof SETTINGS === 'undefined')
@@ -75,7 +76,7 @@ export default class PaintLayer {
 
 			//setTimeout(applyResolution, 1);
 			//applyResolution();
-		}
+		}*/
 		// this._color = '#fff';
 		// this.composite = 'source-over';
 		// this.chunks = [];

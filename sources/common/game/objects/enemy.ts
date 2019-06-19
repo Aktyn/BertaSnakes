@@ -3,8 +3,11 @@ import Movement from './../common/movement';
 import Sensor from './../common/sensor';
 import HpBar from './hp_bar';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	var EntitiesBase = require('../../../client/game/entities');
+
 const REGENERATION_SPEED = 0.025;
-//const ETITY_NAME = 'ENEMY_ROCKET';//ENEMY_ROCKET
 
 export default class Enemy extends Object2D {
 	private entity_name: string;
@@ -34,17 +37,17 @@ export default class Enemy extends Object2D {
 		this.hp_bar = new HpBar( SCALE, REGENERATION_SPEED );//needs destroying
 		
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')//client side
+		if(typeof EntitiesBase !== 'undefined')//client side
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase[entity_name].id, this);
 
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')
+		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
 		this.hp_bar.destroy();
 	}
 
@@ -67,8 +70,4 @@ export default class Enemy extends Object2D {
 
 		this.hp_bar.update_hpbar(delta, this.x, this.y, this.height);
 	}
-
-	/*static get INITIAL_SCALE() {
-		return SCALE;
-	}*/
 }

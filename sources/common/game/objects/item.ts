@@ -1,11 +1,15 @@
 import Object2D from './object2d';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	var EntitiesBase = require('../../../client/game/entities');
+
 export const enum ITEM_TYPES {//enum
 	HEALTH = 0,
 	SPEED,
 	ENERGY
 };
-//NOTE - sum of this array must be equal to 1 and it must be sorted with ascending order
+//NOTE: sum of this array must be equal to 1 and it must be sorted with ascending order
 const PROBABILITIES = [0.1, 0.2, 0.7];
 
 const SCALE = 0.075;
@@ -16,14 +20,14 @@ const SPAWN_DURATION = 1, LIFETIME = 15, BLINKING_TIME = 2.5, SHRINKING_SPEED = 
 var sc = 0;
 
 export default class Item extends Object2D {
-	public type: number;
+	public type: ITEM_TYPES;
 
 	private blink_percent = 0;
 	private timer = 0;
 
 	private entity_name?: string;
 
-	constructor(_type: number) {
+	constructor(_type: ITEM_TYPES) {
 		super();
 		super.setScale(0, 0);
 
@@ -33,18 +37,18 @@ export default class Item extends Object2D {
 		// this.timer = 0;
 
 		//@ts-ignore
-		if(typeof Entities !== 'undefined') {
+		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = Item.entityName(_type);//clientside only
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
 		}
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')
+		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
 	}
 
 	update(delta: number) {
@@ -89,13 +93,7 @@ export default class Item extends Object2D {
 			prop_sum += PROBABILITIES[i];
 		}
 		throw new Error('Cannot get random index from PROBABILITIES');
-		//return (Math.random() * Object.values(TYPES).length) | 0;
 	}
-
-	/*public static get TYPES() {
-		return TYPES;
-	}*/
-	//public static TYPES = TYPES;//use exported enum
 
 	static entityName(type: number) {
 		switch(type) {
@@ -105,14 +103,7 @@ export default class Item extends Object2D {
 			case ITEM_TYPES.SPEED: return 'SPEED_ITEM';
 		}
 	}
-
-	/*static get HEALTH_VALUE() {
-		return 0.25;
-	}
-
-	static get ENERGY_VALUE() {
-		return 0.2;
-	}*/
-	public static HEALTH_VALUE = 0.25;
-	public static ENERGY_VALUE = 0.2;
+	
+	public static readonly HEALTH_VALUE = 0.25;
+	public static readonly ENERGY_VALUE = 0.2;
 }

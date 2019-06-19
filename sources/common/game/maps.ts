@@ -71,7 +71,12 @@ export function onMapsLoaded(callback: ()=>void) {
 		on_load_listeners.push(callback);
 }
 
-var self/*: {[index: string]: MapJSON_I}*/ = {
+function extendType<T>(maps_literal: T): T & {[index: string]: MapJSON_I} {
+	return maps_literal as T & {[index: string]: MapJSON_I};
+}
+
+// const self = {
+export default extendType({
 	'Empty': {
 		map_size: 5,
 		walls_color: [156, 185, 237],//TODO - generate SERIALIZABLE color object
@@ -116,10 +121,6 @@ var self/*: {[index: string]: MapJSON_I}*/ = {
 		walls_texture: loadImage(_CLIENT_ ? 
 			require('../maps/Snowflake.svg') : path.join(MAP_FOLDER, 'Snowflake.png'))
 	} as MapJSON_I
-};
+});
 
-function extend<T>(maps_literal: T): T & {[index: string]: MapJSON_I} {
-	return maps_literal as T & {[index: string]: MapJSON_I};
-}
-
-export default extend(self);
+// export default extendType(self);

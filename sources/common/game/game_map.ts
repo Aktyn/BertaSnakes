@@ -10,8 +10,6 @@ const DEFAULT_WALLS_SIZE = 0.08;
 var ui: number, obji: number, temp_arr: Object2D[];
 
 export default class Map extends PaintLayer {
-	//public background: VectorScope.Vector;
-
 	public players: Player[] = [];
 	public enemies: Object2D[] = [];
 	public enemy_spawners: Object2D[] = [];
@@ -122,7 +120,6 @@ export default class Map extends PaintLayer {
 		}
 		catch(e) {
 			console.error(e);
-			//onLoad(false);
 			return false;
 		}
 	}

@@ -2,6 +2,10 @@ import Object2D from './object2d';
 import Sensor, {SENSOR_SHAPES} from './../common/sensor';
 import Colors, {ColorI} from './../common/colors';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	var EntitiesBase = require('../../../client/game/entities');
+
 const SCALE = 0.02, DEFAULT_SPEED = 1.0, MAXIMUM_LIFETIME = 20;
 
 const H_PI = Math.PI/2;
@@ -34,20 +38,20 @@ export default class Bullet extends Object2D {
 		this.sensor = new Sensor( SENSOR_SHAPES.BULLET );
 
 		//@ts-ignore
-		if(typeof Entities !== 'undefined') {
+		if(typeof EntitiesBase !== 'undefined') {
 			// console.log('new bullet', Bullet.entityName(color));
 			//@ts-ignore
 			this.entity_name = Bullet.entityName(parent.painter.color);//clientside only
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
 		}
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')
+		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
 	}
 
 	get color() {

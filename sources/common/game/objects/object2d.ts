@@ -1,4 +1,4 @@
-import Matrix2D from './../../utils/matrix2d';
+import Matrix2D from '../../utils/matrix2d';
 
 export default class Object2D extends Matrix2D {
 	private static instance_id = 0;
@@ -11,12 +11,14 @@ export default class Object2D extends Matrix2D {
 	constructor() {
 		super();
 
-		//NOTE - clientside only use
+		//NOTE: clientside only use
 		this.timestamp = Date.now();//timestamp of previous object update
 		
 		this.id = ++Object2D.instance_id;
 	}
 
-	public destroy(): void {}
-	public update(delta: number): void {}
+	// public destroy(): void {}
+	// public update(delta: number): void {}
+	public destroy(): void {};
+	public update(delta: number): void {};
 }

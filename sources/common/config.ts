@@ -19,7 +19,7 @@ export default {
 	//server will scale uploaded avatar to this resolution before saving it as file
 	CONVERTED_AVATARS_RESOLUTION: 128,
 
-	START_GAME_COUNTDOWN: 5,//seconds
+	START_GAME_COUNTDOWN: 3,//seconds
 
 	//room settings
 	MINIMUM_GAME_DURATION: 60,//seconds

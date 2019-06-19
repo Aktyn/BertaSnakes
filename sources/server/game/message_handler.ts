@@ -4,6 +4,7 @@ import ERROR_CODES from '../../common/error_codes';
 import Database, {AccountSchema} from '../database';
 import {UserCustomData} from '../../common/user_info';
 import RoomManager from './rooms_manager';
+import GameStarter from './game_starter';
 
 function AccountSchema2UserCustomData(account: AccountSchema): UserCustomData {
 	return {
@@ -128,6 +129,14 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 			if(typeof data.msg === 'string')
 				RoomManager.sendRoomMessage(connection, data.msg);
 			break;
+		case NetworkCodes.START_GAME_CONFIRMATION: {
+			let room = connection.getRoom();
+			if(!room)
+				break;
+			let game = GameStarter.getRunningGame(room.id);
+			if(game)
+				game.onConfirmation( connection );
+		}	break;
 	}
 }
 

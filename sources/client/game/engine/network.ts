@@ -155,7 +155,6 @@ const HANDLERS = {
 	},
 
 	handleByteBuffer: (function() {
-		//var reader = new FileReader(), second_reader = new FileReader();
 		var readers = new Array(8).fill(0).map(() => {
 			let reader = new FileReader();
 			reader.onload = function() {
@@ -340,6 +339,9 @@ const Network = {
 	sendRoomChatMessage(msg: string) {
 		return sendJSON({'type': NetworkCodes.SEND_ROOM_CHAT_MESSAGE, 'msg': msg});
 	},
+	confirmGameStart() {
+		return sendJSON({'type': NetworkCodes.START_GAME_CONFIRMATION});
+	},
 
 	////////////////////////////////////////
 	//BELOW FUNCTIONS ARE BEFORE PROJECT RENEVAL
@@ -382,9 +384,7 @@ const Network = {
 	requestSkillsOrder(skills: (number | null)[]) {
 		sendJSON( {'type': NetworkCodes.SKILLS_ORDER_REQUEST, 'skills': skills} );
 	},
-	confirmGameStart() {
-		sendJSON( {'type': NetworkCodes.START_GAME_CONFIRM} );
-	},*/
+	*/
 
 	/*assignCurrentGameHandle: function(game: ClientGame.Game) {
 		CurrentGameHandle = game;

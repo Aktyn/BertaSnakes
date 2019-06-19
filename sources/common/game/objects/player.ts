@@ -1,16 +1,27 @@
-import Colors, {ColorI} from './../common/colors';
+import Colors, {ColorI} from '../common/colors';
 
 import Object2D from './object2d';
-import Movement from './../common/movement';
-import Sensor, {SENSOR_SHAPES} from './../common/sensor';
-import Painter from './../common/painter';
+// import Object2DSmooth from './object2d_smooth';
+import Movement from '../common/movement';
+import Sensor, {SENSOR_SHAPES} from '../common/sensor';
+import Painter from '../common/painter';
 
-import Skills, {SkillData, SkillObject} from './../common/skills';
-import Effects from './../common/effects';
+import Skills, {SkillData, SkillObject} from '../common/skills';
+import Effects, {AVAILABLE_EFFECTS} from '../common/effects';
 
 import Emoticon from './emoticon';
+
+declare var _CLIENT_: boolean;
+if(_CLIENT_) {
+	var EntitiesBase = require('../../../client/game/entities');
+
+	//var WebGLRenderer = require('../../../client/game/webgl_renderer');
+	//var RendererBase = require('../../../client/game/renderer');
+	var PlayerEmitter = require('../../../client/game/emitters/player_emitter');
+}
+
 //TYPES
-export const enum PLAYER_TYPES {//enum
+export enum PLAYER_TYPES {//enum (cannot be const since some code itarate over it)
 	TRIANGLE = 0,
 	SQUARE,
 	PENTAGON
@@ -34,9 +45,9 @@ const POISON_STRENGTH = 0.1;
 var s_i, em_i;
 
 //(typeof module !== 'undefined' ? _Object2D_ : _Object2DSmooth_)
-const _ExtendClass_ = Object2D;//TODO - Object2DSmooth client side
+//const _ExtendClass_ = Object2D;//TODO - Object2DSmooth client side
 
-export default class Player extends _ExtendClass_ {
+export default class Player extends /*_ExtendClass_*/Object2D {
 	public static SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
 	public static SHIP_LVL_REQUIREMENTS = [1, 3, 6];//level required to be able to use ship
 	public static SHIP_COSTS = [0, 500, 3000];//coins required to buy ship
@@ -116,29 +127,29 @@ export default class Player extends _ExtendClass_ {
 		this.painter = new Painter(color, THICKNESS);
 
 		//@ts-ignore
-		if(typeof Entities !== 'undefined') {
+		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = Player.entityName(type, color);//clientside only
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
 		}
 
 		//@ts-ignore //client side
-		if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined' &&
+		if(typeof RendererBase !== 'undefined' && typeof PlayerEmitter !== 'undefined' &&
 			//@ts-ignore
-			Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL) 
+			RendererBase.getCurrentInstance() instanceof WebGLRenderer) 
 		{
 			//@ts-ignore
-			this.emitter = Renderer.WebGL.addEmitter( new Emitters.Player(this) );
+			this.emitter = WebGLRenderer.addEmitter( new PlayerEmitter(this) );
 			this.poisoning_emitter = null;
 		}
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined') {
+		if(typeof EntitiesBase !== 'undefined') {
 			console.log('removing player from entities');
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
 		}
 		if(this.emitter)
 			this.emitter.expired = true;
@@ -173,7 +184,7 @@ export default class Player extends _ExtendClass_ {
 		}
 
 		this.effects.update(delta);
-		if(this.effects.isActive(Effects.TYPES.POISONING))
+		if(this.effects.isActive(AVAILABLE_EFFECTS.POISONING))
 			this.hp -= POISON_STRENGTH * delta;
 
 		super.update(delta);
@@ -209,8 +220,8 @@ export default class Player extends _ExtendClass_ {
 	set hp(value) {
 		//if hp dropped but SHIELD effect is active
 		if( value < this._hp && 
-			(this.effects.isActive(Effects.TYPES.SHIELD) || 
-				this.effects.isActive(Effects.TYPES.SPAWN_IMMUNITY)) ) 
+			(this.effects.isActive(AVAILABLE_EFFECTS.SHIELD) || 
+				this.effects.isActive(AVAILABLE_EFFECTS.SPAWN_IMMUNITY)) ) 
 		{
 			return;//do not update hp
 		}
@@ -234,15 +245,11 @@ export default class Player extends _ExtendClass_ {
 		this._points = Math.round( Math.max(0, value) );
 	}
 
-	/*static INITIAL_SCALE() {
-		return SCALE;
-	}*/
-	public static INITIAL_SCALE = SCALE;
+	public static readonly INITIAL_SCALE = SCALE;
 
-	//static get TYPES() {
-	//	return TYPES;
-	//}
-	//public static TYPES = TYPES;//access this from exported PLAYER_TYPES enum
+	public static entityName(type_i: PLAYER_TYPES, color: ColorI) {
+		return 'PLAYER_' + type_i + '_' + Colors.PLAYERS_COLORS.indexOf(color);
+	}
 
 	/*static get SHIP_NAMES() {
 		return SHIP_NAMES;
@@ -255,8 +262,4 @@ export default class Player extends _ExtendClass_ {
 	static get SHIP_LVL_REQUIREMENTS() {
 		return SHIP_LVL_REQUIREMENTS;
 	}*/
-
-	static entityName(type_i: number, color: ColorI) {
-		return 'PLAYER_' + type_i + '_' + Colors.PLAYERS_COLORS.indexOf(color);
-	}
 }

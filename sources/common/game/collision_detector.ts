@@ -1,10 +1,7 @@
 /* directed towards performance calculations */
-///<reference path="../utils/vector.ts"/>
-///<reference path="../room_info.ts"/>
-///<reference path="objects/object2d.ts"/>
 
-import Vector from './../utils/vector';
-import RoomInfo from './../room_info';
+import Vector, {Vec2f} from './../utils/vector';
+import {GAME_MODES} from './../room_info';
 import Object2D from './objects/object2d';
 
 interface PainterCollisionListener {
@@ -46,8 +43,8 @@ const OVERLAP_ANGLE_STEPS = 16;
 const OVERLAP_ANGLE_SHIFT = Math.PI*2.0 / OVERLAP_ANGLE_STEPS;
 
 //bouncing variables
-var current_vec = new Vector.Vec2f(), 
-	bounce_vec: Vector = new Vector.Vec2f(), dot, 
+var current_vec = new Vec2f(), 
+	bounce_vec: Vector = new Vec2f(), dot, 
 	ray_color = new Uint8Array(4), b_radius, b_angle, found, safety, b_product, 
 	r_i, ray_steps, r_s, rr, b_dx, b_dy;
 const RAYS = 32;
@@ -243,7 +240,7 @@ export default {//ABSTRACT CLASS INTERFACE
 			}
 
 			//player to bullet collision (only competition mode)
-			if(gamemode === RoomInfo.MODES.COMPETITION) {
+			if(gamemode === GAME_MODES.COMPETITITON) {
 				for(b_i=0; b_i<map.bullets.length; b_i++) {
 					if( twoObjectsIntersect(map.players[p_i], map.bullets[b_i]) === true )
 						this.onPlayerBulletCollision(map.players[p_i], map.bullets[b_i]);

@@ -1,9 +1,8 @@
 import * as React from 'react';
-
 import Network from './engine/network';
-import NetworkCodes, {NetworkPackage} from './../../common/network_codes';
-import {UserCustomData} from './../../common/user_info';
-import RoomInfo, {RoomCustomData} from './../../common/room_info';
+import NetworkCodes, {NetworkPackage} from '../../common/network_codes';
+import {UserCustomData} from '../../common/user_info';
+import RoomInfo, {RoomCustomData} from '../../common/room_info';
 import HeaderNotifications from '../components/header_notifications';
 
 //main stages
@@ -12,6 +11,7 @@ import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
 const TDD1 = true;//auto room joining
+const TDD2 = true;//auto sit and ready
 
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;
@@ -55,6 +55,7 @@ export default class extends React.Component<any, CoreState> {
 
 	componentWillUnmount() {
 		Network.clearListeners();
+		Network.disconnect();
 		this.active = false;
 		if(this.room_refresh_tm)
 			clearTimeout(this.room_refresh_tm);
@@ -114,8 +115,14 @@ export default class extends React.Component<any, CoreState> {
 					}
 				}	break;
 
-				case NetworkCodes.ON_ROOM_LEFT:
 				case NetworkCodes.ON_ROOM_JOINED:
+					if(TDD2) {
+						Network.sendSitRequest();
+						Network.sendReadyRequest();
+					}
+					this.setState({current_room: Network.getCurrentRoom(), start_game_countdown: null});
+					break;
+				case NetworkCodes.ON_ROOM_LEFT:
 				case NetworkCodes.ON_GAME_FAILED_TO_START:
 					this.setState({current_room: Network.getCurrentRoom(), start_game_countdown: null});
 					break;
@@ -209,8 +216,7 @@ export default class extends React.Component<any, CoreState> {
 					break;
 
 				case NetworkCodes.ON_GAME_START:
-					console.log('TODO - start game stage');
-					//this.change(GAME_STAGE);
+					this.setState({current_stage: GameStage.prototype, start_game_countdown: null});
 					break;
 
 				
@@ -231,7 +237,7 @@ export default class extends React.Component<any, CoreState> {
 	}
 
 	onServerData(data: Float32Array) {
-		console.log('server data', data);
+		console.log('server data:', data);
 	}
 
 	render() {

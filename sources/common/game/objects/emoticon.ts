@@ -1,9 +1,24 @@
 import Object2D from './object2d';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	var EntitiesBase = require('../../../client/game/entities');
+
 const SCALE = 0.07, DURATION = 2, FADING_DURATION = 0.5;//durations in seconds
 const OFFSET_ANGLE = Math.PI / 4.0, PARENT_OFFSET = 0.15;
 
 var sc = 0;
+
+export const EMOTS = [//NOTE - use uppercase letters for key values
+	{	file_name: 'hand.png', 		key: 'Q'	},
+	{	file_name: 'happy.svg', 	key: 'E'	},
+	{	file_name: 'sad.svg', 		key: 'R'	},
+	{	file_name: 'laugh.svg', 	key: 'T'	},
+	{	file_name: 'angry.svg', 	key: 'Y'	},
+	{	file_name: 'shocked.svg',	key: 'U'	},
+	{	file_name: 'inlove.svg',	key: 'I'	},
+	{	file_name: 'dead.svg',		key: 'O'	},
+];
 
 export default class Emoticon extends Object2D {
 	private name: string;
@@ -27,17 +42,17 @@ export default class Emoticon extends Object2D {
 
 		if(name !== 'hand.svg')//exception (TODO - hand icon in yellow circle)
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase['STREAK'].id, this.streak);
+			EntitiesBase.addObject(EntitiesBase['STREAK'].id, this.streak);
 
 		//@ts-ignore
-		Entities.EntitiesBase.addObject(Entities.EntitiesBase[Emoticon.entityName(this.name)].id, this);
+		EntitiesBase.addObject(EntitiesBase[Emoticon.entityName(this.name)].id, this);
 	}
 
 	destroy() {
 		//@ts-ignore
-		Entities.EntitiesBase.removeObject(Entities.EntitiesBase['STREAK'].id, this.streak);
+		EntitiesBase.removeObject(EntitiesBase['STREAK'].id, this.streak);
 		//@ts-ignore
-		Entities.EntitiesBase.removeObject(Entities.EntitiesBase[Emoticon.entityName(this.name)].id, this);
+		EntitiesBase.removeObject(EntitiesBase[Emoticon.entityName(this.name)].id,this);
 	}
 
 	endEffect() {//force end
@@ -74,7 +89,7 @@ export default class Emoticon extends Object2D {
 		
 	}
 
-	static entityName(emoticon_name: string) {
-		return 'EMOT_' + emoticon_name.replace(/\.[a-zA-Z]+/gi, '');//NOTE - removes extention
+	public static entityName(emoticon_name: string) {
+		return 'EMOT_' + emoticon_name.replace(/\.[a-zA-Z]+/gi, '');//NOTE: removes extention
 	}
 }

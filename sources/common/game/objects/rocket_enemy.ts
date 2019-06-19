@@ -3,6 +3,13 @@
 import Enemy from './enemy';
 import {SENSOR_SHAPES} from './../common/sensor';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_) {
+	var RendererBase = require('../../../client/game/renderer');
+	var WebGLRenderer = require('../../../client/game/webgl_renderer');
+	var FussionEmitter = require('../../../client/game/emitters/fussion_emitter');
+}
+
 const ETITY_NAME = 'ENEMY_ROCKET';
 const SCALE = 0.065, MAX_SPEED = 0.6;
 
@@ -16,12 +23,12 @@ export default class RocketEnemy extends Enemy {
 		super(ETITY_NAME, SENSOR_SHAPES.ROCKET, SCALE, MAX_SPEED);
 
 		//@ts-ignore //client side
-		if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined' &&
+		if(typeof RendererBase !== 'undefined' && typeof FussionEmitter !== 'undefined' &&
 			//@ts-ignore
-			Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL) 
+			RendererBase.getCurrentInstance() instanceof WebGLRenderer) 
 		{
 			//@ts-ignore
-			this.emitter = Renderer.WebGL.addEmitter( new Emitters.Fussion() );
+			this.emitter = WebGLRenderer.addEmitter( new FussionEmitter() );
 			this.emitter.visible = false;
 		}
 	}
@@ -37,7 +44,7 @@ export default class RocketEnemy extends Enemy {
 		super.update(delta);
 
 		//@ts-ignore
-		if( this.emitter && (renderer = Renderer.WebGL.getCurrentInstance()) !== null ) {
+		if( this.emitter && (renderer = WebGLRenderer.getCurrentInstance()) !== null ) {
 			if(this.spawning !== true) {
 				if(renderer.withinVisibleArea(this.x, this.y, 0.25) === true) {
 					this.emitter.visible = true;

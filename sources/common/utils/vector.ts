@@ -1,10 +1,10 @@
-enum AVAIBLE_TYPES {
+export const enum VECTOR_DATA_TYPES {
 	INT32 = 0,
 	FLOAT
 }
 
 /* once declared variables for performance matter */
-var values_sum, length_buff, it;
+var values_sum: number, length_buff: number, it: number;
 const pow2 = (a: number) => a*a;//fast square power function
 /**************************************************/
 
@@ -14,19 +14,17 @@ interface Point2D_I {
 }
 
 export default class Vector {
-	static TYPE = AVAIBLE_TYPES;
-
 	private _vec_size: number;
 	protected _buffer: Int32Array | Float32Array;
 
-	constructor(type: AVAIBLE_TYPES, size: number) {
+	constructor(type: VECTOR_DATA_TYPES, size: number) {
 		this._vec_size = size;
 
 		switch(type) {
-			case AVAIBLE_TYPES.INT32:
+			case VECTOR_DATA_TYPES.INT32:
 				this._buffer = new Int32Array(size);
 				break;
-			case AVAIBLE_TYPES.FLOAT:
+			case VECTOR_DATA_TYPES.FLOAT:
 				this._buffer = new Float32Array(size);
 				break;
 
@@ -40,25 +38,13 @@ export default class Vector {
 	}
 
 	set size(s) {
-		throw new Error('Vector size cannot be changed after it is created');
+		throw new Error('Vector\' size cannot be changed');
 	}
 
-	/*static get TYPE() {
-		return AVAIBLE_TYPES;
-	}*/
-
-	// set() {
-	// 	for(let i in arguments) {
-	// 		if(i >= this._buffer.length)//safety for too many arguments
-	// 			break;
-	// 		this._buffer[i] = arguments[i];
-	// 	}
-	// 	return this;
-	// }
 	set(...args: number[]) {
-		for(var i=0; i<args.length; i++) {
-			if(i >= this._buffer.length)//safety for too many arguments
-				break;
+		for(var i=0; i<args.length && i<this._vec_size; i++) {
+			//if(i >= this._buffer.length)//(deprecated) safety for too many arguments
+			//	break;
 			this._buffer[i] = args[i];
 		}
 		return this;
@@ -120,25 +106,23 @@ export default class Vector {
 	static distanceSqrt(p1: Point2D_I, p2: Point2D_I) {//@p1 and p2 - objects with x, and y members
 		return pow2(p2.x - p1.x) + pow2(p2.y - p1.y);
 	}
+}
 
-	static Vec2f = class Vec2f extends Vector {
-		constructor(...args: number[]) {
-			super(AVAIBLE_TYPES.FLOAT, 2);
-			super.set(...args);
-		}
-	};
-
-	static Vec3f = class Vec3f extends Vector {
-		constructor(...args: number[]) {
-			super(AVAIBLE_TYPES.FLOAT, 3);
-			super.set(...args);
-		}
-	};
-
-	static Vec4f = class Vec4f extends Vector {
-		constructor(...args: number[]) {
-			super(AVAIBLE_TYPES.FLOAT, 4);
-			super.set(...args);
-		}
-	};
+export class Vec2f extends Vector {
+	constructor(...args: number[]) {
+		super(VECTOR_DATA_TYPES.FLOAT, 2);
+		super.set(...args);
+	}
+}
+export class Vec3f extends Vector {
+	constructor(...args: number[]) {
+		super(VECTOR_DATA_TYPES.FLOAT, 3);
+		super.set(...args);
+	}
+}
+export class Vec4f extends Vector {
+	constructor(...args: number[]) {
+		super(VECTOR_DATA_TYPES.FLOAT, 4);
+		super.set(...args);
+	}
 }

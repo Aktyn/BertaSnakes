@@ -58,8 +58,10 @@ export default {
 	},
 
 	sendRoomsList(from_connection: Connection) {
-		if(from_connection.isInLobby())
-			from_connection.sendRoomsList( Array.from(rooms.values()) );
+		if(from_connection.isInLobby()) {
+			let available_rooms = Array.from(rooms.values()).filter(room => !room.game_process);
+			from_connection.sendRoomsList( available_rooms );
+		}
 	},
 
 	leaveRoom(from_connection: Connection) {
@@ -143,7 +145,7 @@ export default {
 		let room = from_connection.getRoom();
 		if(!room || !from_connection.user)
 			return;
-		if( room.everyoneReady() )
+		if( room.everyoneReady() || !room.everyoneSits() )
 			return;
 		room.setUserReady( from_connection.user );
 		disbtributeRoomUpdateEvent(room);

@@ -2,6 +2,15 @@ import Object2D from './object2d';
 import Movement from './../common/movement';
 import PoisonousEnemy from './poisonous_enemy';
 
+declare var _CLIENT_: boolean;
+if(_CLIENT_) {
+	var EntitiesBase = require('../../../client/game/entities');
+
+	var RendererBase = require('../../../client/game/renderer');
+	var WebGLRenderer = require('../../../client/game/webgl_renderer');
+	var SpawnerEmitter = require('../../../client/game/emitters/spawner_emitter');
+}
+
 const SCALE = 0.15, GROWING_TIME = 1, SHRINKING_TIME = 1, ENEMY_GROWING_TIME = 0.5, GAP_TIME = 2.0;
 const ETITY_NAME = 'ENEMY_SPAWNER', POISONOUS_ENTITY_NAME = 'POISONOUS_ENEMY_SPAWNER';
 
@@ -29,29 +38,29 @@ export default class EnemySpawner extends Object2D {
 		// this.timer = 0.0;
 
 		//@ts-ignore
-		if(typeof Entities !== 'undefined') {
+		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = enemy instanceof PoisonousEnemy ? POISONOUS_ENTITY_NAME:ETITY_NAME;
 			//@ts-ignore
-			Entities.EntitiesBase.addObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
 		}
 
 		//@ts-ignore
-		if(typeof Renderer !== 'undefined' && typeof Emitters !== 'undefined' &&
+		if(typeof RendererBase !== 'undefined' && typeof SpawnerEmitter !== 'undefined' &&
 			//@ts-ignore
-			Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL) 
+			RendererBase.getCurrentInstance() instanceof WebGLRenderer) 
 		{//client side
 			//@ts-ignore
-			this.emitter = Renderer.WebGL.addEmitter( 
+			this.emitter = WebGLRenderer.addEmitter( 
 				//@ts-ignore
-				new Emitters.Spawner(enemy instanceof PoisonousEnemy) );
+				new SpawnerEmitter(enemy instanceof PoisonousEnemy) );
 		}
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof Entities !== 'undefined')
+		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			Entities.EntitiesBase.removeObject(Entities.EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
 
 		if(this.enemy) {
 			this.enemy.spawning = false;

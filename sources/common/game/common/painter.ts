@@ -1,19 +1,17 @@
-import {ColorI} from './../common/colors';
-import Vector from './../../utils/vector';
+import {ColorI} from './colors';
+import {Vec2f} from './../../utils/vector';
+
+const DEFAULT_THICKNESS = 0.015;
 
 export default class Painter {
-	private static DEFAULT_THICKNESS = 0.015;
-
-	public lastPos: Vector;
+	public lastPos: Vec2f;//Vector;
 	public color: ColorI;
 	public thickness: number;
 	public active = false;
 
 	constructor(color: ColorI, thickness: number) {
-		this.lastPos = new Vector.Vec2f(0, 0);//for painting purpouses
+		this.lastPos = new Vec2f(0, 0);//for painting purpouses
 		this.color = color;
-		this.thickness = thickness || Painter.DEFAULT_THICKNESS;
-
-		// this.active = false;
+		this.thickness = thickness || DEFAULT_THICKNESS;
 	}
 }

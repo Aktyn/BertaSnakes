@@ -16,9 +16,11 @@ interface InteractiveObject extends Object2D {
 	movement: Movement;
 }
 
-const SPEED_VALUE = 1.0;//should match DEFAULT_SPEED from bullet.js 
+function extendType<T>(maps_literal: T): T & {[index: string]: EffectSchema} {
+	return maps_literal as T & {[index: string]: EffectSchema};
+}
 
-const EFFECTS_SCHEMA: {[index:string]: EffectSchema} = {//SCHEMA
+export const AVAILABLE_EFFECTS = extendType({//SCHEMA
 	SPAWN_IMMUNITY: <EffectSchema>{ duration: 3 },
 	SHIELD: <EffectSchema>{ 
 		//id: 0,
@@ -26,17 +28,19 @@ const EFFECTS_SCHEMA: {[index:string]: EffectSchema} = {//SCHEMA
 	},
 	SPEED: <EffectSchema>{ duration: 2 },
 	POISONING: <EffectSchema>{ duration: 0.5 }
-};
+});
 
 var e_i = 0;
 
-for(var eff in EFFECTS_SCHEMA) {
+for(let eff in AVAILABLE_EFFECTS) {
 	//@ts-ignore
-	EFFECTS_SCHEMA[eff].id = e_i++;
+	AVAILABLE_EFFECTS[eff].id = e_i++;
 }
 
+const SPEED_VALUE = 1.0;//should match DEFAULT_SPEED from bullet.ts 
+
 export default class Effects {
-	public static TYPES = EFFECTS_SCHEMA;
+	//public static TYPES = AVAILABLE_EFFECTS;
 
 	private owner: InteractiveObject;
 	private a_effects: ActiveEffect[] = [];
@@ -62,7 +66,7 @@ export default class Effects {
 		}
 
 		this.a_effects.push({
-			id: effect.id,//EFFECTS_SCHEMA reference
+			id: effect.id,//AVAILABLE_EFFECTS reference
 			duration: effect.duration || 0,
 			timer: 0
 		});
@@ -79,7 +83,7 @@ export default class Effects {
 	onEffectStart(effect: EffectSchema) {
 		switch(effect) {
 			default: break;
-			case EFFECTS_SCHEMA.SPEED:
+			case AVAILABLE_EFFECTS.SPEED:
 				if(this.owner.movement !== undefined) {//affect object's movement
 					this.owner.movement.set(Movement.FLAGS.LOCKED_SPEED, true);
 					this.owner.movement.speed = SPEED_VALUE;
@@ -91,7 +95,7 @@ export default class Effects {
 	onEffectEnd(effect_id: number) {
 		switch(effect_id) {
 			default: break;
-			case EFFECTS_SCHEMA.SPEED.id:
+			case AVAILABLE_EFFECTS.SPEED.id:
 				if(this.owner.movement !== undefined) {//affect object's movement
 					this.owner.movement.speed = this.owner.movement.maxSpeed;
 					this.owner.movement.set(Movement.FLAGS.LOCKED_SPEED, false);

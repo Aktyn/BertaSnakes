@@ -60,7 +60,7 @@ interface ColorsSchema extends PaletteSchema {
 }
 
 const Colors = {//utils methods
-	//NOTE - alpha value does not matter
+	//NOTE: alpha value does not matter
 	compareByteBuffers: function(buff1, buff2) {
 		for(i=0; i<3; i++) {
 			if(buff1[i] !== buff2[i])

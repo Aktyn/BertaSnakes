@@ -1,7 +1,6 @@
 import Enemy from './enemy';
 import {SENSOR_SHAPES} from './../common/sensor';
 
-
 const ETITY_NAME = 'ENEMY_POISONOUS';
 const SCALE = 0.1, MAX_SPEED = 0.3;
 

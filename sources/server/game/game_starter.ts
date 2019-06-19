@@ -5,12 +5,9 @@ import GameHandler from './game_handler';
 // import UserInfo from '../../common/user_info';
 // import NetworkCodes from '../../common/network_codes';
 
-interface GameProcessSchema {
-
-}
 
 let currentCountdowns: Map<number, NodeJS.Timeout> = new Map();
-let running_games: Map<number, GameProcessSchema> = new Map();
+let running_games: Map<number, GameHandler> = new Map();
 
 function distributeCountdownUpdate(room: RoomInfo, time: number | null) {
 	room.forEachUser(user => {
@@ -64,5 +61,9 @@ export default {
 		}
 		
 		tick(room, duration);
+	},
+
+	getRunningGame(room_id: number) {
+		return running_games.get(room_id);
 	}
 }

@@ -1,4 +1,4 @@
-import Vector from './vector';
+import Vector, {VECTOR_DATA_TYPES} from './vector';
 
 export default class Matrix2D extends Vector {
 	protected _rot = 0;
@@ -6,11 +6,12 @@ export default class Matrix2D extends Vector {
 	private _height = 1;
 
 	constructor() {
-		super(Vector.TYPE.FLOAT, 9);
+		super(VECTOR_DATA_TYPES.FLOAT, 9);
 		this.setIdentity();
 	}
 
-	// SETTERS
+	// SETTERS //
+
 	setIdentity() {
 		super.set(	1, 0, 0, 
 					0, 1, 0, 
@@ -62,7 +63,8 @@ export default class Matrix2D extends Vector {
 		this._setRotScale(rot, this._width, this._height);
 	}
 
-	//GETTERS (some overrides from vector class)
+	// GETTERS // (some overrides from vector class)
+
 	get x()  {	return this._buffer[6];	}
 	set x(x: number) {	this._buffer[6] = x;	}
 
