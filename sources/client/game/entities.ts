@@ -177,10 +177,9 @@ export default abstract class EntitiesBase {
 		current_instance = null;
 	}
 
-	/*public static getEntityData(name: string) {
-		// return entitiesData;
+	public static getEntity(name: string) {
 		return entitiesData[name];
-	}*/
+	}
 	public static getEntityId(name: string) {
 		if(name in entitiesData)
 			return entitiesData[name].id;

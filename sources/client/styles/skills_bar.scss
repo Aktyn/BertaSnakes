@@ -1,0 +1,47 @@
+@import 'global.scss';
+
+$size: 30px;
+
+.skills-bar {
+	background-color: rgba( nth($palette, 2), 0.75);
+	border: 1px solid #fff3;
+
+	display: inline-block;
+
+	padding: 10px 30px;
+	padding-bottom: 0px;
+	border-top-left-radius: 50px;
+	border-top-right-radius: 50px;
+
+	& > .skill-slots {
+		& > * {//single skill block
+			& > .displayer {
+				display: block;
+				position: relative;
+
+				width: $size;
+				height: $size;
+				margin: auto;
+
+				border: 1px solid nth($palette, 8);
+				border-radius: 5px;
+
+				background-color: rgba(nth($palette, 8), 0.2);
+
+				& > img {
+					height: 100%;
+					width: auto;
+				}
+			}
+
+			& > .key {
+				background-color: nth($palette, 8);
+				color: #fff;
+				font-size: 11px;
+				border-radius: 5px;
+				margin-top: 3px;
+				padding: 2px;
+			}
+		}
+	}
+}

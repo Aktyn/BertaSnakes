@@ -14,6 +14,12 @@ if( !_CLIENT_ ) {
 	var ServerImage = Canvas.Image;
 }
 
+export const enum WEATHER_TYPE {
+	DUST = 0,
+	SNOW,
+	CLOUDS
+}
+
 export interface MapJSON_I {
 	map_size: number;
 
@@ -24,7 +30,7 @@ export interface MapJSON_I {
 	background_texture: HTMLImageElement;
 	smooth_background: boolean;
 
-	weather: string;
+	weather: WEATHER_TYPE;
 }
 
 function loadImage(path: string | null) {
@@ -81,9 +87,9 @@ export default extendType({
 		walls_color: [156, 185, 237],//TODO - generate SERIALIZABLE color object
 		smooth_walls: false,
 		smooth_background: false,
-		weather: "dust",//TODO - enum this
+		weather: WEATHER_TYPE.DUST,
 
-		background_texture: loadImage(_CLIENT_ ? require('../maps/bg_flat.png') : null),
+		background_texture: loadImage(_CLIENT_ ? require('../maps/bg_flat.jpg') : null),
 		walls_texture: loadImage(_CLIENT_ ? 
 			require('../maps/Empty.png') : path.join(MAP_FOLDER, 'Empty.png'))
 	} as MapJSON_I,
@@ -92,9 +98,9 @@ export default extendType({
 		walls_color: [156, 185, 237],
 		smooth_walls: true,
 		smooth_background: true,
-		weather: "dust",//TODO - enum this
+		weather: WEATHER_TYPE.DUST,
 
-		background_texture: loadImage(_CLIENT_ ? require('../maps/bg2.png') : null),
+		background_texture: loadImage(_CLIENT_ ? require('../maps/bg2.jpg') : null),
 		walls_texture: loadImage(_CLIENT_ ? 
 			require('../maps/OpenMaze.svg') : path.join(MAP_FOLDER, 'OpenMaze.png'))
 	} as MapJSON_I,
@@ -103,7 +109,7 @@ export default extendType({
 		walls_color: [128, 203, 196],
 		smooth_walls: false,
 		smooth_background: false,
-		weather: "clouds",//TODO - enum this
+		weather: WEATHER_TYPE.CLOUDS,
 
 		background_texture: loadImage(_CLIENT_ ? require('../maps/bg3.png') : null),
 		walls_texture: loadImage(_CLIENT_ ? 
@@ -114,9 +120,9 @@ export default extendType({
 		walls_color: [178, 235, 242],
 		smooth_walls: true,
 		smooth_background: true,
-		weather: "snow",//TODO - enum this
+		weather: WEATHER_TYPE.SNOW,
 
-		background_texture: loadImage(_CLIENT_ ? require('../maps/bg1.png') : null),
+		background_texture: loadImage(_CLIENT_ ? require('../maps/bg1.jpg') : null),
 		walls_texture: loadImage(_CLIENT_ ? 
 			require('../maps/Snowflake.svg') : path.join(MAP_FOLDER, 'Snowflake.png'))
 	} as MapJSON_I

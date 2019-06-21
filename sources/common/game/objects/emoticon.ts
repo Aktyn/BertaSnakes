@@ -43,7 +43,7 @@ export default class Emoticon extends Object2D {
 		if(this.entitiesClass) {
 			//hand.svg is deprecated emoticon
 			//if(name !== 'hand.svg')//exception (TODO - hand icon in yellow circle)
-			//	this.entitiesClass.addObject(this.entitiesClass.getEntityId('STREAK'), this.streak);
+			this.entitiesClass.addObject(this.entitiesClass.getEntityId('STREAK'), this.streak);
 			this.entitiesClass.addObject(
 				this.entitiesClass.getEntityId(Emoticon.entityName(this.name)), this);
 		}

@@ -49,6 +49,12 @@ export default {
 		this.joinRoom(from_connection, room.id);
 	},
 
+	deleteRoomAfterGame(room: RoomInfo) {
+		//NOTE - remove room event is not distributed
+		if( !rooms.delete(room.id) )
+			console.error('Cannot delete room: ' + room.id);
+	},
+
 	updateRoomSettings(from_connection: Connection, settings: RoomSettings) {
 		let room = from_connection.getRoom();
 		if(!room || room.getOwner() !== from_connection.user)//only owner can update room settings
@@ -73,8 +79,8 @@ export default {
 		room.removeUser(from_user);
 		from_connection.onRoomLeft(room.id);
 
-		//REMOVE ROOM WHEN IT GETS EMPTY
-		if( room.isEmpty() ) {
+		//REMOVE ROOM WHEN IT GETS EMPTY AND NOT DURING GAME
+		if( room.isEmpty() && !room.game_process ) {
 			distributeRoomRemoveEvent(room);
 			rooms.delete(room.id);
 		}
@@ -100,8 +106,11 @@ export default {
 
 		//send USER_JOINED_ROOM for every user in room expect the one that just joined
 		room.forEachUser(user => {
-			if(user.connection && room && from_connection.user)
+			if(user.connection && room && from_connection.user && 
+				from_connection.user.id !== user.connection.id)
+			{
 				user.connection.onUserJoinedRoom(from_connection.user, room.id);
+			}
 		});
 	},
 

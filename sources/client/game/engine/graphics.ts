@@ -139,6 +139,8 @@ export function isInitialized() {
 	return initialized;
 }
 export function onResize(width: number, height: number) {
+	if(!CANVAS)
+		return;
 	CANVAS.width = width;
 	CANVAS.height = height;
 	aspect = width / height;

@@ -40,7 +40,9 @@ export default class CloudsEmitter extends WeatherEmitter {
 			this.data[i*vals + 6] = Math.pow(1.0-rand, 2)*0.9 + 0.1;//a;
 
 			this.velocities_data[i*2+0] = data[c_i].speed_factor * MAX_CLOUD_SPEED;
-			this.velocities_data[i*2+1] = data[c_i].speed_factor * MAX_CLOUD_SPEED * 0.05;
+			this.velocities_data[i*2+1] = data[c_i].speed_factor * MAX_CLOUD_SPEED * 
+				(Math.random()-0.5)*0.5;
+			//0.05;
 		}
 	}
 

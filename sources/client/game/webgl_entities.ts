@@ -16,7 +16,7 @@ export default class WebGLEntities extends EntitiesBase {
 
 		super();
 
-		this.rect = _rect;//VBO rect
+		this.rect = _rect;//VBO rectangle
 	}
 
 	destroy() {
@@ -25,7 +25,7 @@ export default class WebGLEntities extends EntitiesBase {
 			ent.texture.destroy();
 		});
 		
-		super.destroy();//NOTE - this destroy must be invoked after destroing entities textures
+		super.destroy();//NOTE - this destroy must be invoked after destroying entities textures
 	}
 
 	generateTexture(data: EntitySchema) {

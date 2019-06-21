@@ -8,7 +8,7 @@ import * as Graphics from './engine/graphics';
 import {Vec2f} from '../../common/utils/vector';
 import Utils from '../utils/utils';
 import GameMap from '../../common/game/game_map';
-import {MapJSON_I} from '../../common/game/maps';
+import {MapJSON_I, WEATHER_TYPE} from '../../common/game/maps';
 import Colors from '../../common/game/common/colors';
 
 import DustEmitter from './emitters/dust_emitter';
@@ -57,7 +57,7 @@ export default class WebGLRenderer extends RendererBase {
 	//private background_scale: number;
 
 	constructor(map: GameMap, map_data: MapJSON_I) {
-		/*const game_canvas = */Graphics.init();
+		const game_canvas = Graphics.init();
 
 		super(map);
 
@@ -73,22 +73,21 @@ export default class WebGLRenderer extends RendererBase {
 		//$$(window).on('resize', onResize);
 		window.addEventListener('resize', onResize, true);
 		
-		/* TODO: refactor this events (game_canvas initialized above)
 		//@ts-ignore
-		game_canvas.on('wheel', (e) => this.zoom((<WheelEvent>e).wheelDelta / 120));
+		game_canvas.onwheel = e => this.zoom((e.wheelDelta||-e.detail) / 120);
 
 		let drag_data = {x: 0, y: 0, dragging: false};
 		
-		game_canvas.on('mousedown', e => {
+		game_canvas.onmousedown = e => {
 			drag_data.x = (<MouseEvent>e).clientX;
 			drag_data.y = (<MouseEvent>e).clientY;
 			drag_data.dragging = true;
-		});
+		};
 		
-		game_canvas.on('mouseup', e => drag_data.dragging = false);
-		game_canvas.on('mouseout', e => drag_data.dragging = false);
+		game_canvas.onmouseup = e => drag_data.dragging = false;
+		game_canvas.onmouseout = e => drag_data.dragging = false;
 
-		game_canvas.on('mousemove', e => {
+		game_canvas.onmousemove = e => {
 			if(drag_data.dragging !== true)
 				return;
 
@@ -99,7 +98,7 @@ export default class WebGLRenderer extends RendererBase {
 
 			drag_data.x = (<MouseEvent>e).clientX;
 			drag_data.y = (<MouseEvent>e).clientY;
-		});*/
+		};
 		
 		this.main_fb = Graphics.FRAMEBUFFERS.create({fullscreen: true, linear: true});
 		this.paint_fb = Graphics.FRAMEBUFFERS.create({fullscreen: true, linear: true});
@@ -115,13 +114,13 @@ export default class WebGLRenderer extends RendererBase {
 		if(Settings.getValue('weather_particles')) {
 			switch(map_data['weather']) {
 				default:
-				case 'dust':
+				case WEATHER_TYPE.DUST:
 					this.weather_emitter = new DustEmitter();
 					break;
-				case 'snow':
+				case WEATHER_TYPE.SNOW:
 					this.weather_emitter = new SnowEmitter();
 					break;
-				case 'clouds':
+				case WEATHER_TYPE.CLOUDS:
 					this.weather_emitter = new CloudsEmitter();
 					break;
 			}
@@ -136,7 +135,7 @@ export default class WebGLRenderer extends RendererBase {
 
 	destroy() {
 		super.destroy();
-		//this.entities.destroy();
+		this.entities.destroy();
 		//destroying objects
 		[
 			this.VBO_RECT, this.main_shader, this.post_shader, 
@@ -147,7 +146,6 @@ export default class WebGLRenderer extends RendererBase {
 		});
 		//this.chunks_handlers.forEach(ch => ch.destroy());
 		
-		//$$(window).off('resize', onResize);
 		window.removeEventListener('onresize', onResize, true);
 
 		Graphics.destroy();

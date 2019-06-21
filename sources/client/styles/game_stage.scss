@@ -1,9 +1,8 @@
 @import 'global.scss';
 
-$chatHeight: 200px;
+$chatHeight: 350px;
 $leftWidth: 200px;
 $rightWidth: 250px;
-$skillbarHeight: 30px;
 
 $tooglerSize: 30px;
 
@@ -16,6 +15,7 @@ $tooglerSize: 30px;
 	z-index: 10;
 
 	display: block;
+	pointer-events: none;
 
 	.left-panel {
 		user-select: none;
@@ -28,21 +28,213 @@ $tooglerSize: 30px;
 
 		width: $leftWidth;
 		max-width: 100vw;
-		background-color: #fff2;
+		// background-color: #fff2;
+		height: 100%;
+		overflow: auto;
+
+		padding: 0px 5px;
+
+		& > section {
+			margin-top: 10px;
+			background-color: rgba( nth($palette, 2), 0.75);
+			border: 1px solid #fff3;
+			border-radius: 4px;
+
+			font-size: 13px;
+			font-weight: bold;
+			text-align: left;
+
+			padding: 5px;
+
+			&.bars {
+				padding: 0px;
+				display: grid;
+				grid-template-rows: 1fr 1fr 1fr;
+				overflow: hidden;
+			}
+
+			& > .value-bar {
+				padding: 5px 0px;
+				&::before {//just little left padding for text
+				   	content: "";
+				    display: inline-block;
+				    width: 5px;
+				    height: 1px;
+				    float: left;
+				}
+			}
+
+			&.offline {
+				opacity: 0.61;
+				color: nth($palette, 1);
+			}
+
+			&.player-info {
+				padding: 0px;
+				overflow: hidden;
+
+				& > .player-info-grid {
+					display: grid;
+					grid-template-areas: "nick points kills" "nick player deaths";
+					grid-template-columns: auto fit-content(100%) fit-content(100%);
+					grid-template-rows: fit-content(100%) fit-content(100%);
+					grid-row-gap: 2px;
+					justify-content: stretch;
+					align-items: center;
+
+					& > label {
+						grid-area: nick;
+						text-align: center;
+						border-right: 1px solid #fff3;
+						margin-right: 8px;
+					    height: 30px;
+					    line-height: 30px;
+					}
+
+					.points {
+						grid-area: points;
+						text-align: center;
+					}
+
+					& > .player {
+						grid-area: player;
+						height: 20px;
+						line-height: 20px;
+						padding-bottom: 3px;
+
+						& > img {
+							height: 100%;
+							width: auto;
+							transform: rotate(270deg);
+						}
+
+						& > span {
+							display: inline-block;
+							height: 4px;
+							width: 10px;
+						}
+					}
+
+					& > .kills {
+						grid-area: kills;
+
+						&::after {
+							background: url('../img/icons/scope_icon.png') center no-repeat;
+						}
+					}
+
+					& > .deaths {
+						grid-area: deaths;
+						&::after {
+							background: url('../img/icons/skull_icon.png') center no-repeat;
+						}
+					}
+
+					& > .kills, & > .deaths {
+						padding: 0px 6px;
+						padding-right: 3px;
+						// height: 18px;
+						// line-height: 18px;
+						display: grid;
+						align-items: center;
+						grid-template-columns: auto 16px;
+
+						&::after {
+							content: "";
+							display: inline-block;
+							height: 16px;
+							width: 16px;
+							margin: 0px 3px;
+							background-size: cover;
+						}
+					}
+				}
+
+				& > .small-bars {
+					text-align: left;
+					& > * {
+						height: 4px;
+						display: block;
+					}
+				}
+			}
+		}
+
+		.notifications-container {
+			position: absolute;
+			left: 0px;
+			bottom: 0px;
+			height: auto;
+			overflow: hidden;
+			width: $leftWidth;
+			margin: 0px;
+			// background-color: #f556;
+			
+			@keyframes slide-from-left {
+				0% {
+					opacity: 0;
+					transform: translateX(-$leftWidth);
+				}
+				100% {
+					opacity: 1;
+					transform: translateX(0px);
+				}
+			} 
+
+			@keyframes fade-out {
+				0% {opacity: 1}
+				100% {opacity: 0}
+			}
+			
+			& > * {
+				display: block;
+				background-color: #4DB6ACA0;
+				padding: 5px 10px;
+				border: 1px solid #fff4;
+				border-radius: 5px;
+				margin: 5px;
+				width: auto;
+				box-sizing: border-box;
+
+				animation: slide-from-left 0.5s cubic-bezier(.36,.07,.19,.97),
+					fade-out 0.3s 4.7s ease-in-out forwards;
+			}
+		}
+	}
+
+	.right-panel, .chat-container {
+		transition: transform 0.6s cubic-bezier(.36,.07,.19,.97);
 	}
 
 	.right-panel {
+		pointer-events: auto;
+		user-select: none;
 		position: absolute;
 		top: 0px;
 		right: 0px;
 
+		display: grid;
+		grid-template-columns: auto;
+		grid-template-rows: fit-content(100%) fit-content(100%) auto;
+		align-items: stretch;
+		justify-content: stretch;
+
 		max-width: 100vw;
 		width: $rightWidth;
 		height: calc(100vh - #{$chatHeight});
+		min-height: 50vh;
 
 		background-color: rgba( nth($palette, 8), 0.8);
 
-		transition: transform 0.6s cubic-bezier(.36,.07,.19,.97);
+		& > .exit-btn {
+			width: min-content;
+    		margin-left: auto !important;
+    		margin-right: auto !important;
+		}
+
+		& > .list-stretcher > .users-list {
+			height: -webkit-fill-available;
+		}
 
 		& > nav {
 			display: grid;
@@ -100,14 +292,62 @@ $tooglerSize: 30px;
 	}
 
 	.chat-container {
+		pointer-events: auto;
 		position: absolute;
 		bottom: 0px;
 		right: 0px;
 
 		width: $rightWidth;
 		height: $chatHeight;
-		background-color: #5af8;
-		//background-color: rgba( nth($palette, 8), 0.8);
+		max-height: 50vh;
+		// background-color: #5af8;
+		background-color: rgba( nth($palette, 8), 0.8);
+
+		& > .chat-body {
+			display: grid;
+			grid-template-columns: auto;
+			grid-template-rows: auto;
+			grid-template-areas: "main";
+			width: 100%;
+
+			position: absolute;
+			top: 0px;
+			bottom: 0px;
+
+			& > .chat-toggler {
+				position: absolute;
+				top: 0px;
+				right: 0px;
+				z-index: 13;
+				min-width: 60px;
+
+				//border-bottom-left-radius: 10px;
+				color: nth($palette, 1);
+				border: 1px solid nth($palette, 5);
+				background-color: nth($palette, 6);
+
+				transition: transform 0.6s 0.6s cubic-bezier(.36,.07,.19,.97), opacity 0.4s ease-in-out;
+
+				opacity: 1;
+				&.disabled {
+					cursor: auto;
+					opacity: 0;
+				}
+			}
+		}
+
+		&.hidden {
+			transform: translateX($rightWidth);
+
+			.chat-toggler {
+				transform: translateX(-$rightWidth);
+				opacity: 0.5;
+
+				&:hover {
+					opacity: 1;
+				}
+			}
+		}
 	}
 
 	.skillsbar-container {
@@ -118,12 +358,5 @@ $tooglerSize: 30px;
 		left: 0px;
 		right: 0px;
 		height: auto;
-
-		.skillsbar {
-			background-color: #fff2;
-			height: $skillbarHeight;
-			line-height: $skillbarHeight;
-			display: inline-block;
-		}
 	}
 }

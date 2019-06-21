@@ -27,7 +27,7 @@ export default abstract class RendererBase {
 		this.focused = null;//handle to focused player
 
 		this.camera = new Vec3f(0, 0, 1);
-		this._zoom = 0.8;
+		this._zoom = 0.6;//0.8
 		
 		current_instance = this;
 	}

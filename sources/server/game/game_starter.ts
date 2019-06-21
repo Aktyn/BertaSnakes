@@ -2,9 +2,7 @@
 
 import RoomInfo from '../../common/room_info';
 import GameHandler from './game_handler';
-// import UserInfo from '../../common/user_info';
-// import NetworkCodes from '../../common/network_codes';
-
+import RoomsManager from './rooms_manager';
 
 let currentCountdowns: Map<number, NodeJS.Timeout> = new Map();
 let running_games: Map<number, GameHandler> = new Map();
@@ -21,8 +19,11 @@ function prepareToStart(room: RoomInfo) {
 	if( running_games.has(room.id) )
 		throw new Error('Game with given id already running: ' + room.id);
 
-	running_games.set(room.id, new GameHandler(room, () => {
+	running_games.set(room.id, new GameHandler(room, (no_error) => {
 		running_games.delete(room.id);
+
+		if(no_error || room.isEmpty())
+			RoomsManager.deleteRoomAfterGame(room);
 	}));
 }
 

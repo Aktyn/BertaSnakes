@@ -7,7 +7,7 @@ import Network from './../engine/network';
 import HeaderNotifications from '../../components/header_notifications';
 import UserBtn from '../../components/user_btn';
 import RoomsList from '../../components/rooms_list';
-import RoomChat, {MessageSchema} from '../../components/room_chat';
+import RightPanel, {MessageSchema} from '../../components/menu_right_panel';
 import RoomView from './room_view';
 import AccountSidepop, {VIEWS} from '../../components/sidepops/account_sidepop';
 
@@ -24,7 +24,7 @@ interface MenuState extends BaseState {
 }
 
 export default class extends StageBase<MenuProps, MenuState> {
-	private chat: RoomChat | null = null;
+	private right_panel: RightPanel | null = null;
 
 	state: MenuState = {
 		account_view: undefined,
@@ -36,8 +36,8 @@ export default class extends StageBase<MenuProps, MenuState> {
 	}
 
 	public onChatMessage(msg: MessageSchema) {
-		if(this.chat)
-			this.chat.pushMessage(msg);
+		if(this.right_panel)
+			this.right_panel.pushMessage(msg);
 	}
 
 	render() {
@@ -94,9 +94,9 @@ export default class extends StageBase<MenuProps, MenuState> {
 						start_game_countdown={this.props.start_game_countdown} />}
 				</main>
 				{
-					this.props.current_room && <RoomChat room={this.props.current_room}
+					this.props.current_room && <RightPanel room={this.props.current_room}
 						current_user={this.props.current_user}
-						ref={el => this.chat = el} />
+						ref={el => this.right_panel = el} />
 				}
 			</section>
 			{this.state.account_view && <AccountSidepop force_view={this.state.account_view}

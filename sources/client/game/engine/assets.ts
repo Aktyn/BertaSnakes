@@ -181,6 +181,10 @@ function generatePlayersTextures() {
 
 var Assets = {
 	load() {//LOADS GAME RESOURCES ASYNCHRONOUSLY
+		if(Assets.loaded()) {
+			console.log('Assets already loaded');
+			return;
+		}
 		console.log('Loading assets');
 		try {
 			loadAssets();

@@ -1,310 +1,157 @@
-@import './global.scss';
+@import 'global.scss';
 
-$width: 250px;
+.room-chat-main {
+	grid-area: main;
+	align-self: stretch;
+	//background-color: #5f58;
 
-.room-chat-container {
-	width: $width;
-	height: -webkit-fill-available;
-	max-height: 100%;
-	// overflow: hidden;
-	background-color: nth($palette, 8);
+	display: grid;
+	grid-template-areas: "messages" "bottom";
+	grid-template-columns: 100%;
+	grid-template-rows: auto fit-content(100%);
 
+	width: 100%;
 	position: relative;
 
-	.room-chat-body {
-		display: grid;
-		grid-template-areas: "nav" "users" "main";
-		grid-template-columns: auto;
-		grid-template-rows: auto 1fr 2fr;
-		align-items: center;
+	.messages-container {
+		grid-area: messages;
+		overflow: auto;
 
-		& > * {
-			max-width: $width;
-		}
+		width: 100%;
 
 		position: absolute;
+		
 		top: 0px;
 		bottom: 0px;
-	}
+		left: 0px;
 
-	
+		$headerSize: 26px;
+		//$bodyW: $width - $headerSize - 10px;//10px - horizontal padding
 
-	@media (min-width: 901px) {
-		animation: entry-slide 0.5s cubic-bezier(.36,.07,.19,.97);
-		@keyframes entry-slide {
-			0% {
-				transform: translateX($width);
-			}
-			100% {
-				transform: translateX(0px);
-			}
-		}
-	}
-
-	nav {
-		grid-area: nav;
-		text-align: right;
-	}
-
-	.rooms-chat-toggler {
-		margin: 5px;
-		display: none;
-	}
-
-	//at this point - room-chat panel should be hideable
-	@media (max-width: 900px) {
-		position: absolute;
-		top: 0px;
-
-		left: auto;
-		right: 0px;
-		z-index: 9;
-		box-shadow: 0px 0px 4px #0008;
-
-		& {
-			transition: transform 0.5s cubic-bezier(.36,.07,.19,.97);
-		}
-
-		.rooms-chat-toggler {
-			transition: transform 0.3s 0.5s cubic-bezier(.36,.07,.19,.97);
-		}
-
-		.rooms-chat-toggler {
-			display: inline-block;
-			transform: translateX(0px);
-		}
-
-		&.hidden {
-			transform: translateX(100%);
-
-			.rooms-chat-toggler {
-				transform: translateX(-$width);
-			}
-		}
-	}
-
-	.users-list {
-		grid-area: users;
-		align-self: stretch;
-		//background-color: #f558;
-		padding: 5px 0px;
-		overflow-y: auto;
-		overflow-x: hidden;
-		max-height: 100%;
-		
-		border-bottom: 1px solid #fff2;
-
-		& > * {//single entry
-			margin: 5px 0px;
-
-			display: inline-grid;
-			grid-template-areas: "separator userbtn kick";
-			grid-template-columns: 1fr auto 1fr;
-			grid-template-rows: auto;
-
-			.user-btn {
-				grid-area: userbtn;
-			}
-			
-			.kick-btn {
-				grid-area: kick;
-
-				$size: 30px;
-				$animFunc: 0.5s cubic-bezier(.36,.07,.19,.97);
-
-				height: $size;
-				width: $size;
-				margin: 0px 5px;
-				background-color: transparent;
-				box-shadow: none;
-				background-image: url('../img/icons/kick.svg');
-				background-size: contain;
-
-				opacity: 0.5;
-				transition: opacity $animFunc;
-				position: relative;
-
-				&::before {
-					content: attr(data-text);
-					display: block;
-					position: absolute;
-					height: $size;
-					line-height: $size;
-					border-radius: $size;
-					width: 100px;
-					top: 0px;
-					right: 0px;
-					background-color: #fff;//#FFCCBC;
-					color: #ef5350;//#455a64;
-					font-weight: bold;
-					border: 1px solid #ef9a9a;
-					
-					opacity: 0;
-					transform: translateX(100px);
-
-					transition: opacity $animFunc, transform $animFunc;
-				}
-
-				&:hover {
-					opacity: 1;
-
-					&::before {
-						opacity: 1;
-						transform: translateX( -$size - 5px);
-					}
-				}
-			}
-		}
-	}
-
-	.room-chat-main {
-		grid-area: main;
-		align-self: stretch;
-		//background-color: #5f58;
-
-		display: grid;
-		grid-template-areas: "messages" "bottom";
-		grid-template-columns: $width;
-		grid-template-rows: auto fit-content(100%);
-
-		max-width: 100%;
-		position: relative;
-
-		.messages-container {
-			grid-area: messages;
-			overflow: auto;
-
-			width: $width;
-
-			position: absolute;
-			
-			top: 0px;
-			bottom: 0px;
-			left: 0px;
-
-			$headerSize: 26px;
-			//$bodyW: $width - $headerSize - 10px;//10px - horizontal padding
-
-			& > * {//single message
-				padding: 5px 5px;
-
-				display: grid;
-				
-				grid-template-columns: $headerSize calc(100% - (26px));//$headerSize
-				justify-content: space-between;
-				//grid-column-gap: 10px;
-
-				&:not(:last-child) {
-					border-bottom: 1px solid #fff1;
-				}
-
-				& > img {//avatar
-					width: $headerSize;
-					height: $headerSize;
-					border-radius: $headerSize;
-				}
-
-				& > div {//message body
-					display: block;
-
-					& > label {//user's nick and message timestamp
-						text-align: left;
-						display: grid;
-						grid-template-columns: auto auto;
-						justify-content: space-between;
-						justify-items: center;
-						padding: 0px 0px;
-						height: $headerSize;
-						line-height: $headerSize;
-
-						& > strong {
-							font-weight: bold;
-							font-size: 14px;
-							padding: 0px 5px;
-							// background-color: red;
-						}
-
-						& > span {//message time
-							font-size: 12px;
-							color: nth($palette, 4);
-						}
-					}
-					& > div {//message content
-						text-align: left;
-						color: nth($palette, 1);
-						word-wrap: break-word;
-					}
-				}
-			}
-		}
-
-		.bottom {
-			$size: 25px;
-			$transFunc: 0.2s ease-in-out;
-
-			grid-area: bottom;
-			width: 100%;
-			height: $size;
+		& > * {//single message
+			padding: 5px 5px;
 
 			display: grid;
-			grid-template-columns: max-content fit-content(100%);
-			justify-content: stretch;
+			
+			grid-template-columns: $headerSize calc(100% - (26px));//$headerSize
+			justify-content: space-between;
+			//grid-column-gap: 10px;
 
-			& > input {
-				min-width: auto;
-				max-width: 100% !important;
-				height: $size;
-				width: $width - $size * 2;
-
-				background-color: nth($palette, 9);
-				color: nth($palette, 1);
-				// font-weight: bold;
-				border-color: #0000;
-
-				transition: border-color $transFunc;
-
-				&::placeholder {
-					color: nth($palette, 4) !important;
-				}
-
-				&:focus {
-					border-color: #e57373;
-				}
+			&:not(:last-child) {
+				border-bottom: 1px solid #fff1;
 			}
 
-			& > .send-btn {
-				background-color: nth($palette, 9);
-				
-				box-shadow: none;
-				border-radius: 0px;
-				border: 1px solid #0000;
+			& > img {//avatar
+				width: $headerSize;
+				height: $headerSize;
+				border-radius: $headerSize;
+			}
 
-				height: $size;
-				width: $size*2;
-				padding: 0px;
+			& > div {//message body
+				display: block;
 
-				transition: border-color $transFunc, background-color $transFunc;
+				& > label {//user's nick and message timestamp
+					text-align: left;
+					display: grid;
+					grid-template-columns: auto auto;
+					justify-content: space-between;
+					justify-items: center;
+					padding: 0px 0px;
+					height: $headerSize;
+					line-height: $headerSize;
+
+					& > strong {
+						font-weight: bold;
+						font-size: 14px;
+						padding: 0px 5px;
+						// background-color: red;
+					}
+
+					& > span {//message time
+						font-size: 12px;
+						color: nth($palette, 4);
+					}
+				}
+				& > div {//message content
+					text-align: left;
+					color: nth($palette, 1);
+					word-wrap: break-word;
+				}
+			}
+		}
+	}
+
+	.bottom {
+		$size: 25px;
+		$transFunc: 0.2s ease-in-out;
+
+		grid-area: bottom;
+		width: 100%;
+		height: $size;
+
+		display: flex;
+		padding: 0px;
+		border-collapse: collapse;
+		// grid-template-columns: max-content fit-content(100%);
+		justify-content: stretch;
+
+		& > input {
+			flex: 2;
+			min-width: auto;
+			max-width: 100% !important;
+			height: $size;
+			box-sizing: border-box;
+			width: auto;
+			// width: $width - $size * 2;
+
+			background-color: nth($palette, 9);
+			color: nth($palette, 1);
+			// font-weight: bold;
+			border-color: #0000;
+
+			transition: border-color $transFunc;
+
+			&::placeholder {
+				color: nth($palette, 4) !important;
+			}
+
+			&:focus {
+				border-color: #e57373;
+			}
+		}
+
+		& > .send-btn {
+			background-color: nth($palette, 9);
+			
+			box-shadow: none;
+			border-radius: 0px;
+			border: 1px solid #0000;
+
+			height: $size;
+			width: $size*2;
+			padding: 0px;
+
+			transition: border-color $transFunc, background-color $transFunc;
+
+			&::after {
+				content: "";
+				display: block;
+				background: url('../img/icons/send.svg') center no-repeat;
+				background-size: auto 80%;
+				height: 100%;
+				width: 100%;
+				opacity: 0.5;
+
+				transition: opacity $transFunc;
+			}
+
+			&:hover {
+				//color: #ef9a9a;
+				border-color: #e57373;
+				background-color: nth($palette, 8);
 
 				&::after {
-					content: "";
-					display: block;
-					background: url('../img/icons/send.svg') center no-repeat;
-					background-size: auto 80%;
-					height: 100%;
-					width: 100%;
-					opacity: 0.5;
-
-					transition: opacity $transFunc;
-				}
-
-				&:hover {
-					//color: #ef9a9a;
-					border-color: #e57373;
-					background-color: nth($palette, 8);
-
-					&::after {
-						opacity: 1;
-					}
+					opacity: 1;
 				}
 			}
 		}

@@ -1,4 +1,5 @@
 import GameCore, {InitDataSchema} from '../../common/game/game_core';
+export {InitDataSchema} from '../../common/game/game_core';
 import {Emitter} from './engine/graphics';
 import RendererBase from './renderer';
 import WebGLRenderer from './webgl_renderer';
@@ -78,11 +79,27 @@ var code: number, p_h: Player, p_h2: Player,
 	p_i: number, e_i: number, e_h: any,
 	b_i: number, i_i: number, b_h: any, obj_i: number, synch_array: Object2D[], rot_dt: number;
 
+export interface ListenersSchema {
+	onInitData: (data: InitDataSchema[]) => void;
+	onTimerUpdate: (remaining_time: number) => void;
+	onNotification: (content: string) => void;
+
+	onPlayerHpChange: (index: number, value: number) => void;
+	onPlayerEnergyChange: (index: number, value: number) => void;
+	onPlayerPointsChange: (index: number, value: number) => void;
+	onPlayerKill: (index: number) => void;
+	onPlayerDeath: (index: number) => void;
+
+	addChildEmptySkill: (slot_index: number) => void;
+	addChildSkill: (texture_name: string, key: 'space' | number, continous: boolean) => void;
+}
+
 export default class ClientGame extends GameCore {
 	public running = false;
 	private destroyed = false;
 
 	private gamemode: GAME_MODES;
+	private listeners: ListenersSchema;
 
 	//private rendering_mode: number;
 	//@ts-ignore
@@ -100,10 +117,13 @@ export default class ClientGame extends GameCore {
 	private delay_timestamp?: number;
 	private end_timestamp?: number;
 
-	constructor(map: MapJSON_I, _gamemode: GAME_MODES, onLoad: (result: boolean) => void) {
+	constructor(map: MapJSON_I, _gamemode: GAME_MODES, _listeners: ListenersSchema, 
+		onLoad: (result: boolean) => void) 
+	{
 		super();
 
 		this.gamemode = _gamemode;
+		this.listeners = _listeners;
 		
 		Assets.load();
 
@@ -274,9 +294,8 @@ export default class ClientGame extends GameCore {
 				p_h.points = data[index + 5];
 				p_h.movement.speed = p_h.movement.maxSpeed;
 
-				//TODO: assign listeners for this
-				//this.renderer.GUI.onPlayerHpChange(data[index + 1], p_h.hp);
-				//this.renderer.GUI.onPlayerPointsChange(data[index + 1], p_h.points);
+				this.listeners.onPlayerHpChange(data[index + 1], p_h.hp);
+				this.listeners.onPlayerPointsChange(data[index + 1], p_h.points);
 
 				this.explosionEffect(data[index + 2], data[index + 3], 
 					GameCore.GET_PARAMS().small_explosion_radius);
@@ -362,10 +381,8 @@ export default class ClientGame extends GameCore {
 				index += 4;
 				break;
 			case NetworkCodes.WAVE_INFO:
-				// this.renderer.GUI.addNotification('Wave ' + data[index + 1]);
-
-				//TODO: assign listeners for this
-				//this.renderer.GUI.addNotification('More enemies!');
+				this.listeners.onNotification('Wave ' + data[index + 1]);
+				//this.listeners.onNotification('More enemies!');
 				index += 2;
 				break;
 			case NetworkCodes.SPAWN_ENEMY://enemy_class_index, object_id, pos_x, pos_y, rot
@@ -520,8 +537,7 @@ export default class ClientGame extends GameCore {
 				p_h = this.players[ data[index + 1] | 0 ];
 				p_h.hp += GameCore.GET_PARAMS().instant_heal_value;
 
-				//TODO: assign listeners for this
-				//this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
+				this.listeners.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
 
 				if(this.renderer.withinVisibleArea(p_h.x, p_h.y, 0.5) === true) {
 					if(this.emitters) {
@@ -577,9 +593,8 @@ export default class ClientGame extends GameCore {
 				p_h.hp = data[index + 6];
 				p_h.points = data[index + 7];
 
-				//TODO: assign listeners for this
-				//this.renderer.GUI.onPlayerPointsChange(data[index + 2] | 0, p_h.points);
-				//this.renderer.GUI.onPlayerHpChange(data[index + 2] | 0, p_h.hp);
+				this.listeners.onPlayerPointsChange(data[index + 2] | 0, p_h.points);
+				this.listeners.onPlayerHpChange(data[index + 2] | 0, p_h.hp);
 
 				p_h.movement.speed = p_h.movement.maxSpeed;
 
@@ -619,8 +634,7 @@ export default class ClientGame extends GameCore {
 				switch( data[index + 2] | 0 ) {//switch item.type
 					case ITEM_TYPES.HEALTH: {
 						p_h.hp += Item.HEALTH_VALUE;
-						//TODO: assign listeners for this
-						//this.renderer.GUI.onPlayerHpChange(data[index + 3] | 0, p_h.hp);
+						this.listeners.onPlayerHpChange(data[index + 3] | 0, p_h.hp);
 
 						if(this.renderer.withinVisibleArea(p_h.x, p_h.y, 0.5) === true) {
 							if(this.emitters) {
@@ -634,8 +648,7 @@ export default class ClientGame extends GameCore {
 					}	break;
 					case ITEM_TYPES.ENERGY: {
 						p_h.energy += Item.ENERGY_VALUE;
-						//TODO: assign listeners for this
-						//this.renderer.GUI.onPlayerEnergyChange(data[index + 3] | 0, p_h.energy);
+						this.listeners.onPlayerEnergyChange(data[index + 3] | 0, p_h.energy);
 					}	break;
 					case ITEM_TYPES.SPEED: {
 						p_h.effects.active( AVAILABLE_EFFECTS.SPEED );
@@ -660,19 +673,16 @@ export default class ClientGame extends GameCore {
 				super.respawnPlayer(p_h);
 				super.drawDeathMark( data[index + 3], data[index + 4], p_h.painter.color );
 
-				//TODO: assign listeners for this
-				//this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
-				//this.renderer.GUI.onPlayerEnergyChange(data[index + 1] | 0, p_h.hp);
+				this.listeners.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
+				this.listeners.onPlayerEnergyChange(data[index + 1] | 0, p_h.hp);
 
 				//player deaths count update
 				p_h.deaths++;
-				//TODO: assign listeners for this
-				//this.renderer.GUI.onPlayerDeath( data[index + 1] | 0 );
+				this.listeners.onPlayerDeath( data[index + 1] | 0 );
 
 				if(p_h === this.renderer.focused) {
-					//TODO: assign listeners for this
-					//this.renderer.GUI.addNotification(
-					//	'You died. Respawn in ' + data[index + 2] + ' seconds');
+					this.listeners.onNotification(
+						'You died. Respawn in ' + data[index + 2] + ' seconds');
 
 					//Sounds.EFFECTS.explode.play();
 				}
@@ -683,8 +693,7 @@ export default class ClientGame extends GameCore {
 				p_h = this.players[ data[index + 1] | 0 ];
 				p_h.energy = data[index + 3];
 
-				//TODO: assign listeners for this
-				//this.renderer.GUI.onPlayerEnergyChange(data[index + 1]|0, p_h.energy);
+				this.listeners.onPlayerEnergyChange(data[index + 1]|0, p_h.energy);
 
 				s_h_n = p_h.skills[ data[index + 2] | 0 ];
 				if(s_h_n !== null) {
@@ -725,13 +734,10 @@ export default class ClientGame extends GameCore {
 		console.log('Starting game (' + duration + '+' + round_delay + ' sec),', init_data);
 
 		try {
+			this.listeners.onInitData(init_data);
 			super.initPlayers( init_data, EntitiesBase, WebGLRenderer );
 
-			//TODO: invoke GUI methods via listeners
 			init_data.forEach((data, index) => {
-				//TODO: assign listeners for this
-				//this.renderer.GUI.assignPlayerPreview(index, data['ship_type'], data['color_id']);
-
 				let curr_room = Network.getCurrentUser();
 				if(curr_room === null)
 					throw new Error('No room');
@@ -745,16 +751,14 @@ export default class ClientGame extends GameCore {
 						if(sk === null) {
 							for(let j=s_i+1; j<this.players[index].skills.length; j++) {
 								if( this.players[index].skills[j] !== null ) {
-									//TODO: assign listeners for this
-									//this.renderer.GUI.addChildEmptySkill(s_i);
+									this.listeners.addChildEmptySkill(s_i);
 									break;
 								}
 							}
 						}
 						else {
-							//TODO: assign listeners for this
-							//this.renderer.GUI.addChildSkill(sk.data.texture_name, 
-							//	s_i === 0 ? 'space' : s_i, sk.isContinous());
+							this.listeners.addChildSkill(sk.data.texture_name, 
+								s_i === 0 ? 'space' : s_i, sk.isContinous());
 						}
 					}
 				}
@@ -840,8 +844,7 @@ export default class ClientGame extends GameCore {
 	}
 
 	end() {
-		//TODO: assign listeners for this
-		//this.renderer.GUI.updateTimer( 0 );
+		this.listeners.onTimerUpdate(0);
 		this.running = false;
 	}
 
@@ -854,12 +857,10 @@ export default class ClientGame extends GameCore {
 		p_h2 = this.players[victim_i];
 
 		p_h2.hp = victim_hp;
-		//TODO: assign listeners for this
-		//this.renderer.GUI.onPlayerHpChange(victim_i, p_h2.hp);
+		this.listeners.onPlayerHpChange(victim_i, p_h2.hp);
 
 		p_h.points += damage * GameCore.GET_PARAMS().points_for_player_damage;
-		//TODO: assign listeners for this
-		//this.renderer.GUI.onPlayerPointsChange(attacker_i, p_h.points);
+		this.listeners.onPlayerPointsChange(attacker_i, p_h.points);
 
 		if(p_h2.isAlive() === false) {
 			//this.onPlayerDeath(p_h2, GameCore.GET_PARAMS().explosion_radius);
@@ -879,8 +880,7 @@ export default class ClientGame extends GameCore {
 
 		if(this.gamemode === GAME_MODES.COOPERATION) {	
 			this.players[player_i].points += damage * GameCore.GET_PARAMS().points_for_enemy_damage;
-			//TODO: assign listeners for this
-			//this.renderer.GUI.onPlayerPointsChange(player_i, this.players[player_i].points);
+			this.listeners.onPlayerPointsChange(player_i, this.players[player_i].points);
 		}
 
 		if(e_h.isAlive() === false) {//enemy died - explosion
@@ -894,18 +894,15 @@ export default class ClientGame extends GameCore {
 	onPlayerKill(attacker_i: number, notification: string, gamemode: GAME_MODES, 
 		points_for_kill: number, victim_obj: Object2D) 
 	{
-		if(this.renderer.focused === this.players[attacker_i]) {
-			//TODO: assign listeners for this
-			//this.renderer.GUI.addNotification(notification);
-		}
+		if(this.renderer.focused === this.players[attacker_i])
+			this.listeners.onNotification(notification);
 
 		if(this.gamemode === gamemode) {
 			this.players[attacker_i].kills++;
 			this.players[attacker_i].points += points_for_kill;
 
-			//TODO: assign listeners for this
-			//this.renderer.GUI.onPlayerKill( attacker_i );
-			//this.renderer.GUI.onPlayerPointsChange(attacker_i, this.players[attacker_i].points);
+			this.listeners.onPlayerKill( attacker_i );
+			this.listeners.onPlayerPointsChange(attacker_i, this.players[attacker_i].points);
 
 			if(this.emitters) {
 				let exp_effect = new ExperienceEmitter(victim_obj, this.players[attacker_i]);
@@ -1031,7 +1028,7 @@ export default class ClientGame extends GameCore {
 			if(this.remaining_time < 0)
 				this.remaining_time = 0;
 			//TODO: assign listeners for this
-			//this.renderer.GUI.updateTimer( this.remaining_time );
+			this.listeners.onTimerUpdate( this.remaining_time );
 		}
 
 		if(this.delay !== 0) {
@@ -1041,13 +1038,10 @@ export default class ClientGame extends GameCore {
 					(this.delay = (((this.delay_timestamp - Date.now())/1000)|0)) ) {
 				if(this.delay <= 0) {
 					this.delay = 0;
-					//TODO: assign listeners for this
-					//this.renderer.GUI.addNotification('GO!!!');
+					this.listeners.onNotification('GO!!!');
 				}
-				else {
-					//TODO: assign listeners for this
-					//this.renderer.GUI.addNotification('Start in ' + this.delay + '...');
-				}
+				else
+					this.listeners.onNotification('Start in ' + this.delay + '...');
 			}
 		}
 
@@ -1079,10 +1073,8 @@ export default class ClientGame extends GameCore {
 			super.update(delta);
 
 			for(p_i=0; p_i<this.players.length; p_i++) {
-				if( this.players[p_i].effects.isActive(AVAILABLE_EFFECTS.POISONING) ) {
-					//TODO: assign listeners for this
-					//this.renderer.GUI.onPlayerHpChange(p_i, this.players[p_i].hp);
-				}
+				if( this.players[p_i].effects.isActive(AVAILABLE_EFFECTS.POISONING) )
+					this.listeners.onPlayerHpChange(p_i, this.players[p_i].hp);
 			}
 
 			if(this.emitters) {

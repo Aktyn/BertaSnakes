@@ -61,12 +61,12 @@ interface GameProcessMessage {
 }
 
 export default class GameHandler {
-	private onExit: () => void;
+	private onExit: (no_error: boolean) => void;
 	private room: RoomInfo;
 	private remaining_confirmations: number[];
 	private game_started = false;
 
-	constructor(_room: RoomInfo, _onExit: () => void) {
+	constructor(_room: RoomInfo, _onExit: (no_error: boolean) => void) {
 		this.onExit = _onExit;
 		this.room = _room;
 
@@ -126,11 +126,11 @@ export default class GameHandler {
 		}
 	}
 
-	private onGameEnd() {
+	private onGameEnd(no_error = false) {
 		if(this.room.game_process !== null)//kill process before nulling it
 			this.room.game_process.kill('SIGINT');
 		this.room.game_process = null;
-		this.onExit();
+		this.onExit(no_error);
 	}
 
 	private startGame() {
@@ -183,7 +183,7 @@ export default class GameHandler {
 				//TODO: saving game result to database
 				//saveGameResult(room, msg.data.result);
 
-				this.onGameEnd();
+				this.onGameEnd(true);
 			}	break;
 			case NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32: {//fast data distribution
 				try {

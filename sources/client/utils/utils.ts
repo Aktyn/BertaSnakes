@@ -1,6 +1,16 @@
 import ERROR_CODES from '../../common/error_codes';
 import Config from '../../common/config';
 
+const DEFAULT_LABELS = {
+	hours: '',
+	minutes: '',
+	seconds: ''
+};
+
+function zeroPad(num: number) {
+	return num < 10 ? `0${num}` : num.toString();
+}
+
 export default {
 	GAMEMODES_NAMES: ['Cooperation', 'Competition'],
 
@@ -40,6 +50,20 @@ export default {
 			};
 			file_input.click();
 		});
+	},
+
+	secondsToTime: (sec: number, dellimeter = ':', labels = DEFAULT_LABELS) => {
+		sec |= 0;
+		let min = (sec/60)|0;
+		sec -= min*60;
+		let hour = (min/60)|0;
+		min -= hour*60;
+		if(hour > 0)
+			return `${zeroPad(hour)}${labels.hours}${dellimeter}${zeroPad(min)}${labels.minutes}${dellimeter}${zeroPad(sec)}${labels.seconds}`;
+		else if(min > 0)
+			return `${zeroPad(min)}${labels.minutes}${dellimeter}${zeroPad(sec)}${labels.seconds}`;
+		else
+			return `${zeroPad(sec)}${labels.seconds}`;
 	},
 
 	trimString(str: string, max_len: number, suffix = '...') {

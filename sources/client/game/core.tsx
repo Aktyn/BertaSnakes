@@ -10,8 +10,8 @@ import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
-const TDD1 = true;//auto room joining
-const TDD2 = true;//auto sit and ready
+const TDD1 = false;//auto room joining
+const TDD2 = false;//auto sit and ready
 
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;
@@ -122,10 +122,23 @@ export default class extends React.Component<any, CoreState> {
 					}
 					this.setState({current_room: Network.getCurrentRoom(), start_game_countdown: null});
 					break;
-				case NetworkCodes.ON_ROOM_LEFT:
 				case NetworkCodes.ON_USER_LEFT_ROOM:
 				case NetworkCodes.ON_USER_JOINED_ROOM:
 					this.setState({current_room: Network.getCurrentRoom()});
+					break;
+
+				case NetworkCodes.ON_ROOM_LEFT:
+					if( this.stageHandle instanceof GameStage ) {
+						this.setState({
+							current_room: Network.getCurrentRoom(),
+							indicate_room_deletion: false, 
+							rooms_list: this.state.rooms_list.filter(r => !r.to_remove),
+							current_stage: MenuStage.prototype
+						});
+						Network.requestRoomsList();
+					}
+					else
+						this.setState({current_room: Network.getCurrentRoom()});
 					break;
 
 				case NetworkCodes.ON_ROOM_CREATED: {
@@ -133,9 +146,6 @@ export default class extends React.Component<any, CoreState> {
 					let updated_room = RoomInfo.fromJSON(data['room']);
 					if( !rooms.find(r => r.id === updated_room.id) )
 						rooms.push( updated_room );
-					
-					if(TDD1 && !this.state.current_room)
-						Network.joinRoom( updated_room.id );
 
 					this.setState({rooms_list: rooms});
 				}	break;
@@ -178,8 +188,8 @@ export default class extends React.Component<any, CoreState> {
 					let rooms = room_datas.map(data => RoomInfo.fromJSON(data));
 					this.setState({rooms_list: rooms});
 
-					if(TDD1 && rooms.length > 0)
-						Network.joinRoom( rooms[0].id );
+					if(TDD1)
+						Network.createRoom();
 				}	break;
 
 				case NetworkCodes.ON_KICKED_FROM_ROOM:
@@ -214,7 +224,8 @@ export default class extends React.Component<any, CoreState> {
 					break;
 
 				case NetworkCodes.ON_GAME_START:
-					this.setState({current_stage: GameStage.prototype, start_game_countdown: null});
+					if(this.state.current_room && data['room_id'] === this.state.current_room.id)
+						this.setState({current_stage: GameStage.prototype, start_game_countdown: null});
 					break;
 
 				case NetworkCodes.ON_GAME_FAILED_TO_START:
