@@ -1,10 +1,5 @@
 import Object2D from './object2d';
 
-/*declare var _CLIENT_: boolean;
-if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities').default;
-*/
-
 const SCALE = 0.07, DURATION = 2, FADING_DURATION = 0.5;//durations in seconds
 const OFFSET_ANGLE = Math.PI / 4.0, PARENT_OFFSET = 0.15;
 

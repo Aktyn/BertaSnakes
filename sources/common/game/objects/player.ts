@@ -24,7 +24,7 @@ if(_CLIENT_) {
 }
 
 //TYPES
-export enum PLAYER_TYPES {//enum (cannot be const since some code itarate over it)
+export enum PLAYER_TYPES {//enum (cannot be const since some code iterate over it)
 	TRIANGLE = 0,
 	SQUARE,
 	PENTAGON
@@ -65,7 +65,7 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 	private _energy: number;
 	public skills: (SkillObject | null)[];
 	public effects: Effects;
-	private emoticons: any[] = [];//NOTE - only clientside used
+	private emoticons: any[] = [];//NOTE - only client-side used
 	private _points: number;
 	public kills: number;
 	public deaths: number;
@@ -106,7 +106,7 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 		this._hp = 1;
 		this._energy = 1;
 
-		//list of skills avaible by player (skills bar)
+		//list of skills available by player (skills bar)
 		this.skills = [ PLAYER_BASIC_SKILLS[type].create() ];//basic skill (space)
 
 		try {
@@ -128,8 +128,6 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 
 		this.effects = new Effects(this);
 
-		//this.emoticons = [];//client-side only
-
 		this._points = 0;
 		this.kills = 0;
 		this.deaths = 0;
@@ -138,7 +136,7 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 		this.painter = new Painter(color, THICKNESS);
 
 		if(this.entitiesClass) {
-			this.entity_name = Player.entityName(type, color);//clientside only
+			this.entity_name = Player.entityName(type, color);//client-side only
 			this.entitiesClass.addObject(this.entitiesClass.getEntityId(this.entity_name), this);
 		}
 
@@ -146,35 +144,9 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 			this.emitter = this.rendererClass.addEmitter( new PlayerEmitter(this) );
 			this.poisoning_emitter = null;
 		}
-
-		//@ts-ignore
-		/*console.log('TEST!!!', typeof EntitiesBase);
-		if(typeof EntitiesBase !== 'undefined') {
-			this.entity_name = Player.entityName(type, color);//clientside only
-			//@ts-ignore
-			debugger;
-			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
-		}
-
-		//@ts-ignore //client side
-		if(typeof RendererBase !== 'undefined' && typeof WebGLRenderer !== 'undefined'
-			&& typeof PlayerEmitter !== 'undefined' &&
-			//@ts-ignore
-			RendererBase.getCurrentInstance() instanceof WebGLRenderer) 
-		{
-			//@ts-ignore
-			this.emitter = WebGLRenderer.addEmitter( new PlayerEmitter(this) );
-			this.poisoning_emitter = null;
-		}*/
 	}
 
 	destroy() {
-		//@ts-ignore
-		/*if(typeof EntitiesBase !== 'undefined') {
-			console.log('removing player from entities');
-			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
-		}*/
 		if(this.entitiesClass) {
 			this.entitiesClass.removeObject(this.entitiesClass.getEntityId(this.entity_name), this);
 		}
@@ -186,10 +158,6 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 
 	onPoisoned() {//client-side only use for poisoning particle effect display
 		if(this.poisoning_emitter === null) {
-			//@ts-ignore
-			/*if(RendererBase.getCurrentInstance() instanceof WebGLRenderer)
-				//@ts-ignore
-				this.poisoning_emitter = WebGLRenderer.addEmitter( new PoisoningEmitter(this) );*/
 			if(this.rendererClass)
 				this.poisoning_emitter = this.rendererClass.addEmitter( new PoisoningEmitter(this) );
 		}
@@ -197,7 +165,7 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 			this.poisoning_emitter.resetTimer();
 	}
 
-	//clientside only function
+	//client-side only function
 	showEmoticon(name: string) {
 		for(em_i=0; em_i<this.emoticons.length; em_i++)
 			this.emoticons[em_i].endEffect();

@@ -4,7 +4,7 @@ import Colors from '../../common/game/common/colors';
 import Vector, {Vec2f} from '../../common/utils/vector';
 import Item, {ITEM_TYPES} from '../../common/game/objects/item';
 import PoisonousEnemy  from '../../common/game/objects/poisonous_enemy';
-import Bullet from '../../common/game/objects/bullet';
+import Bullet, {BULLET_TYPE} from '../../common/game/objects/bullet';
 import Bomb from '../../common/game/objects/bomb';
 import Skills, {SkillObject} from '../../common/game/common/skills';
 import {AVAILABLE_EFFECTS} from '../../common/game/common/effects';
@@ -361,7 +361,7 @@ export default class ServerGame extends GameCore {
 			Colors.isPlayerColor(color)) 
 		{
 
-			if(bullet.bouncing) {//bounce bullet if it is a bouncing-bullet type
+			if(bullet.type === BULLET_TYPE.BOUNCING) {//bounce bullet if it is a bouncing type
 				this.bulletBounce(bullet, color);
 			}
 			else {//exploding bullet
@@ -444,7 +444,7 @@ export default class ServerGame extends GameCore {
 		var damage = 0;
 		var dmg_scale = bullet.damage_scale;
 		if(is_player) {
-			if(bullet.bouncing)
+			if(bullet.type === BULLET_TYPE.BOUNCING)
 				damage = GameCore.GET_PARAMS().player_to_bouncing_bullet_receptivity * dmg_scale;
 			else
 				damage = GameCore.GET_PARAMS().player_to_bullet_receptivity * dmg_scale;
@@ -454,7 +454,7 @@ export default class ServerGame extends GameCore {
 		}
 		else {
 			var damage = 0;
-			if(bullet.bouncing)
+			if(bullet.type === BULLET_TYPE.BOUNCING)
 				damage = GameCore.GET_PARAMS().enemy_to_bouncing_bullet_receptivity * dmg_scale;
 			else
 				damage = GameCore.GET_PARAMS().enemy_to_bullet_receptivity * dmg_scale;
@@ -693,7 +693,7 @@ export default class ServerGame extends GameCore {
 						(offsets[i].x * cos - offsets[i].y * sin) * player.width + player.x, 
 						(offsets[i].x * sin + offsets[i].y * cos) * player.height + player.y, 
 						player.rot, 
-						player//.painter.color
+						player, BULLET_TYPE.NORMAL
 					);
 					if(skill.data === Skills.SHOOT2)
 						bullet.damage_scale = 0.6;
@@ -722,7 +722,7 @@ export default class ServerGame extends GameCore {
 					cos * player.height + player.y, 
 					player.rot, 
 					player,//.painter.color,
-					true // bouncing
+					BULLET_TYPE.BOUNCING // bouncing
 				);
 				this.bullets.push( bullet );
 

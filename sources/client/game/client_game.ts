@@ -15,7 +15,7 @@ import Object2D from '../../common/game/objects/object2d';
 import Player from '../../common/game/objects/player';
 import EnemySpawner from '../../common/game/objects/enemy_spawner';
 import Item, {ITEM_TYPES} from '../../common/game/objects/item';
-import Bullet from '../../common/game/objects/bullet';
+import Bullet, {BULLET_TYPE} from '../../common/game/objects/bullet';
 import Bomb from '../../common/game/objects/bomb';
 import Shield from '../../common/game/objects/shield';
 import Immunity from '../../common/game/objects/immunity';
@@ -426,7 +426,7 @@ export default class ClientGame extends GameCore {
 				for(let i=0; i<number_of_bullets; i++) {//bullet_id, pos_x, pos_y, rot
 					let off = index + 3 + i*4;
 					let bullet = new Bullet(data[off + 1], data[off + 2], data[off + 3], 
-						p_h);
+						p_h, BULLET_TYPE.NORMAL, EntitiesBase);
 
 					bullet.id = data[off + 0];
 
@@ -443,7 +443,7 @@ export default class ClientGame extends GameCore {
 				p_h = this.players[ data[index + 1] | 0 ];
 
 				let bullet = new Bullet(data[index+3], data[index+4], data[index+5], 
-					p_h, true);
+					p_h, BULLET_TYPE.BOUNCING, EntitiesBase);
 				bullet.id = data[index+2];
 
 				this.bullets.push( bullet );
