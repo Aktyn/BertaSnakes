@@ -9,6 +9,7 @@ import {Vec2f} from '../../common/utils/vector';
 import Utils from '../utils/utils';
 import GameMap from '../../common/game/game_map';
 import {MapJSON_I} from '../../common/game/maps';
+import Colors from '../../common/game/common/colors';
 
 import DustEmitter from './emitters/dust_emitter';
 import SnowEmitter from './emitters/snow_emitter';
@@ -56,7 +57,7 @@ export default class WebGLRenderer extends RendererBase {
 	//private background_scale: number;
 
 	constructor(map: GameMap, map_data: MapJSON_I) {
-		//const game_canvas = Graphics.init();
+		/*const game_canvas = */Graphics.init();
 
 		super(map);
 
@@ -70,7 +71,7 @@ export default class WebGLRenderer extends RendererBase {
 		this.VBO_RECT = rect;
 
 		//$$(window).on('resize', onResize);
-		window.addEventListener('onresize', onResize, true);
+		window.addEventListener('resize', onResize, true);
 		
 		/* TODO: refactor this events (game_canvas initialized above)
 		//@ts-ignore
@@ -218,7 +219,7 @@ export default class WebGLRenderer extends RendererBase {
 
 		this.paint_fb.renderToTexture();
 			this.prepareSceneFramebuffer();
-			//@ts-ignore
+			
 			Graphics.SHADERS.uniform_vec4('color', Colors.WHITE.buffer);
 
 			//for(chunk_it of this.map.chunks) {

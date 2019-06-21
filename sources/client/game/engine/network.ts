@@ -15,10 +15,14 @@ interface ListenersSchema {
 	onServerConnected: () => void, 
 	onServerDisconnect: () => void,
 	onServerMessage: (data: NetworkPackage) => void,
+}
+
+interface GameListenersSchema {
 	onServerData: (data: Float32Array) => void
 }
 
 var listeners: ListenersSchema | null = null;
+var game_listeners: GameListenersSchema | null = null;
 var socket: WebSocket | null = null;
 var CurrentUser: UserInfo | null = null;
 var CurrentRoom: RoomInfo | null = null;
@@ -77,79 +81,8 @@ const HANDLERS = {
 					throw new Error('CurrentRoom is empty');
 				CurrentRoom.updateData( json_data['room'] );
 				break;
-			/*case NetworkCodes.PLAYER_ACCOUNT:
-				//console.log(json_data, json_data['user_info']);
-				try {
-					CurrentUser = UserInfo.fromFullJSON(json_data['user_info']);
-				}
-				catch(e) {
-					console.error('Cannot create user from JSON', e);
-				}
-				break;
-			case NetworkCodes.ACCOUNT_DATA:
-				try {
-					if(CurrentUser !== null) {
-						CurrentUser.custom_data = json_data['data'];
-						if(typeof json_data['friends'] === 'string')
-							CurrentUser.friends = JSON.parse( json_data['friends'] );
-						else if(json_data['friends'] !== undefined)
-							CurrentUser.friends = json_data['friends'];
-					}
-				}
-				catch(e) {
-					console.error(e);
-				}
-				break;
-			case NetworkCodes.JOIN_ROOM_CONFIRM:
-			case NetworkCodes.CHANGE_ROOM_CONFIRM:
-				try {
-					if(CurrentUser === null)
-						throw new Error('CurrentUser is null');
-
-					CurrentRoom = RoomInfo.fromJSON( json_data['room_info'] );
-					json_data['users'].forEach((user: any) => 
-						(<RoomInfo>CurrentRoom).addUser( UserInfo.fromJSON(user) ));
-
-					CurrentUser.room = CurrentRoom;
-				}
-				catch(e) {
-					console.error('Cannot create user from JSON', e);
-				}
-				break;
-			case NetworkCodes.ON_ROOM_UPDATE:
-				if(CurrentRoom != null) {
-					let updated_room = RoomInfo.fromJSON( json_data['room_info'] );
-					
-					if(updated_room.id === CurrentRoom.id)
-						CurrentRoom.updateData(updated_room);
-				}
-				break;
-			case NetworkCodes.LEAVE_ROOM_CONFIRM:
-				CurrentRoom = null;
-				if(CurrentUser)
-					CurrentUser.room = null;
-				break;
-			case NetworkCodes.USER_JOINED_ROOM:
-				if(CurrentRoom == null)
-					throw new Error('CurrentRoom is empty');
-				CurrentRoom.addUser( UserInfo.fromJSON(json_data['user_info']) );
-				break;
-			case NetworkCodes.USER_LEFT_ROOM:
-				if(CurrentRoom == null)
-					throw new Error('CurrentRoom is empty');
-				CurrentRoom.removeUser( json_data['user_id'] );
-				CurrentRoom.updateData( json_data['room_info'] );
-				break;
-			case NetworkCodes.ON_KICKED:
-				CurrentRoom = null;
-				if(CurrentUser)
-					CurrentUser.room = null;
-				break;
-			*/
 		}
-		//let curr = Stages.getCurrent();
-		//if(curr !== null)//passing message forward
-		//	curr.onServerMessage(json_data);
+		
 		if(listeners)
 			listeners.onServerMessage(json_data);
 	},
@@ -159,8 +92,8 @@ const HANDLERS = {
 			let reader = new FileReader();
 			reader.onload = function() {
 				try {
-					if(listeners)
-						listeners.onServerData( new Float32Array(<ArrayBuffer>reader.result) )
+					if(game_listeners)
+						game_listeners.onServerData( new Float32Array(<ArrayBuffer>reader.result) )
 				}
 				catch(e) {
 					console.error(e);
@@ -180,7 +113,8 @@ const HANDLERS = {
 			}
 
 			//none of readers are free
-			console.warn('all package receivers are overloaded');
+			if(process.env.NODE_ENV === 'development')
+				console.warn('all package receivers are overloaded');
 			setTimeout(HANDLERS.handleByteBuffer, 1, data);
 		};
 	})()
@@ -220,6 +154,14 @@ const Network = {
 		listeners = null;
 	},
 
+	assignGameListeners(_listeners: GameListenersSchema) {
+		game_listeners = _listeners;
+	},
+
+	clearGameListeners() {
+		game_listeners = null;
+	},
+
 	connect() {
 		if(socket !== null) {
 			console.log('Websocket connection already established');
@@ -244,7 +186,7 @@ const Network = {
 			try {
 				if(typeof message.data === 'string')//JSON object
 					HANDLERS.handleJSON( JSON.parse(message.data) );
-				else if(typeof message.data === 'object')//object - probably array buffer
+				else if(typeof message.data === 'object')//object - probably Float32Array buffer
 					HANDLERS.handleByteBuffer( message.data );
 				else 
 					throw new Error('Incorrect message type');

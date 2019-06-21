@@ -35,7 +35,7 @@ const PARAMS = {
 
 	//effects parameters
 	explosion_radius: 0.5,//on enemy dead explosion
-	small_explosion_radius: 0.3,//on player dead from poison or smth like that
+	small_explosion_radius: 0.3,//on player dead from poison or something like that
 	//radius after bullet explosion, 0.02 is additional scale offset   old value: 0.066,
 	bullet_explosion_radius: (2.0 * Player.INITIAL_SCALE / Math.sqrt(3)) + 0.02,
 	bomb_explosion_radius: 0.75,
@@ -43,11 +43,11 @@ const PARAMS = {
 
 	//points
 	points_for_enemy_damage: 50,//x points for taking 100% enemy's health
-	points_for_player_damage: 500,//x points for every 1% of tankes player's health
+	points_for_player_damage: 500,//x points for every 1% of taken player's health
 	points_for_enemy_kill: 100,
 	points_for_player_kill: 1000,
 	//points_for_enemy_hit: 25,//deprecated
-	points_lose_for_enemy_collision: 100,//ammount of points lost when player collides enemy
+	points_lose_for_enemy_collision: 100,//amount of points lost when player collides enemy
 	points_lose_for_enemy_painter_collision: 200,//points lost on enemy painter collision
 
 	//others
@@ -89,7 +89,8 @@ export default class GameCore extends GameMap {
 		super.destroy();
 	}
 
-	initPlayers(init_data: InitDataSchema[]) {//@init_data - array of players data
+	//@init_data - array of players data
+	initPlayers(init_data: InitDataSchema[], entitiesClass?: any, rendererClass?: any) {
 		super.paintHole(0, 0, PARAMS.spawn_radius + PARAMS.spawn_offset);
 		super.drawSpawn(PARAMS.spawn_radius, PARAMS.spawn_walls_thickness);
 
@@ -97,7 +98,7 @@ export default class GameCore extends GameMap {
 
 		for(let i=0; i<init_data.length; i++) {
 			let player = new Player( init_data[i]['ship_type'], init_data[i]['skills'], 
-				Colors.PLAYERS_COLORS[ init_data[i].color_id|0 ] );
+				Colors.PLAYERS_COLORS[ init_data[i].color_id|0 ], entitiesClass, rendererClass );
 			player.user_id = init_data[i]['id'];
 			player.nick = init_data[i]['nick'];
 			player.level = init_data[i]['level'];
@@ -118,7 +119,7 @@ export default class GameCore extends GameMap {
 		}
 	}
 
-	respawnPlayer(player: Player/*any*/) {
+	respawnPlayer(player: Player) {
 		player.spawning = true;
 		player.effects.clearAll();
 

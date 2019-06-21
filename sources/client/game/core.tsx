@@ -48,7 +48,7 @@ export default class extends React.Component<any, CoreState> {
 			onServerConnected: this.onServerConnected.bind(this),
 			onServerDisconnect: this.onServerDisconnected.bind(this),
 			onServerMessage: this.onServerMessage.bind(this),
-			onServerData: this.onServerData.bind(this)
+			//onServerData: this.onServerData.bind(this)
 		});
 		Network.connect();
 	}
@@ -123,9 +123,6 @@ export default class extends React.Component<any, CoreState> {
 					this.setState({current_room: Network.getCurrentRoom(), start_game_countdown: null});
 					break;
 				case NetworkCodes.ON_ROOM_LEFT:
-				case NetworkCodes.ON_GAME_FAILED_TO_START:
-					this.setState({current_room: Network.getCurrentRoom(), start_game_countdown: null});
-					break;
 				case NetworkCodes.ON_USER_LEFT_ROOM:
 				case NetworkCodes.ON_USER_JOINED_ROOM:
 					this.setState({current_room: Network.getCurrentRoom()});
@@ -134,7 +131,8 @@ export default class extends React.Component<any, CoreState> {
 				case NetworkCodes.ON_ROOM_CREATED: {
 					let rooms = this.state.rooms_list;
 					let updated_room = RoomInfo.fromJSON(data['room']);
-					rooms.push( updated_room );
+					if( !rooms.find(r => r.id === updated_room.id) )
+						rooms.push( updated_room );
 					
 					if(TDD1 && !this.state.current_room)
 						Network.joinRoom( updated_room.id );
@@ -219,6 +217,40 @@ export default class extends React.Component<any, CoreState> {
 					this.setState({current_stage: GameStage.prototype, start_game_countdown: null});
 					break;
 
+				case NetworkCodes.ON_GAME_FAILED_TO_START:
+					this.setState({
+						current_stage: MenuStage.prototype,
+						current_room: Network.getCurrentRoom(),
+						start_game_countdown: null
+					});
+					Network.requestRoomsList();
+					break;
+
+				case NetworkCodes.START_ROUND_COUNTDOWN: {
+					//try {
+					//	$$('#waiting_indicator').delete();
+					//}
+					//catch(e) {}
+					if( this.stageHandle instanceof GameStage ) {
+						let game = this.stageHandle.getGame();
+						if(game) {
+							game.startGame(
+								data['game_duration'], data['round_delay'], data['init_data']
+							);
+						}
+					}
+					
+				}	break;
+				case NetworkCodes.END_GAME: {
+					if( this.stageHandle instanceof GameStage ) {
+						let game = this.stageHandle.getGame();
+						if(game) {
+							//TODO: show results
+							//GAME_STAGE.showGameResults(
+							//	GameResult.fromJSON( data['result'] ).players_results );
+						}
+					}
+				}	break;
 				
 				// case NetworkCodes.ADD_FRIEND_CONFIRM:
 				// 	this.HeaderNotifications.addNotification(
@@ -236,9 +268,9 @@ export default class extends React.Component<any, CoreState> {
 		}
 	}
 
-	onServerData(data: Float32Array) {
+	/*onServerData(data: Float32Array) {
 		console.log('server data:', data);
-	}
+	}*/
 
 	render() {
 		switch(this.state.current_stage) {

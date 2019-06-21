@@ -22,6 +22,16 @@
 	font-weight: bold;
 }
 
+.separator {
+	display: inline-block;
+	min-height: 20px;//$iconsSize;
+	height: auto;
+	align-self: stretch;
+	width: 1px;
+	background-color: #fff2;
+	margin: 0px 6px;
+}
+
 /****** BUTTONS ******/
 button.glossy, a.glossy {
 	$size: 27px;

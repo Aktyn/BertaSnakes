@@ -1,13 +1,13 @@
-import RoomInfo from '../../common/room_info';
+import RoomInfo, {GAME_MODES} from '../../common/room_info';
 import GameCore, {InitDataSchema} from '../../common/game/game_core';
 import Colors from '../../common/game/common/colors';
-import Vector from '../../common/utils/vector';
+import Vector, {Vec2f} from '../../common/utils/vector';
 import Item, {ITEM_TYPES} from '../../common/game/objects/item';
 import PoisonousEnemy  from '../../common/game/objects/poisonous_enemy';
 import Bullet from '../../common/game/objects/bullet';
 import Bomb from '../../common/game/objects/bomb';
 import Skills, {SkillObject} from '../../common/game/common/skills';
-import Effects from '../../common/game/common/effects';
+import {AVAILABLE_EFFECTS} from '../../common/game/common/effects';
 import GameResult from '../../common/game/game_result';
 import NetworkCodes from '../../common/network_codes';
 import Player from '../../common/game/objects/player';
@@ -15,27 +15,26 @@ import Object2D from '../../common/game/objects/object2d';
 import Enemy from '../../common/game/objects/enemy';
 import EnemySpawner from '../../common/game/objects/enemy_spawner';
 
+import {MapJSON_I} from '../../common/game/maps';
+import Config from '../../common/config';
+
 const H_PI = Math.PI/2;
 const fixAngle = (a: number) => -a + H_PI;
 const pow = (n: number) => n*n;
 
 const SYNC_EVERY_N_FRAMES = 30;//(240)//synchronize roughly each N/60 second
 
-const ROUND_START_DELAY = 4;//seconds
-
 //game constants
 const ENEMY_WAVES_FREQUENCY = 15;//spawn new enemies each n seconds
-const FIRST_ENEMY_WAVE_DELAY = ROUND_START_DELAY + 3;//seconds to first enemy wave
+const FIRST_ENEMY_WAVE_DELAY = Config.ROUND_START_DELAY + 3;//seconds to first enemy wave
 const ENEMIES_PER_WAVE = 10, MAXIMUM_ENEMIES = 200, MAXIMUM_COMPETITION_ENEMIES = 100;
 
 const ITEM_SPAWN_FREQUENCY = 0.2;//changed from 0.5 (04.09.2018)
 
 const RESPAWN_DURATION = 3;//seconds
 
-//damages (moved to GameCore.GET_PARAMS())
-//const ENEMY_COLLISION_DAMAGE = 0.2;
-
 //predefined bullets spawn offsets relative to player for each player type
+//TODO - move this offsets to player modules
 const bullets_offsets_1 = [{x: 0, y: 1}];
 const bullets_offsets_2 = [{x: -0.5, y: 1}, {x: 0.5, y: 1}];
 const bullets_offsets_3 = [{x: 0, y: 1}, {x: -0.5, y: 0.5}, {x: 0.5, y: 0.5}];
@@ -43,8 +42,9 @@ const bullets_offsets_3 = [{x: 0, y: 1}, {x: -0.5, y: 0.5}, {x: 0.5, y: 0.5}];
 //game logic variables
 var wave_i: number, chunk_it: number, chunk_ref, ss_i: number, obj_i: number, 
 	p_i: number, e_i: number, s_i: number, b_i: number, s_h, 
-	async_p_i: number, p_it: Player, async_p_it: Player, 
-	async_s, r_p_i: number,//e_h, e_h2
+	async_p_i: number, p_it: Player, 
+	async_p_it: Player, async_s, 
+	r_p_i: number,//e_h, e_h2
 	hit_x: number, hit_y: number, offsets, sin: number, cos: number, synch_array;
 
 let emitAction = (action: number, data?: any) => {
@@ -111,7 +111,7 @@ export default class ServerGame extends GameCore {
 	public running: boolean;
 	//private duration: number;
 	private maximum_enemies: number;
-	private bounceVec: Vector;
+	private bounceVec: Vec2f;
 	private respawning_players: {player: Player, time: number}[] = [];
 	private dataForClients: number[] = [];
 	public initialized: boolean;
@@ -124,7 +124,7 @@ export default class ServerGame extends GameCore {
 	private remaining_time = 0;
 	private end_timestamp = 0;
 
-	constructor(map: any, room: RoomInfo) {
+	constructor(map: MapJSON_I, room: RoomInfo) {
 		super();
 
 		this.room = room;//contains players data
@@ -134,12 +134,12 @@ export default class ServerGame extends GameCore {
 
 		this.maximum_enemies = 0;
 
-		if(room.gamemode === RoomInfo.MODES.COOPERATION)
+		if(room.gamemode === GAME_MODES.COOPERATION)
 			this.maximum_enemies = MAXIMUM_ENEMIES;
-		else if(room.gamemode === RoomInfo.MODES.COMPETITION)
+		else if(room.gamemode === GAME_MODES.COMPETITITON)
 			this.maximum_enemies = MAXIMUM_COMPETITION_ENEMIES;
 
-		this.bounceVec = new Vector.Vec2f();//buffer object for storing bounce results
+		this.bounceVec = new Vec2f();//buffer object for storing bounce results
 		// this.respawning_players = [];
 
 		// this.dataForClients = [];
@@ -150,6 +150,7 @@ export default class ServerGame extends GameCore {
 				throw new Error('Cannot load map');
 		}
 		catch(e) {
+			console.error(e);
 			emitAction( NetworkCodes.START_GAME_FAIL_ACTION );
 		}
 
@@ -159,7 +160,7 @@ export default class ServerGame extends GameCore {
 	start() {
 		console.log('Starting round');
 
-		var init_data: InitDataSchema[] = [];
+		let init_data: InitDataSchema[] = [];
 
 		let color_id = (Math.random() * Colors.PLAYERS_COLORS.length) | 0;
 
@@ -188,7 +189,7 @@ export default class ServerGame extends GameCore {
 		
 		this.wave_number = 0;
 
-		this.time_to_spawn = ROUND_START_DELAY;//first players spawning
+		this.time_to_spawn = Config.ROUND_START_DELAY;//first players spawning
 		this.spawn_timestamp = Date.now() + (this.time_to_spawn * 1000);
 
 		this.remaining_time = this.room.duration || 180;
@@ -196,8 +197,8 @@ export default class ServerGame extends GameCore {
 		
 		emitAction(NetworkCodes.START_ROUND_ACTION, {
 			game_duration: this.remaining_time, 
-			round_delay: ROUND_START_DELAY,
-			init_data: init_data
+			round_delay: Config.ROUND_START_DELAY,
+			init_data
 		});
 
 		this.running = true;
@@ -241,7 +242,7 @@ export default class ServerGame extends GameCore {
 			case NetworkCodes.PLAYER_MOVEMENT:
 				async_p_it.movement.state = data[1];
 				
-				//NOTE - this way the action is send immediatelly
+				//NOTE - this way the action is send immediately
 				//no need to wait for next frame of animation
 				emitAction( NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, 
 					[NetworkCodes.PLAYER_MOVEMENT_UPDATE, async_p_i, 
@@ -320,19 +321,19 @@ export default class ServerGame extends GameCore {
 				this.playerBounce(player, color);
 		}
 		else if(Colors.compareByteBuffers(Colors.POISON.byte_buffer, color)) {
-			if(player.effects.isActive( Effects.TYPES.POISONING ) === false) {
-				player.effects.active( Effects.TYPES.POISONING );
+			if(player.effects.isActive( AVAILABLE_EFFECTS.POISONING ) === false) {
+				player.effects.active( AVAILABLE_EFFECTS.POISONING );
 				this.dataForClients.push(NetworkCodes.ON_PLAYER_POISONED,
 					this.players.indexOf(player));
 			}
 		}
 		else if(Colors.isPlayerColor(color)) {//checking collisions with other players curves
 			//other painter collisions only in competition mode
-			if(this.room.gamemode === RoomInfo.MODES.COMPETITION) {
+			if(this.room.gamemode === GAME_MODES.COMPETITITON) {
 				for(var player_col_i in Colors.PLAYERS_COLORS) {
 					if(Colors.compareByteBuffers(Colors.PLAYERS_COLORS[player_col_i].byte_buffer, 
 							color) === true) {
-						// console.log('You hitted other player\'s painter');
+						// console.log('You hit other player\'s painter');
 
 						if(this.playerBounce(player, color) === true)
 							this.onPlayerEnemyPainterCollision(player);
@@ -385,8 +386,8 @@ export default class ServerGame extends GameCore {
 		player.rot = -Math.atan2( this.bounceVec.y, this.bounceVec.x ) + Math.PI/2.0;
 		player.movement.speed = player.movement.maxSpeed;
 
-		if( player.effects.isActive(Effects.TYPES.SHIELD) === false && 
-			player.effects.isActive(Effects.TYPES.SPAWN_IMMUNITY) === false ) 
+		if( player.effects.isActive(AVAILABLE_EFFECTS.SHIELD) === false && 
+			player.effects.isActive(AVAILABLE_EFFECTS.SPAWN_IMMUNITY) === false ) 
 		{
 			player.hp -= GameCore.GET_PARAMS().enemy_collision_damage;//ENEMY_COLLISION_DAMAGE;
 			player.points -= GameCore.GET_PARAMS().points_lose_for_enemy_collision;
@@ -495,7 +496,7 @@ export default class ServerGame extends GameCore {
 				player.energy += Item.ENERGY_VALUE;
 				break;
 			case ITEM_TYPES.SPEED:
-				player.effects.active( Effects.TYPES.SPEED );
+				player.effects.active( AVAILABLE_EFFECTS.SPEED );
 				break;
 		}
 
@@ -506,8 +507,8 @@ export default class ServerGame extends GameCore {
 	}
 
 	onPlayerEnemyPainterCollision(player: Player) {
-		if(player.effects.isActive(Effects.TYPES.SHIELD) === false && 
-			player.effects.isActive(Effects.TYPES.SPAWN_IMMUNITY) === false)
+		if(player.effects.isActive(AVAILABLE_EFFECTS.SHIELD) === false && 
+			player.effects.isActive(AVAILABLE_EFFECTS.SPAWN_IMMUNITY) === false)
 		{
 			player.points -= GameCore.GET_PARAMS().points_lose_for_enemy_painter_collision;
 			player.hp -= GameCore.GET_PARAMS().enemy_painter_collision_damage;
@@ -544,7 +545,7 @@ export default class ServerGame extends GameCore {
 	onPlayerAttackedPlayer(attacker: Player, victim: Player, 
 		damage: number)
 	{
-		if(this.room.gamemode !== RoomInfo.MODES.COMPETITION)
+		if(this.room.gamemode !== GAME_MODES.COMPETITITON)
 			return;
 
 		victim.hp -= damage;//must be before putting data for clients
@@ -576,19 +577,19 @@ export default class ServerGame extends GameCore {
 			this.players.indexOf(player), enemy.hp_bar.hp, enemy.x, enemy.y
 		);
 
-		if(this.room.gamemode === RoomInfo.MODES.COOPERATION)
+		if(this.room.gamemode === GAME_MODES.COOPERATION)
 			player.points += damage * GameCore.GET_PARAMS().points_for_enemy_damage;
 
 		if(enemy.isAlive() === false) {//enemy was killed
 			enemy.expired = true;
 			super.paintHole( enemy.x, enemy.y, GameCore.GET_PARAMS().explosion_radius );
 				
-			if(this.room.gamemode === RoomInfo.MODES.COOPERATION) {	
+			if(this.room.gamemode === GAME_MODES.COOPERATION) {	
 				player.kills++;
 				player.points += GameCore.GET_PARAMS().points_for_enemy_kill;
 			}
 		}
-		//else {//enemy was hitted but not killed (cooperation only)
+		//else {//enemy was hit but not killed (cooperation only)
 			//MOVED UP
 		//}
 	}
@@ -606,7 +607,7 @@ export default class ServerGame extends GameCore {
 					<Enemy>this.enemies[e_i], 1.0);
 			}
 		}
-		if(this.room.gamemode === RoomInfo.MODES.COMPETITION) {
+		if(this.room.gamemode === GAME_MODES.COMPETITITON) {
 			for(p_i=0; p_i<this.players.length; p_i++) {
 				//@ts-ignore
 				if(this.players[p_i] !== bomb.parent && this.players[p_i].spawning === false && 
@@ -660,7 +661,7 @@ export default class ServerGame extends GameCore {
 	applySkillEffect(player: Player, skill: SkillObject, 
 		player_i: number, skill_i: number, immediately_response: boolean) 
 	{
-		//stopping skill using becouse player run out of energy or died and is spawning
+		//stopping skill using because player run out of energy or died and is spawning
 		if(player.spawning === true || skill.data.energy_cost > player.energy+0.001) {
 			skill.stopUsing();
 			this.dataForClients.push( NetworkCodes.ON_PLAYER_SKILL_CANCEL, player_i, skill_i );
@@ -706,7 +707,7 @@ export default class ServerGame extends GameCore {
 				break;
 			case Skills.BOUNCE_SHOT:
 				//BUGFIX - cannot use bounce shot inside poison
-				if(player.effects.isActive(Effects.TYPES.POISONING)) {
+				if(player.effects.isActive(AVAILABLE_EFFECTS.POISONING)) {
 					skill.stopUsing();
 					this.dataForClients.push(NetworkCodes.ON_PLAYER_SKILL_CANCEL, 
 						player_i, skill_i);
@@ -748,7 +749,7 @@ export default class ServerGame extends GameCore {
 					}
 				}
 
-				if(this.room.gamemode === RoomInfo.MODES.COMPETITION) {
+				if(this.room.gamemode === GAME_MODES.COMPETITITON) {
 					for(p_i=0; p_i<this.players.length; p_i++) {
 						//@ts-ignore
 						if(this.players[p_i] !== player && this.players[p_i].spawning === false && 
@@ -761,7 +762,7 @@ export default class ServerGame extends GameCore {
 				}
 				break;
 			case Skills.SHIELD:
-				player.effects.active( Effects.TYPES.SHIELD );
+				player.effects.active( AVAILABLE_EFFECTS.SHIELD );
 
 				//NO NEED TO ADD SHIELD OBJECT SERVER-SIDE BECOUSE IT'S JUST A VISUAL EFFECT
 				//player.effects.push( new Effect(Effect.SHIELD) );
@@ -769,7 +770,7 @@ export default class ServerGame extends GameCore {
 				this.dataForClients.push( NetworkCodes.ON_SHIELD_EFFECT, player_i );
 				break;
 			case Skills.SPEED:
-				player.effects.active( Effects.TYPES.SPEED );
+				player.effects.active( AVAILABLE_EFFECTS.SPEED );
 				this.dataForClients.push( NetworkCodes.ON_SPEED_EFFECT, player_i );
 				break;
 			case Skills.INSTANT_HEAL:
@@ -787,7 +788,7 @@ export default class ServerGame extends GameCore {
 
 		player.energy -= skill.use();
 
-		//immediatelly stop non-continous skills after it effect is applied
+		//immediately stop non-continuous skills after it effect is applied
 		if(skill.isContinous() === false)
 			skill.stopUsing();
 
@@ -819,7 +820,7 @@ export default class ServerGame extends GameCore {
 			}
 		}
 
-		//individual players spawnings
+		//individual players spawning
 		for(r_p_i=0; r_p_i<this.respawning_players.length; r_p_i++) {
 			if( (this.respawning_players[r_p_i].time -= delta) <= 0) {//spawning finished
 				p_it = this.respawning_players[r_p_i].player;
@@ -830,7 +831,7 @@ export default class ServerGame extends GameCore {
 
 				this.dataForClients.push(NetworkCodes.ON_IMMUNITY_EFFECT, 
 					this.players.indexOf(p_it));
-				p_it.effects.active( Effects.TYPES.SPAWN_IMMUNITY );
+				p_it.effects.active( AVAILABLE_EFFECTS.SPAWN_IMMUNITY );
 
 				this.respawning_players.splice(r_p_i, 1);
 				r_p_i--;
@@ -850,7 +851,7 @@ export default class ServerGame extends GameCore {
 		}
 	}
 
-	//@delta - fixed time in miliseconds
+	//@delta - fixed time in milliseconds
 	update(delta: number) {//NOTE - server side delta is fixed
 		delta /= 1000.0;
 
@@ -877,7 +878,7 @@ export default class ServerGame extends GameCore {
 
 		//before updating supper class - checking expired bombs
 		for(b_i=0; b_i<this.bombs.length; b_i++) {
-			if(this.bombs[b_i].expired === true)//bobm just exploded
+			if(this.bombs[b_i].expired === true)//bomb just exploded
 				this.onBombExplosion( <Bomb>this.bombs[b_i] );
 		}
 
@@ -907,9 +908,9 @@ export default class ServerGame extends GameCore {
 				s_h = p_it.skills[s_i];
 				if(s_h === null)
 					continue;
-				if(s_h.isInUse() === true) {//only for continous skills
+				if(s_h.isInUse() === true) {//only for continuous skills
 					if(s_h.isContinous() === false)
-						throw new Error('Not continous skill hasn\'t been stopped');
+						throw new Error('Non-continuous skill has not been stopped');
 					this.applySkillEffect(p_it, s_h, p_i, s_i, false);
 				}
 			}

@@ -1,12 +1,12 @@
-import Player, {PLAYER_TYPES} from '../../common/game/objects/player';
 import Colors from '../../common/game/common/colors';
 import Emoticon, {EMOTS} from '../../common/game/objects/emoticon';
 import Shield from '../../common/game/objects/shield';
 import Bomb from '../../common/game/objects/bomb';
 import Bullet from '../../common/game/objects/bullet';
 import Object2D from '../../common/game/objects/object2d';
-
 import {ExtendedTexture} from './engine/graphics';
+
+import Player, {PLAYER_TYPES} from '../../common/game/objects/player';
 
 export const enum LAYERS {
 	FOREGROUND = 0,
@@ -16,6 +16,7 @@ export const enum LAYERS {
 const DEFAULT_LAYER = LAYERS.FOREGROUND;
 const DEFAULT_COLOR = Colors.WHITE.buffer;
 
+var ids = 0, key: string, l: number, entity_it: EntityObjectSchema;
 
 export interface EntitySchema {
 	id?: number;
@@ -37,9 +38,8 @@ function extendType<T>(target: T): T & {[index: string]: EntitySchema} {
 }
 
 //definies texture colors etc of each individual game entity
-//NOTE - entry names must be prevented from change by closure compiller
 //TODO - this data can be loaded from JSON file
-export const EntitiesData = extendType({
+var entitiesData = extendType({
 	'HEALTH_ITEM': {
 		texture_name: 'health_item'//name of texture resource
 	},
@@ -80,59 +80,61 @@ export const EntitiesData = extendType({
 	}
 });
 
-//EMOTICONS ENTITIES
-EMOTS.forEach(emot => {
-	let emot_name = Emoticon.entityName(emot.file_name);
-	EntitiesData[emot_name] = {
-		texture_name: emot_name,
-		linear: true
-	};
-});
+let prepared = false;
+export function prepareEntities() {
+	if(prepared)
+		return;
+	prepared = true;
 
-//adding entities that are distinct by player's colors
-Colors.PLAYERS_COLORS.forEach((color) => {//for each player color
-	let bullet_name = Bullet.entityName(color);
-	EntitiesData[bullet_name] = {
-		texture_name: 'bullet',
-		color: color.buffer
-	};
-
-	let bomb_name = Bomb.entityName(color);
-	EntitiesData[bomb_name] = {
-		texture_name: 'bomb',
-		color: color.buffer,
-		layer: LAYERS.PAINT
-	};
-
-	let shield_name = Shield.entityName(color);
-	EntitiesData[shield_name] = {
-		texture_name: 'ring_thick',
-		color: color.buffer,
-		layer: LAYERS.PAINT
-	};
-
-	//for each player type
-	//@ts-ignore
-	Object.keys(PLAYER_TYPES).map(key => PLAYER_TYPES[key]).filter(type_i => typeof type_i === 'number')
-		.forEach(type_i => 
-	{
-		let name = Player.entityName(type_i, color);
-		//console.log(name);
-		EntitiesData[ name ] = {
-			texture_name: name,
-			linear: true,
-			color: Colors.WHITE.buffer,
-			layer: LAYERS.PAINT
+	//EMOTICONS ENTITIES
+	EMOTS.forEach(emot => {
+		let emot_name = Emoticon.entityName(emot.file_name);
+		entitiesData[emot_name] = {
+			texture_name: emot_name,
+			linear: true
 		};
 	});
-});
 
-var ids = 0, key: string, l: number, entity_it: EntityObjectSchema;
+	//adding entities that are distinct by player's colors
+	Colors.PLAYERS_COLORS.forEach((color) => {//for each player color
+		let bullet_name = Bullet.entityName(color);
+		entitiesData[bullet_name] = {
+			texture_name: 'bullet',
+			color: color.buffer
+		};
 
-for(key in EntitiesData)//assigning id to each entity data
-	EntitiesData[key].id = ids++;
+		let bomb_name = Bomb.entityName(color);
+		entitiesData[bomb_name] = {
+			texture_name: 'bomb',
+			color: color.buffer,
+			layer: LAYERS.PAINT
+		};
 
-// console.log(EntitiesData);
+		let shield_name = Shield.entityName(color);
+		entitiesData[shield_name] = {
+			texture_name: 'ring_thick',
+			color: color.buffer,
+			layer: LAYERS.PAINT
+		};
+
+		//for each player type
+		//@ts-ignore
+		Object.keys(PLAYER_TYPES).map(key => PLAYER_TYPES[key])
+			.filter(type_i => typeof type_i === 'number').forEach(type_i => {
+				let name = Player.entityName(type_i, color);
+				//console.log(name);
+				entitiesData[ name ] = {
+					texture_name: name,
+					linear: true,
+					color: Colors.WHITE.buffer,
+					layer: LAYERS.PAINT
+				};
+			});
+	});
+
+	for(key in entitiesData)//assigning id to each entity data
+		entitiesData[key].id = ids++;
+}
 
 var current_instance: EntitiesBase | null = null;
 
@@ -149,8 +151,8 @@ export default abstract class EntitiesBase {
 		this.entities = [];
 
 		var data: EntitySchema;
-		for(key in EntitiesData) {
-			data = EntitiesData[key];
+		for(key in entitiesData) {
+			data = entitiesData[key];
 
 			//CREATE NEW ENTITY OBJECT
 			this.entities.push({
@@ -173,6 +175,16 @@ export default abstract class EntitiesBase {
 		this.entities = null;
 
 		current_instance = null;
+	}
+
+	/*public static getEntityData(name: string) {
+		// return entitiesData;
+		return entitiesData[name];
+	}*/
+	public static getEntityId(name: string) {
+		if(name in entitiesData)
+			return entitiesData[name].id;
+		return null;
 	}
 
 	protected abstract generateTexture(texture_name: EntitySchema): 
@@ -216,5 +228,3 @@ export default abstract class EntitiesBase {
 		return false;
 	}
 }
-
-//Object.assign(Entities.EntitiesBase, EntitiesData);

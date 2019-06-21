@@ -24,6 +24,12 @@ export interface UserPrivateData {
 
 export interface UserCustomData extends UserPublicData, UserPrivateData {}
 
+export interface UserFullData {
+	id: number;
+	account_id?: string;
+	data: UserCustomData;
+}
+
 /*export interface FriendInfoI {
 	id: number;
 	nick: string;
@@ -159,16 +165,16 @@ export default class UserInfo {
 	}
 
 	//PRIVATE AND PUBLIC DATA (for server-side threads communications)
-	public toFullJSON() {
+	public toFullJSON(): UserFullData {
 		return {
 			id: this.id,
 			account_id: this.account_id,
-			data: this.custom_data
+			data: <UserCustomData>this.custom_data
 		};
 	}
 
 	//PRIVATE AND PUBLIC ...
-	static fromFullJSON(full_json_data: string | {id:number, account_id?:string, data:UserCustomData}) {
+	static fromFullJSON(full_json_data: string | UserFullData) {
 		if(typeof full_json_data === 'string') {
 			full_json_data = 
 				<{id: number, account_id?: string, data: UserCustomData}>JSON.parse(full_json_data);

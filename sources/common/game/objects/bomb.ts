@@ -4,7 +4,7 @@ import Player from './player';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
 const SCALE = 0.075, GROW_SCALE = 0.075, SHAKING_RADIUS = 0.02;
 const DELAY_TIME = 2, SHAKING_TIME = 2;
@@ -37,7 +37,7 @@ export default class Bomb extends Object2D {
 			//@ts-ignore
 			this.entity_name = Bomb.entityName(parent.painter.color);//clientside only
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 		}
 	}
 
@@ -45,7 +45,7 @@ export default class Bomb extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
 		
 	}
 

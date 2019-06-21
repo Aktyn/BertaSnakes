@@ -3,7 +3,7 @@ import Colors, {ColorI} from './../common/colors';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
 const SCALE_FACTOR = 1.9;
 const GROWING_TIME = 0.4, SHRINKING_TIME = 2.0;
@@ -39,7 +39,7 @@ export default class Shield extends Object2D {
 		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = Shield.entityName(this.color);//clientside only
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 		}
 	}
 
@@ -47,7 +47,7 @@ export default class Shield extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
 	}
 
 	update(delta: number) {

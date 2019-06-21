@@ -8,7 +8,7 @@ var on_load_listeners: Array<()=>void> = [];
 
 var pending = 0;
 
-if(!_CLIENT_) {
+if( !_CLIENT_ ) {
 	var fs = require('fs');
 	var Canvas = require('canvas');
 	var ServerImage = Canvas.Image;
@@ -28,7 +28,6 @@ export interface MapJSON_I {
 }
 
 function loadImage(path: string | null) {
-	pending++;
 	let img = _CLIENT_ ? new Image() : new ServerImage();
 
 	if(path === null)
@@ -36,11 +35,11 @@ function loadImage(path: string | null) {
 
 	img.onerror = console.error;
 
+	pending++;
 	img.onload = () => {
 		pending--;
-		if(pending === 0)
+		if( isReady() )
 			on_load_listeners.forEach(l => l());
-		//console.log(path, 'loaded');
 	};
 
 	if(_CLIENT_) {
@@ -65,7 +64,7 @@ export function isReady() {
 }
 
 export function onMapsLoaded(callback: ()=>void) {
-	if(isReady())
+	if( isReady() )
 		callback();
 	else
 		on_load_listeners.push(callback);

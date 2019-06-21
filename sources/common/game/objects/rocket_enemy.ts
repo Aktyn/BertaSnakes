@@ -5,9 +5,9 @@ import {SENSOR_SHAPES} from './../common/sensor';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_) {
-	var RendererBase = require('../../../client/game/renderer');
-	var WebGLRenderer = require('../../../client/game/webgl_renderer');
-	var FussionEmitter = require('../../../client/game/emitters/fussion_emitter');
+	var RendererBase = require('../../../client/game/renderer').default;
+	var WebGLRenderer = require('../../../client/game/webgl_renderer').default;
+	var FussionEmitter = require('../../../client/game/emitters/fussion_emitter').default;
 }
 
 const ETITY_NAME = 'ENEMY_ROCKET';

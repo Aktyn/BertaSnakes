@@ -9,6 +9,9 @@ function onMessage(connection: Connection, message: any) {
 		if(typeof message === 'string')//stringified JSON object
 			handleJSON( connection, JSON.parse(message) );
 		else if(typeof message === 'object') {//object - propably array buffer
+			let room = connection.getRoom();
+			if(connection.user && room && room.game_process)//TODO - move to 
+				room.game_process.send({user_id: connection.user.id, data: message});
 			/*if(this.user && this.user.room && this.user.room.game_process) {
 				this.user.room.game_process.send( 
 					{user_id: this.user.id, data: message} );

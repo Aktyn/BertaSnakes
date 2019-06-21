@@ -5,7 +5,7 @@ import HpBar from './hp_bar';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
 const REGENERATION_SPEED = 0.025;
 
@@ -39,7 +39,7 @@ export default class Enemy extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')//client side
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase.getEntityId(entity_name), this);
 
 	}
 
@@ -47,7 +47,7 @@ export default class Enemy extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
 		this.hp_bar.destroy();
 	}
 

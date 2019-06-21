@@ -113,9 +113,10 @@ export default class PaintLayer {
 		this.size = Math.round(this.size / PaintLayer.CHUNK_SIZE);
 
 		this.map_size = this.size * PaintLayer.CHUNK_SIZE;
-		console.log('map size:', this.map_size, 'number of chunks:', this.size*this.size);
+		
 		let chunks_memory = 2 * (this.size * this.size * CHUNK_RES * CHUNK_RES * 4 / (1024*1024));
-		console.log('\tmemory:', chunks_memory + 'MB');
+		console.log('map size:', this.map_size, 'number of chunks:', this.size*this.size,
+			'\n\tmemory:', chunks_memory + 'MB');
 
 		this.chunks = [];
 

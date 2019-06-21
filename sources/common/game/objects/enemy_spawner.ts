@@ -4,11 +4,11 @@ import PoisonousEnemy from './poisonous_enemy';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_) {
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
-	var RendererBase = require('../../../client/game/renderer');
-	var WebGLRenderer = require('../../../client/game/webgl_renderer');
-	var SpawnerEmitter = require('../../../client/game/emitters/spawner_emitter');
+	var RendererBase = require('../../../client/game/renderer').default;
+	var WebGLRenderer = require('../../../client/game/webgl_renderer').default;
+	var SpawnerEmitter = require('../../../client/game/emitters/spawner_emitter').default;
 }
 
 const SCALE = 0.15, GROWING_TIME = 1, SHRINKING_TIME = 1, ENEMY_GROWING_TIME = 0.5, GAP_TIME = 2.0;
@@ -41,7 +41,7 @@ export default class EnemySpawner extends Object2D {
 		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = enemy instanceof PoisonousEnemy ? POISONOUS_ENTITY_NAME:ETITY_NAME;
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 		}
 
 		//@ts-ignore
@@ -60,7 +60,7 @@ export default class EnemySpawner extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
 
 		if(this.enemy) {
 			this.enemy.spawning = false;

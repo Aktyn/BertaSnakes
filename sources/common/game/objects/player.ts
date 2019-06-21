@@ -13,11 +13,14 @@ import Emoticon from './emoticon';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_) {
-	var EntitiesBase = require('../../../client/game/entities');
+	//var RendererBase = require('../../../client/game/renderer').default;
+	// var WebGLRenderer = require('../../../client/game/webgl_renderer').default;
+	//var test = require('../../../client/game/webgl_entities');
+	//console.log(test);
 
-	//var WebGLRenderer = require('../../../client/game/webgl_renderer');
-	//var RendererBase = require('../../../client/game/renderer');
-	var PlayerEmitter = require('../../../client/game/emitters/player_emitter');
+	//var EntitiesBase = require('../../../client/game/entities').default;
+	var PlayerEmitter = require('../../../client/game/emitters/player_emitter').default;
+	var PoisoningEmitter = require('../../../client/game/emitters/poisoning_emitter').default;
 }
 
 //TYPES
@@ -75,10 +78,18 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 	private emitter: any;
 
 	public spawning?: boolean;
+
+	private entitiesClass: any;
+	private rendererClass: any;
 	
-	constructor(type: number, skills: (number | null)[], color: ColorI) {
+	constructor(type: number, skills: (number | null)[], color: ColorI, _entitiesClass?: any,
+		_rendererClass?: any) 
+	{
 		super();
 		super.setScale(SCALE, SCALE);
+
+		this.entitiesClass = _entitiesClass;
+		this.rendererClass = _rendererClass;
 
 		this.user_id = 0;//server-side use
 		this.nick = '';
@@ -126,30 +137,46 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 		this.sensor = new Sensor( PLAYER_SENSOR_SHAPES[type] );
 		this.painter = new Painter(color, THICKNESS);
 
+		if(this.entitiesClass) {
+			this.entity_name = Player.entityName(type, color);//clientside only
+			this.entitiesClass.addObject(this.entitiesClass.getEntityId(this.entity_name), this);
+		}
+
+		if(this.rendererClass) {
+			this.emitter = this.rendererClass.addEmitter( new PlayerEmitter(this) );
+			this.poisoning_emitter = null;
+		}
+
 		//@ts-ignore
+		/*console.log('TEST!!!', typeof EntitiesBase);
 		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = Player.entityName(type, color);//clientside only
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
+			debugger;
+			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 		}
 
 		//@ts-ignore //client side
-		if(typeof RendererBase !== 'undefined' && typeof PlayerEmitter !== 'undefined' &&
+		if(typeof RendererBase !== 'undefined' && typeof WebGLRenderer !== 'undefined'
+			&& typeof PlayerEmitter !== 'undefined' &&
 			//@ts-ignore
 			RendererBase.getCurrentInstance() instanceof WebGLRenderer) 
 		{
 			//@ts-ignore
 			this.emitter = WebGLRenderer.addEmitter( new PlayerEmitter(this) );
 			this.poisoning_emitter = null;
-		}
+		}*/
 	}
 
 	destroy() {
 		//@ts-ignore
-		if(typeof EntitiesBase !== 'undefined') {
+		/*if(typeof EntitiesBase !== 'undefined') {
 			console.log('removing player from entities');
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
+		}*/
+		if(this.entitiesClass) {
+			this.entitiesClass.removeObject(this.entitiesClass.getEntityId(this.entity_name), this);
 		}
 		if(this.emitter)
 			this.emitter.expired = true;
@@ -158,11 +185,14 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 	}
 
 	onPoisoned() {//client-side only use for poisoning particle effect display
-		if(this.poisoning_emitter === null)
+		if(this.poisoning_emitter === null) {
 			//@ts-ignore
-			if(Renderer.RendererBase.getCurrentInstance() instanceof Renderer.WebGL)
+			/*if(RendererBase.getCurrentInstance() instanceof WebGLRenderer)
 				//@ts-ignore
-				this.poisoning_emitter = Renderer.WebGL.addEmitter( new Emitters.Poisoning(this) );
+				this.poisoning_emitter = WebGLRenderer.addEmitter( new PoisoningEmitter(this) );*/
+			if(this.rendererClass)
+				this.poisoning_emitter = this.rendererClass.addEmitter( new PoisoningEmitter(this) );
+		}
 		else
 			this.poisoning_emitter.resetTimer();
 	}

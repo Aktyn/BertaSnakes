@@ -4,7 +4,7 @@ import Colors, {ColorI} from './../common/colors';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
 const SCALE = 0.02, DEFAULT_SPEED = 1.0, MAXIMUM_LIFETIME = 20;
 
@@ -43,7 +43,7 @@ export default class Bullet extends Object2D {
 			//@ts-ignore
 			this.entity_name = Bullet.entityName(parent.painter.color);//clientside only
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 		}
 	}
 
@@ -51,7 +51,7 @@ export default class Bullet extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
 	}
 
 	get color() {

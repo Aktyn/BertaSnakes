@@ -28,7 +28,7 @@ function loadAssets() {
 	//items
 	loadImage('health_item', 		'items/health.png');
 	loadImage('energy_item', 		'items/energy.png');
-	loadImage('speed_item', 		'items/speed.png');
+	loadImage('speed_item', 		'items/acceleration.png');
 
 	//skills icons
 	// loadImage('basic_shot_skill', TEXTURES_PATH + 'skills_icons/basic_shot.png');
@@ -92,17 +92,17 @@ function loadShaderSource(name: string, vertex_file_path: string, fragment_file_
 	if( !fragment_file_path.startsWith('./') )
 		fragment_file_path = './' + fragment_file_path;
 
-	let vss: string = SHADERS_PATH(vertex_file_path);
-	if( !vss )
+	let vss: {default: string} = SHADERS_PATH(vertex_file_path);
+	if( !vss || typeof vss.default !== 'string' )
 		throw new Error('Cannot load file (' + vss + ')');
 
-	let fss: string = SHADERS_PATH(fragment_file_path);
-	if( !fss )
+	let fss: {default: string} = SHADERS_PATH(fragment_file_path);
+	if( !fss || typeof fss.default !== 'string' )
 		throw new Error('Cannot load file (' + fss + ')');
 
 	shaders[name] = {
-		vertex_source: vss,
-		fragment_source: fss
+		vertex_source: vss.default,
+		fragment_source: fss.default
 	};
 	pending--;
 }
@@ -174,40 +174,41 @@ function generatePlayersTextures() {
 			img.onload = null;
 		};
 		img.onerror = e => printError(e);
-
+		
 		img.src = TEXTURES_PATH('./players/type_' + (type_i+1) + '.png');
 	}
 }
 
-//LOADING GAME RESOURCES ASYNCHRONOUSLY
-setTimeout(() => {
-	try {
-		loadAssets();
-	}
-	catch(e) {
-		console.error('Cannot load assets:', e);
-	}
-
-	//generating players textures
-	try {
-		generatePlayersTextures();
-	}
-	catch(e) {
-		console.error('Cannot generate player textures:', e);
-	}
-
-	pending--;
-
-	let checkLoaded = () => {
-		if(Assets.loaded())
-			onLoadCallbacks.forEach(cb => cb());
-		else
-			setTimeout(checkLoaded, 100);
-	};
-	checkLoaded();
-}, 1);
-
 var Assets = {
+	load() {//LOADS GAME RESOURCES ASYNCHRONOUSLY
+		console.log('Loading assets');
+		try {
+			loadAssets();
+		}
+		catch(e) {
+			console.error('Cannot load assets:', e);
+		}
+
+		//generating players textures
+		try {
+			generatePlayersTextures();
+		}
+		catch(e) {
+			console.error('Cannot generate player textures:', e);
+		}
+
+		pending--;
+
+		let checkLoaded = () => {
+			if( Assets.loaded() ) {
+				console.log('Assets loaded');
+				onLoadCallbacks.forEach(cb => cb());
+			}
+			else
+				setTimeout(checkLoaded, 100);
+		};
+		checkLoaded();
+	},
 	loaded() {
 		return pending === 0;
 	},

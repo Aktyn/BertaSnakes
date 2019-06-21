@@ -2,7 +2,7 @@ import Object2D from './object2d';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
 const SCALE_FACTOR = 1.5;
 
@@ -31,7 +31,7 @@ export default class Immunity extends /*Object2DSmooth*/Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined') {
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[ENTITY_NAME].id, this);
+			EntitiesBase.addObject(EntitiesBase.getEntityId(ENTITY_NAME), this);
 		}
 	}
 
@@ -39,7 +39,7 @@ export default class Immunity extends /*Object2DSmooth*/Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[ENTITY_NAME].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(ENTITY_NAME), this);
 	}
 
 	update(delta: number) {

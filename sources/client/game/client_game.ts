@@ -1,34 +1,42 @@
-import GameCore from '../../common/game/game_core';
+import GameCore, {InitDataSchema} from '../../common/game/game_core';
 import {Emitter} from './engine/graphics';
 import RendererBase from './renderer';
 import WebGLRenderer from './webgl_renderer';
 
-//import NetworkCodes from '../../common/network_codes';
+import NetworkCodes from '../../common/network_codes';
 import {MapJSON_I} from '../../common/game/maps';
 import {GAME_MODES} from '../../common/room_info';
 import Network from './engine/network';
 import Assets from './engine/assets';
 
 //objects
+import EntitiesBase from './entities';
 import Object2D from '../../common/game/objects/object2d';
 import Player from '../../common/game/objects/player';
+import EnemySpawner from '../../common/game/objects/enemy_spawner';
+import Item, {ITEM_TYPES} from '../../common/game/objects/item';
+import Bullet from '../../common/game/objects/bullet';
+import Bomb from '../../common/game/objects/bomb';
+import Shield from '../../common/game/objects/shield';
+import Immunity from '../../common/game/objects/immunity';
 import {SkillObject} from '../../common/game/common/skills';
 import Movement from '../../common/game/common/movement';
-//import Colors from '../../common/game/common/colors';
-//import Item, {ITEM_TYPES} from '../../common/game/objects/item';
-//import {EMOTS} from '../../common/game/objects/emoticon';
+import Colors from '../../common/game/common/colors';
+import {EMOTS} from '../../common/game/objects/emoticon';
 import {AVAILABLE_EFFECTS} from '../../common/game/common/effects';
 
 //emitters
 import HitEmitter from './emitters/hit_emitter';
 import ExplosionEmitter from './emitters/explosion_emitter';
 import ShadowEmitter from './emitters/shadow_emitter';
+import InstantHealEmitter from './emitters/instant_heal_emitter';
 import ExperienceEmitter from './emitters/experience_emitter';
+import EnergyBlastEmitter from './emitters/energy_blast_emitter';
 
 function runLoop(self: ClientGame) {
 	let last = 0, dt;
 
-	//time measurments
+	//time measurements
 	/*let timer: number, time_samples: number[] = [];
 	let timer_log = $$.create('SPAN').html('0ms')
 		.setStyle({fontSize: '13px', fontFamily: 'RobotoLight'});
@@ -58,8 +66,7 @@ function runLoop(self: ClientGame) {
 				time_samples = [];
 			}*/
 
-			//@ts-ignore
-			window.requestAnimFrame(step);
+			requestAnimationFrame(step);
 		}
 	};
 	step(0);
@@ -68,9 +75,8 @@ function runLoop(self: ClientGame) {
 //TODO - e_h => Enemy type, b_h =>...
 var code: number, p_h: Player, p_h2: Player,
 	s_h_n: SkillObject | null,
-	p_i: number, e_i: number, e_h: any;
-	//TODO; restore
-	//b_i: number, i_i: number, b_h: any, obj_i: number, synch_array: Object2D[], rot_dt: number;
+	p_i: number, e_i: number, e_h: any,
+	b_i: number, i_i: number, b_h: any, obj_i: number, synch_array: Object2D[], rot_dt: number;
 
 export default class ClientGame extends GameCore {
 	public running = false;
@@ -79,8 +85,10 @@ export default class ClientGame extends GameCore {
 	private gamemode: GAME_MODES;
 
 	//private rendering_mode: number;
+	//@ts-ignore
 	private renderer: RendererBase;
-	private hit_effects?: HitEmitter;
+	//@ts-ignore
+	private hit_effects: HitEmitter;
 
 	private emitters?: Emitter[] = undefined;
 
@@ -96,24 +104,30 @@ export default class ClientGame extends GameCore {
 		super();
 
 		this.gamemode = _gamemode;
+		
+		Assets.load();
 
-		//if(Settings.canvas_rendering === false)
-			this.renderer = new WebGLRenderer(this, map);
-		//else
-		//	this.renderer = new Renderer.Canvas(this, map);
+		Network.assignGameListeners({
+			onServerData: this.onServerData.bind(this)
+		});
 
-		if(!Assets.loaded()) {
+		if( !Assets.loaded() ) {
 			setTimeout(() => {
-			if(!Assets.loaded()) {
-				onLoad(false);
-				throw new Error('Waiting for assets to load timed out');
-			}
+				if(!Assets.loaded()) {
+					onLoad(false);
+					throw new Error('Waiting for assets to load timed out');
+				}
 			}, 5000);//maximum waiting for assets to load
 		}
 
 		Assets.onload(() => {//making sure game assets are loaded
 			if(this.destroyed === true)
 				return;
+
+			//if(Settings.canvas_rendering === false)
+				this.renderer = new WebGLRenderer(this, map);
+			//else
+			//	this.renderer = new Renderer.Canvas(this, map);
 
 			let result = super.loadMap(map);
 			if(result !== true)
@@ -134,16 +148,18 @@ export default class ClientGame extends GameCore {
 				this.running = false;
 				onLoad(false);
 			}
-		});
 
-		//if(Settings.canvas_rendering === false) {
-			this.hit_effects = <HitEmitter>WebGLRenderer.addEmitter( new HitEmitter() );
-			this.emitters = [this.hit_effects];
-		//}
+			//if(Settings.canvas_rendering === false) {
+				this.hit_effects = <HitEmitter>WebGLRenderer.addEmitter( new HitEmitter() );
+				this.emitters = [this.hit_effects];
+			//}
+		});
 	}
 
 	destroy() {
+		console.log('Destroying game');
 		super.destroy();
+		Network.clearGameListeners();
 		this.destroyed = true;
 		this.running = false;
 		if(this.emitters) {
@@ -163,14 +179,13 @@ export default class ClientGame extends GameCore {
 
 		//if(this.onKeyDown)	$$(window).off('keydown', this.onKeyDown);
 		//if(this.onKeyUp)	$$(window).off('keyup', this.onKeyUp);
-		if(this.onKeyUp) window.removeEventListener('keydown', this.onKeyUp, true);
+		if(this.onKeyUp) window.removeEventListener('keyup', this.onKeyUp, true);
 		if(this.onKeyDown) window.removeEventListener('keydown', this.onKeyDown, true);
 
 		//Network.removeCurrentGameHandle();
 	}
 
-	//TODO refactor entire function
-	/*onServerData(data: Float32Array, index = 0) {
+	onServerData(data: Float32Array, index = 0) {
 		switch(data[index] | 0) {
 			default:
 				throw new Error('Received incorrect server data');
@@ -259,8 +274,9 @@ export default class ClientGame extends GameCore {
 				p_h.points = data[index + 5];
 				p_h.movement.speed = p_h.movement.maxSpeed;
 
-				this.renderer.GUI.onPlayerHpChange(data[index + 1], p_h.hp);
-				this.renderer.GUI.onPlayerPointsChange(data[index + 1], p_h.points);
+				//TODO: assign listeners for this
+				//this.renderer.GUI.onPlayerHpChange(data[index + 1], p_h.hp);
+				//this.renderer.GUI.onPlayerPointsChange(data[index + 1], p_h.points);
 
 				this.explosionEffect(data[index + 2], data[index + 3], 
 					GameCore.GET_PARAMS().small_explosion_radius);
@@ -347,7 +363,9 @@ export default class ClientGame extends GameCore {
 				break;
 			case NetworkCodes.WAVE_INFO:
 				// this.renderer.GUI.addNotification('Wave ' + data[index + 1]);
-				this.renderer.GUI.addNotification('More enemies!');
+
+				//TODO: assign listeners for this
+				//this.renderer.GUI.addNotification('More enemies!');
 				index += 2;
 				break;
 			case NetworkCodes.SPAWN_ENEMY://enemy_class_index, object_id, pos_x, pos_y, rot
@@ -377,7 +395,6 @@ export default class ClientGame extends GameCore {
 				index += 5;
 
 				break;
-
 			//enemy_id, damage, player_index, new_enemy_hp, hit_x, hit_y
 			case NetworkCodes.ON_ENEMY_ATTACKED:
 				for(e_i=0; e_i < this.enemies.length; e_i++) {
@@ -408,7 +425,7 @@ export default class ClientGame extends GameCore {
 				let number_of_bullets = data[index + 2];
 				for(let i=0; i<number_of_bullets; i++) {//bullet_id, pos_x, pos_y, rot
 					let off = index + 3 + i*4;
-					let bullet = new Objects.Bullet(data[off + 1], data[off + 2], data[off + 3], 
+					let bullet = new Bullet(data[off + 1], data[off + 2], data[off + 3], 
 						p_h);
 
 					bullet.id = data[off + 0];
@@ -425,7 +442,7 @@ export default class ClientGame extends GameCore {
 			case NetworkCodes.ON_BOUNCE_BULLET_SHOT://NOTE - only single bullet data
 				p_h = this.players[ data[index + 1] | 0 ];
 
-				let bullet = new Objects.Bullet(data[index+3], data[index+4], data[index+5], 
+				let bullet = new Bullet(data[index+3], data[index+4], data[index+5], 
 					p_h, true);
 				bullet.id = data[index+2];
 
@@ -439,7 +456,7 @@ export default class ClientGame extends GameCore {
 			case NetworkCodes.ON_BOMB_PLACED://player_index, bomb_id, pos_x, pos_y
 				p_h = this.players[ data[index + 1] ];
 
-				let bomb = new Objects.Bomb( data[index + 3], data[index + 4], p_h );
+				let bomb = new Bomb( data[index + 3], data[index + 4], p_h );
 				bomb.id = data[index + 2];
 				bomb.timestamp = Date.now();
 
@@ -502,14 +519,16 @@ export default class ClientGame extends GameCore {
 			case NetworkCodes.ON_INSTANT_HEAL:
 				p_h = this.players[ data[index + 1] | 0 ];
 				p_h.hp += GameCore.GET_PARAMS().instant_heal_value;
-				this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
+
+				//TODO: assign listeners for this
+				//this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
 
 				if(this.renderer.withinVisibleArea(p_h.x, p_h.y, 0.5) === true) {
 					if(this.emitters) {
-						let heal_emitter = new Emitters.InstantHeal(p_h.x, p_h.y);
+						let heal_emitter = new InstantHealEmitter(p_h.x, p_h.y);
 						heal_emitter.timestamp = Date.now();
 						//if(this.rendering_mode === RENDERING_MODES.WebGL) {
-						Renderer.WebGL.addEmitter( heal_emitter );
+						WebGLRenderer.addEmitter( heal_emitter );
 						this.emitters.push( heal_emitter );
 						//}
 					}
@@ -526,12 +545,12 @@ export default class ClientGame extends GameCore {
 					GameCore.GET_PARAMS().energy_blast_radius) === true) {
 					
 					if(this.emitters) {
-						let blast_emitter = new Emitters.EnergyBlast(data[index+1],data[index+2], 
+						let blast_emitter = new EnergyBlastEmitter(data[index+1],data[index+2], 
 							GameCore.GET_PARAMS().energy_blast_radius, 
 							Colors.PLAYERS_COLORS[ data[index+3] ]);
 						blast_emitter.timestamp = Date.now();
 
-						Renderer.WebGL.addEmitter( blast_emitter );
+						WebGLRenderer.addEmitter( blast_emitter );
 						this.emitters.push( blast_emitter );
 					}
 
@@ -557,15 +576,10 @@ export default class ClientGame extends GameCore {
 				p_h.setRot(data[index + 5], true);
 				p_h.hp = data[index + 6];
 				p_h.points = data[index + 7];
-				//if(p_h.effects.isActive(Effects.SHIELD) === false && 
-				//	p_h.effects.isActive(Effects.SPAWN_IMMUNITY) === false) 
-				//{
-				//p_h.points -= GameCore.GET_PARAMS().points_lose_for_enemy_collision;
-				this.renderer.GUI.onPlayerPointsChange(
-					data[index + 2] | 0, p_h.points);
-				//}
 
-				this.renderer.GUI.onPlayerHpChange(data[index + 2] | 0, p_h.hp);
+				//TODO: assign listeners for this
+				//this.renderer.GUI.onPlayerPointsChange(data[index + 2] | 0, p_h.points);
+				//this.renderer.GUI.onPlayerHpChange(data[index + 2] | 0, p_h.hp);
 
 				p_h.movement.speed = p_h.movement.maxSpeed;
 
@@ -605,21 +619,23 @@ export default class ClientGame extends GameCore {
 				switch( data[index + 2] | 0 ) {//switch item.type
 					case ITEM_TYPES.HEALTH: {
 						p_h.hp += Item.HEALTH_VALUE;
-						this.renderer.GUI.onPlayerHpChange(data[index + 3] | 0, p_h.hp);
+						//TODO: assign listeners for this
+						//this.renderer.GUI.onPlayerHpChange(data[index + 3] | 0, p_h.hp);
 
 						if(this.renderer.withinVisibleArea(p_h.x, p_h.y, 0.5) === true) {
 							if(this.emitters) {
-								let heal_emitter = new Emitters.InstantHeal(p_h.x, p_h.y);
+								let heal_emitter = new InstantHealEmitter(p_h.x, p_h.y);
 								heal_emitter.timestamp = Date.now();
 								
-								Renderer.WebGL.addEmitter( heal_emitter );
+								WebGLRenderer.addEmitter( heal_emitter );
 								this.emitters.push( heal_emitter );
 							}
 						}
 					}	break;
 					case ITEM_TYPES.ENERGY: {
 						p_h.energy += Item.ENERGY_VALUE;
-						this.renderer.GUI.onPlayerEnergyChange(data[index + 3] | 0, p_h.energy);
+						//TODO: assign listeners for this
+						//this.renderer.GUI.onPlayerEnergyChange(data[index + 3] | 0, p_h.energy);
 					}	break;
 					case ITEM_TYPES.SPEED: {
 						p_h.effects.active( AVAILABLE_EFFECTS.SPEED );
@@ -644,16 +660,20 @@ export default class ClientGame extends GameCore {
 				super.respawnPlayer(p_h);
 				super.drawDeathMark( data[index + 3], data[index + 4], p_h.painter.color );
 
-				this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
-				this.renderer.GUI.onPlayerEnergyChange(data[index + 1] | 0, p_h.hp);
+				//TODO: assign listeners for this
+				//this.renderer.GUI.onPlayerHpChange(data[index + 1] | 0, p_h.hp);
+				//this.renderer.GUI.onPlayerEnergyChange(data[index + 1] | 0, p_h.hp);
 
 				//player deaths count update
 				p_h.deaths++;
-				this.renderer.GUI.onPlayerDeath( data[index + 1] | 0 );
+				//TODO: assign listeners for this
+				//this.renderer.GUI.onPlayerDeath( data[index + 1] | 0 );
 
 				if(p_h === this.renderer.focused) {
-					this.renderer.GUI.addNotification(
-						'You died. Respawn in ' + data[index + 2] + ' seconds');
+					//TODO: assign listeners for this
+					//this.renderer.GUI.addNotification(
+					//	'You died. Respawn in ' + data[index + 2] + ' seconds');
+
 					//Sounds.EFFECTS.explode.play();
 				}
 
@@ -663,14 +683,16 @@ export default class ClientGame extends GameCore {
 				p_h = this.players[ data[index + 1] | 0 ];
 				p_h.energy = data[index + 3];
 
-				this.renderer.GUI.onPlayerEnergyChange(data[index + 1]|0, p_h.energy);
+				//TODO: assign listeners for this
+				//this.renderer.GUI.onPlayerEnergyChange(data[index + 1]|0, p_h.energy);
 
 				s_h_n = p_h.skills[ data[index + 2] | 0 ];
 				if(s_h_n !== null) {
 					s_h_n.use();
 
 					if(p_h === this.renderer.focused) {
-						this.renderer.GUI.onSkillUsed( data[index + 2]|0, s_h_n.data.cooldown );
+						//TODO: assign listeners for this
+						//this.renderer.GUI.onSkillUsed( data[index + 2]|0, s_h_n.data.cooldown );
 					}
 				}
 
@@ -682,8 +704,10 @@ export default class ClientGame extends GameCore {
 				if(s_h_n !== null)
 					s_h_n.stopUsing();
 
-				if(p_h === this.renderer.focused)
-					this.renderer.GUI.onSkillStopped( data[index + 2] | 0 );
+				if(p_h === this.renderer.focused) {
+					//TODO: assign listeners for this
+					//this.renderer.GUI.onSkillStopped( data[index + 2] | 0 );
+				}
 
 				index += 3;
 				break;
@@ -694,22 +718,23 @@ export default class ClientGame extends GameCore {
 				throw new Error('Index of server data not incremented after first iteration');
 			this.onServerData(data, index);//looping for next data from server
 		}
-	}*/
+	}
 
 	//@duration, round_delay - number (game duration in seconds), @init_data - array
-	startGame(duration: number, round_delay: number, init_data: any[]) {
+	startGame(duration: number, round_delay: number, init_data: InitDataSchema[]) {
 		console.log('Starting game (' + duration + '+' + round_delay + ' sec),', init_data);
 
 		try {
-			super.initPlayers( init_data );
+			super.initPlayers( init_data, EntitiesBase, WebGLRenderer );
 
-			//TODO: invoke gui methods via listeners
+			//TODO: invoke GUI methods via listeners
 			init_data.forEach((data, index) => {
+				//TODO: assign listeners for this
 				//this.renderer.GUI.assignPlayerPreview(index, data['ship_type'], data['color_id']);
 
-				var curr_room = Network.getCurrentUser();
+				let curr_room = Network.getCurrentUser();
 				if(curr_room === null)
-					throw "No room";	
+					throw new Error('No room');
 
 				if(data['id'] === curr_room.id) {
 					this.renderer.focusOn( this.players[index] );
@@ -720,12 +745,14 @@ export default class ClientGame extends GameCore {
 						if(sk === null) {
 							for(let j=s_i+1; j<this.players[index].skills.length; j++) {
 								if( this.players[index].skills[j] !== null ) {
+									//TODO: assign listeners for this
 									//this.renderer.GUI.addChildEmptySkill(s_i);
 									break;
 								}
 							}
 						}
 						else {
+							//TODO: assign listeners for this
 							//this.renderer.GUI.addChildSkill(sk.data.texture_name, 
 							//	s_i === 0 ? 'space' : s_i, sk.isContinous());
 						}
@@ -793,7 +820,7 @@ export default class ClientGame extends GameCore {
 		this.onKeyDown 	= (e: Event) => this.onKey(<KeyboardEvent>e, true);
 
 		//assigning keyboard controls
-		window.addEventListener('keydown', this.onKeyUp, true);
+		window.addEventListener('keyup', this.onKeyUp, true);
 		window.addEventListener('keydown', this.onKeyDown, true);
 		//$$(window).on('keydown', this.onKeyDown);
 		//$$(window).on('keyup', this.onKeyUp);
@@ -813,6 +840,7 @@ export default class ClientGame extends GameCore {
 	}
 
 	end() {
+		//TODO: assign listeners for this
 		//this.renderer.GUI.updateTimer( 0 );
 		this.running = false;
 	}
@@ -826,9 +854,11 @@ export default class ClientGame extends GameCore {
 		p_h2 = this.players[victim_i];
 
 		p_h2.hp = victim_hp;
+		//TODO: assign listeners for this
 		//this.renderer.GUI.onPlayerHpChange(victim_i, p_h2.hp);
 
 		p_h.points += damage * GameCore.GET_PARAMS().points_for_player_damage;
+		//TODO: assign listeners for this
 		//this.renderer.GUI.onPlayerPointsChange(attacker_i, p_h.points);
 
 		if(p_h2.isAlive() === false) {
@@ -849,6 +879,7 @@ export default class ClientGame extends GameCore {
 
 		if(this.gamemode === GAME_MODES.COOPERATION) {	
 			this.players[player_i].points += damage * GameCore.GET_PARAMS().points_for_enemy_damage;
+			//TODO: assign listeners for this
 			//this.renderer.GUI.onPlayerPointsChange(player_i, this.players[player_i].points);
 		}
 
@@ -864,6 +895,7 @@ export default class ClientGame extends GameCore {
 		points_for_kill: number, victim_obj: Object2D) 
 	{
 		if(this.renderer.focused === this.players[attacker_i]) {
+			//TODO: assign listeners for this
 			//this.renderer.GUI.addNotification(notification);
 		}
 
@@ -871,6 +903,7 @@ export default class ClientGame extends GameCore {
 			this.players[attacker_i].kills++;
 			this.players[attacker_i].points += points_for_kill;
 
+			//TODO: assign listeners for this
 			//this.renderer.GUI.onPlayerKill( attacker_i );
 			//this.renderer.GUI.onPlayerPointsChange(attacker_i, this.players[attacker_i].points);
 
@@ -900,9 +933,8 @@ export default class ClientGame extends GameCore {
 			return;
 		s_h_n = focused.skills[index];
 		if(s_h_n && s_h_n.canBeUsed(focused.energy)) {
-			//TODO
-			//Network.sendByteBuffer(Uint8Array.from(
-			//	[NetworkCodes.PLAYER_SKILL_USE_REQUEST, index]));
+			Network.sendByteBuffer(Uint8Array.from(
+				[NetworkCodes.PLAYER_SKILL_USE_REQUEST, index]));
 		}
 	}
 
@@ -912,26 +944,25 @@ export default class ClientGame extends GameCore {
 			return;
 		s_h_n = focused.skills[index];
 		if(s_h_n !== null && s_h_n.isContinous()) {
-			//TODO
-			//Network.sendByteBuffer(Uint8Array.from(
-			//	[NetworkCodes.PLAYER_SKILL_STOP_REQUEST, Number(index)]));
+			Network.sendByteBuffer(Uint8Array.from(
+				[NetworkCodes.PLAYER_SKILL_STOP_REQUEST, Number(index)]));
 		}
 	}
 
-	//TODO: restore this
-	/*tryEmoticonUse(index: number) {
+	tryEmoticonUse(index: number) {
 		Network.sendByteBuffer(Uint8Array.from(
 			[NetworkCodes.PLAYER_EMOTICON, index]
 		));
-	}*/
+	}
 
 	onKey(event: KeyboardEvent, pressed: boolean) {
 		code = event.keyCode;
-		var focused = this.renderer.focused;
+		
+		let focused = this.renderer.focused;
 		if(focused === null || focused.spawning === true)
 			return;
 
-		//let preserved_state = focused.movement.state;
+		let preserved_state = focused.movement.state;
 		if(code === 65 || code === 37)//left
 			focused.movement.set( Movement.FLAGS.LEFT, pressed );
 		else if(code === 68 || code === 39)//right
@@ -954,21 +985,19 @@ export default class ClientGame extends GameCore {
 		}
 
 		//any letter (emoticons use)
-		//TODO: refactor code commented below (preserved_state initialized above)
-		/*if(pressed && code >= 65 && code <= 90) {
-			ClientGame.GameGUI.EMOTS.forEach((emot, index) => {
+		if(pressed && code >= 65 && code <= 90) {
+			EMOTS.forEach((emot, index) => {
 				if(emot.key.charCodeAt(0) === code) {
 					this.tryEmoticonUse(index);
 				}
 			});
 		}
-		//console.log(event, 'A'.charCodeAt(0));
 
-		if(preserved_state != focused.movement.state) {
+		if(preserved_state !== focused.movement.state) {
 			focused.movement.smooth = false;
 			Network.sendByteBuffer(Uint8Array.from(
 				[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
-		}*/
+		}
 	}
 
 	explosionEffect(x: number, y: number, radius: number) {
@@ -1001,6 +1030,7 @@ export default class ClientGame extends GameCore {
 				(this.remaining_time = (((this.end_timestamp - Date.now())/1000)|0)) ) {
 			if(this.remaining_time < 0)
 				this.remaining_time = 0;
+			//TODO: assign listeners for this
 			//this.renderer.GUI.updateTimer( this.remaining_time );
 		}
 
@@ -1011,9 +1041,11 @@ export default class ClientGame extends GameCore {
 					(this.delay = (((this.delay_timestamp - Date.now())/1000)|0)) ) {
 				if(this.delay <= 0) {
 					this.delay = 0;
+					//TODO: assign listeners for this
 					//this.renderer.GUI.addNotification('GO!!!');
 				}
 				else {
+					//TODO: assign listeners for this
 					//this.renderer.GUI.addNotification('Start in ' + this.delay + '...');
 				}
 			}
@@ -1047,9 +1079,10 @@ export default class ClientGame extends GameCore {
 			super.update(delta);
 
 			for(p_i=0; p_i<this.players.length; p_i++) {
-				if( this.players[p_i].effects.isActive(AVAILABLE_EFFECTS.POISONING) )
-					//@ts-ignore
-					this.renderer.GUI.onPlayerHpChange(p_i, this.players[p_i].hp);
+				if( this.players[p_i].effects.isActive(AVAILABLE_EFFECTS.POISONING) ) {
+					//TODO: assign listeners for this
+					//this.renderer.GUI.onPlayerHpChange(p_i, this.players[p_i].hp);
+				}
 			}
 
 			if(this.emitters) {

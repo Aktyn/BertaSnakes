@@ -1,6 +1,6 @@
 import EntitiesBase, {EntityObjectSchema, EntitySchema} from './entities';
 import Object2D from '../../common/game/objects/object2d';
-import * as Graphics from './engine/graphics';
+import {VBO_I, isInitialized, TEXTURES, SHADERS} from './engine/graphics';
 import Assets from './engine/assets';
 
 const LINEAR_AS_DEFAULT_FILTERING = true;
@@ -8,11 +8,10 @@ const LINEAR_AS_DEFAULT_FILTERING = true;
 var ii: number, obj_it: Object2D, entity_it: EntityObjectSchema;
 
 export default class WebGLEntities extends EntitiesBase {
-	//private rect?: Graphics.VBO_I;
-	private rect: Graphics.VBO_I;
+	private rect: VBO_I;
 	
-	constructor(_rect: Graphics.VBO_I) {
-		if( !Graphics.isInitialized() )
+	constructor(_rect: VBO_I) {
+		if( !isInitialized() )
 			throw new Error('Graphics must be initialized');
 
 		super();
@@ -26,12 +25,11 @@ export default class WebGLEntities extends EntitiesBase {
 			ent.texture.destroy();
 		});
 		
-
 		super.destroy();//NOTE - this destroy must be invoked after destroing entities textures
 	}
 
 	generateTexture(data: EntitySchema) {
-		return Graphics.TEXTURES.createFrom(
+		return TEXTURES.createFrom(
 			Assets.getTexture( data.texture_name ), 
 			data.linear === undefined ? LINEAR_AS_DEFAULT_FILTERING : data.linear 
 		);
@@ -43,13 +41,12 @@ export default class WebGLEntities extends EntitiesBase {
 			if(entity_it.layer !== layer || entity_it.objects.length === 0)
 				continue;
 
-			Graphics.SHADERS.uniform_vec4('color', entity_it.color);
+			SHADERS.uniform_vec4('color', entity_it.color);
 			//@ts-ignore
 			entity_it.texture.bind();
 
 			for(obj_it of entity_it.objects) {//drawing objects
-				Graphics.SHADERS.uniform_mat3('u_matrix', <Float32Array>obj_it.buffer);
-				//@ts-ignore
+				SHADERS.uniform_mat3('u_matrix', <Float32Array>obj_it.buffer);
 				this.rect.draw();//works only in WebGL
 			}
 		}

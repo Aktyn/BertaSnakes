@@ -2,7 +2,7 @@ import Object2D from './object2d';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
 export const enum ITEM_TYPES {//enum
 	HEALTH = 0,
@@ -40,7 +40,7 @@ export default class Item extends Object2D {
 		if(typeof EntitiesBase !== 'undefined') {
 			this.entity_name = Item.entityName(_type);//clientside only
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 		}
 	}
 
@@ -48,7 +48,7 @@ export default class Item extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase[this.entity_name].id, this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
 	}
 
 	update(delta: number) {

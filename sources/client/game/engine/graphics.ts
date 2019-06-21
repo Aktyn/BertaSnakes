@@ -95,7 +95,8 @@ export function init() {
 		'left': '0px',
 		'top': '0px',
 		'background': 'none',
-		'user-select': 'none'
+		'user-select': 'none',
+		// 'z-index': '-1'
 		//'pointerEvents': 'none',
 	});
 	let screen_size = Utils.getScreenSize();

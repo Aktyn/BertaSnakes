@@ -5,7 +5,7 @@ import NetworkCodes from '../../common/network_codes';
 
 let connections: Map<number, Connection> = new Map();
 
-type NotString<T> = Exclude<T, string>;
+// type NotString<T> = Exclude<T, string>;
 
 export class Connection {
 	private static counter = 0;
@@ -37,10 +37,22 @@ export class Connection {
 	}
 
 	//stringifies serializable object before sending over socket
-	private send<T>(data: T & NotString<T>) {//stringified json
+	private send<T>(data: T & Exclude<T, string>) {//stringified json
 		if(this.socket.readyState !== 1)//socket not open
 			return;
 		this.socket.send( JSON.stringify(data) );
+	}
+
+	public sendCustom<T>(data: 
+		{[index: string]: (T & Exclude<T, string>)} & {type: NetworkCodes}) 
+	{
+		this.send(data);
+	}
+
+	public sendBuffer(buffer: Float32Array) {
+		if(this.socket.readyState !== 1)//socket not open
+			return;
+		this.socket.send(buffer);
 	}
 
 	public isInLobby() {
@@ -214,7 +226,7 @@ export class Connection {
 		});
 	}
 
-	sendGameStartFailure(room: RoomInfo) {
+	sendGameStartFailEvent(room: RoomInfo) {
 		if(!this.user)
 			throw new Error('This connection has no user');
 		this.send({

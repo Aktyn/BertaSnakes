@@ -2,7 +2,7 @@ import Object2D from './object2d';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities');
+	var EntitiesBase = require('../../../client/game/entities').default;
 
 const SCALE = 0.07, DURATION = 2, FADING_DURATION = 0.5;//durations in seconds
 const OFFSET_ANGLE = Math.PI / 4.0, PARENT_OFFSET = 0.15;
@@ -42,17 +42,17 @@ export default class Emoticon extends Object2D {
 
 		if(name !== 'hand.svg')//exception (TODO - hand icon in yellow circle)
 			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase['STREAK'].id, this.streak);
+			EntitiesBase.addObject(EntitiesBase.getEntityId('STREAK'), this.streak);
 
 		//@ts-ignore
-		EntitiesBase.addObject(EntitiesBase[Emoticon.entityName(this.name)].id, this);
+		EntitiesBase.addObject(EntitiesBase.getEntityId(Emoticon.entityName(this.name)), this);
 	}
 
 	destroy() {
 		//@ts-ignore
-		EntitiesBase.removeObject(EntitiesBase['STREAK'].id, this.streak);
+		EntitiesBase.removeObject(EntitiesBase.getEntityId('STREAK'), this.streak);
 		//@ts-ignore
-		EntitiesBase.removeObject(EntitiesBase[Emoticon.entityName(this.name)].id,this);
+		EntitiesBase.removeObject(EntitiesBase.getEntityId(Emoticon.entityName(this.name)),this);
 	}
 
 	endEffect() {//force end
