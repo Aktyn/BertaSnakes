@@ -1,8 +1,9 @@
 import Object2D from './object2d';
 
-declare var _CLIENT_: boolean;
+/*declare var _CLIENT_: boolean;
 if(_CLIENT_)
 	var EntitiesBase = require('../../../client/game/entities').default;
+*/
 
 const SCALE = 0.07, DURATION = 2, FADING_DURATION = 0.5;//durations in seconds
 const OFFSET_ANGLE = Math.PI / 4.0, PARENT_OFFSET = 0.15;
@@ -27,9 +28,13 @@ export default class Emoticon extends Object2D {
 	private timer = 0;
 	private streak: Object2D;
 
-	constructor(name: string, parent: Object2D) {
+	private entitiesClass: any;
+
+	constructor(name: string, parent: Object2D, _entitiesClass?: any) {
 		super();
 		super.setScale(0, 0);
+
+		this.entitiesClass = _entitiesClass;
 		
 		this.name = name;
 		this.parent = parent;
@@ -40,19 +45,21 @@ export default class Emoticon extends Object2D {
 		this.streak = new Object2D();
 		this.streak.setRot( OFFSET_ANGLE );
 
-		if(name !== 'hand.svg')//exception (TODO - hand icon in yellow circle)
-			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase.getEntityId('STREAK'), this.streak);
-
-		//@ts-ignore
-		EntitiesBase.addObject(EntitiesBase.getEntityId(Emoticon.entityName(this.name)), this);
+		if(this.entitiesClass) {
+			//hand.svg is deprecated emoticon
+			//if(name !== 'hand.svg')//exception (TODO - hand icon in yellow circle)
+			//	this.entitiesClass.addObject(this.entitiesClass.getEntityId('STREAK'), this.streak);
+			this.entitiesClass.addObject(
+				this.entitiesClass.getEntityId(Emoticon.entityName(this.name)), this);
+		}
 	}
 
 	destroy() {
-		//@ts-ignore
-		EntitiesBase.removeObject(EntitiesBase.getEntityId('STREAK'), this.streak);
-		//@ts-ignore
-		EntitiesBase.removeObject(EntitiesBase.getEntityId(Emoticon.entityName(this.name)),this);
+		if(this.entitiesClass) {
+			this.entitiesClass.removeObject(this.entitiesClass.getEntityId('STREAK'), this.streak);
+			this.entitiesClass.removeObject(
+				this.entitiesClass.getEntityId(Emoticon.entityName(this.name)), this);
+		}
 	}
 
 	endEffect() {//force end

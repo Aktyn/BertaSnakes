@@ -19,6 +19,8 @@ interface GameState extends BaseState {
 export default class extends StageBase<BaseProps, GameState> {
 	private game: ClientGame | null = null;//TODO - change to private or public
 
+	private right_panel_toggler: HTMLButtonElement | null = null;
+
 	state: GameState = {
 		hide_rightside: false,
 	}
@@ -75,8 +77,11 @@ export default class extends StageBase<BaseProps, GameState> {
 			</div>
 			<div className={`right-panel${this.state.hide_rightside ? ' hidden' : ''}`}>
 				<nav>
-					<button className='slide-toggler' onClick={() =>
-						this.setState({hide_rightside: !this.state.hide_rightside})}></button>
+					<button className='slide-toggler' onClick={(e) => {
+						if( this.right_panel_toggler )
+							this.right_panel_toggler.blur();
+						this.setState({hide_rightside: !this.state.hide_rightside});
+					}} ref={el => this.right_panel_toggler = el}></button>
 					<UserBtn user={this.props.current_user} />
 				</nav>
 				<button>LEAVE WITH CONFIRMATION</button>

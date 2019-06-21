@@ -201,7 +201,7 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 	showEmoticon(name: string) {
 		for(em_i=0; em_i<this.emoticons.length; em_i++)
 			this.emoticons[em_i].endEffect();
-		this.emoticons.push( new Emoticon(name, this) );
+		this.emoticons.push( new Emoticon(name, this, this.entitiesClass) );
 	}
 
 	update(delta: number) {
