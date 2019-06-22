@@ -62,6 +62,9 @@ export default class extends StageBase<BaseProps, GameState> {
 
 	private exit_confirmation: NodeJS.Timeout | null = null;
 
+	private speed_update_filter = 0;
+
+	//public ready = false;
 	private mounted = false;
 
 	state: GameState = {
@@ -102,6 +105,7 @@ export default class extends StageBase<BaseProps, GameState> {
 				if(user && room && room.isUserSitting(user.id) ) {
 					//disable for testing game start failure
 					Network.confirmGameStart();
+					//this.ready = true;
 				}
 			});
 		}
@@ -113,6 +117,7 @@ export default class extends StageBase<BaseProps, GameState> {
 			this.game.destroy();
 		if(this.exit_confirmation)
 			clearTimeout(this.exit_confirmation);
+		//this.ready = false;
 	}
 
 	private initListeners(): ListenersSchema {
@@ -139,6 +144,14 @@ export default class extends StageBase<BaseProps, GameState> {
 					notifs.shift();
 					this.setState({notifications: notifs});
 				}, 5000);
+			},
+
+			onPlayerSpeedChange: (value) => {//NOTE - only current player speed is visible
+				if(20 <= ++this.speed_update_filter)
+					this.speed_update_filter = 0;
+				if(value === this.state.speed_value || this.speed_update_filter%20 !== 0)
+					return;//no need for unnecessary state updates
+				this.setState({speed_value: Math.max(0, Math.min(1, value))});
 			},
 
 			onPlayerHpChange: (index, value) => {
@@ -190,6 +203,16 @@ export default class extends StageBase<BaseProps, GameState> {
 				if(this.skillsbar)
 					this.skillsbar.addSkill(texture_name, key, continous);
 			},
+
+			onSkillUsed: (index, cooldown) => {
+				if(this.skillsbar)
+					this.skillsbar.useSkill(index, cooldown);
+			},
+
+			onSkillStopped: (index) => {
+				if(this.skillsbar)
+					this.skillsbar.stopSkill(index);
+			}
 		}
 	}
 
@@ -321,7 +344,16 @@ export default class extends StageBase<BaseProps, GameState> {
 				})}</div>
 			</div>
 			<div className='skillsbar-container'>
-				<SkillsBar ref={el => this.skillsbar = el} />
+				<SkillsBar ref={el => this.skillsbar = el} onEmoticonUse={index => {
+					if(this.game)
+						this.game.tryEmoticonUse(index);
+				}} onSkillUse={index => {
+					if(this.game)
+						this.game.trySkillUse(index);
+				}} onSkillStop={index => {
+					if(this.game)
+						this.game.trySkillStop(index);
+				}} />
 			</div>
 			<div className={`right-panel${this.state.hide_rightside ? ' hidden' : ''}`}>
 				<nav>

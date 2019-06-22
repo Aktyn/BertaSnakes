@@ -228,6 +228,8 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			if(res.error)
 				return this.setError( errorMsg(res.error) );
 
+			ServerApi.forceNewSalt();
+
 			this.setState({
 				loading: false, 
 				error: undefined, 

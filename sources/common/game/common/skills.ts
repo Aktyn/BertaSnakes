@@ -1,4 +1,4 @@
-//NOTE - in case of continuous skils the energy cost is per second
+//NOTE - in case of continuous skills the energy cost is per second
 export class SkillObject {
 	public data: SkillData;
 	public cooldown = 0;
@@ -68,20 +68,20 @@ interface SkillsSchema {
 
 const Skills: SkillsSchema = {//SCHEMA
 	// SHIP SPECIFIC SKILLS:
-	SHOOT1: <SkillData>{//level 1 continous shoot
+	SHOOT1: <SkillData>{//level 1 continuous shoot
 		//id: 0,
 		continuous: true,
 		energy_cost: 0.015,//per second (1 => 100%)
 		cooldown: 0.25,//single bullet per 0.5 sec
-		texture_name: 'shot1_skill'//clientside only (texture asset name)
+		texture_name: 'shot1_skill'//client-side only (texture asset name)
 	},
-	SHOOT2: <SkillData>{//level 2 continous shoot
+	SHOOT2: <SkillData>{//level 2 continuous shoot
 		continuous: true,
 		energy_cost: 0.01625,//per second (1 => 100%)
 		cooldown: 0.25,
 		texture_name: 'shot2_skill'
 	},
-	SHOOT3: <SkillData>{//level 3 continous shoot
+	SHOOT3: <SkillData>{//level 3 continuous shoot
 		continuous: true,
 		energy_cost: 0.0175,//per second (1 => 100%)
 		cooldown: 0.25,
@@ -186,5 +186,6 @@ for(let prop in Skills) {
 		(<SkillData>Skills[prop]).create = skillCreator( <SkillData>Skills[prop] );
 	}
 }
+console.log('Total available skills:', i);
 
 export default Skills;

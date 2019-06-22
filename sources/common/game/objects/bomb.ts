@@ -32,21 +32,21 @@ export default class Bomb extends Object2D {
 
 		this.timer = 0;
 
-		//@ts-ignore
-		if(typeof EntitiesBase !== 'undefined') {
-			//@ts-ignore
-			this.entity_name = Bomb.entityName(parent.painter.color);//clientside only
-			//@ts-ignore
-			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
+		if(_CLIENT_) {
+			EntitiesBase = require('../../../client/game/entities').default;
+			if(typeof EntitiesBase !== 'undefined') {
+				//@ts-ignore
+				this.entity_name = Bomb.entityName(parent.painter.color);//clientside only
+				//@ts-ignore
+				EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
+			}
 		}
 	}
 
 	destroy() {
-		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
 			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
-		
 	}
 
 	update(delta: number) {

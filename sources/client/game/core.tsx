@@ -10,8 +10,8 @@ import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
-const TDD1 = false;//auto room joining
-const TDD2 = false;//auto sit and ready
+const TDD1 = true;//auto room joining
+const TDD2 = true;//auto sit and ready
 
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;
@@ -243,6 +243,10 @@ export default class extends React.Component<any, CoreState> {
 					//}
 					//catch(e) {}
 					if( this.stageHandle instanceof GameStage ) {
+						/*if( !this.stageHandle.ready ) {
+							Network.leaveRoom();
+							throw new Error('Game cannot start before user is ready for it');
+						}*/
 						let game = this.stageHandle.getGame();
 						if(game) {
 							game.startGame(

@@ -51,8 +51,8 @@ function loadAssets() {
 			loaded_image => {//fix for .svg => set resolution
 				//loaded_image.setAttrib('width', 256);
 				//loaded_image.setAttrib('height', 256);
-				// loaded_image.width = 128;
-				// loaded_image.height = 128;
+				loaded_image.width = 128;
+				loaded_image.height = 128;
 			});
 	});
 
@@ -73,7 +73,7 @@ function loadAssets() {
 	loadImage('enemy_rocket', 	'enemies/rocket.png');
 	loadImage('enemy_poisonous','enemies/poisonous.png');
 	loadImage('bullet', 		'bullets/bullet.png');
-	loadImage('bomb', 			'bomb.png');
+	loadImage('bomb', 			'bomb_object.png');
 
 	// SHADERS //
 	loadShaderSource('main_shader', 'main.vs', 'main.fs');

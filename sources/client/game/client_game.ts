@@ -86,17 +86,22 @@ export interface ListenersSchema {
 
 	onPlayerHpChange: (index: number, value: number) => void;
 	onPlayerEnergyChange: (index: number, value: number) => void;
+	onPlayerSpeedChange: (value: number) => void;
 	onPlayerPointsChange: (index: number, value: number) => void;
 	onPlayerKill: (index: number) => void;
 	onPlayerDeath: (index: number) => void;
 
 	addChildEmptySkill: (slot_index: number) => void;
 	addChildSkill: (texture_name: string, key: 'space' | number, continous: boolean) => void;
+
+	onSkillUsed: (index: number, cooldown: number) => void;
+	onSkillStopped: (index: number) => void;
 }
 
 export default class ClientGame extends GameCore {
 	public running = false;
 	private destroyed = false;
+	private ready = false;
 
 	private gamemode: GAME_MODES;
 	private listeners: ListenersSchema;
@@ -160,7 +165,7 @@ export default class ClientGame extends GameCore {
 				//if(this.renderer instanceof Renderer.Canvas)
 				//	(<Renderer.Canvas>this.renderer).onMapLoaded(this);
 				this.renderer.draw(0);//draw first frame before waiting for server response
-				
+				this.ready = true;
 				onLoad(true);
 			}
 			catch(e) {
@@ -205,7 +210,23 @@ export default class ClientGame extends GameCore {
 		//Network.removeCurrentGameHandle();
 	}
 
+	private waitForGameToLoad(callback: () => void) {
+		if(this.ready)
+			callback();
+		else {
+			setTimeout(() => {
+				this.waitForGameToLoad(callback);
+			}, 100);
+		}
+	}
+
 	onServerData(data: Float32Array, index = 0) {
+		if(!this.ready) {
+			this.waitForGameToLoad(() => {
+				this.onServerData(data, index);
+			});
+			return;
+		}
 		switch(data[index] | 0) {
 			default:
 				throw new Error('Received incorrect server data');
@@ -275,10 +296,11 @@ export default class ClientGame extends GameCore {
 					p_h.setRot( p_h.rot + rot_dt * 0.125 );
 				}
 
-				if(p_h !== this.renderer.focused)//update only different user's player
-					p_h.movement.state = data[index + 3];
-
 				p_h.movement.speed = data[index + 4];
+				if(p_h !== this.renderer.focused)//update only different user's player movement state
+					p_h.movement.state = data[index + 3];
+				//else
+				//	this.listeners.onPlayerSpeedChange( p_h.movement.speed / p_h.movement.maxSpeed );
 
 				index += 5;
 				break;
@@ -293,6 +315,8 @@ export default class ClientGame extends GameCore {
 				p_h.hp = data[index + 4];
 				p_h.points = data[index + 5];
 				p_h.movement.speed = p_h.movement.maxSpeed;
+				//if(p_h === this.renderer.focused)
+				//	this.listeners.onPlayerSpeedChange( 1 );
 
 				this.listeners.onPlayerHpChange(data[index + 1], p_h.hp);
 				this.listeners.onPlayerPointsChange(data[index + 1], p_h.points);
@@ -597,6 +621,8 @@ export default class ClientGame extends GameCore {
 				this.listeners.onPlayerHpChange(data[index + 2] | 0, p_h.hp);
 
 				p_h.movement.speed = p_h.movement.maxSpeed;
+				//if(p_h === this.renderer.focused)
+				//	this.listeners.onPlayerSpeedChange( 1 );
 
 				var xx = p_h.x - data[index + 8] * p_h.width;
 				var yy = p_h.y - data[index + 9] * p_h.height;
@@ -699,10 +725,8 @@ export default class ClientGame extends GameCore {
 				if(s_h_n !== null) {
 					s_h_n.use();
 
-					if(p_h === this.renderer.focused) {
-						//TODO: assign listeners for this
-						//this.renderer.GUI.onSkillUsed( data[index + 2]|0, s_h_n.data.cooldown );
-					}
+					if(p_h === this.renderer.focused)
+						this.listeners.onSkillUsed( data[index + 2]|0, s_h_n.data.cooldown );
 				}
 
 				index += 4;
@@ -713,10 +737,8 @@ export default class ClientGame extends GameCore {
 				if(s_h_n !== null)
 					s_h_n.stopUsing();
 
-				if(p_h === this.renderer.focused) {
-					//TODO: assign listeners for this
-					//this.renderer.GUI.onSkillStopped( data[index + 2] | 0 );
-				}
+				if(p_h === this.renderer.focused)
+					this.listeners.onSkillStopped( data[index + 2] | 0 );
 
 				index += 3;
 				break;
@@ -732,6 +754,13 @@ export default class ClientGame extends GameCore {
 	//@duration, round_delay - number (game duration in seconds), @init_data - array
 	startGame(duration: number, round_delay: number, init_data: InitDataSchema[]) {
 		console.log('Starting game (' + duration + '+' + round_delay + ' sec),', init_data);
+
+		if( !this.ready ) {//wait for client to be ready and then start game
+			this.waitForGameToLoad(() => {
+				this.startGame(duration, round_delay, init_data);
+			});
+			return;
+		}
 
 		try {
 			this.listeners.onInitData(init_data);
@@ -765,21 +794,7 @@ export default class ClientGame extends GameCore {
 			});
 
 			//TODO - make this methods as ClientGame's class methods
-			/*this.renderer.GUI.onEmoticonUse((index: number) => {
-				if(this.renderer.focused !== null && this.renderer.focused.spawning !== true)
-					this.tryEmoticonUse(index);
-			});
-
-			this.renderer.GUI.onSkillUse((index: number | string) => {
-				if(this.renderer.focused !== null && this.renderer.focused.spawning !== true)
-					this.trySkillUse(typeof index === 'number' ? index : 0);
-			});
-
-			this.renderer.GUI.onSkillStop((index: number | string) => {
-				if(this.renderer.focused !== null && this.renderer.focused.spawning !== true)
-					this.trySkillStop(typeof index === 'number' ? index : 0);
-			});
-
+			/*
 			this.renderer.GUI.onTurnArrowPressed((dir: number, released: boolean) => {
 				var focused = this.renderer.focused;
 				if(focused === null || focused.spawning === true)
@@ -926,7 +941,7 @@ export default class ClientGame extends GameCore {
 
 	trySkillUse(index: number) {
 		var focused = this.renderer.focused;
-		if(focused === null)
+		if( !focused || focused.spawning )
 			return;
 		s_h_n = focused.skills[index];
 		if(s_h_n && s_h_n.canBeUsed(focused.energy)) {
@@ -937,7 +952,7 @@ export default class ClientGame extends GameCore {
 
 	trySkillStop(index: number) {
 		var focused = this.renderer.focused;
-		if(focused === null)
+		if( !focused || focused.spawning )
 			return;
 		s_h_n = focused.skills[index];
 		if(s_h_n !== null && s_h_n.isContinous()) {
@@ -947,6 +962,8 @@ export default class ClientGame extends GameCore {
 	}
 
 	tryEmoticonUse(index: number) {
+		if( !this.renderer.focused || this.renderer.focused.spawning )
+			return;
 		Network.sendByteBuffer(Uint8Array.from(
 			[NetworkCodes.PLAYER_EMOTICON, index]
 		));
@@ -1043,6 +1060,11 @@ export default class ClientGame extends GameCore {
 				else
 					this.listeners.onNotification('Start in ' + this.delay + '...');
 			}
+		}
+
+		if(this.renderer.focused) {
+			this.listeners.onPlayerSpeedChange( 
+				this.renderer.focused.movement.speed / this.renderer.focused.movement.maxSpeed );
 		}
 
 		if(delta > 0.5) {//lag occurred or page refocused - update using timestamps

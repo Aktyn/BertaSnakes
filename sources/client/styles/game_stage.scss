@@ -62,6 +62,8 @@ $tooglerSize: 30px;
 				    height: 1px;
 				    float: left;
 				}
+
+				transition: width 0.2s linear;
 			}
 
 			&.offline {
@@ -168,6 +170,7 @@ $tooglerSize: 30px;
 			overflow: hidden;
 			width: $leftWidth;
 			margin: 0px;
+			font-weight: bold;
 			// background-color: #f556;
 			
 			@keyframes slide-from-left {

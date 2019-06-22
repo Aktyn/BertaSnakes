@@ -1,20 +1,41 @@
 @import 'global.scss';
 
-$size: 30px;
+$size: 35px;
+$togglerSize: 15px;
+$emotSize: 30px;
 
 .skills-bar {
+	pointer-events: auto;
+
 	background-color: rgba( nth($palette, 2), 0.75);
 	border: 1px solid #fff3;
 
-	display: inline-block;
+	display: inline-grid;
+	grid-template-areas: 'separator slots toggler';
+	grid-template-columns: $togglerSize auto $togglerSize;
+	grid-column-gap: 15px;
+	align-items: center;
 
-	padding: 10px 30px;
-	padding-bottom: 0px;
+	padding: 0px 20px;
+	// padding-bottom: 0px;
 	border-top-left-radius: 50px;
 	border-top-right-radius: 50px;
 
+	position: relative;
+
 	& > .skill-slots {
+		grid-area: slots;
+		margin-top: 7px;
+		display: flex;
 		& > * {//single skill block
+			box-shadow: none !important;
+			border-radius: 0px;
+			background-color: transparent;;
+			margin: 0px 3px;
+			padding: 0px;
+
+			cursor: auto;
+
 			& > .displayer {
 				display: block;
 				position: relative;
@@ -23,7 +44,7 @@ $size: 30px;
 				height: $size;
 				margin: auto;
 
-				border: 1px solid nth($palette, 8);
+				border: 1px solid nth($palette, 7);
 				border-radius: 5px;
 
 				background-color: rgba(nth($palette, 8), 0.2);
@@ -31,6 +52,19 @@ $size: 30px;
 				& > img {
 					height: 100%;
 					width: auto;
+				}
+
+				& > .cooldown {
+					position: absolute;
+					left: 0px;
+					top: 0px;
+					width: $size;
+					height: $size;
+					line-height: $size;
+					background-color: rgba(nth($palette, 9), 0.2);
+					font-weight: bold;
+					font-size: 16px;
+					color: #fff;
 				}
 			}
 
@@ -41,6 +75,115 @@ $size: 30px;
 				border-radius: 5px;
 				margin-top: 3px;
 				padding: 2px;
+			}
+
+			&.active {
+				& > .displayer {
+					border-color: #8BC34A;
+					background-color: rgba(#8BC34A, 0.4);
+				}
+			}
+
+			&.canbeused {
+				cursor: pointer;
+
+				&:hover > .displayer {
+					background-color: rgba(#80CBC4, 0.2);
+				}
+			}
+		}
+	}
+
+	& > .emoticons-toggler {
+		grid-area: toggler;
+
+		width: $togglerSize;
+		height: $togglerSize;
+		background-color: transparent;
+		background-image: url('../img/icons/emoticon.svg');
+		padding: 0px;
+		box-shadow: none !important;
+		border-radius: 0px;
+		cursor: pointer;
+		pointer-events: auto;
+
+		transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+		opacity: 0.4;
+		&:hover {
+			opacity: 1;
+			box-shadow: none;
+			transform: scale(1.2);
+		}
+	}
+
+	& > .emoticons-bar {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		left: 50%;
+    	transform: translateX(-50%);
+		height: auto;
+		// background-color: #f554;
+		pointer-events: none;
+
+		display: flex;
+		flex-wrap: nowrap;
+
+		& > * {//single emot
+			display: inline-block;
+			width: $emotSize;
+			margin: 0px 3px;
+			box-shadow: none !important;
+			border-radius: 0px;
+			background-color: transparent;
+			padding: 0px;
+
+			opacity: 0;
+			transform: scale(0) translateY(0%);
+
+			transition: transform 0.4s cubic-bezier(.36,.07,.19,.97), opacity 0.4s ease-in-out;
+
+			@for $i from 1 through 8 {
+				&:nth-child(#{$i}) {
+					transition-delay: ($i - 1) * 0.03s;
+				}
+			}
+
+			& > img {
+				width: $emotSize;
+				height: $emotSize;
+				margin-bottom: 2px;
+				pointer-events: auto;
+				cursor: pointer;
+
+				opacity: 0.61;
+				&:hover {
+					opacity: 1;
+					//transform: scale(1.1);
+				}
+			}
+
+			& > span {
+				background-color: nth($palette, 8);
+				color: #fff;
+				font-size: 11px;
+				border-radius: 5px;
+				margin-top: 3px;
+				padding: 2px;
+			}
+		}
+	}
+
+	&.show-emots-bar {
+		& > .emoticons-toggler {
+			background-image: url('../img/icons/arrow_down.svg');
+		}
+
+		& > .emoticons-bar {
+			& > * {
+				opacity: 1;
+				transform: scale(1) translateY(-100%);
 			}
 		}
 	}
