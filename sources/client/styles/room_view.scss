@@ -155,7 +155,7 @@
 			    border: 1px solid #fff4;
 			    border-radius: 5px;
 			    font-weight: bold;
-			    padding: 0px 15px;
+
 			    min-width: auto;
 			    color: #fff;
 			    box-sizing: content-box;
@@ -169,11 +169,30 @@
 
 				&.empty {
 					background-color: #aaa;
+					padding: 0px 15px;
 					/*cursor: pointer;
 
 					&:hover {
 						background-color: #90A4AE;
 					}*/
+				}
+
+				&:not(.empty) {
+					padding: 0px 5px 0px 10px;
+					display: grid;
+					grid-template-columns: auto fit-content(100%);
+					grid-column-gap: 7px;
+					align-items: center;
+					justify-content: space-between;
+
+					img {//ship type icon
+						opacity: 0.3;
+					}
+				}
+
+				img {
+					height: 25px;
+					width: auto;
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 {
   "name": "bertasnakes",
-  "version": "0.8.2",
-  "description": "Mutliplayer browser game created by Aktyn",
+  "version": "0.8.3",
+  "description": "Multilayer browser game created by Aktyn",
   "main": "sources/server/main.ts",
   "scripts": {
     "client:dev": "webpack-dev-server --config ./webpack.config.js",

@@ -10,8 +10,8 @@ import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
-const TDD1 = true;//auto room joining
-const TDD2 = true;//auto sit and ready
+const TDD1 = false;//auto room joining
+const TDD2 = false;//auto sit and ready
 
 interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;
@@ -35,7 +35,7 @@ export default class extends React.Component<any, CoreState> {
 
 		indicate_room_deletion: false,
 		start_game_countdown: null
-	}
+	};
 
 	constructor(props: any) {
 		super(props);
@@ -48,7 +48,6 @@ export default class extends React.Component<any, CoreState> {
 			onServerConnected: this.onServerConnected.bind(this),
 			onServerDisconnect: this.onServerDisconnected.bind(this),
 			onServerMessage: this.onServerMessage.bind(this),
-			//onServerData: this.onServerData.bind(this)
 		});
 		Network.connect();
 	}
@@ -68,7 +67,7 @@ export default class extends React.Component<any, CoreState> {
 
 		this.room_deletion_tm = setTimeout(() => {
 			this.setState({
-				indicate_room_deletion: false, 
+				indicate_room_deletion: false,
 				rooms_list: this.state.rooms_list.filter(r => !r.to_remove)
 			});
 			this.room_deletion_tm = null;
@@ -84,8 +83,8 @@ export default class extends React.Component<any, CoreState> {
 		console.log('server disconnected');
 		if(this.active) {
 			this.setState({
-				current_user: null, 
-				current_room: null, 
+				current_user: null,
+				current_room: null,
 				rooms_list: [],
 				start_game_countdown: null
 			});
@@ -131,7 +130,7 @@ export default class extends React.Component<any, CoreState> {
 					if( this.stageHandle instanceof GameStage ) {
 						this.setState({
 							current_room: Network.getCurrentRoom(),
-							indicate_room_deletion: false, 
+							indicate_room_deletion: false,
 							rooms_list: this.state.rooms_list.filter(r => !r.to_remove),
 							current_stage: MenuStage.prototype
 						});
@@ -168,9 +167,9 @@ export default class extends React.Component<any, CoreState> {
 				}	break;
 
 				case NetworkCodes.ON_ROOM_REMOVED: {
-					for(let room of this.state.rooms_list) {
-						if(room.id === data['room_id']) {
-							room.to_remove = true;
+					for(let room_rm of this.state.rooms_list) {
+						if(room_rm.id === data['room_id']) {
+							room_rm.to_remove = true;
 							this.setState({rooms_list: this.state.rooms_list});
 							break;
 						}
@@ -202,10 +201,10 @@ export default class extends React.Component<any, CoreState> {
 
 				//room_id: number, author_id: number, timestamp: number, content: string
 				case NetworkCodes.ON_ROOM_MESSAGE: {
-					let room = Network.getCurrentRoom();
+					let room_m = Network.getCurrentRoom();
 
-					if(this.stageHandle && room && room.id === data['room_id']) {
-						let author = room.getUserByID( data['author_id'] );
+					if(this.stageHandle && room_m && room_m.id === data['room_id']) {
+						let author = room_m.getUserByID( data['author_id'] );
 						if(author) {
 							this.stageHandle.onChatMessage({
 								author: author,
@@ -217,9 +216,9 @@ export default class extends React.Component<any, CoreState> {
 				}	break;
 
 				case NetworkCodes.GAME_COUNTDOWN_UPDATE:
-					let room = Network.getCurrentRoom();
+					let _room = Network.getCurrentRoom();
 					let time = data['time'];
-					if( room && room.id === data['room_id'] && (typeof time==='number' || time===null) )
+					if( _room && _room.id === data['room_id'] && (typeof time==='number' || time===null) )
 						this.setState( {start_game_countdown: time} );
 					break;
 
@@ -254,7 +253,7 @@ export default class extends React.Component<any, CoreState> {
 							);
 						}
 					}
-					
+
 				}	break;
 				case NetworkCodes.END_GAME: {
 					if( this.stageHandle instanceof GameStage ) {
@@ -266,7 +265,7 @@ export default class extends React.Component<any, CoreState> {
 						}
 					}
 				}	break;
-				
+
 				// case NetworkCodes.ADD_FRIEND_CONFIRM:
 				// 	this.HeaderNotifications.addNotification(
 				// 		'User has been added to your friends list');
@@ -290,7 +289,7 @@ export default class extends React.Component<any, CoreState> {
 	render() {
 		switch(this.state.current_stage) {
 			default: return <div>ERROR</div>;
-			case MenuStage.prototype:	
+			case MenuStage.prototype:
 				return <MenuStage ref={el => this.stageHandle=el} {...this.state} />;
 			case GameStage.prototype:
 				return <GameStage ref={el => this.stageHandle=el} {...this.state} />;

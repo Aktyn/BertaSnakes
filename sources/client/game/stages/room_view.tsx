@@ -14,20 +14,28 @@ import Utils from '../../utils/utils';
 
 import '../../styles/room_view.scss';
 
-const ClockWidget: React.SFC<{seconds: number}> = (props) => {
-	let angle = (props.seconds / Config.MAXIMUM_GAME_DURATION) * 158;
+const ship_icons = [
+	require('../../img/textures/players/type_1.png'),
+	require('../../img/textures/players/type_2.png'),
+	require('../../img/textures/players/type_3.png'),
+];
 
-	return <span className='clock_chart'>
-		<svg width={100} height={100}>
-			<circle r={25} cx={50} cy={50} className="stroker" style={{
-				strokeDasharray: angle + ' 158'
-			}}></circle>
-			<circle r={35} cx={50} cy={50} className="centered"></circle>
-			<text x={50} y={50} textAnchor="middle" alignmentBaseline="central">
-				{(props.seconds/60)|0}&nbsp;min</text>
-		</svg>
-	</span>;
-};
+//const ClockWidget: React.SFC<{seconds: number}> = (props) => {
+class ClockWidget extends React.Component<{seconds: number}, any> {
+	render() {
+		let angle = (this.props.seconds / Config.MAXIMUM_GAME_DURATION) * 158;
+		return <span className='clock_chart'>
+			<svg width={100} height={100}>
+				<circle r={25} cx={50} cy={50} className="stroker" style={{
+					strokeDasharray: angle + ' 158'
+				}}/>
+				<circle r={35} cx={50} cy={50} className="centered"/>
+				<text x={50} y={50} textAnchor="middle" alignmentBaseline="central">
+					{(this.props.seconds / 60) | 0}&nbsp;min</text>
+			</svg>
+		</span>;
+	}
+}
 
 interface RoomViewProps {
 	room: RoomInfo;
@@ -50,7 +58,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 	state: RoomViewState = {
 		edit_mode: false,
 		gamemode_option: Utils.GAMEMODES_NAMES[this.props.room.gamemode]
-	}
+	};
 
 	constructor(props: RoomViewProps) {
 		super(props);
@@ -72,7 +80,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 				<label>Name:</label><input ref={el=>this.name_input=el} 
 					maxLength={Config.MAXIMUM_ROOM_NAME_LENGTH}
 					type='text' defaultValue={room_settings.name} />
-				<label>Game mode:</label><OptionsList ref={el=>this.gamemode_input=el} 
+				<label>Game mode:</label><OptionsList ref={el=>this.gamemode_input=el}
 					options={Utils.GAMEMODES_NAMES} 
 					onChange={opt => this.setState({gamemode_option: opt})}
 					defaultValue={Utils.GAMEMODES_NAMES[room_settings.gamemode]} />
@@ -91,7 +99,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 			<div key='apply-btn'>
 				<button className='glossy no-icon' style={{marginBottom: '15px'}} onClick={() => {
 					if(this.name_input && this.sits_input && this.duration_input && this.map_input &&
-						this.gamemode_input) 
+						this.gamemode_input)
 					{
 						Network.sendRoomUpdateRequest({
 							name: this.name_input.value, 
@@ -132,8 +140,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 			<section key='section1' className='room-parameters'>
 				<section className='map_preview static-preview'>
 					<label>{this.props.room.map}</label>
-					<canvas ref={el => el && updateMapPreview(this.props.room.map, el)}
-						width={150} height={150}></canvas>
+					<canvas ref={el => el && updateMapPreview(this.props.room.map, el)} width={150} height={150}/>
 				</section>
 				<section className='gamemode'>{Utils.GAMEMODES_NAMES[this.props.room.gamemode]}</section>
 				<section className='duration'>
@@ -167,7 +174,10 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 						let user = this.props.room.getUserByID(sit);
 						return <div key={i} className={this.props.room.isUserReady(sit) ? 
 							'ready' : (user ? '' : 'empty')}>
-							{user ? Utils.trimString(user.nick, 15) : 'EMPTY'}
+							{user ? <>
+								{Utils.trimString(user.nick, 15)}
+								<img src={ship_icons[user.custom_data.ship_type]} alt={'ship icon'} />
+							</> : 'EMPTY'}
 						</div>;
 					})}
 				</div>
