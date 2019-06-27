@@ -28,7 +28,7 @@ export enum PLAYER_TYPES {//enum (cannot be const since some code iterate over i
 	TRIANGLE = 0,
 	SQUARE,
 	PENTAGON
-};
+}
 
 //array of sensor shapes with order corresponding to player TYPES
 const PLAYER_SENSOR_SHAPES: number[][][] = [
@@ -45,7 +45,7 @@ const PLAYER_BASIC_SKILLS: SkillData[] = [
 const SCALE = 0.05, THICKNESS = 0.015, MAX_SPEED = 0.4, TURN_SPEED = Math.PI;
 const POISON_STRENGTH = 0.1;
 
-var s_i, em_i;
+let s_i, em_i;
 
 //(typeof module !== 'undefined' ? _Object2D_ : _Object2DSmooth_)
 //const _ExtendClass_ = Object2D;//TODO - Object2DSmooth client side
@@ -55,12 +55,16 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 	public static SHIP_LVL_REQUIREMENTS = [1, 3, 6];//level required to be able to use ship
 	public static SHIP_COSTS = [0, 500, 3000];//coins required to buy ship
 
-	public user_id: number;
-	public nick: string;
-	public level: number;
-	public rank: number;
+	//server-side use variables
+	public user_id = 0;
+	public account_id?: string = undefined;
+	public nick = '';
+	public avatar: string | null = null;
+	public level = 0;
+	public rank = 0;
+	
 	public movement: Movement;
-	readonly type: number;
+	readonly type: PLAYER_TYPES;
 	private _hp: number;
 	private _energy: number;
 	public skills: (SkillObject | null)[];
@@ -72,17 +76,17 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 	public sensor: Sensor;
 	public painter: Painter;
 
-	private entity_name?: string;
+	private readonly entity_name?: string;
 
 	private poisoning_emitter: any;
-	private emitter: any;
+	private readonly emitter: any;
 
 	public spawning?: boolean;
 
-	private entitiesClass: any;
-	private rendererClass: any;
+	private readonly entitiesClass: any;
+	private readonly rendererClass: any;
 	
-	constructor(type: number, skills: (number | null)[], color: ColorI, _entitiesClass?: any,
+	constructor(type: PLAYER_TYPES, skills: (number | null)[], color: ColorI, _entitiesClass?: any,
 		_rendererClass?: any) 
 	{
 		super();
@@ -90,11 +94,6 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 
 		this.entitiesClass = _entitiesClass;
 		this.rendererClass = _rendererClass;
-
-		this.user_id = 0;//server-side use
-		this.nick = '';
-		this.level = 0;
-		this.rank = 0;
 
 		this.movement = new Movement();
 		this.movement.setOptions({
@@ -110,7 +109,7 @@ export default class Player extends /*_ExtendClass_*/Object2D {
 		this.skills = [ PLAYER_BASIC_SKILLS[type].create() ];//basic skill (space)
 
 		try {
-			skills.forEach((skill_id, index) => {
+			skills.forEach((skill_id) => {
 				if(skill_id !== null) {
 					let skill_schema = Skills.getById(skill_id);
 					if(skill_schema === undefined)

@@ -20,18 +20,18 @@ export interface ChunkSchema {
 }
 
 //CHUNK_RES / CHUNK_SIZE should be 1024 at highest settings
-var CHUNK_RES = 128;//resolution of single chunk (256)
+let CHUNK_RES = 128;//resolution of single chunk (256)
 //const CHUNK_SIZE = 0.25;//size of a single chunk compared to screen height
 
 const PI_2 = Math.PI * 2.0;
 
 //performance mater variables
-var sxi_temp: number, syi_temp: number, sxi: number, syi: number, exi: number, eyi: number, 
+let sxi_temp: number, syi_temp: number, sxi: number, syi: number, exi: number, eyi: number,
 	xx: number, yy: number, temp: number, itY: number, itX: number, ch_i: number, 
 	chunk_ctx: CanvasRenderingContext2D, relXs: number, relYs: number, relXe: number, 
 	relYe: number, thick_off: number, rad_off: number, pixel_i: number, ii: number;
 
-var clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+let clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const pow2 = (a: number) => a*a;
 
 export default class PaintLayer {
@@ -285,7 +285,7 @@ export default class PaintLayer {
 		let cc = map['walls_color'];
 		this.walls_color = Colors.gen(cc[0], cc[1], cc[2]);
 			
-		var smooth = map['smooth_walls'];// || false;//image smoothing during scale
+		let smooth = map['smooth_walls'];// || false;//image smoothing during scale
 
 		let map_canvas: HTMLCanvasElement;
 		if(_CLIENT_) {
@@ -317,13 +317,13 @@ export default class PaintLayer {
 		//console.log(isReady(), map['walls_texture']);
 		map_ctx.drawImage(map['walls_texture'], 0, 0, map_canvas.width, map_canvas.height);
 
-		var canvasData = map_ctx.getImageData(0, 0, map_canvas.width, map_canvas.height),
+		let canvasData = map_ctx.getImageData(0, 0, map_canvas.width, map_canvas.height),
 	     	pix = canvasData.data;
 
-	    var cbuff = this.walls_color.byte_buffer;//Colors.WALLS.byte_buffer;
-	    for(var i=0, n=pix.length; i<n; i+=4) {
+	    let cbuff = this.walls_color.byte_buffer;//Colors.WALLS.byte_buffer;
+	    for(let i=0, n=pix.length; i<n; i+=4) {
 	        pix[i+3] = pix[i];
-	        pix[i+0] = cbuff[0];
+	        pix[i] = cbuff[0];
 	        pix[i+1] = cbuff[1];
 	        pix[i+2] = cbuff[2];
 	    }
@@ -439,8 +439,8 @@ export default class PaintLayer {
 		this.drawCircle(sx, sy, radius, false);
 		this.composite = 'source-over';//restore default
 
-		//repainting undestructable walls, spawn area etc
-		var bytes = 0x00;
+		//repainting indestructible walls, spawn area etc
+		let bytes = 0x00;
 
 		//console.log(sx, sy, radius, this.map_size, this.walls_thickness);
 		if(sy + radius > this.map_size - this.walls_thickness*2.0)

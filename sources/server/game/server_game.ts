@@ -40,7 +40,7 @@ const bullets_offsets_2 = [{x: -0.5, y: 1}, {x: 0.5, y: 1}];
 const bullets_offsets_3 = [{x: 0, y: 1}, {x: -0.5, y: 0.5}, {x: 0.5, y: 0.5}];
 
 //game logic variables
-var wave_i: number, chunk_it: number, chunk_ref, ss_i: number, obj_i: number, 
+let wave_i: number, chunk_it: number, chunk_ref, ss_i: number, obj_i: number,
 	p_i: number, e_i: number, s_i: number, b_i: number, s_h, 
 	async_p_i: number, p_it: Player, 
 	async_p_it: Player, async_s, 
@@ -64,9 +64,9 @@ const runLoop = (function() {
 	const FIXED_DELTA = frame_rate;//0.0166666667;// 1/60th of second
 
 	//timing variables
-	var hrtime: number[], _dt = 0, _steps_: number, start: number, end: number, delta_sum = 0;
+	let hrtime: number[], _dt = 0, _steps_: number, start: number, end: number, delta_sum = 0;
 
-	var nano = function() {
+	const nano = function() {
 		hrtime = process.hrtime();
 		return (+hrtime[0]) * 1e9 + (+hrtime[1]);
 	};
@@ -110,8 +110,8 @@ export default class ServerGame extends GameCore {
 	private room: RoomInfo;
 	public running: boolean;
 	//private duration: number;
-	private maximum_enemies: number;
-	private bounceVec: Vec2f;
+	private readonly maximum_enemies: number;
+	private readonly bounceVec: Vec2f;
 	private respawning_players: {player: Player, time: number}[] = [];
 	private dataForClients: number[] = [];
 	public initialized: boolean;
@@ -146,7 +146,7 @@ export default class ServerGame extends GameCore {
 
 		try {
 			let result = super.loadMap(map);
-			if(result !== true)
+			if(!result)
 				throw new Error('Cannot load map');
 		}
 		catch(e) {
@@ -170,7 +170,9 @@ export default class ServerGame extends GameCore {
 				continue;
 			init_data.push({
 				id: user_info.id,
+				account_id: user_info.account_id,
 				nick: user_info.nick,
+				avatar: user_info.avatar,
 				level: user_info.level,
 				rank: user_info.rank,
 				ship_type: user_info.custom_data.ship_type,
@@ -206,7 +208,7 @@ export default class ServerGame extends GameCore {
 	}
 
 	end() {
-		if(this.running !== true)
+		if(!this.running)
 			return;
 		this.running = false;
 		
@@ -233,9 +235,9 @@ export default class ServerGame extends GameCore {
 	onClientMessage(client_id: number, data: Uint8Array) {
 		if((async_p_i = this.getPlayerByUserId(client_id)) === -1)
 			return;
-		async_p_it = <Player>this.players[async_p_i];
+		async_p_it = this.players[async_p_i];
 
-		if((async_p_it).spawning === true)
+		if((async_p_it).spawning)
 			return;
 
 		switch(data[0]) {
@@ -300,11 +302,11 @@ export default class ServerGame extends GameCore {
 
 	onPlayerPainterCollision(player: Player, color: Uint8Array) {
 		//ignore self collisions
-		if(Colors.compareByteBuffers(player.painter.color.byte_buffer, color) === true)
+		if(Colors.compareByteBuffers(player.painter.color.byte_buffer, color))
 			return;
 
 		//this.walls_color.byte_buffer
-		if(Colors.compareByteBuffers(this.walls_color.byte_buffer, color) === true) {
+		if(Colors.compareByteBuffers(this.walls_color.byte_buffer, color)) {
 			if(player.spawning === true) {//pushing out of safe area and finishing spawning
 				this.bounceVec.set(player.x, player.y).normalize().scaleBy(
 					GameCore.GET_PARAMS().spawn_radius + GameCore.GET_PARAMS().spawn_walls_thickness);
@@ -330,9 +332,8 @@ export default class ServerGame extends GameCore {
 		else if(Colors.isPlayerColor(color)) {//checking collisions with other players curves
 			//other painter collisions only in competition mode
 			if(this.room.gamemode === GAME_MODES.COMPETITITON) {
-				for(var player_col_i in Colors.PLAYERS_COLORS) {
-					if(Colors.compareByteBuffers(Colors.PLAYERS_COLORS[player_col_i].byte_buffer, 
-							color) === true) {
+				for(const player_col_i in Colors.PLAYERS_COLORS) {
+					if( Colors.compareByteBuffers(Colors.PLAYERS_COLORS[player_col_i].byte_buffer, color) ) {
 						// console.log('You hit other player\'s painter');
 
 						if(this.playerBounce(player, color) === true)
@@ -346,14 +347,13 @@ export default class ServerGame extends GameCore {
 	}
 
 	onEnemyPainterCollision(enemy: Enemy, color: Uint8Array) {
-		if(Colors.compareByteBuffers(this.walls_color.byte_buffer, color) === true) {
+		if( Colors.compareByteBuffers(this.walls_color.byte_buffer, color) )
 			this.enemyBounce(enemy, color);
-		}
 	}
 
 	onBulletPainterCollision(bullet: Bullet, color: Uint8Array) {
 		//ignore self color collision
-		if(Colors.compareByteBuffers(bullet.color.byte_buffer, color) === true)
+		if(Colors.compareByteBuffers(bullet.color.byte_buffer, color))
 			return;
 
 		if( Colors.compareByteBuffers(this.walls_color.byte_buffer, color) || 
@@ -378,7 +378,7 @@ export default class ServerGame extends GameCore {
 	}
 
 	onPlayerEnemyCollision(player: Player, enemy: Enemy) {
-		if(enemy.isAlive() === false)
+		if(!enemy.isAlive())
 			return;
 		this.bounceVec.set(player.x - enemy.x, player.y - enemy.y).normalize();
 
@@ -397,8 +397,8 @@ export default class ServerGame extends GameCore {
 		//player.x += this.bounceVec.x * GameCore.GET_PARAMS().explosion_radius * 0.5;
 		//player.y += this.bounceVec.y * GameCore.GET_PARAMS().explosion_radius * 0.5;
 
-		var xx = player.x - this.bounceVec.x * player.width;
-		var yy = player.y - this.bounceVec.y * player.height;
+		let xx = player.x - this.bounceVec.x * player.width;
+		let yy = player.y - this.bounceVec.y * player.height;
 		super.paintHole( xx, yy, GameCore.GET_PARAMS().explosion_radius );
 
 		//enemy dies on hit with player
@@ -409,7 +409,7 @@ export default class ServerGame extends GameCore {
 			player.x, player.y, player.rot, player.hp, player.points, 
 			this.bounceVec.x, this.bounceVec.y);
 
-		if(player.isAlive() === false)
+		if(!player.isAlive())
 			this.onPlayerDeath(player, 0);
 	}
 
@@ -423,8 +423,7 @@ export default class ServerGame extends GameCore {
 			player.x, player.y, player.rot, this.bounceVec.x, this.bounceVec.y);
 	}
 
-	onEnemyEnemySpawnerCollision(enemy: Enemy, spawner: EnemySpawner) 
-	{
+	onEnemyEnemySpawnerCollision(enemy: Enemy, spawner: EnemySpawner) {
 		//@ts-ignore
 		this.bounceOneObjectFromAnother(enemy, spawner);
 
@@ -441,8 +440,8 @@ export default class ServerGame extends GameCore {
 		hit_x = (object.x + bullet.x) / 2.0;
 		hit_y = (object.y + bullet.y) / 2.0;
 
-		var damage = 0;
-		var dmg_scale = bullet.damage_scale;
+		let damage = 0;
+		let dmg_scale = bullet.damage_scale;
 		if(is_player) {
 			if(bullet.type === BULLET_TYPE.BOUNCING)
 				damage = GameCore.GET_PARAMS().player_to_bouncing_bullet_receptivity * dmg_scale;
@@ -453,7 +452,6 @@ export default class ServerGame extends GameCore {
 				<Player>object, damage);
 		}
 		else {
-			var damage = 0;
 			if(bullet.type === BULLET_TYPE.BOUNCING)
 				damage = GameCore.GET_PARAMS().enemy_to_bouncing_bullet_receptivity * dmg_scale;
 			else
@@ -468,14 +466,14 @@ export default class ServerGame extends GameCore {
 	}
 
 	onPlayerBulletCollision(player: Player, bullet: Bullet) {
-		if(player.isAlive() === false || bullet.parent === player)
+		if(!player.isAlive() || bullet.parent === player)
 			return;
 
 		this.onBulletHit(player, bullet, true);
 	}
 
 	onEnemyBulletCollision(enemy: Enemy, bullet: Bullet) {
-		if(enemy.isAlive() === false)//|| bullet.parent === enemy => TODO when enemy will shoot
+		if(!enemy.isAlive())//|| bullet.parent === enemy => TODO when enemy will shoot
 			return;
 
 		this.onBulletHit(enemy, bullet, false);
@@ -558,7 +556,7 @@ export default class ServerGame extends GameCore {
 
 		attacker.points += damage * GameCore.GET_PARAMS().points_for_player_damage;
 
-		if(victim.isAlive() === false) {
+		if(!victim.isAlive()) {
 			this.onPlayerDeath(victim, GameCore.GET_PARAMS().explosion_radius);
 
 			attacker.kills++;
@@ -580,7 +578,7 @@ export default class ServerGame extends GameCore {
 		if(this.room.gamemode === GAME_MODES.COOPERATION)
 			player.points += damage * GameCore.GET_PARAMS().points_for_enemy_damage;
 
-		if(enemy.isAlive() === false) {//enemy was killed
+		if(!enemy.isAlive()) {//enemy was killed
 			enemy.expired = true;
 			super.paintHole( enemy.x, enemy.y, GameCore.GET_PARAMS().explosion_radius );
 				
@@ -600,7 +598,7 @@ export default class ServerGame extends GameCore {
 		const radius_pow = pow( GameCore.GET_PARAMS().bomb_explosion_radius );
 		
 		for(e_i=0; e_i<this.enemies.length; e_i++) {
-			if((<Enemy>this.enemies[e_i]).spawning === false && 
+			if(!(<Enemy>this.enemies[e_i]).spawning &&
 			Vector.distanceSqrt(this.enemies[e_i], bomb) <= radius_pow) {
 				//NOTE - 1.0 == 100% damage
 				this.onPlayerAttackedEnemy( bomb.parent, 
@@ -610,7 +608,7 @@ export default class ServerGame extends GameCore {
 		if(this.room.gamemode === GAME_MODES.COMPETITITON) {
 			for(p_i=0; p_i<this.players.length; p_i++) {
 				//@ts-ignore
-				if(this.players[p_i] !== bomb.parent && this.players[p_i].spawning === false && 
+				if(this.players[p_i] !== bomb.parent && !this.players[p_i].spawning &&
 				Vector.distanceSqrt(this.players[p_i], bomb) <= radius_pow ) {
 					//@ts-ignore //NOTE - 1.0 == 100% damage
 					this.onPlayerAttackedPlayer( bomb.parent, this.players[p_i], 1.0);
@@ -637,9 +635,9 @@ export default class ServerGame extends GameCore {
 			this.dataForClients.push(NetworkCodes.WAVE_INFO, this.wave_number);
 
 			for(wave_i=0; wave_i < ENEMIES_PER_WAVE*this.players.length; wave_i++) {
-				var enemy_class_index = GameCore.getRandomEnemyClassIndex();
+				let enemy_class_index = GameCore.getRandomEnemyClassIndex();
 				
-				var enemy = super.spawnEnemy( enemy_class_index );
+				let enemy = super.spawnEnemy( enemy_class_index );
 				if(enemy === null)
 					continue;
 				//console.log(enemy);
@@ -653,7 +651,7 @@ export default class ServerGame extends GameCore {
 	}
 
 	spawnRandomItem() {
-		var item = super.spawnItem( Item.randomType() );
+		let item = super.spawnItem( Item.randomType() );
 		if(item !== null)
 			this.dataForClients.push(NetworkCodes.SPAWN_ITEM, item.id, item.type, item.x, item.y);
 	}
@@ -689,20 +687,20 @@ export default class ServerGame extends GameCore {
 					sin = Math.sin(-player.rot);
 					cos = Math.cos(-player.rot);
 
-					let bullet = new Bullet(
+					let bullet_i = new Bullet(
 						(offsets[i].x * cos - offsets[i].y * sin) * player.width + player.x, 
 						(offsets[i].x * sin + offsets[i].y * cos) * player.height + player.y, 
 						player.rot, 
 						player, BULLET_TYPE.NORMAL
 					);
 					if(skill.data === Skills.SHOOT2)
-						bullet.damage_scale = 0.6;
+						bullet_i.damage_scale = 0.6;
 					else if(skill.data === Skills.SHOOT3)
-						bullet.damage_scale = 0.4;
-					this.bullets.push( bullet );
+						bullet_i.damage_scale = 0.4;
+					this.bullets.push( bullet_i );
 
 					//fill rest data for clients
-					this.dataForClients.push( bullet.id, bullet.x, bullet.y, bullet.rot );
+					this.dataForClients.push( bullet_i.id, bullet_i.x, bullet_i.y, bullet_i.rot );
 				}
 				break;
 			case Skills.BOUNCE_SHOT:
@@ -752,7 +750,7 @@ export default class ServerGame extends GameCore {
 				if(this.room.gamemode === GAME_MODES.COMPETITITON) {
 					for(p_i=0; p_i<this.players.length; p_i++) {
 						//@ts-ignore
-						if(this.players[p_i] !== player && this.players[p_i].spawning === false && 
+						if(this.players[p_i] !== player && !this.players[p_i].spawning &&
 						Vector.distanceSqrt(this.players[p_i], player) <= radius_pow ) {
 							this.onPlayerAttackedPlayer(
 								player, <Player>this.players[p_i], 
@@ -764,7 +762,7 @@ export default class ServerGame extends GameCore {
 			case Skills.SHIELD:
 				player.effects.active( AVAILABLE_EFFECTS.SHIELD );
 
-				//NO NEED TO ADD SHIELD OBJECT SERVER-SIDE BECOUSE IT'S JUST A VISUAL EFFECT
+				//NO NEED TO ADD SHIELD OBJECT SERVER-SIDE BECAUSE IT'S JUST A VISUAL EFFECT
 				//player.effects.push( new Effect(Effect.SHIELD) );
 				
 				this.dataForClients.push( NetworkCodes.ON_SHIELD_EFFECT, player_i );
@@ -789,7 +787,7 @@ export default class ServerGame extends GameCore {
 		player.energy -= skill.use();
 
 		//immediately stop non-continuous skills after it effect is applied
-		if(skill.isContinous() === false)
+		if( !skill.isContinous() )
 			skill.stopUsing();
 
 		if(immediately_response) {
@@ -878,7 +876,7 @@ export default class ServerGame extends GameCore {
 
 		//before updating supper class - checking expired bombs
 		for(b_i=0; b_i<this.bombs.length; b_i++) {
-			if(this.bombs[b_i].expired === true)//bomb just exploded
+			if( this.bombs[b_i].expired )//bomb just exploded
 				this.onBombExplosion( <Bomb>this.bombs[b_i] );
 		}
 
@@ -908,20 +906,20 @@ export default class ServerGame extends GameCore {
 				s_h = p_it.skills[s_i];
 				if(s_h === null)
 					continue;
-				if(s_h.isInUse() === true) {//only for continuous skills
-					if(s_h.isContinous() === false)
+				if(s_h.isInUse()) {//only for continuous skills
+					if(!s_h.isContinous())
 						throw new Error('Non-continuous skill has not been stopped');
 					this.applySkillEffect(p_it, s_h, p_i, s_i, false);
 				}
 			}
 
 			//checking if alive
-			if(p_it.isAlive() !== true) {//dead from poison etc
+			if(!p_it.isAlive()) {//dead from poison etc
 				this.onPlayerDeath(p_it, GameCore.GET_PARAMS().small_explosion_radius);
 			}
 
 			//drawing player line segments for each player
-			var segmentLength = Math.hypot(p_it.x-p_it.painter.lastPos.x, 
+			let segmentLength = Math.hypot(p_it.x-p_it.painter.lastPos.x,
 				p_it.y-p_it.painter.lastPos.y);
 			//if player moved minimum distance
 			if(p_it.painter.active && segmentLength > p_it.width/2.0) {

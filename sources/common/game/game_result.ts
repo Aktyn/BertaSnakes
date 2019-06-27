@@ -1,8 +1,12 @@
 import GameCore from './game_core';
+import {PLAYER_TYPES} from './objects/player';
 
 export interface PlayerResultJSON {
 	user_id: number;
+	account_id?: string;
 	nick: string;
+	avatar: string | null;
+	ship_type: PLAYER_TYPES;
 	level: number;
 	points: number;
 	kills: number;
@@ -41,7 +45,8 @@ function calculateCoinsReward(position: number, players_count: number, points: n
 }
 
 function probability(r1: number, r2: number): number {
-    return 1.0 * 1.0 / (1 + 1.0 * Math.pow(10, 1.0 * (r1 - r2) / 400));
+	//1.0 * 1.0 / (1 + 1.0 * Math.pow(10, 1.0 * (r1 - r2) / 400));
+    return 1.0 / (1 + Math.pow(10, (r1 - r2) / 400));
 }
 
 const eloK = 10;
@@ -51,12 +56,10 @@ function eloRating(Ra: number, Rb: number, d: boolean) {
     let Pa = probability(Rb, Ra);
  
     // Case -1 When Player A wins
-    if (d === true)
+    if (d)
         return eloK * (1 - Pa);
     else// Case -2 When Player B wins
         return eloK * (0 - Pa);
- 
- 	throw new Error('Impossible error');
 }
 
 //@players - array of objects with rank property
@@ -101,19 +104,22 @@ function calculateRankReward(players: any, target_index: number) {
 export default class GameResult {
 	public players_results: PlayerResultJSON[];
 
-	constructor(game?: any) {
+	constructor(game: GameCore) {
 		this.players_results = [];
 
-		if(game instanceof GameCore) {//this should be invoke only server-side
-			game.players.sort((a: any, b: any) => b.points - a.points)
-				.forEach((player: any, index: any, arr: any) => 
+		//if(game instanceof GameCore) {//this should be invoke only server-side
+			game.players.sort((a, b) => b.points - a.points)
+				.forEach((player, index, arr) =>
 			{
 				//@arr - sorted array of players
 				let rank_reward = calculateRankReward(arr, index);
-
+	
 				this.players_results.push({
 					user_id: player.user_id,
+					account_id: player.account_id,
 					nick: player.nick,
+					avatar: player.avatar,
+					ship_type: player.type,
 					level: player.level,
 					points: player.points,
 					kills: player.kills,
@@ -121,25 +127,25 @@ export default class GameResult {
 					exp: calculateExpReward(player),
 					//NOTE - array is sorted desc by player points
 					coins: calculateCoinsReward(index, game.players.length, player.points),
-					rank: player.rank + rank_reward,//TODO
+					rank: player.rank + rank_reward,
 					rank_reward: rank_reward
 				});
 			});
-		}
+		//}
 	}
 
-	toJSON(): GameResultJSON {//returns string
+	public toJSON(): GameResultJSON {//returns string
 		return {
 			players_results: this.players_results
 		};
 	}
 
-	static fromJSON(json_data: any) {
+	/*public static fromJSON(json_data: any) {
 		if(typeof json_data === 'string')
 			json_data = <GameResultJSON>JSON.parse(json_data);
 
 		let result = new GameResult();
 		result.players_results = json_data['players_results'];
 		return result;
-	}
+	}*/
 }

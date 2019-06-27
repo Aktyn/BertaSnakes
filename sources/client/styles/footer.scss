@@ -1,14 +1,11 @@
 @import './global.scss';
 
-$size: 20px;
-
 .footer {
 	display: grid;
 	align-items: center;
 	justify-content: space-between;
 
 	padding: 0px;
-	// min-height: $size;
 	height: auto;
 
 	font-size: 10px;

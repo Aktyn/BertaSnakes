@@ -2,23 +2,24 @@ import RoomInfo from '../../common/room_info';
 import {UserFullData} from '../../common/user_info';
 import NetworkCodes from '../../common/network_codes';
 import Connections, {Connection} from './connections';
+import {GameResultJSON} from '../../common/game/game_result';
 import * as child_process from 'child_process';
 import * as path from 'path';
 
-//TODO: refactor this function
-/*function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
-	//console.log( room );
-	//console.log( msg.data.result.players_results );
-
+function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 	//updating user's database entries according to game result
 	if(typeof result_json === 'string')
 		result_json = JSON.parse(result_json);
+	
+	//console.log( room );
+	//console.log( result_json );
 
 	result_json.players_results.forEach(result => {
-		if(result.user_id < 0)//ignore guests
+		if(!result.account_id)//ignore guests
 			return;
 		
-		let online_user_conn = current_connections.find((conn: Connection) => {
+		//TODO: update users custom datas
+		/*let online_user_conn = current_connections.find((conn: Connection) => {
 			return conn.user !== null && conn.user.id === result.user_id;
 		});
 
@@ -34,13 +35,20 @@ import * as path from 'path';
 				//let custom_data = JSON.parse( res.custom_data );
 				updateAndSaveCustomData(res.id, JSON.parse(res.custom_data), result);
 			}).catch(e => console.error(e));
-		}
+		}*/
+		
+		/////////////////////////////////////////////////////////////////////////
+		
+		//room.forEachUser((user) => {
+			//if(user.connection && user.id === result.user_id)
+				//TODO - distribute user's custom data update across the room
+				//user.connection.updateUserData();
+		//});
 	});
-
-	//saving game result as database result
-	var result_json_out = JSON.stringify(result_json);
-	DatabaseUtils.saveGameResult(room.name, room.map, room.gamemode, room.duration, result_json_out);
-}*/
+	
+	//TODO: saving game result as database result
+	//Database.saveGameResult(room.name, room.map, room.gamemode, room.duration, result_json_out);
+}
 
 function onGameFailedToStart(room: RoomInfo) {
 	console.warn('Game failed to start:', room.id);
@@ -61,8 +69,8 @@ interface GameProcessMessage {
 }
 
 export default class GameHandler {
-	private onExit: (no_error: boolean) => void;
-	private room: RoomInfo;
+	private readonly onExit: (no_error: boolean) => void;
+	private readonly room: RoomInfo;
 	private remaining_confirmations: number[];
 	private game_started = false;
 
@@ -84,7 +92,7 @@ export default class GameHandler {
 
 		try {
 			//spawn process for game
-			this.room.game_process = child_process.fork( path.join(__dirname, 'game_process') )
+			this.room.game_process = child_process.fork( path.join(__dirname, 'game_process') );
 			//deprecated: child_process.fork(__dirname + '/game_process');
 
 			let playing_users_data: UserFullData[] = [];
@@ -130,6 +138,7 @@ export default class GameHandler {
 		if(this.room.game_process !== null)//kill process before nulling it
 			this.room.game_process.kill('SIGINT');
 		this.room.game_process = null;
+		this.room.unreadyAll();
 		this.onExit(no_error);
 	}
 
@@ -158,7 +167,7 @@ export default class GameHandler {
 	private handleGameProcessMessage(msg: GameProcessMessage) {
 		switch(msg.action) {
 			case NetworkCodes.START_ROUND_ACTION: {//@msg.data - game duration in seconds
-				if(typeof msg.data.game_duration !== 'number' || 
+				if(typeof msg.data.game_duration !== 'number' ||
 					typeof msg.data.round_delay !== 'number' || 
 					typeof msg.data.init_data !== 'object')
 					break;
@@ -180,8 +189,8 @@ export default class GameHandler {
 					...msg.data
 				});
 
-				//TODO: saving game result to database
-				//saveGameResult(room, msg.data.result);
+				//saving game result to database
+				saveGameResult(this.room, msg.data.result);
 
 				this.onGameEnd(true);
 			}	break;

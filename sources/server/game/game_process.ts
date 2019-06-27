@@ -22,13 +22,13 @@ console.log = (function(MSG_PREFIX) {
 
 console.log('Child process initialized');
 
-var game: ServerGame | null = null;
+let game: ServerGame | null = null;
 
 //invokes callback when game is running
 let waitForGameInitialize = (callback: (game: ServerGame) => void) => {
 	if(game)
 		console.log(game.initialized);
-	if(game !== null && game.initialized === true)
+	if(game !== null && game.initialized)
 		callback(game);
 	else
 		setTimeout(waitForGameInitialize, 100, callback);
@@ -65,8 +65,11 @@ process.on('message', function(msg: MessageSchema) {
 
 				onMapsLoaded(() => {//make sure maps data is loaded
 					try {
-						if( !(room.map in Maps) )
-							throw new Error('Given map is not available: ' + room.map);
+						if( !(room.map in Maps) ) {
+							console.error('Given map is not available:', room.map);
+							process.exit();
+							return;
+						}
 						game = new ServerGame(Maps[room.map], room);
 
 						setTimeout(function() {
@@ -75,7 +78,7 @@ process.on('message', function(msg: MessageSchema) {
 						}, 1000 * 60 * 40);//40 minutes (maximum game lifetime)
 					}
 					catch(e) {
-						console.error(e);
+						console.error('Initializing game error:', e);
 						process.exit();
 						//process.send( {action: NetworkCodes.START_GAME_FAIL_ACTION} );
 					}

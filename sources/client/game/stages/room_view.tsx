@@ -176,7 +176,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 							'ready' : (user ? '' : 'empty')}>
 							{user ? <>
 								{Utils.trimString(user.nick, 15)}
-								<img src={ship_icons[user.custom_data.ship_type]} alt={'ship icon'} />
+								<img src={ship_icons[user.custom_data.ship_type]} alt='ship icon' />
 							</> : 'EMPTY'}
 						</div>;
 					})}

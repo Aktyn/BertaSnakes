@@ -1,0 +1,82 @@
+@import "global.scss";
+
+.game-results-container {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	width: 100vw;
+	height: 100vh;
+	z-index: 80;
+	background-color: #26323880;
+	
+	display: grid;
+	align-items: center;
+	justify-content: center;
+	
+	animation: fade-in 0.5s cubic-bezier(.36,.07,.19,.97) forwards;
+	@keyframes fade-in {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+	
+	& > .results-body {
+		background-color: #fff;
+		color: #455a64;
+		box-shadow: 0px 0px 4px #0008;
+		overflow: auto;
+		border-radius: 5px;
+		
+		max-height: 100vh;
+		max-width: 900px;
+		
+		& > h1 {
+			padding: 10px;
+			margin: 0px;
+			font-size: 15px;
+			font-weight: bold;
+			background-color: nth($palette, 9);
+			color: nth($palette, 1);
+		}
+		
+		& > .results-tab {
+			img {
+				max-height: 20px;
+				margin: 0px 3px;
+			}
+			border-collapse: collapse;
+			
+			tr {//result row
+				& > td, & > th {
+					padding: 4px;
+					line-height: 28px;
+				}
+			}
+			
+			& > tbody > tr {
+				opacity: 0;
+				animation: come-from-the-heaven 0.5s cubic-bezier(.36,.07,.19,.97) forwards;
+				
+				@for $i from 1 through 4 {
+					&:nth-child(#{$i}) {
+						animation-delay: ($i - 1) * 0.1s;//0.5s can be added to be waiting for fade-in animation to finish
+					}
+				}
+				
+				@keyframes come-from-the-heaven {
+					0% {
+						opacity: 0;
+						transform: translateY(-50px);
+					}
+					100% {
+						opacity: 1;
+						transform: translateY(0px);
+					}
+				}
+			}
+		}
+	}
+}

@@ -5,6 +5,7 @@ import RoomInfo from '../../../common/room_info';
 import {MessageSchema} from '../../components/room_chat';
 
 export interface BaseProps {
+	onChange: (target: StageBase<any, any>) => void;
 	current_user: UserInfo | null,
 	current_room: RoomInfo | null,//current room
 	rooms_list: RoomInfo[];
@@ -12,10 +13,11 @@ export interface BaseProps {
 
 export interface BaseState {}
 
-export default abstract class<Props, State> extends React.Component<Props, State> {
-	constructor(props: Props) {
+export default abstract class StageBase<Props, State> extends React.Component<Props, State> {
+	protected constructor(props: Props) {
 		super(props);
 	}
 
-	public abstract onChatMessage(msg: MessageSchema): void;
+	// noinspection JSUnusedGlobalSymbols
+	protected abstract onChatMessage(msg: MessageSchema): void;
 }

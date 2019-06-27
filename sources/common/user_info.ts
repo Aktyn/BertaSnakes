@@ -83,8 +83,7 @@ export default class UserInfo {
 	}
 
 	public static createGuest() {
-		let id = UserInfo.guest_id--;
-
+		let id = this.nextGuestId();
 		return new UserInfo(id, {
 			nick: "Guest#" + Math.abs(id),
 			level: 1,
@@ -105,6 +104,10 @@ export default class UserInfo {
 
 	public static nextUserId() {
 		return ++UserInfo.user_id;
+	}
+	
+	private static nextGuestId() {
+		return UserInfo.guest_id--;
 	}
 
 	public isGuest() {
@@ -196,11 +199,9 @@ export default class UserInfo {
 			ship_type: full_data['ship_type']
 		};
 
-		let user = new UserInfo(full_json_data['id'], full_data, full_json_data['account_id']);
-
 		//user.friends = full_json_data['friends'];
 		//user.lobby_subscriber = full_json_data['lobby_subscriber'];
-		return user;
+		return new UserInfo(full_json_data['id'], full_data, full_json_data['account_id']);
 	}
 
 	public updateData(fresh_data: UserCustomData) {

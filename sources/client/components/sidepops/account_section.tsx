@@ -34,8 +34,8 @@ function renderVerificationPrompt(self: AccountSidepop, account: AccountSchema,
 function renderAccountData(self: AccountSidepop, account: AccountSchema) {
 	return <>
 		<hr/>
-		{self.state.verify_info === true && 
-			<h2 key='verified_label' className='success fader-in'>Verification successfull</h2>}
+		{self.state.verify_info &&
+			<h2 key='verified_label' className='success fader-in'>Verification successful</h2>}
 		<div key='account_email' className='fader-in account-details'>
 			<label>Email:</label>
 			<div>{account.email}</div>
@@ -84,15 +84,15 @@ export default function renderAccountSection(self: AccountSidepop, account: Acco
 	return <section>
 		<h1 key='welcome-key' className='fader-in welcomer'>
 			<span>Hello {account.username}</span>
-			<div className='avatar-choser' style={account.avatar ? {} : {
+			<div className='avatar-chooser' style={account.avatar ? {} : {
 				backgroundColor: '#90A4AE',
 				boxShadow: '0px 2px 4px #0008'
 			}}>
-				<div key={account.avatar || 'no-avatar'} 
+				<div key={account.avatar || 'no-avatar'}
 					className='avatar' style={{
-						backgroundImage: `url(${ServerApi.getAvatarPath(account.avatar)})`,
-						...no_avatar_style
-					}}></div>
+					backgroundImage: `url(${ServerApi.getAvatarPath(account.avatar)})`,
+					...no_avatar_style
+				}}/>
 				{
 					account.avatar ? <button className='avatar-select-btn' 
 						ref={el => self.clear_avatar_btn = el}

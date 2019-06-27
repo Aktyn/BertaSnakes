@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import StageBase, {BaseProps, BaseState} from './stage_base';
+import MenuStage from './menu_stage';
 
 import Network from '../engine/network';
 import Maps from '../../../common/game/maps';
@@ -12,7 +13,9 @@ import Entities from '../entities';
 import Assets from '../engine/assets';
 import Player from '../../../common/game/objects/player';
 import Colors from '../../../common/game/common/colors';
+import {PlayerResultJSON} from '../../../common/game/game_result';
 
+import GameResults from '../../components/game_results';
 import UsersList from '../../components/users_list';
 import UserBtn from '../../components/user_btn';
 import RoomChat from '../../components/room_chat';
@@ -46,6 +49,8 @@ interface GameState extends BaseState {
 	am_i_playing: boolean;
 	players_infos: PlayerInfo[];
 	notifications: {id: number, content: string}[];
+	
+	results?: PlayerResultJSON[];
 }
 
 export default class extends StageBase<BaseProps, GameState> {
@@ -101,7 +106,7 @@ export default class extends StageBase<BaseProps, GameState> {
 
 				let user = this.props.current_user;
 
-				//WHEN EVERYTHING LOADED CORRECTLY - SENDING CONFIMATION TO SERVER
+				//WHEN EVERYTHING LOADED CORRECTLY - SENDING CONFIRMATION TO SERVER
 				if(user && room && room.isUserSitting(user.id) ) {
 					//disable for testing game start failure
 					Network.confirmGameStart();
@@ -257,7 +262,16 @@ export default class extends StageBase<BaseProps, GameState> {
 	public getGame() {
 		return this.game;
 	}
+	
+	public onGameEnd(players_results: PlayerResultJSON[]) {
+		//console.log(players_results);
+		this.setState(({results: players_results}));
+		
+		if(this.game)
+			this.game.end();
+	}
 
+	// noinspection JSUnusedGlobalSymbols
 	public onChatMessage(msg: MessageSchema) {
 		if(this.chatHandle)
 			this.chatHandle.pushMessage(msg);
@@ -308,7 +322,7 @@ export default class extends StageBase<BaseProps, GameState> {
 	}
 
 	private renderPlayersStats(room: RoomInfo) {
-		return this.state.players_infos.map((info, index) => {
+		return this.state.players_infos.map((info) => {
 			let user = room.getUserByID(info.id);
 			let hp_percent = Math.floor(info.health*100) + '%';
 			let energy_percent = Math.floor(info.energy*100) + '%';
@@ -318,21 +332,26 @@ export default class extends StageBase<BaseProps, GameState> {
 					<label>{Utils.trimString(info.nick, 15)}</label>
 					<span className='points'>{info.points}</span>
 					<span className='player'>
-						<img src={info.ship_texture} />
-						<span style={{backgroundColor: Colors.PLAYERS_COLORS[info.color_id].hex}}></span>
+						<img src={info.ship_texture}  alt='ship type preview'/>
+						<span style={{backgroundColor: Colors.PLAYERS_COLORS[info.color_id].hex}}/>
 					</span>
 					<span className='kills'>{info.kills}</span>
 					<span className='deaths'>{info.deaths}</span>
 				</div>
 				<div className='small-bars'>
-					<div style={{width: hp_percent, backgroundColor: BAR_COLORS[0]}}></div>
-					<div style={{width: energy_percent, backgroundColor: BAR_COLORS[1]}}></div>
+					<div style={{width: hp_percent, backgroundColor: BAR_COLORS[0]}}/>
+					<div style={{width: energy_percent, backgroundColor: BAR_COLORS[1]}}/>
 				</div>
 			</section>;
 		});
 	}
 
 	render() {
+		if( this.state.results && this.props.current_room )
+			return <GameResults data={this.state.results} room={this.props.current_room}
+			                    onClose={() => {
+			                        this.props.onChange(MenuStage.prototype);
+			                    }} />;
 		return <div className='game-stage'>
 			<div className='left-panel'>
 				{this.state.am_i_playing && <section className='bars'>{this.renderBars()}</section>}
@@ -357,11 +376,11 @@ export default class extends StageBase<BaseProps, GameState> {
 			</div>
 			<div className={`right-panel${this.state.hide_rightside ? ' hidden' : ''}`}>
 				<nav>
-					<button className='slide-toggler' onClick={(e) => {
-						if( this.right_panel_toggler )
+					<button className='slide-toggler' onClick={() => {
+						if (this.right_panel_toggler)
 							this.right_panel_toggler.blur();
 						this.setState({hide_rightside: !this.state.hide_rightside});
-					}} ref={el => this.right_panel_toggler = el}></button>
+					}} ref={el => this.right_panel_toggler = el}/>
 					<UserBtn user={this.props.current_user} />
 				</nav>
 				<button className='glossy no-icon exit-btn' ref={el => this.exit_btn = el} 

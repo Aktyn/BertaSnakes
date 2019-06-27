@@ -19,6 +19,7 @@ interface CoreState extends BaseProps {
 	start_game_countdown: number | null;
 }
 
+// noinspection JSUnusedGlobalSymbols (it is dynamically imported in index.tsx and IDE does not handle this)
 export default class extends React.Component<any, CoreState> {
 	private active = false;
 	private room_refresh_tm: NodeJS.Timeout | null = null;
@@ -27,6 +28,9 @@ export default class extends React.Component<any, CoreState> {
 	private stageHandle: MenuStage | GameStage | null = null;
 
 	state: CoreState = {
+		onChange: (target) => {
+			this.setState({current_stage: target});
+		},
 		current_stage: MenuStage.prototype,
 
 		current_user: null,
@@ -257,12 +261,13 @@ export default class extends React.Component<any, CoreState> {
 				}	break;
 				case NetworkCodes.END_GAME: {
 					if( this.stageHandle instanceof GameStage ) {
-						let game = this.stageHandle.getGame();
-						if(game) {
-							//TODO: show results
-							//GAME_STAGE.showGameResults(
-							//	GameResult.fromJSON( data['result'] ).players_results );
+						if(typeof data['result'] === 'object' && typeof data['result']['players_results'] === 'object'
+							&& data['result']['players_results'].length > 0)
+						{
+							this.stageHandle.onGameEnd(data['result']['players_results']);
 						}
+						else
+							console.error('Incorrect game results data');
 					}
 				}	break;
 

@@ -170,15 +170,10 @@
 				&.empty {
 					background-color: #aaa;
 					padding: 0px 15px;
-					/*cursor: pointer;
-
-					&:hover {
-						background-color: #90A4AE;
-					}*/
 				}
 
 				&:not(.empty) {
-					padding: 0px 5px 0px 10px;
+					padding: 0px 7px 0px 10px;
 					display: grid;
 					grid-template-columns: auto fit-content(100%);
 					grid-column-gap: 7px;
@@ -191,7 +186,7 @@
 				}
 
 				img {
-					height: 25px;
+					height: 18px;
 					width: auto;
 				}
 			}
@@ -313,7 +308,7 @@
 			fill: #7f97a2;
 			stroke: #fff5;/*#ef5350;*/
 			stroke-width: 50;/*50*/
-			stroke-dasharray: 0 158; /* 2π × 25 ≈ 158 */
+			//stroke-dasharray: 0 158; /* 2π × 25 ≈ 158 */
 		}
 
 		text {

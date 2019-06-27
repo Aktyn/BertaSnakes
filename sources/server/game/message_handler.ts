@@ -26,7 +26,7 @@ function AccountSchema2UserCustomData(account: AccountSchema): UserCustomData {
 }
 
 function findDuplicateSession(account_id: string) {
-	return new Promise((resolve: (result: boolean) => void, reject) => {
+	return new Promise((resolve: (result: boolean) => void) => {
 		Connections.forEachAccountUser(connection => {
 			if(connection.user && connection.user.account_id === account_id)
 				resolve(true);
@@ -40,7 +40,7 @@ async function loginAsUser(connection: Connection, token: string) {
 	if(res.error !== ERROR_CODES.SUCCESS || !res.account)//LOGIN AS GUEST
 		connection.loginAsGuest();
 	else {
-		if( true === await findDuplicateSession(res.account.id) ) {
+		if( await findDuplicateSession(res.account.id) ) {
 			connection.loginAsGuest();
 			connection.sendAccountAlreadyLoggedInError();
 		}
@@ -85,7 +85,7 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 				if(typeof data.token === 'string') {//user just logged in
 					if( connection.getRoom() )
 						RoomManager.leaveRoom(connection);
-					loginAsUser(connection, data.token);
+					loginAsUser(connection, data.token).catch(e => console.error('Cannot login as user:', e));
 				}
 				else
 					connection.updateUserData(null);

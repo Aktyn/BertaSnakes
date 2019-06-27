@@ -7,8 +7,8 @@ let open_port = 0;//can be initialized to zero since it is falsy value
 function onMessage(connection: Connection, message: any) {
 	try {
 		if(typeof message === 'string')//stringified JSON object
-			handleJSON( connection, JSON.parse(message) );
-		else if(typeof message === 'object') {//object - propably array buffer
+			handleJSON( connection, JSON.parse(message) ).catch(console.error);
+		else if(typeof message === 'object') {//object - probably array buffer
 			let room = connection.getRoom();
 			if(connection.user && room && room.game_process)//TODO - move to 
 				room.game_process.send({user_id: connection.user.id, data: message});
@@ -32,9 +32,9 @@ export default {
 
 		console.log('Running WebSocketServer at port:', port);
 
-		const websock = new Server({ port });
+		const websocket = new Server({ port });
 
-		websock.on('connection', function(ws, req) {
+		websocket.on('connection', function(ws, req) {
 			(<any>ws).isAlive = true;
 			ws.on('pong', () => {
 				(<any>ws).isAlive = true;//heartbeat
@@ -56,7 +56,7 @@ export default {
 
 		//detecting dead connections
 		setInterval(function ping() {
-			websock.clients.forEach((ws) => {
+			websocket.clients.forEach((ws) => {
 				if((<any>ws).isAlive === false) {//connection doesn't send pong in time
 					console.log('removing dead connection');
 					return ws.terminate();

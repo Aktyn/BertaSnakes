@@ -1,7 +1,7 @@
 import GameMap from './game_map';
 import CollisionDetector from './collision_detector';
 import Colors, {ColorI} from './common/colors';
-import Player from './objects/player';
+import Player, {PLAYER_TYPES} from './objects/player';
 import RocketEnemy from './objects/rocket_enemy';
 import PoisonousEnemy from './objects/poisonous_enemy';
 import EnemySpawner from './objects/enemy_spawner';
@@ -10,10 +10,12 @@ import Item, {ITEM_TYPES} from './objects/item';
 
 export interface InitDataSchema {
 	id: number;
+	account_id?: string;
 	nick: string;
+	avatar: string | null;
 	level: number;
 	rank: number;
-	ship_type: number;
+	ship_type: PLAYER_TYPES;
 	skills: (number | null)[];
 	color_id: number;
 }
@@ -59,9 +61,9 @@ const STAINS = [[[-0.07,-0.23,0.57],[0.18,0.46,0.53],[0.26,0.08,0.85],[0.07,0.18
 
 const ENEMY_CLASSES = [PoisonousEnemy, RocketEnemy];
 //NOTE - sum of this array must be equal to 1 and it must be sorted with ascending order
-const ENEMY_SPAWN_PROPABILITES = [0.03, 0.97];
+const ENEMY_SPAWN_PROBABILITIES = [0.03, 0.97];
 
-var InterfaceWith = function(ParentInstance: any, Interface: any) {
+let InterfaceWith = function(ParentInstance: any, Interface: any) {
 	Object.getOwnPropertyNames(Interface).forEach(prop => {
 		if(typeof ParentInstance[prop] === 'undefined')
 			ParentInstance[prop] = (<any>Interface)[prop];
@@ -69,7 +71,7 @@ var InterfaceWith = function(ParentInstance: any, Interface: any) {
 };
 
 /////////////
-var vec2 = new Vec2f(), p_i: number, st_i: number;
+let vec2 = new Vec2f(), p_i: number, st_i: number;
 
 export default class GameCore extends GameMap {
 	private last_respawn_angle = Math.PI / 2.0;
@@ -100,7 +102,9 @@ export default class GameCore extends GameMap {
 			let player = new Player( init_data[i]['ship_type'], init_data[i]['skills'], 
 				Colors.PLAYERS_COLORS[ init_data[i].color_id|0 ], entitiesClass, rendererClass );
 			player.user_id = init_data[i]['id'];
+			player.account_id = init_data[i]['account_id'];
 			player.nick = init_data[i]['nick'];
+			player.avatar = init_data[i]['avatar'];
 			player.level = init_data[i]['level'];
 			player.rank = init_data[i]['rank'];
 
@@ -213,12 +217,12 @@ export default class GameCore extends GameMap {
 		let random_value = Math.random();//[0, 1]
 		let prop_sum = 0;
 
-		for(var i=0; i<ENEMY_SPAWN_PROPABILITES.length; i++) {
-			if(random_value < ENEMY_SPAWN_PROPABILITES[i] + prop_sum)
+		for(let i=0; i<ENEMY_SPAWN_PROBABILITIES.length; i++) {
+			if(random_value < ENEMY_SPAWN_PROBABILITIES[i] + prop_sum)
 				return i;
-			prop_sum += ENEMY_SPAWN_PROPABILITES[i];
+			prop_sum += ENEMY_SPAWN_PROBABILITIES[i];
 		}
-		throw new Error('Cannot get random index from ENEMY_SPAWN_PROPABILITES');
+		throw new Error('Cannot get random index from ENEMY_SPAWN_PROBABILITIES');
 	}
 
 	static getRandomStainIndex() {

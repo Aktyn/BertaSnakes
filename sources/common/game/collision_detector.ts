@@ -1,7 +1,7 @@
 /* directed towards performance calculations */
 
-import Vector, {Vec2f} from './../utils/vector';
-import {GAME_MODES} from './../room_info';
+import Vector, {Vec2f} from '../utils/vector';
+import {GAME_MODES} from '../room_info';
 import Object2D from './objects/object2d';
 
 interface PainterCollisionListener {
@@ -11,14 +11,16 @@ interface ObjectCollisionListener {
 	(obj1: Object2D, obj2: Object2D): void;
 }
 
-const abstractFunc_painter: PainterCollisionListener = 
+// noinspection JSUnusedLocalSymbols
+const abstractFunc_painter: PainterCollisionListener =
 	function(object: Object2D, pixel_buffer: Uint8Array) {};
-const abstractFunc_object_to_object: ObjectCollisionListener = 
-	function(arg1: Object2D, arg2: Object2D) {}
+// noinspection JSUnusedLocalSymbols
+const abstractFunc_object_to_object: ObjectCollisionListener =
+	function(arg1: Object2D, arg2: Object2D) {};
 
 const PUSH_STEPS = 4;
 
-var cm_i;
+let cm_i;
 const colorsMatch = (c1: Uint8Array, c2: Uint8Array) => {//@c1, c2 - Uint8Array buffers of size 4
 	for(cm_i=0; cm_i < 4; cm_i++) {
 		if(c1[cm_i] != c2[cm_i])
@@ -32,18 +34,18 @@ const pow2 = (a: number) => a*a;
 //const distanceSqrt = (p1x, p1y, p2x, p2y) => 5;
 
 //collision detecting variables
-var p_i: number, e_i: number, b_i: number, i_i: number, es_i: number, coords: number[][], 
+let p_i: number, e_i: number, b_i: number, i_i: number, es_i: number, coords: number[][],
 	c_i: number, s: number, c: number, xx: number, yy: number, 
 	pixel_buffer = new Uint8Array(4);
 
 //random spot finding variables
-var find_trials, up_i, obj_i, obj_it, temp_arr, overlap_ray_steps, 
+let find_trials, up_i, obj_i, obj_it, temp_arr, overlap_ray_steps,
 	overlap_ray_color = new Uint8Array(4), o_rr, o_angle, o_a_s, o_dx, o_dy, o_r_s;
 const OVERLAP_ANGLE_STEPS = 16;
 const OVERLAP_ANGLE_SHIFT = Math.PI*2.0 / OVERLAP_ANGLE_STEPS;
 
 //bouncing variables
-var current_vec = new Vec2f(), 
+let current_vec = new Vec2f(),
 	bounce_vec: Vector = new Vec2f(), dot, 
 	ray_color = new Uint8Array(4), b_radius, b_angle, found, safety, b_product, 
 	r_i, ray_steps, r_s, rr, b_dx, b_dy;
@@ -99,7 +101,7 @@ function bounceOutOfColor(object: Object2D, color: Uint8Array, map: any,
 	out_bounce_vec: Vector) 
 {
 	bounce_vec.set(0, 0);
-	if(getBounceVec(object, color, map, bounce_vec) === false)//no collision detected
+	if(!getBounceVec(object, color, map, bounce_vec))//no collision detected
 		return false;
 
 	bounce_vec.normalize();
@@ -223,26 +225,26 @@ export default {//ABSTRACT CLASS INTERFACE
 
 			//player to enemy collision
 			for(e_i=0; e_i<map.enemies.length; e_i++) {
-				if( twoObjectsIntersect(map.players[p_i], map.enemies[e_i]) === true )
+				if( twoObjectsIntersect(map.players[p_i], map.enemies[e_i]) )
 					this.onPlayerEnemyCollision( map.players[p_i], map.enemies[e_i] );
 			}
 
 			//player to enemy spawner collision
 			for(es_i=0; es_i<map.enemy_spawners.length; es_i++) {
-				if( twoObjectsIntersect(map.players[p_i], map.enemy_spawners[es_i]) === true )
+				if( twoObjectsIntersect(map.players[p_i], map.enemy_spawners[es_i]) )
 					this.onPlayerEnemySpawnerCollision(map.players[p_i], map.enemy_spawners[es_i]);
 			}
 
 			//player to item collision
 			for(i_i=0; i_i<map.items.length; i_i++) {
-				if( twoObjectsIntersect(map.players[p_i], map.items[i_i]) === true )
+				if( twoObjectsIntersect(map.players[p_i], map.items[i_i]) )
 					this.onPlayerItemCollision(map.players[p_i], map.items[i_i]);
 			}
 
 			//player to bullet collision (only competition mode)
 			if(gamemode === GAME_MODES.COMPETITITON) {
 				for(b_i=0; b_i<map.bullets.length; b_i++) {
-					if( twoObjectsIntersect(map.players[p_i], map.bullets[b_i]) === true )
+					if( twoObjectsIntersect(map.players[p_i], map.bullets[b_i]) )
 						this.onPlayerBulletCollision(map.players[p_i], map.bullets[b_i]);
 				}
 			}
@@ -257,14 +259,14 @@ export default {//ABSTRACT CLASS INTERFACE
 
 				//enemy to enemy spawner collision
 				for(es_i=0; es_i<map.enemy_spawners.length; es_i++) {
-					if( twoObjectsIntersect(map.enemies[e_i], map.enemy_spawners[es_i]) === true )
+					if( twoObjectsIntersect(map.enemies[e_i], map.enemy_spawners[es_i]) )
 						this.onEnemyEnemySpawnerCollision(map.enemies[e_i], 
 							map.enemy_spawners[es_i]);
 				}
 
 				//enemy to bullet collision
 				for(b_i=0; b_i<map.bullets.length; b_i++) {
-					if( twoObjectsIntersect(map.enemies[e_i], map.bullets[b_i]) === true )
+					if( twoObjectsIntersect(map.enemies[e_i], map.bullets[b_i]) )
 						this.onEnemyBulletCollision(map.enemies[e_i], map.bullets[b_i]);
 				}
 
@@ -309,7 +311,7 @@ export default {//ABSTRACT CLASS INTERFACE
 
 		const sc = map.map_size;
 		const wall_margin = map.walls_thickness * 2.0 + _radius;
-		while(find_trials++ < 16) {//maximum trials for perfomance matter
+		while(find_trials++ < 16) {//maximum trials for performance matter
 			out_vec.set( randRange(-sc, sc), randRange(-sc, sc) );
 			
 			if(/*distanceSqrt(out_vec.x(), out_vec.y(), 0, 0) //TODO - check distance to safe area

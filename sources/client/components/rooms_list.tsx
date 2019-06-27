@@ -11,15 +11,14 @@ interface RoomsListProps {
 }
 
 export default class RoomsList extends React.Component<RoomsListProps, any> {
-	state = {}
-
+	
 	constructor(props: RoomsListProps) {
 		super(props);
 	}
 
 	render() {
 		return <table className='rooms-list'><tbody>
-			{this.props.rooms.map((room, i) => {
+			{this.props.rooms.map((room) => {
 				let is_current = this.props.current_room && this.props.current_room.id === room.id;
 				
 				return <tr key={room.id} onClick={() => {
@@ -34,7 +33,7 @@ export default class RoomsList extends React.Component<RoomsListProps, any> {
 					<td>
 						<div>
 							{room.getTakenSits()}/{room.sits.length}
-							<span className='separator'></span>
+							<span className='separator'/>
 							{(room.duration/60)|0} min
 						</div>
 						<span>{Utils.GAMEMODES_NAMES[room.gamemode]}</span>
@@ -43,5 +42,4 @@ export default class RoomsList extends React.Component<RoomsListProps, any> {
 			})}
 		</tbody></table>;
 	}
-
 }

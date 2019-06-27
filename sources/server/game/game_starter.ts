@@ -22,7 +22,7 @@ function prepareToStart(room: RoomInfo) {
 	running_games.set(room.id, new GameHandler(room, (no_error) => {
 		running_games.delete(room.id);
 
-		if(no_error || room.isEmpty())
+		if(no_error && room.isEmpty())
 			RoomsManager.deleteRoomAfterGame(room);
 	}));
 }

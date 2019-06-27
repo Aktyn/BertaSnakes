@@ -27,7 +27,6 @@ interface AccountSidepopProps extends SidepopProps {
 
 interface AccountSidepopState {
 	loading: boolean;
-	//register_view: boolean;
 	view: VIEWS;
 	error?: string;
 	account: AccountSchema | null;
@@ -47,7 +46,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	private register_confirm: NodeJS.Timeout | null = null;
 	private clear_avatar_confirm: NodeJS.Timeout | null = null;
 
-	private onLogIn: (account: AccountSchema | null) => void;
+	private readonly onLogIn: (account: AccountSchema | null) => void;
 
 	state: AccountSidepopState = {
 		loading: false,
@@ -55,7 +54,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		account: null,
 		verify_info: false,
 		verification_resend: false,
-	}
+	};
 
 	constructor(props: AccountSidepopProps) {
 		super(props);
@@ -225,8 +224,10 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			this.setState({loading: true, error: undefined});
 
 			let res = await Account.uploadAvatar(image_data);
-			if(res.error)
-				return this.setError( errorMsg(res.error) );
+			if(res.error) {
+				this.setError(errorMsg(res.error));
+				return;
+			}
 
 			ServerApi.forceNewSalt();
 
@@ -254,7 +255,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			return;
 		}
 		
-		this.uploadAvatar(true);
+		this.uploadAvatar(true).catch(console.error);
 	}
 
 	private canReturn() {
@@ -285,7 +286,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	private renderView(view: VIEWS) {
 		if(this.props.force_view !== undefined)
-			view = this.props.force_view
+			view = this.props.force_view;
 		switch(view) {
 			default:
 			case VIEWS.GENERAL: {

@@ -15,7 +15,7 @@ function distributeRoomRemoveEvent(room: RoomInfo) {//distribute room remove eve
 	Connections.forEachLobbyUser((conn) => conn.onRoomRemove(room));
 }
 
-function disbtributeRoomUpdateEvent(room: RoomInfo) {
+function distributeRoomUpdateEvent(room: RoomInfo) {
 	Connections.forEachLobbyUser((conn) => conn.onRoomUpdate(room));
 }
 
@@ -60,7 +60,7 @@ export default {
 		if(!room || room.getOwner() !== from_connection.user)//only owner can update room settings
 			return;
 		room.updateSettings(settings);
-		disbtributeRoomUpdateEvent(room);
+		distributeRoomUpdateEvent(room);
 	},
 
 	sendRoomsList(from_connection: Connection) {
@@ -139,7 +139,7 @@ export default {
 		if(!room || !from_connection.user)
 			return;
 		room.sitUser( from_connection.user );
-		disbtributeRoomUpdateEvent(room);
+		distributeRoomUpdateEvent(room);
 	},
 
 	stand(from_connection: Connection) {
@@ -147,7 +147,7 @@ export default {
 		if(!room || !from_connection.user)
 			return;
 		room.standUpUser( from_connection.user );
-		disbtributeRoomUpdateEvent(room);
+		distributeRoomUpdateEvent(room);
 	},
 
 	readyUser(from_connection: Connection) {
@@ -157,7 +157,7 @@ export default {
 		if( room.everyoneReady() || !room.everyoneSits() )
 			return;
 		room.setUserReady( from_connection.user );
-		disbtributeRoomUpdateEvent(room);
+		distributeRoomUpdateEvent(room);
 
 		if( room.everyoneReady() ) {
 			try {
@@ -165,7 +165,7 @@ export default {
 			}
 			catch(e) {//countdown failure - unreading everyone
 				room.unreadyAll();
-				disbtributeRoomUpdateEvent(room);
+				distributeRoomUpdateEvent(room);
 			}
 		}
 	},

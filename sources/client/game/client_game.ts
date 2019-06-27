@@ -51,12 +51,12 @@ function runLoop(self: ClientGame) {
 		'fontSize': '13px',
 		'fontFamily': 'RobotoLight'
 	}).html('updating + rendering:&nbsp;').addChild(timer_log));*/
-
-	var step = function(time: number) {
+	
+	const step = function (time: number) {
 		dt = time - last;
 		last = time;
-
-		if(self.running) {
+		
+		if (self.running) {
 			//timer = performance.now();
 			self.update(dt);
 			
@@ -66,7 +66,7 @@ function runLoop(self: ClientGame) {
 					.toFixed(2) + 'ms');
 				time_samples = [];
 			}*/
-
+			
 			requestAnimationFrame(step);
 		}
 	};
@@ -74,7 +74,7 @@ function runLoop(self: ClientGame) {
 }
 
 //TODO - e_h => Enemy type, b_h =>...
-var code: number, p_h: Player, p_h2: Player,
+let p_h: Player, p_h2: Player, em_i: number,
 	s_h_n: SkillObject | null,
 	p_i: number, e_i: number, e_h: any,
 	b_i: number, i_i: number, b_h: any, obj_i: number, synch_array: Object2D[], rot_dt: number;
@@ -92,7 +92,7 @@ export interface ListenersSchema {
 	onPlayerDeath: (index: number) => void;
 
 	addChildEmptySkill: (slot_index: number) => void;
-	addChildSkill: (texture_name: string, key: 'space' | number, continous: boolean) => void;
+	addChildSkill: (texture_name: string, key: 'space' | number, continuous: boolean) => void;
 
 	onSkillUsed: (index: number, cooldown: number) => void;
 	onSkillStopped: (index: number) => void;
@@ -103,7 +103,7 @@ export default class ClientGame extends GameCore {
 	private destroyed = false;
 	private ready = false;
 
-	private gamemode: GAME_MODES;
+	private readonly gamemode: GAME_MODES;
 	private listeners: ListenersSchema;
 
 	//private rendering_mode: number;
@@ -271,7 +271,7 @@ export default class ClientGame extends GameCore {
 				p_h.painter.lastPos.x = data[index + 4];
 				p_h.painter.lastPos.y = data[index + 5];
 			
-				super.drawLine(p_h.x, p_h.y, p_h.painter.lastPos.x, p_h.painter.lastPos.y, 
+				super.drawLine(p_h.x, p_h.y, p_h.painter.lastPos.x, p_h.painter.lastPos.y,
 					p_h.painter.thickness);
 
 				index += 6;
@@ -321,7 +321,7 @@ export default class ClientGame extends GameCore {
 				this.listeners.onPlayerHpChange(data[index + 1], p_h.hp);
 				this.listeners.onPlayerPointsChange(data[index + 1], p_h.points);
 
-				this.explosionEffect(data[index + 2], data[index + 3], 
+				this.explosionEffect(data[index + 2], data[index + 3],
 					GameCore.GET_PARAMS().small_explosion_radius);
 
 				//if(p_h === this.renderer.focused)
@@ -340,7 +340,7 @@ export default class ClientGame extends GameCore {
 
 				if(this.hit_effects) {
 					this.hit_effects.hit(
-						p_h.x - data[index + 5] * p_h.width, 
+						p_h.x - data[index + 5] * p_h.width,
 						p_h.y - data[index + 6] * p_h.height, false);
 				}
 
@@ -360,7 +360,7 @@ export default class ClientGame extends GameCore {
 						
 						if(this.hit_effects) {
 							this.hit_effects.hit(
-								e_h.x - data[index + 5] * e_h.width, 
+								e_h.x - data[index + 5] * e_h.width,
 								e_h.y - data[index + 6] * e_h.height, false);
 						}
 
@@ -381,7 +381,7 @@ export default class ClientGame extends GameCore {
 						
 						if(this.hit_effects) {
 							this.hit_effects.hit(
-								b_h.x - data[index + 5] * b_h.width, 
+								b_h.x - data[index + 5] * b_h.width,
 								b_h.y - data[index + 6] * b_h.height, false);
 						}
 
@@ -454,8 +454,8 @@ export default class ClientGame extends GameCore {
 				break;
 			//attacker_index, damage, victim_index, new_victim_hp, hit_x, hit_y
 			case NetworkCodes.ON_PLAYER_ATTACKED://player attacked by player
-				this.onPlayerAttackedPlayer(data[index + 1], data[index + 2], data[index + 3], 
-					data[index + 4], data[index + 5], data[index + 6]);
+				this.onPlayerAttackedPlayer(data[index + 1], data[index + 2], data[index + 3],
+					data[index + 4]/*, data[index + 5], data[index + 6]*/);
 
 				index += 7;
 				break;
@@ -466,12 +466,12 @@ export default class ClientGame extends GameCore {
 				let number_of_bullets = data[index + 2];
 				for(let i=0; i<number_of_bullets; i++) {//bullet_id, pos_x, pos_y, rot
 					let off = index + 3 + i*4;
-					let bullet = new Bullet(data[off + 1], data[off + 2], data[off + 3], 
+					let bullet_s = new Bullet(data[off + 1], data[off + 2], data[off + 3],
 						p_h, BULLET_TYPE.NORMAL, EntitiesBase);
 
-					bullet.id = data[off + 0];
+					bullet_s.id = data[off];
 
-					this.bullets.push( bullet );
+					this.bullets.push( bullet_s );
 				}
 
 				//if(p_h === this.renderer.focused)
@@ -483,7 +483,7 @@ export default class ClientGame extends GameCore {
 			case NetworkCodes.ON_BOUNCE_BULLET_SHOT://NOTE - only single bullet data
 				p_h = this.players[ data[index + 1] | 0 ];
 
-				let bullet = new Bullet(data[index+3], data[index+4], data[index+5], 
+				let bullet = new Bullet(data[index+3], data[index+4], data[index+5],
 					p_h, BULLET_TYPE.BOUNCING, EntitiesBase);
 				bullet.id = data[index+2];
 
@@ -506,11 +506,11 @@ export default class ClientGame extends GameCore {
 				index += 5;
 				break;
 			case NetworkCodes.ON_BOMB_EXPLODED://bomb_id, pos_x, pos_y
-				for(b_i=0; b_i<this.bombs.length; b_i++) {//pre expiring bomb for server sync 
+				for(b_i=0; b_i<this.bombs.length; b_i++) {//pre expiring bomb for server sync
 					if(this.bombs[b_i].id === data[index+1])
 						this.bombs[b_i].expired = true;
 				}
-				this.explosionEffect(data[index+2], data[index+3], 
+				this.explosionEffect(data[index+2], data[index+3],
 					GameCore.GET_PARAMS().bomb_explosion_radius);
 
 				//TODO: calculate distance to focused player
@@ -519,7 +519,7 @@ export default class ClientGame extends GameCore {
 				index += 4;
 				break;
 			case NetworkCodes.ON_POISON_STAIN://stain_index, pos_x, pos_y, size
-				super.drawStain( data[index + 1], data[index + 2], data[index + 3], 
+				super.drawStain( data[index + 1], data[index + 2], data[index + 3],
 					data[index + 4]*GameCore.GET_PARAMS().stain_shrink );
 
 				index += 5;
@@ -578,15 +578,15 @@ export default class ClientGame extends GameCore {
 				}
 
 				index += 2;
-				break;	
+				break;
 			//pos_x, pos_y, player_color_index
 			case NetworkCodes.ON_ENERGY_BLAST:
-				if(this.renderer.withinVisibleArea(data[index+1], data[index+2], 
+				if(this.renderer.withinVisibleArea(data[index+1], data[index+2],
 					GameCore.GET_PARAMS().energy_blast_radius) === true) {
 					
 					if(this.emitters) {
-						let blast_emitter = new EnergyBlastEmitter(data[index+1],data[index+2], 
-							GameCore.GET_PARAMS().energy_blast_radius, 
+						let blast_emitter = new EnergyBlastEmitter(data[index+1],data[index+2],
+							GameCore.GET_PARAMS().energy_blast_radius,
 							Colors.PLAYERS_COLORS[ data[index+3] ]);
 						blast_emitter.timestamp = Date.now();
 
@@ -624,8 +624,8 @@ export default class ClientGame extends GameCore {
 				//if(p_h === this.renderer.focused)
 				//	this.listeners.onPlayerSpeedChange( 1 );
 
-				var xx = p_h.x - data[index + 8] * p_h.width;
-				var yy = p_h.y - data[index + 9] * p_h.height;
+				let xx = p_h.x - data[index + 8] * p_h.width;
+				let yy = p_h.y - data[index + 9] * p_h.height;
 
 				this.explosionEffect(xx, yy, GameCore.GET_PARAMS().explosion_radius);
 
@@ -640,7 +640,7 @@ export default class ClientGame extends GameCore {
 						this.bullets[b_i].expired = true;
 				}
 				//console.log(data[index + 2], data[index + 3]);
-				super.paintHole(data[index + 2], data[index + 3], 
+				super.paintHole(data[index + 2], data[index + 3],
 					GameCore.GET_PARAMS().bullet_explosion_radius);
 				if(this.hit_effects)
 					this.hit_effects.hit(data[index + 2], data[index + 3], false);
@@ -692,7 +692,7 @@ export default class ClientGame extends GameCore {
 				p_h = this.players[ data[index + 1] | 0 ];
 
 				if(data[index + 5] > 0) {//explosion radius
-					this.explosionEffect(data[index + 3], data[index + 4], 
+					this.explosionEffect(data[index + 3], data[index + 4],
 						data[index + 5]);
 				}
 				
@@ -864,7 +864,7 @@ export default class ClientGame extends GameCore {
 	}
 
 	onPlayerAttackedPlayer(attacker_i: number, damage: number, victim_i: number, 
-		victim_hp: number, hit_x: number, hit_y: number) 
+		victim_hp: number/*, hit_x: number, hit_y: number*/)
 	{
 		// if(this.gamemode !== GAME_MODES.COMPETITION)
 			// return;
@@ -940,7 +940,7 @@ export default class ClientGame extends GameCore {
 	}
 
 	trySkillUse(index: number) {
-		var focused = this.renderer.focused;
+		let focused = this.renderer.focused;
 		if( !focused || focused.spawning )
 			return;
 		s_h_n = focused.skills[index];
@@ -951,7 +951,7 @@ export default class ClientGame extends GameCore {
 	}
 
 	trySkillStop(index: number) {
-		var focused = this.renderer.focused;
+		let focused = this.renderer.focused;
 		if( !focused || focused.spawning )
 			return;
 		s_h_n = focused.skills[index];
@@ -970,42 +970,48 @@ export default class ClientGame extends GameCore {
 	}
 
 	onKey(event: KeyboardEvent, pressed: boolean) {
-		code = event.keyCode;
-		
 		let focused = this.renderer.focused;
 		if(focused === null || focused.spawning === true)
 			return;
 
 		let preserved_state = focused.movement.state;
-		if(code === 65 || code === 37)//left
+		if(event.key === 'a' || event.key === 'ArrowLeft')//left
 			focused.movement.set( Movement.FLAGS.LEFT, pressed );
-		else if(code === 68 || code === 39)//right
+		else if(event.key === 'd' || event.key === 'ArrowRight')//right
 			focused.movement.set( Movement.FLAGS.RIGHT, pressed );
-		else if(code === 87 || code === 38)//up
+		else if(event.key === 'w' || event.key === 'ArrowUp')//up
 			focused.movement.set( Movement.FLAGS.UP, pressed );
-		else if(code === 83 || code === 40)//down
+		else if(event.key === 's' || event.key === 'ArrowDown')//down
 			focused.movement.set( Movement.FLAGS.DOWN, pressed );
-		else if(code === 32) {//space
+		else if(event.key === ' ') {//space
 			if(pressed)
 				this.trySkillUse(0);
 			else//stop using skill (continuous skills must be stopped by key release)
 				this.trySkillStop(0);
 		}
-		else if(code >= 49 && code < 49 + focused.skills.length - 1) {//normal skill
-			if(pressed)
-				this.trySkillUse(code - 49 + 1);//key1 == 49 <==> (code-49+1) == 1
-			else
-				this.trySkillStop(code - 49 + 1);
+		else if( !isNaN(Number(event.key)) ) {
+			let skill_code = parseInt(event.key);
+			if(skill_code > 0 && skill_code < focused.skills.length) {//normal skill
+				if(pressed)
+					this.trySkillUse( skill_code);//key1 == 49 <==> (code-49+1) == 1
+				else
+					this.trySkillStop(skill_code);
+			}
+		}
+		else if(pressed) {
+			for(em_i=0; em_i < EMOTS.length; em_i++) {
+				if (EMOTS[em_i].key.toLowerCase() === event.key)
+					this.tryEmoticonUse(em_i);
+			}
 		}
 
 		//any letter (emoticons use)
-		if(pressed && code >= 65 && code <= 90) {
+		/*if(pressed && code >= 65 && code <= 90) {
 			EMOTS.forEach((emot, index) => {
-				if(emot.key.charCodeAt(0) === code) {
+				if(emot.key.charCodeAt(0) === code)
 					this.tryEmoticonUse(index);
-				}
 			});
-		}
+		}*/
 
 		if(preserved_state !== focused.movement.state) {
 			focused.movement.smooth = false;
@@ -1073,7 +1079,7 @@ export default class ClientGame extends GameCore {
 
 			super.updateTimestamps(delta);
 
-			var timestamp = Date.now();
+			let timestamp = Date.now();
 
 			if(this.emitters) {
 				for(e_i=0; e_i<this.emitters.length; e_i++) {

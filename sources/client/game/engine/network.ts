@@ -21,14 +21,14 @@ interface GameListenersSchema {
 	onServerData: (data: Float32Array) => void
 }
 
-var listeners: ListenersSchema | null = null;
-var game_listeners: GameListenersSchema | null = null;
-var socket: WebSocket | null = null;
-var CurrentUser: UserInfo | null = null;
-var CurrentRoom: RoomInfo | null = null;
-var restore_timeout: number | null = null;
+let listeners: ListenersSchema | null = null;
+let game_listeners: GameListenersSchema | null = null;
+let socket: WebSocket | null = null;
+let CurrentUser: UserInfo | null = null;
+let CurrentRoom: RoomInfo | null = null;
+let restore_timeout: number | null = null;
 
-var connection_attempts = 0;
+let connection_attempts = 0;
 
 const HANDLERS = {
 	handleJSON: function(json_data: NetworkPackage) {//handles json type message from server
@@ -81,6 +81,10 @@ const HANDLERS = {
 					throw new Error('CurrentRoom is empty');
 				CurrentRoom.updateData( json_data['room'] );
 				break;
+			case NetworkCodes.END_GAME:
+				if(CurrentRoom)
+					CurrentRoom.unreadyAll();
+				break;
 		}
 		
 		if(listeners)
@@ -88,7 +92,7 @@ const HANDLERS = {
 	},
 
 	handleByteBuffer: (function() {
-		var readers = new Array(8).fill(0).map(() => {
+		let readers = new Array(8).fill(0).map(() => {
 			let reader = new FileReader();
 			reader.onload = function() {
 				try {
@@ -102,7 +106,7 @@ const HANDLERS = {
 
 			return reader;
 		});
-		var reader_i;
+		let reader_i;
 
 		return function(data: any) {
 			for(reader_i=0; reader_i<readers.length; reader_i++) {
@@ -118,7 +122,7 @@ const HANDLERS = {
 			setTimeout(HANDLERS.handleByteBuffer, 1, data);
 		};
 	})()
-}
+};
 
 function restoreConnection() {//tries to connect to server again after some time
 	if(++connection_attempts < 5)//max attempts
@@ -141,7 +145,7 @@ function sendJSON(data: NetworkPackage | string) {
 	}
 	catch(e) {
 		console.error('Cannot send message, reason:', e);
-		return ERROR_CODES.CANNOT_SEND_JSON_MESSAGE;;
+		return ERROR_CODES.CANNOT_SEND_JSON_MESSAGE;
 	}
 }
 
@@ -196,7 +200,7 @@ const Network = {
 			}
 		};
 
-		socket.onclose = function(e) {
+		socket.onclose = function() {
 			//console.log('Server connection close', e.reason);
 			
 			CurrentUser = null;

@@ -24,7 +24,7 @@ interface SkillSchema {
 	empty: boolean;
 	key: number | 'space';
 	texture: string | undefined;
-	continous: boolean;
+	continuous: boolean;
 	active: boolean;//for continuous
 	cooldown: number;//for not continuous
 }
@@ -60,7 +60,11 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 	constructor(props: SkillsBarProps) {
 		super(props);
 	}
-
+	
+	componentWillUnmount() {
+		this.skill_cooldowns.forEach(timeout => clearTimeout(timeout));
+	}
+	
 	componentDidMount() {
 		//initialize emoticons preview
 		Assets.onload(() => {
@@ -82,7 +86,7 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 			empty: true,
 			key: slot_index,
 			texture: undefined,
-			continous: false,
+			continuous: false,
 			active: false,
 			cooldown: 0
 		});
@@ -90,12 +94,12 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 		this.setState({skills: this.state.skills});
 	}
 
-	public addSkill(texture_name: string, key: 'space' | number, continous: boolean) {
+	public addSkill(texture_name: string, key: 'space' | number, continuous: boolean) {
 		this.state.skills.push({
 			empty: false,
 			key, 
 			texture: getTextureSource(texture_name),
-			continous,
+			continuous,
 			active: false,
 			cooldown: 0
 		});
@@ -105,7 +109,7 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 
 	public useSkill(index: number, cooldown: number) {
 		let skill = this.state.skills[index];
-		if( skill.continous )
+		if( skill.continuous )
 			skill.active = true;
 		else {//start cooldown chain 
 			//console.log('cooldown:', cooldown, index);
@@ -126,7 +130,7 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 
 	public stopSkill(index: number) {
 		let skill = this.state.skills[index];
-		if( skill.continous )
+		if( skill.continuous )
 			skill.active = false;
 		else
 			console.warn('Non continuous skills cannot be stopped');
@@ -158,12 +162,12 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 			<div className='skill-slots'>{this.renderSkillSlots()}</div>
 			<button className='emoticons-toggler' ref={el => this.emots_toggler = el} onClick={() => {
 				this.setState({show_emoticons_bar: !this.state.show_emoticons_bar});
-				if(this.emots_toggler)
+				if (this.emots_toggler)
 					this.emots_toggler.blur();
-			}}></button>
+			}}/>
 			<div className='emoticons-bar'>{this.state.available_emots.map((emot, index) => {
 				return <button key={index} onClick={() => this.props.onEmoticonUse(index)}>
-					<img src={emot.source} />
+					<img src={emot.source} alt='emoticon preview' />
 					<span>{emot.key}</span>
 				</button>;
 			})}</div>
