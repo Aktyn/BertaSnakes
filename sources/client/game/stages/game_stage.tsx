@@ -351,6 +351,7 @@ export default class extends StageBase<BaseProps, GameState> {
 			return <GameResults data={this.state.results} room={this.props.current_room}
 			                    onClose={() => {
 			                        this.props.onChange(MenuStage.prototype);
+			                        Network.requestRoomsList();
 			                    }} />;
 		return <div className='game-stage'>
 			<div className='left-panel'>
@@ -386,7 +387,8 @@ export default class extends StageBase<BaseProps, GameState> {
 				<button className='glossy no-icon exit-btn' ref={el => this.exit_btn = el} 
 					onClick={this.tryLeave.bind(this)} style={{margin: '10px 0px'}}>EXIT GAME</button>
 				<div className='list-stretcher'>{this.props.current_room &&
-					<UsersList current_user={this.props.current_user} room={this.props.current_room} />
+					<UsersList disable_players_kicking={true}
+					           current_user={this.props.current_user} room={this.props.current_room} />
 				}</div>
 			</div>
 			<div className={`chat-container${this.state.hide_chat && this.state.hide_rightside ? 

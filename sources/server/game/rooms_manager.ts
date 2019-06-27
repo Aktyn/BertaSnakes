@@ -2,6 +2,7 @@ import Connections, {Connection} from './connections';
 import RoomInfo, {RoomSettings} from '../../common/room_info';
 import GameStarter from './game_starter';
 import Config from '../../common/config';
+import UserInfo from "../../common/user_info";
 
 const MINIMUM_ROOMS = 3;
 
@@ -53,6 +54,10 @@ export default {
 		//NOTE - remove room event is not distributed
 		if( !rooms.delete(room.id) )
 			console.error('Cannot delete room: ' + room.id);
+	},
+	
+	restoreRoomAfterGame(room: RoomInfo) {//makes everyone in lobby see this room on rooms list
+		distributeRoomCreateEvent(room);
 	},
 
 	updateRoomSettings(from_connection: Connection, settings: RoomSettings) {
@@ -106,11 +111,16 @@ export default {
 
 		//send USER_JOINED_ROOM for every user in room expect the one that just joined
 		room.forEachUser(user => {
-			if(user.connection && room && from_connection.user && 
-				from_connection.user.id !== user.connection.id)
-			{
+			if(user.connection && room && from_connection.user && from_connection.user.id !== user.connection.id)
 				user.connection.onUserJoinedRoom(from_connection.user, room.id);
-			}
+		});
+	},
+	
+	onRoomUserCustomDataUpdate(room: RoomInfo, user: UserInfo) {
+		//distribute user public data over other room users
+		room.forEachUser((room_user) => {
+			if(user && room_user.id !== user.id && room_user.connection)
+				room_user.connection.onUserJoinedRoom(user, room.id);
 		});
 	},
 
@@ -119,6 +129,9 @@ export default {
 		let from_user = from_connection.user;
 		
 		if( !room || !from_user || from_user.id === user_id)//user cannot kick himself
+			return;
+		
+		if( room.game_process && room.isUserSitting(user_id) )//cannot kick player during game
 			return;
 
 		let room_owner = room.getOwner();

@@ -11,14 +11,13 @@ export default class Object2DSmooth extends Object2D {
 
 	constructor() {
 		super();
-		//console.log('smooth object2d');
 	}
 
 	//@ts-ignore
 	setPos(x: number, y: number, do_not_smooth = false) {
 		this.actual_x = x;
 		this.actual_y = y;
-		if(do_not_smooth === true)
+		if(do_not_smooth)
 			super.setPos(x, y);
 		return this;
 	}
@@ -26,7 +25,7 @@ export default class Object2DSmooth extends Object2D {
 	move(x: number, y: number, do_not_smooth = false) {
 		this.actual_x += x;
 		this.actual_y += y;
-		if(do_not_smooth === true)
+		if(do_not_smooth)
 			super.move(x, y);
 		return this;
 	}
@@ -34,7 +33,7 @@ export default class Object2DSmooth extends Object2D {
 	//@ts-ignore
 	setRot(rot: number, do_not_smooth = false) {
 		this.actual_rot = rot;
-		if(do_not_smooth === true)
+		if(do_not_smooth)
 			super.setRot(rot);
 		return this;
 	}
@@ -52,7 +51,7 @@ export default class Object2DSmooth extends Object2D {
 	get rot() {	return this.actual_rot;	}
 
 	update(delta: number) {
-		var x_dt, y_dt, rot_dt;
+		let x_dt, y_dt, rot_dt;
 		x_dt = this.actual_x - this._buffer[6];
 		y_dt = this.actual_y - this._buffer[7];
 

@@ -6,12 +6,13 @@ import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
 import ERROR_CODES, {errorMsg} from '../../../common/error_codes';
 
-//sections
-import renderRegisterSection from './register_section';
-import renderAccountSection from './account_section';
-import renderLoginSection from './login_section';
-
 import './../../styles/account_sidepop.scss';
+
+//sections
+import RegisterSection from './register_section';
+import LoginSection from './login_section';
+import AccountSection from "./account_section";
+import GamesSection from "./games_section";
 
 export const enum VIEWS {//avoid 0 so this enum contains only truthy values
 	GENERAL = 1,
@@ -50,7 +51,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	state: AccountSidepopState = {
 		loading: false,
-		view: VIEWS.GENERAL,
+		view: VIEWS.GAMES,//GENERAL
 		account: null,
 		verify_info: false,
 		verification_resend: false,
@@ -279,9 +280,9 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	}
 
 	private _renderAccountSection(account: AccountSchema) {
-		return renderAccountSection(this, account, 
-			this.clearAvatar.bind(this), this.uploadAvatar.bind(this),
-			this.tryVerify.bind(this), this.tryResendVerificationCode.bind(this));
+		return <AccountSection self={this} account={account} clearAvatar={this.clearAvatar.bind(this)}
+			uploadAvatar={this.uploadAvatar.bind(this)} tryVerify={this.tryVerify.bind(this)}
+			tryResendVerificationCode={this.tryResendVerificationCode.bind(this)} />;
 	}
 
 	private renderView(view: VIEWS) {
@@ -292,16 +293,14 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			case VIEWS.GENERAL: {
 				if(this.state.account)
 					return this._renderAccountSection(this.state.account);
-				else
-					return renderLoginSection(this, this.tryLogin.bind(this));
-			}
+			} break;
 
 			case VIEWS.REGISTER: {
 				if(this.state.account) {//redirect when user is logged in
 					this.state.view = VIEWS.GENERAL;
 					return this._renderAccountSection(this.state.account);
 				}
-				return renderRegisterSection(this, this.tryRegister.bind(this));
+				return <RegisterSection self={this} tryRegister={this.tryRegister.bind(this)} />;
 			}
 
 			case VIEWS.FRIENDS:
@@ -313,9 +312,14 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 					<span>TODO - shop section</span>
 				</section>;
 
-			case VIEWS.GAMES:
-				return <section>TODO - games history section</section>;
+			case VIEWS.GAMES: {
+				if(this.state.account) {
+					return <GamesSection account={this.state.account}
+						onError={code => this.setError(errorMsg(code))}/>;
+				}
+			} break;
 		}
+		return <LoginSection self={this} tryLogin={this.tryLogin.bind(this)} />;
 	}
 
 	render() {

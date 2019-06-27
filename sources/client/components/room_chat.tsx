@@ -42,7 +42,7 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 
 	state: RoomChatState = {
 		messages: []
-	}
+	};
 
 	constructor(props: RoomChatProps) {
 		super(props);
@@ -99,9 +99,9 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 		this.chat_input.value = '';
 	}
 
-	private renderMessage(msg: MessageSchema) {
+	private static renderMessage(msg: MessageSchema) {
 		return <div key={msg.timestamp}>
-			<img src={ServerApi.getAvatarPath(msg.author.avatar)} />
+			<img src={ServerApi.getAvatarPath(msg.author.avatar)} alt='avatar' />
 			<div>
 				<label>
 					<strong>{Utils.trimString(msg.author.nick, 15)}</strong>
@@ -122,15 +122,16 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 				this.sticks = this.messages_container.clientHeight + 
 					this.messages_container.scrollTop+32 >= this.messages_container.scrollHeight;
 			}} ref={el => this.messages_container = el}>{
-				this.state.messages.map(this.renderMessage.bind(this))
+				this.state.messages.map(RoomChat.renderMessage.bind(this))
 			}</div>
 			<div className='bottom'>
 				<input type='text' placeholder='Type message' ref={el => this.chat_input = el}
 					onKeyDown={e => {
 						if(e.keyCode === 13)
 							this.send();
+						e.stopPropagation();
 					}} maxLength={Config.MAXIMUM_MESSAGE_LENGTH} />
-				<button className='send-btn' onClick={this.send.bind(this)}></button>
+				<button className='send-btn' onClick={this.send.bind(this)}/>
 			</div>
 		</section>;
 	}

@@ -39,6 +39,7 @@ const HANDLERS = {
 				if( !json_data['user'] )//user log out
 					CurrentUser = null;
 				CurrentUser = UserInfo.fromFullJSON(json_data['user']);
+				Account.updateCustomData( CurrentUser.custom_data );
 				break;
 			case NetworkCodes.ON_ROOM_JOINED:
 				try {

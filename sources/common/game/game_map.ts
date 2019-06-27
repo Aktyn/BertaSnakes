@@ -1,25 +1,31 @@
 import Object2D from './objects/object2d';
 import Player from './objects/player';
+import Enemy from './objects/enemy';
+import Bullet from './objects/bullet';
 import {MapJSON_I} from './maps';
 import PaintLayer from './paint_layer';
+import Shield from "./objects/shield";
+import Bomb from "./objects/bomb";
+import EnemySpawner from "./objects/enemy_spawner";
+import Item from "./objects/item";
 
 //const MAP_FOLDER = 'play/res/maps';
 const DEFAULT_WALLS_SIZE = 0.08;
 
 //helper variables
-var ui: number, obji: number, temp_arr: Object2D[];
+let ui: number, obj_i: number, temp_arr: Object2D[];
 
 export default class Map extends PaintLayer {
 	public players: Player[] = [];
-	public enemies: Object2D[] = [];
-	public enemy_spawners: Object2D[] = [];
-	public items: Object2D[] = [];
-	public bullets: Object2D[] = [];
-	public shields: Object2D[] = [];
+	public enemies: Enemy[] = [];
+	public enemy_spawners: EnemySpawner[] = [];
+	public items: Item[] = [];
+	public bullets: Bullet[] = [];
+	public shields: Shield[] = [];
 	public immunities: Object2D[] = [];
-	public bombs: Object2D[] = [];
+	public bombs: Bomb[] = [];
 
-	private updatables: Object2D[][];
+	private readonly updatables: Object2D[][];
 
 	public server_synchronized: Object2D[][];
 
@@ -36,7 +42,7 @@ export default class Map extends PaintLayer {
 		];
 
 		//server-side use for constantly sending object updates each few frames
-		//clientside use for receiving and applying updates
+		//client-side use for receiving and applying updates
 		this.server_synchronized = [this.enemies];
 	}
 
@@ -49,37 +55,36 @@ export default class Map extends PaintLayer {
 		//updating updatables
 		for(ui=0; ui<this.updatables.length; ui++) {
 			temp_arr = this.updatables[ui];
-			for(obji=0; obji < temp_arr.length; obji++) {
-				if(temp_arr[obji].expired === true) {
-					temp_arr[obji].destroy();
-					temp_arr.splice(obji, 1);
-					obji--;
+			for(obj_i=0; obj_i < temp_arr.length; obj_i++) {
+				if( temp_arr[obj_i].expired ) {
+					temp_arr[obj_i].destroy();
+					temp_arr.splice(obj_i, 1);
+					obj_i--;
 				}
 				else {
-					temp_arr[obji].update(delta);
-					temp_arr[obji].timestamp = 0;
+					temp_arr[obj_i].update(delta);
+					temp_arr[obj_i].timestamp = 0;
 				}
 			}
 		}
 	}
 
-	updateTimestamps(delta: number) {//clientside only
-		var timestamp = Date.now();
+	updateTimestamps(delta: number) {//client-side only
+		let timestamp = Date.now();
 		for(ui=0; ui<this.updatables.length; ui++) {
 			temp_arr = this.updatables[ui];
-			for(obji=0; obji < temp_arr.length; obji++) {
-				if(temp_arr[obji].expired === true) {
-					temp_arr[obji].destroy();
-					temp_arr.splice(obji, 1);
-					obji--;
+			for(obj_i=0; obj_i < temp_arr.length; obj_i++) {
+				if( temp_arr[obj_i].expired ) {
+					temp_arr[obj_i].destroy();
+					temp_arr.splice(obj_i, 1);
+					obj_i--;
 				}
-				else if(temp_arr[obji].timestamp !== 0) {
-					//console.log( (timestamp - temp_arr[obji].timestamp) / 1000.0 );
-					temp_arr[obji].update( (timestamp - temp_arr[obji].timestamp) / 1000.0 );
-					temp_arr[obji].timestamp = 0;
+				else if(temp_arr[obj_i].timestamp !== 0) {
+					temp_arr[obj_i].update( (timestamp - temp_arr[obj_i].timestamp) / 1000.0 );
+					temp_arr[obj_i].timestamp = 0;
 				}
 				else//object timestamp === 0
-					temp_arr[obji].update(delta);
+					temp_arr[obj_i].update(delta);
 			}
 		}
 	}

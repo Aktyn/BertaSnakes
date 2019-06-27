@@ -1,5 +1,5 @@
 import GameCore from './game_core';
-import {PLAYER_TYPES} from './objects/player';
+import Player, {PLAYER_TYPES} from './objects/player';
 
 export interface PlayerResultJSON {
 	user_id: number;
@@ -26,7 +26,7 @@ const COINS_PER_BEATEN_PLAYER = 50;
 const COINS_FOR_POINTS_BONUS_FACTOR = 4;
 
 //according to killed enemies minus deaths, player's level and points
-function calculateExpReward(player: any) {
+function calculateExpReward(player: Player) {
 	return Math.max(0,
 		player.kills + player.points/GameCore.GET_PARAMS().points_for_enemy_kill-player.deaths*5
 	) * EXP_FACTOR / Math.sqrt(player.level);
@@ -64,7 +64,7 @@ function eloRating(Ra: number, Rb: number, d: boolean) {
 
 //@players - array of objects with rank property
 //@target_index - index of target object within players array
-function calculateRankReward(players: any, target_index: number) {
+function calculateRankReward(players: Player[], target_index: number) {
 	let total_reward = 0;//stores sum of partial rewards
 
 	let Ra: number = players[target_index].rank;

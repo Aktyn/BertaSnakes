@@ -22,22 +22,22 @@ const rect_data = {
 
 let screen_size = Utils.getScreenSize();
 
-var shadow_vector = new Vec2f();
+let shadow_vector = new Vec2f();
 shadow_vector.set( -screen_size.height, screen_size.width ).normalize();
-var windowHeight = screen_size.height;
+let windowHeight = screen_size.height;
 
-function onResize(e: Event) {
+function onResize(event: Event) {
 	//@ts-ignore
-	var w = (e.srcElement || e.currentTarget).innerWidth,
+	let w = event.currentTarget.innerWidth;
 	//@ts-ignore
-		h = (e.srcElement || e.currentTarget).innerHeight;
+	let h = event.currentTarget.innerHeight;
 	Graphics.onResize(w, h);
 	shadow_vector.set(-h, w).normalize();
 	windowHeight = h;
 }
 
 //performance matter variables
-var chunk_it, chunk_ref, e_i;//chunk iterator
+let chunk_it, chunk_ref, e_i;//chunk iterator
 
 export default class WebGLRenderer extends RendererBase {
 	private entities: WebGLEntities;
@@ -48,10 +48,10 @@ export default class WebGLRenderer extends RendererBase {
 	private main_shader: Graphics.ExtendedShader;
 	private post_shader: Graphics.ExtendedShader;
 	private particles_shader: Graphics.ExtendedShader;
-	private emitters: Graphics.Emitter[];//GraphicsScope.Modules.Emitter[];
-	private paint_emitters: Graphics.Emitter[];//GraphicsScope.Modules.Emitter[];
-	private weather_emitter: Graphics.Emitter | null;//Emitters.Dust;
-	private ready: boolean;
+	private readonly emitters: Graphics.Emitter[];//GraphicsScope.Modules.Emitter[];
+	private readonly paint_emitters: Graphics.Emitter[];//GraphicsScope.Modules.Emitter[];
+	private readonly weather_emitter: Graphics.Emitter | null;//Emitters.Dust;
+	private readonly ready: boolean;
 
 	private background_texture: Graphics.ExtendedTexture;
 	//private background_scale: number;
@@ -74,30 +74,29 @@ export default class WebGLRenderer extends RendererBase {
 		window.addEventListener('resize', onResize, true);
 		
 		//@ts-ignore
-		game_canvas.onwheel = e => this.zoom((e.wheelDelta||-e.detail) / 120);
+		//game_canvas.onwheel = e => this.zoom((e.wheelDelta||-e.detail) / 120);
 
 		let drag_data = {x: 0, y: 0, dragging: false};
 		
 		game_canvas.onmousedown = e => {
-			drag_data.x = (<MouseEvent>e).clientX;
-			drag_data.y = (<MouseEvent>e).clientY;
+			drag_data.x = e.clientX;
+			drag_data.y = e.clientY;
 			drag_data.dragging = true;
 		};
 		
-		game_canvas.onmouseup = e => drag_data.dragging = false;
-		game_canvas.onmouseout = e => drag_data.dragging = false;
+		game_canvas.onmouseup = () => drag_data.dragging = false;
+		game_canvas.onmouseout = () => drag_data.dragging = false;
 
-		game_canvas.onmousemove = e => {
+		game_canvas.onmousemove = (e) => {
 			if(drag_data.dragging !== true)
 				return;
 
 			if(this.focused === null) {
-				this.freeMoveCamera((<MouseEvent>e).clientX - drag_data.x, 
-					(<MouseEvent>e).clientY - drag_data.y);
+				this.freeMoveCamera(e.clientX - drag_data.x, e.clientY - drag_data.y);
 			}
 
-			drag_data.x = (<MouseEvent>e).clientX;
-			drag_data.y = (<MouseEvent>e).clientY;
+			drag_data.x = e.clientX;
+			drag_data.y = e.clientY
 		};
 		
 		this.main_fb = Graphics.FRAMEBUFFERS.create({fullscreen: true, linear: true});
@@ -221,7 +220,7 @@ export default class WebGLRenderer extends RendererBase {
 			Graphics.SHADERS.uniform_vec4('color', Colors.WHITE.buffer);
 
 			//for(chunk_it of this.map.chunks) {
-			var cam_w = Graphics.getAspect()/this.camera.z,
+			let cam_w = Graphics.getAspect()/this.camera.z,
 				cam_h = 1/this.camera.z;
 			for(chunk_it=0; chunk_it<this.map.chunks.length; chunk_it++) {
 				chunk_ref = this.map.chunks[chunk_it];
@@ -305,7 +304,7 @@ export default class WebGLRenderer extends RendererBase {
 	}
 
 	public static addEmitter(emitter: Graphics.Emitter, paint_layer = false) {
-		var current_instance = <WebGLRenderer>RendererBase.getCurrentInstance();
+		let current_instance = <WebGLRenderer>RendererBase.getCurrentInstance();
 			
 		if(paint_layer === true)
 			current_instance.paint_emitters.push( emitter );

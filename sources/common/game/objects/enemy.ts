@@ -4,13 +4,14 @@ import Sensor from './../common/sensor';
 import HpBar from './hp_bar';
 
 declare var _CLIENT_: boolean;
-if(_CLIENT_)
+if(_CLIENT_) { // noinspection ES6ConvertVarToLetConst
 	var EntitiesBase = require('../../../client/game/entities').default;
+}
 
 const REGENERATION_SPEED = 0.025;
 
 export default class Enemy extends Object2D {
-	private entity_name: string;
+	private readonly entity_name: string;
 	private movement: Movement;
 	public sensor: Sensor;
 	public hp_bar: HpBar;
@@ -52,7 +53,7 @@ export default class Enemy extends Object2D {
 	}
 
 	isAlive() {
-		return this.hp_bar.hp >= 0.005 || this.expired === true;
+		return this.hp_bar.hp >= 0.005 || this.expired;
 	}
 
 	get spawning() {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import SidepopBase, {SidepopProps} from './sidepop_base';
 
-import './../../styles/user_sidepop.scss';
+import '../../styles/user_sidepop.scss';
 
 interface UserSidepopProps extends SidepopProps {
 	account_id: string;
@@ -15,7 +15,7 @@ interface UserSidepopState {
 export default class UserSidepop extends React.Component<UserSidepopProps, UserSidepopState> {
 	state: UserSidepopState = {
 		loading: false,
-	}
+	};
 
 	constructor(props: UserSidepopProps) {
 		super(props);

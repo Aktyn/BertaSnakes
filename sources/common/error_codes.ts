@@ -30,7 +30,9 @@ const enum ERROR_CODES {
 	//network
 	CANNOT_SEND_JSON_MESSAGE,
 	CANNOT_JOIN_CURRENT_ROOM,
-	USER_IS_NOT_IN_ROOM
+	USER_IS_NOT_IN_ROOM,
+	
+	INCORRECT_DATA_SENT
 }
 
 export default ERROR_CODES;
@@ -67,5 +69,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.CANNOT_SEND_JSON_MESSAGE:return 'Cannot send json message';
 		case ERROR_CODES.CANNOT_JOIN_CURRENT_ROOM:return 'Cannot join current room';
 		case ERROR_CODES.USER_IS_NOT_IN_ROOM:	return 'User is not in room';
+		
+		case ERROR_CODES.INCORRECT_DATA_SENT:   return 'Incorrect data sent';
 	}
 }

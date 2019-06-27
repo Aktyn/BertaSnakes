@@ -11,7 +11,7 @@ import RightPanel, {MessageSchema} from '../../components/menu_right_panel';
 import RoomView from './room_view';
 import AccountSidepop, {VIEWS} from '../../components/sidepops/account_sidepop';
 
-import './../../styles/menu_stage.scss';
+import '../../styles/menu_stage.scss';
 
 interface MenuProps extends BaseProps {
 	indicate_room_deletion: boolean;
@@ -29,7 +29,7 @@ export default class extends StageBase<MenuProps, MenuState> {
 	state: MenuState = {
 		account_view: undefined,
 		hide_rooms_list: true//effect visible only in small screen
-	}
+	};
 
 	constructor(props: MenuProps) {
 		super(props);
@@ -50,10 +50,10 @@ export default class extends StageBase<MenuProps, MenuState> {
 						this.props.current_user ?
 						(!this.props.current_user.isGuest() && <>
 							<button className='shop shaky-icon' style={{marginLeft: '10px'}}
-								onClick={() => this.setState({account_view: VIEWS.SHOP})}></button>
+								onClick={() => this.setState({account_view: VIEWS.SHOP})}/>
 
 							<button className='friends shaky-icon' style={{marginLeft: '10px'}}
-								onClick={() => this.setState({account_view: VIEWS.FRIENDS})}></button>
+								onClick={() => this.setState({account_view: VIEWS.FRIENDS})}/>
 						</>)
 						: 
 						<button className='glossy no-icon' style={{marginLeft: '10px'}}
@@ -64,9 +64,9 @@ export default class extends StageBase<MenuProps, MenuState> {
 				<HeaderNotifications />
 				
 				<div style={{justifySelf: 'right'}}>
-					<button className='settings shaky-icon'></button>
-					<span className='separator'></span>
-					<Link className='closer shaky-icon' to='/' onClick={Network.disconnect}></Link>
+					<button className='settings shaky-icon'/>
+					<span className='separator'/>
+					<Link className='closer shaky-icon' to='/' onClick={Network.disconnect}/>
 				</div>
 			</header>
 			<section>
@@ -80,8 +80,7 @@ export default class extends StageBase<MenuProps, MenuState> {
 					<div className='options'>
 						<button className='glossy add' 
 							onClick={Network.createRoom} style={{marginBottom: '20px'}}>CREATE</button>
-						<div className={`refresh-indicator${
-							this.props.indicate_room_deletion ? ' indicate' : ''}`}></div>
+						<div className={`refresh-indicator${this.props.indicate_room_deletion ? ' indicate' : ''}`}/>
 					</div>
 					<div className='rooms-list-container'>
 						<RoomsList rooms={this.props.rooms_list} 

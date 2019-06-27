@@ -3,51 +3,53 @@ import {UserFullData} from '../../common/user_info';
 import NetworkCodes from '../../common/network_codes';
 import Connections, {Connection} from './connections';
 import {GameResultJSON} from '../../common/game/game_result';
+import Database from '../database';
+import {AccountSchema2UserCustomData} from '../utils';
+import RoomsManager from './rooms_manager';
 import * as child_process from 'child_process';
 import * as path from 'path';
 
-function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
+const MAX_LEVEL = 99;
+
+async function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 	//updating user's database entries according to game result
 	if(typeof result_json === 'string')
 		result_json = JSON.parse(result_json);
 	
 	//console.log( room );
 	//console.log( result_json );
+	
+	//saving game result as database result
+	await Database.saveGameResult(room, result_json.players_results).catch(console.error);
 
-	result_json.players_results.forEach(result => {
+	result_json.players_results.forEach(async (result) => {
 		if(!result.account_id)//ignore guests
 			return;
+		let account_id = result.account_id;
 		
-		//TODO: update users custom datas
-		/*let online_user_conn = current_connections.find((conn: Connection) => {
-			return conn.user !== null && conn.user.id === result.user_id;
-		});
-
-		//if user is online there is no reason to fetch it's data from database
-		if(online_user_conn !== undefined && online_user_conn.user !== null)
-			updateAndSaveCustomData(online_user_conn.user.id, online_user_conn.user.custom_data,
-				result);
-		else {//update offline user according to game result
-			DatabaseUtils.findUserByID(result.user_id).then(res => {
-				if(res === null)
-					throw new Error('Cannot find user in database, (id: ' + result.user_id + ')');
-				
-				//let custom_data = JSON.parse( res.custom_data );
-				updateAndSaveCustomData(res.id, JSON.parse(res.custom_data), result);
-			}).catch(e => console.error(e));
-		}*/
+		//update account custom data
+		let account_schema = await Database.getAccount(account_id);
+		if( !account_schema ) {
+			console.error('Account not found in database, id:', account_id);
+			return;
+		}
+		account_schema.rank = result.rank;//rank is already updated in results
+		account_schema.coins += result.coins;
+		account_schema.exp += result.exp;
+		if(account_schema.exp >= 1) { //level up
+			account_schema.level = Math.min(MAX_LEVEL, account_schema.level + 1);
+			account_schema.exp -= 1;
+			account_schema.exp /= (account_schema.level / Math.max(1, account_schema.level-1));
+		}
 		
-		/////////////////////////////////////////////////////////////////////////
+		await Database.updateAccountCustomData(account_id, account_schema);
 		
-		//room.forEachUser((user) => {
-			//if(user.connection && user.id === result.user_id)
-				//TODO - distribute user's custom data update across the room
-				//user.connection.updateUserData();
-		//});
+		let user = room.getUserByID(result.user_id);
+		if(user && user.connection && user.account_id === account_id) {
+			user.connection.updateUserData(AccountSchema2UserCustomData(account_schema));
+			RoomsManager.onRoomUserCustomDataUpdate(room, user);
+		}
 	});
-	
-	//TODO: saving game result as database result
-	//Database.saveGameResult(room.name, room.map, room.gamemode, room.duration, result_json_out);
 }
 
 function onGameFailedToStart(room: RoomInfo) {
@@ -112,8 +114,8 @@ export default class GameHandler {
 				this.handleGameProcessMessage.bind(this));
 
 			(<child_process.ChildProcess>this.room.game_process).on('exit', (code, signal) => {
-				console.log('Process exited with code:', code, signal);
-				//TODO: handle it
+				if(code !== null)
+					console.error('Process exited with code:', code, signal);
 			});
 
 			//distribute game start message
@@ -190,7 +192,7 @@ export default class GameHandler {
 				});
 
 				//saving game result to database
-				saveGameResult(this.room, msg.data.result);
+				saveGameResult(this.room, msg.data.result).catch(console.error);
 
 				this.onGameEnd(true);
 			}	break;

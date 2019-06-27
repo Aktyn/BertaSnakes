@@ -22,6 +22,7 @@ interface CoreState extends BaseProps {
 // noinspection JSUnusedGlobalSymbols (it is dynamically imported in index.tsx and IDE does not handle this)
 export default class extends React.Component<any, CoreState> {
 	private active = false;
+	private disconnect_notify = false;
 	private room_refresh_tm: NodeJS.Timeout | null = null;
 	private room_deletion_tm: NodeJS.Timeout | null = null;
 
@@ -65,7 +66,14 @@ export default class extends React.Component<any, CoreState> {
 		if(this.room_deletion_tm)
 			clearTimeout(this.room_deletion_tm);
 	}
-
+	
+	componentDidUpdate() {
+		if( this.disconnect_notify ) {
+			this.disconnect_notify = false;
+			HeaderNotifications.push('Connection with server failed');
+		}
+	}
+	
 	private startRoomDeletion() {
 		this.setState({indicate_room_deletion: true});
 
@@ -86,7 +94,11 @@ export default class extends React.Component<any, CoreState> {
 	onServerDisconnected() {
 		console.log('server disconnected');
 		if(this.active) {
+			if( this.stageHandle instanceof GameStage )
+				this.disconnect_notify = true;
+			
 			this.setState({
+				current_stage: MenuStage.prototype,
 				current_user: null,
 				current_room: null,
 				rooms_list: [],
@@ -147,8 +159,11 @@ export default class extends React.Component<any, CoreState> {
 				case NetworkCodes.ON_ROOM_CREATED: {
 					let rooms = this.state.rooms_list;
 					let updated_room = RoomInfo.fromJSON(data['room']);
-					if( !rooms.find(r => r.id === updated_room.id) )
+					let existing_room_i = rooms.findIndex(r => r.id === updated_room.id);
+					if( existing_room_i === -1 )
 						rooms.push( updated_room );
+					else
+						rooms[existing_room_i] = updated_room;
 
 					this.setState({rooms_list: rooms});
 				}	break;

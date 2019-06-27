@@ -19,7 +19,7 @@ interface UserBtnState {
 export default class extends React.Component<UserBtnProps, UserBtnState> {
 	state: UserBtnState = {
 		show_sidepop: false
-	}
+	};
 
 	constructor(props: any) {
 		super(props);
@@ -37,17 +37,17 @@ export default class extends React.Component<UserBtnProps, UserBtnState> {
 	renderUserBtn(user: UserInfo) {
 		if(user.isGuest()) {
 			return <>
-				<img src={ServerApi.getAvatarPath(user.avatar)} />
+				<img src={ServerApi.getAvatarPath(user.avatar)} alt='avatar'/>
 				<span>{user.nick}</span>
 			</>;
 		}
 
 		return <>
-			<img src={ServerApi.getAvatarPath(user.avatar)} />
+			<img src={ServerApi.getAvatarPath(user.avatar)} alt='avatar' />
 			<span>{Utils.trimString(user.nick, 12)}</span>
-			<span className='separator' style={{marginTop: '-1px'}}></span>
-			<span>{user.rank}</span>
-			<span className='separator' style={{marginTop: '-1px'}}></span>
+			<span className='separator' style={{marginTop: '-1px'}}/>
+			<span>{Math.round(user.rank)}</span>
+			<span className='separator' style={{marginTop: '-1px'}}/>
 			<span>Lv. {user.level}</span>
 		</>
 	}
@@ -67,7 +67,7 @@ export default class extends React.Component<UserBtnProps, UserBtnState> {
 		if(typeof this.props.user.account_id === 'string')//show other account data
 			return <UserSidepop account_id={this.props.user.account_id} onClose={() => {
 				this.setState({show_sidepop: false});
-			}} />
+			}} />;
 
 		return undefined;
 	}

@@ -102,4 +102,21 @@ $avatarSize: 50px;
 			}
 		}
 	}
+	
+	.experience-bar {
+		width: 100px;
+		margin: 0px 3px;
+		height: 5px;
+		background-color: #ffd08a;
+		overflow: hidden;
+		border-radius: 5px;
+		border: 1px solid #FFB74D;
+		text-align: left;
+		display: inline-block;
+		
+		& > span {
+			display: block;
+			background-color: #FFB74D;
+		}
+	}
 }

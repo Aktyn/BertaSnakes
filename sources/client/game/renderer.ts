@@ -3,18 +3,17 @@ import {Vec3f} from '../../common/utils/vector';
 import Player from '../../common/game/objects/player';
 import GameMap from '../../common/game/game_map';
 
-var current_instance: RendererBase | null = null;//stores lastly created instance
+let current_instance: RendererBase | null = null;//stores lastly created instance
 
 export default abstract class RendererBase {
-	//public GUI: ClientGame.GameGUI;
 	protected map: GameMap;
 
 	public focused: Player | null;
 
 	protected camera: Vec3f;
-	private _zoom: number;
+	private readonly _zoom: number;
 
-	constructor(map: GameMap) {
+	protected constructor(map: GameMap) {
 		if(current_instance)
 			throw new Error('Only single instance of Renderer is allowed');
 		
@@ -44,7 +43,7 @@ export default abstract class RendererBase {
 	}
 
 	withinVisibleArea(x: number, y: number, offset: number) {
-		var a = this.getAspect();
+		let a = this.getAspect();
 		
 		return 	x+offset > this.camera.x - a/this.camera.z && 
 				x-offset < this.camera.x + a/this.camera.z &&
@@ -52,20 +51,20 @@ export default abstract class RendererBase {
 				y-offset < this.camera.y + 1.0/this.camera.z;
 	}
 
-	zoom(factor: number) {
+	/*zoom(factor: number) {
 		if(this.focused === null)//free camera
 			this._zoom = Math.min(1, Math.max(1 / this.map.map_size, this._zoom + factor * 0.1));
-	}
+	}*/
 
 	freeMoveCamera(pixX: number, pixY: number) {
-		var factor = (this.map.map_size - 1) / 2.0 / this.camera.z;
+		let factor = (this.map.map_size - 1) / 2.0 / this.camera.z;
 		this.camera.x -= pixX / this.getHeight() * factor;
 		this.camera.y += pixY / this.getHeight() * factor;
 	}
 
 	updateCamera(delta: number) {
-		var a = this.getAspect();
-		var sqrtA = this.focused === null ? 1.0 : Math.sqrt(a);
+		let a = this.getAspect();
+		let sqrtA = this.focused === null ? 1.0 : Math.sqrt(a);
 		//console.log(sqrtA);
 
 		if(this._zoom*sqrtA !== this.camera.z) {
@@ -77,8 +76,8 @@ export default abstract class RendererBase {
 				this.camera.z = this._zoom*sqrtA;
 		}
 		if(this.focused !== null) {
-			var dtx = this.focused.x - this.camera.x;
-			var dty = this.focused.y - this.camera.y;
+			let dtx = this.focused.x - this.camera.x;
+			let dty = this.focused.y - this.camera.y;
 			//TODO - multiple by smoothing value instad of const
 			this.camera.x += dtx * delta * 3.0 * this.camera.z;
 			this.camera.y += dty * delta * 3.0 * this.camera.z;
@@ -88,8 +87,8 @@ export default abstract class RendererBase {
 
 		//clamping to edges
 		
-		var cam_max = this.map.map_size - 1/this.camera.z;
-		var cam_max_a = this.map.map_size - a/this.camera.z;
+		let cam_max = this.map.map_size - 1/this.camera.z;
+		let cam_max_a = this.map.map_size - a/this.camera.z;
 		if(this.camera.y > cam_max)
 			this.camera.y = cam_max;
 		else if(this.camera.y < -cam_max)

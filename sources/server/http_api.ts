@@ -5,7 +5,7 @@ import * as path from 'path';
 
 import ERROR_CODES from '../common/error_codes';
 import Config from '../common/config';
-import {sha256, md5/*, encodeBase64*/} from './utils';
+import {md5, sha256} from './utils';
 import Sessions from './sessions';
 import Database from './database';
 import Email from './email';
@@ -154,6 +154,22 @@ app.post('/upload_avatar', async (req, res) => {//token, image
 			return res.json({error: db_result.error});
 
 		return res.json({error: ERROR_CODES.SUCCESS, avatar});
+	}
+	catch(e) {
+		console.error(e);
+		return res.json({error: ERROR_CODES.UNKNOWN});
+	}
+});
+
+app.post('/account_games', async (req, res) => {//account_id
+	try {
+		if( !req.body.account_id )
+			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+		let db_res = await Database.getAccountGames(req.body.account_id);
+		if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.games)
+			return res.json(db_res);
+		
+		return res.json({error: ERROR_CODES.SUCCESS, games: db_res.games});
 	}
 	catch(e) {
 		console.error(e);

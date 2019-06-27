@@ -2,11 +2,15 @@ import ServerApi from './utils/server_api';
 import ERROR_CODES from '../common/error_codes';
 import Cookies from './utils/cookies';
 
-import {AccountSchema as AccountSchemaDB} from '../server/database';
-export interface AccountSchema extends AccountSchemaDB {}
+import {UserCustomData} from "../common/user_info";
+
+import {AccountSchema} from '../server/database';
+export {AccountSchema} from '../server/database';
 
 let current_account: AccountSchema | null = null;
 let on_login_listeners: ((account: AccountSchema | null) => void)[] = [];
+
+const override = (value: any, current: any) => value === undefined ? current : value;
 
 function onLogIn(account: AccountSchema | null) {
 	//console.log(account);
@@ -16,7 +20,7 @@ function onLogIn(account: AccountSchema | null) {
 
 async function loginFromToken() {
 	if(current_account)
-		return {error: ERROR_CODES.ACCOUNT_ALREADY_LOGGED_IN}
+		return {error: ERROR_CODES.ACCOUNT_ALREADY_LOGGED_IN};
 	try {
 		let res = await ServerApi.postRequest('/token_login', {token});
 
@@ -39,7 +43,7 @@ async function loginFromToken() {
 
 let token = Cookies.getCookie('token');
 if(token) //try to login via cookie token
-	loginFromToken();
+	loginFromToken().catch(console.error);
 
 export default {
 	getAccount() {//null if user is not logged in
@@ -62,6 +66,20 @@ export default {
 	},
 
 	loginFromToken,
+	
+	updateCustomData(data: Partial<UserCustomData>) {
+		if( !current_account )
+			return;
+		
+		current_account.level           = override(data.level, current_account.level);
+		current_account.rank            = override(data.rank, current_account.rank);
+		current_account.skills          = override(data.skills, current_account.skills);
+		current_account.ship_type       = override(data.exp, current_account.ship_type);
+		current_account.exp             = override(data.exp, current_account.exp);
+		current_account.coins           = override(data.coins, current_account.coins);
+		current_account.available_skills= override(data.available_skills, current_account.available_skills);
+		current_account.available_ships = override(data.available_ships, current_account.available_ships);
+	},
 
 	async login(nick: string, password: string) {
 		try {

@@ -24,6 +24,8 @@ function prepareToStart(room: RoomInfo) {
 
 		if(no_error && room.isEmpty())
 			RoomsManager.deleteRoomAfterGame(room);
+		else
+			RoomsManager.restoreRoomAfterGame(room);
 	}));
 }
 

@@ -113,7 +113,7 @@ export default class RoomInfo {
 
 	addUser(user: UserInfo) {
 		user.room = this;
-		this.users.set(user.id, user);
+		this.users.set(user.id, user);//NOTE - if user is already in room - it will be overridden
 	}
 
 	removeUser(user: UserInfo) {
@@ -152,13 +152,14 @@ export default class RoomInfo {
 		return this.sits.some(u => u === user_id);
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	isUserReady(user_id: number) {
-		var sit_id = this.sits.indexOf(user_id);
+		let sit_id = this.sits.indexOf(user_id);
 		return sit_id === -1 ? false : this.readys[sit_id];
 	}
 
 	everyoneReady() {
-		return this.readys.every(r => r === true);
+		return this.readys.every(r => r);
 	}
 
 	everyoneSits() {
@@ -169,6 +170,7 @@ export default class RoomInfo {
 		return this.users.get(user_id) || null;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	getSettings(): RoomSettings {
 		return {
 			name: this.name,
@@ -200,7 +202,7 @@ export default class RoomInfo {
 			this.sits.push(0);
 
 		//unready all sitting users and keeps array same size
-		this.readys = this.sits.map(sit => false);
+		this.readys = this.sits.map(() => false);
 	}
 
 	updateData(json_data: RoomInfo | string | RoomCustomData) {
@@ -230,11 +232,11 @@ export default class RoomInfo {
 	}
 
 	sitUser(user: UserInfo) {
-		if(this.sits.some(sit => sit === user.id) === true) {
+		if( this.sits.some(sit => sit === user.id) ) {
 			console.log('User already sitting (' + user + ')');
 			return;
 		}
-		for(var i=0; i<this.sits.length; i++) {
+		for(let i=0; i<this.sits.length; i++) {
 			if(this.sits[i] === 0) {//first empty sit
 				this.sits[i] = user.id;//sitting user on it
 				break;
@@ -244,20 +246,20 @@ export default class RoomInfo {
 
 	standUpUser(user: UserInfo) {
 		this.sits = this.sits.map(sit => (sit === user.id) ? 0 : sit)
-			.sort((a, b) => a === 0 ? 1 : -1);
+			.sort((a) => a === 0 ? 1 : -1);
 		this.unreadyAll();
 	}
 
 	unreadyAll() {
-		for(var i=0; i<this.readys.length; i++)
+		for(let i=0; i<this.readys.length; i++)
 			this.readys[i] = false;
 	}
 
 	setUserReady(user: UserInfo) {
-		if(this.sits.every(sit => sit !== 0) === false)//not every sit taken
+		if( !this.sits.every(sit => sit !== 0) )//not every sit taken
 			return false;
-		for(var i=0; i<this.sits.length; i++) {
-			if(this.sits[i] === user.id && this.readys[i] === false) {
+		for(let i=0; i<this.sits.length; i++) {
+			if( this.sits[i] === user.id && !this.readys[i] ) {
 				this.readys[i] = true;
 				return true;
 			}

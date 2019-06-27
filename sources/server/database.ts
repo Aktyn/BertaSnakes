@@ -3,13 +3,17 @@ import {getArgument} from './utils';
 import ERROR_CODES from '../common/error_codes';
 import Config from '../common/config';
 
+import RoomInfo, {GAME_MODES} from '../common/room_info';
+import {PlayerResultJSON} from '../common/game/game_result';
+
 const uri = 'mongodb://localhost:27017';
 const DB_NAME = 'BertaSnakes';
 
 const enum COLLECTIONS {
-	accounts = 'accounts',//username, password, email, verification_code, creation_time, last_login
-	sessions = 'sessions'//account_id, token, expiration
-};
+	accounts = 'accounts',//username, password, email, verification_code, creation_time, last_login, ...
+	sessions = 'sessions',//account_id, token, expiration
+	games = 'games',//finish_timestamp, name, map, gamemode, duration, results
+}
 
 let client: MongoClient;
 let db: Db;
@@ -17,7 +21,7 @@ function assert_connection() {
 	if(!client) throw new Error('Database connection not ready');
 }
 
-var connection_listeners: (() => void)[] = [];
+let connection_listeners: (() => void)[] = [];
 
 function getCollection(name: string) {
 	assert_connection();
@@ -45,7 +49,7 @@ MongoClient.connect(uri, {
 	//await db.collection(COLLECTIONS.accounts).createIndex({id: 1}, 
 	//	{name: 'account_id', unique: true});
 	await db.collection(COLLECTIONS.accounts).createIndex({username: 'hashed'}, 
-		{name: 'username_index'});//NOTE - hashed index cannot be unique at the momment
+		{name: 'username_index'});//NOTE - hashed index cannot be unique at the moment
 	await db.collection(COLLECTIONS.accounts).createIndex({password: 'hashed'}, 
 		{name: 'password_index'});
 	await db.collection(COLLECTIONS.accounts).createIndex({email: 'hashed'}, 
@@ -57,12 +61,20 @@ MongoClient.connect(uri, {
 		{name: 'account_session', unique: true});
 	await db.collection(COLLECTIONS.sessions).createIndex({token: 'hashed'}, 
 		{name: 'session_token'});
+	
+	await db.collection(COLLECTIONS.games).createIndex({finish_timestamp: 1},
+		{name: 'timestamp_index'});
 }).catch(console.error);
 
-/*interface MongoForumAccountInfo extends ForumAccountInfo {
-	_id: ObjectId;
-	visit_counter: number;
-}*/
+export interface GameSchema {
+	duration: number;
+	finish_timestamp: number;
+	gamemode: GAME_MODES;
+	map: string;
+	name: string;
+	results: PlayerResultJSON[];
+	_id: string;
+}
 
 export interface AccountSchema {
 	id: string;
@@ -119,7 +131,7 @@ export default {
 
 	disconnect() {
 		assert_connection();
-		client.close();
+		client.close().catch(console.error);
 	},
 
 	async clearExpiredSessions() {
@@ -154,7 +166,7 @@ export default {
 		}
 		catch(e) {
 			console.error(e);
-			return {error: ERROR_CODES.UNKNOWN};
+			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	},
 
@@ -194,7 +206,7 @@ export default {
 		}
 		catch(e) {
 			console.error(e);
-			return {error: ERROR_CODES.UNKNOWN};
+			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	},
 
@@ -246,14 +258,6 @@ export default {
 	},
 
 	async getAccountFromToken(_token: string) {
-		/*let account_id = await this.getSession(token);
-		if(!account_id)
-			return {error: ERROR_CODES.SESSION_EXPIRED};
-		let account = await this.getAccount(account_id);
-		if(!account)
-			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
-		return { error: ERROR_CODES.SUCCESS, account };*/
-
 		let session_data = await getCollection(COLLECTIONS.sessions).findOne({
 			token: _token
 		});
@@ -270,9 +274,7 @@ export default {
 		return { error: ERROR_CODES.SUCCESS, account: extractAccountSchema(account) }
 	},
 
-	async insertAccount(_nick: string, _hashed_password: string, _email: string, 
-		_verification_code: string) 
-	{
+	async insertAccount(_nick: string, _hashed_password: string, _email: string, _verification_code: string) {
 		let accounts = getCollection(COLLECTIONS.accounts);
 		try {
 			//checking for existing username or email
@@ -310,14 +312,44 @@ export default {
 				ship_type: 0
 			});
 
-			if(!insert_res.result.ok)
+			if( !insert_res.result.ok )
 				return {error: ERROR_CODES.DATABASE_ERROR};
 
 			return {error: ERROR_CODES.SUCCESS, inserted_id: insert_res.insertedId.toHexString()};
 		}
 		catch(e) {
 			console.error(e);
-			return {error: ERROR_CODES.UNKNOWN};
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async updateAccountCustomData(account_hex_id: string, data: AccountSchema) {
+		try {
+			let update_res = await getCollection(COLLECTIONS.accounts).updateOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			}, {
+				'$set': {
+					level: data.level,
+					rank: data.rank,
+				
+					exp: data.exp,
+					coins: data.coins,
+				
+					available_skills: data.available_skills,
+					skills: data.skills,//chosen skills
+				
+					available_ships: data.available_ships,
+					ship_type: data.ship_type,
+				}
+			});
+			
+			if( !update_res.result.ok )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	},
 
@@ -331,7 +363,7 @@ export default {
 		try {
 			let session_account_id = await this.getSession(session_token);
 			if(!session_account_id)
-				return {error: ERROR_CODES.ACCOUNT_NOT_LOGGED_IN}
+				return {error: ERROR_CODES.ACCOUNT_NOT_LOGGED_IN};
 
 			const accounts = getCollection(COLLECTIONS.accounts);
 			const object_id = ObjectId.createFromHexString(session_account_id);
@@ -350,32 +382,97 @@ export default {
 				'$set': {verification_code: ''}
 			});
 
-			if(!update_res.result.ok)
+			if( !update_res.result.ok )
 				return {error: ERROR_CODES.DATABASE_ERROR};
-			
 			return {error: ERROR_CODES.SUCCESS};
 		}
 		catch(e) {
 			console.error(e);
-			return {error: ERROR_CODES.UNKNOWN};
+			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	},
 
 	async getAccountVerificationCode(session_token: string) {
-		let session_account_id = await this.getSession(session_token);
-		if(!session_account_id)
-			return {error: ERROR_CODES.ACCOUNT_NOT_LOGGED_IN}
-
-		let account = await getCollection(COLLECTIONS.accounts).findOne({
-			_id: ObjectId.createFromHexString(session_account_id)
-		});
-		if(!account)
-			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
-		return {
-			error: ERROR_CODES.SUCCESS, 
-			code: account.verification_code as string, 
-			email: account.email as string
-		};
+		try {
+			let session_account_id = await this.getSession(session_token);
+			if (!session_account_id)
+				return {error: ERROR_CODES.ACCOUNT_NOT_LOGGED_IN};
+			
+			let account = await getCollection(COLLECTIONS.accounts).findOne({
+				_id: ObjectId.createFromHexString(session_account_id)
+			});
+			if (!account)
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+			return {
+				error: ERROR_CODES.SUCCESS,
+				code: account.verification_code as string,
+				email: account.email as string
+			};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async saveGameResult(room: RoomInfo, players_results: PlayerResultJSON[]) {
+		try {
+			let insert_res = await getCollection(COLLECTIONS.games).insertOne({
+				finish_timestamp: Date.now(),
+				name: room.name,
+				map: room.map,
+				gamemode: room.gamemode,
+				duration: room.duration,
+				results: players_results.map(result => {
+					delete result.avatar;//it is redundant and user may change avatar after game
+					delete result.user_id;//irrelevant for database
+					return result;
+				})
+			});
+			if( !insert_res.result.ok )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async getAccountGames(account_hex_id: string) {
+		try {
+			let games: GameSchema[] = await getCollection(COLLECTIONS.games).aggregate([
+				{
+					$match: {
+						results: {
+							$elemMatch: {
+								account_id: account_hex_id
+							}
+						}
+					}
+				}, {
+					$sort: {finish_timestamp: -1}
+				}, {
+					$project: {
+						_id: 1,
+						finish_timestamp: 1,
+						name: 1,
+						map: 1,
+						gamemode: 1,
+						duration: 1,
+						results: 1
+					}
+				}
+			]).toArray();
+			
+			games.forEach(g => g._id = (g._id as unknown as ObjectId).toHexString());
+			
+			return {error: ERROR_CODES.SUCCESS, games};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
 	},
 
 	/*

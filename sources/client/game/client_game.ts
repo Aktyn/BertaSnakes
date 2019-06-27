@@ -14,6 +14,7 @@ import Assets from './engine/assets';
 import EntitiesBase from './entities';
 import Object2D from '../../common/game/objects/object2d';
 import Player from '../../common/game/objects/player';
+import Enemy from '../../common/game/objects/enemy';
 import EnemySpawner from '../../common/game/objects/enemy_spawner';
 import Item, {ITEM_TYPES} from '../../common/game/objects/item';
 import Bullet, {BULLET_TYPE} from '../../common/game/objects/bullet';
@@ -56,7 +57,7 @@ function runLoop(self: ClientGame) {
 		dt = time - last;
 		last = time;
 		
-		if (self.running) {
+		if (self.running && self.ready) {
 			//timer = performance.now();
 			self.update(dt);
 			
@@ -73,11 +74,10 @@ function runLoop(self: ClientGame) {
 	step(0);
 }
 
-//TODO - e_h => Enemy type, b_h =>...
 let p_h: Player, p_h2: Player, em_i: number,
 	s_h_n: SkillObject | null,
-	p_i: number, e_i: number, e_h: any,
-	b_i: number, i_i: number, b_h: any, obj_i: number, synch_array: Object2D[], rot_dt: number;
+	p_i: number, e_i: number, e_h: Enemy,
+	b_i: number, i_i: number, b_h: Bullet, obj_i: number, synch_array: Object2D[], rot_dt: number;
 
 export interface ListenersSchema {
 	onInitData: (data: InitDataSchema[]) => void;
@@ -101,7 +101,7 @@ export interface ListenersSchema {
 export default class ClientGame extends GameCore {
 	public running = false;
 	private destroyed = false;
-	private ready = false;
+	public ready = false;
 
 	private readonly gamemode: GAME_MODES;
 	private listeners: ListenersSchema;
@@ -416,7 +416,7 @@ export default class ClientGame extends GameCore {
 				enemy.setPos( data[index + 3], data[index + 4] );
 				enemy.setRot( data[index + 5] );
 
-				this.enemies.push( <Object2D>enemy );//add to GameMap objects
+				this.enemies.push( enemy );//add to GameMap objects
 
 				this.enemy_spawners.push( new EnemySpawner(enemy) );
 
@@ -839,8 +839,8 @@ export default class ClientGame extends GameCore {
 		this.onKeyDown 	= (e: Event) => this.onKey(<KeyboardEvent>e, true);
 
 		//assigning keyboard controls
-		window.addEventListener('keyup', this.onKeyUp, true);
-		window.addEventListener('keydown', this.onKeyDown, true);
+		window.addEventListener('keyup', this.onKeyUp, false);
+		window.addEventListener('keydown', this.onKeyDown, false);
 		//$$(window).on('keydown', this.onKeyDown);
 		//$$(window).on('keyup', this.onKeyUp);
 

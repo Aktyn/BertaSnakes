@@ -1,29 +1,11 @@
 import Connections, {Connection} from './connections';
 import NetworkCodes, {NetworkPackage} from '../../common/network_codes';
 import ERROR_CODES from '../../common/error_codes';
-import Database, {AccountSchema} from '../database';
-import {UserCustomData} from '../../common/user_info';
+import Database from '../database';
+import {AccountSchema2UserCustomData} from '../utils';
+
 import RoomManager from './rooms_manager';
 import GameStarter from './game_starter';
-
-function AccountSchema2UserCustomData(account: AccountSchema): UserCustomData {
-	return {
-		nick: account.username,
-		level: account.level,
-		rank: account.rank,
-		avatar: account.avatar,
-
-		verified: account.verified,
-		exp: account.exp,
-		coins: account.coins,
-		
-		available_skills: account.available_ships,
-		skills: account.skills,
-
-		available_ships: account.available_ships,
-		ship_type: account.ship_type,
-	};
-}
 
 function findDuplicateSession(account_id: string) {
 	return new Promise((resolve: (result: boolean) => void) => {
@@ -77,7 +59,7 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 				else {
 					let account_schema = await Database.getAccount(connection.user.account_id);
 					if(!account_schema)
-						throw new Error('Account not found in database, id: '+connection.user.account_id);
+						throw new Error('Account not found in database, id: ' + connection.user.account_id);
 					connection.updateUserData( AccountSchema2UserCustomData(account_schema) );
 				}
 			}

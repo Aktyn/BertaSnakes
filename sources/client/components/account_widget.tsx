@@ -1,12 +1,10 @@
 import * as React from 'react';
-// import { Link } from 'react-router-dom';
-
 import Account from '../account';
 import ServerAPi from '../utils/server_api';
 
 import AccountSidepop from './sidepops/account_sidepop';
 
-import './../styles/account_widget.scss';
+import '../styles/account_widget.scss';
 
 interface AccountWidgetState {
 	show_sidepop: boolean;
@@ -15,10 +13,10 @@ interface AccountWidgetState {
 export default class AccountWidget extends React.Component<any, AccountWidgetState> {
 
 	state: AccountWidgetState = {
-		show_sidepop: false
-	}
+		show_sidepop: true//false
+	};
 
-	private onLogIn: () => void;
+	private readonly onLogIn: () => void;
 
 	constructor(props: any) {
 		super(props);
@@ -40,7 +38,7 @@ export default class AccountWidget extends React.Component<any, AccountWidgetSta
 			<div className='account-widget-content' onClick={() => this.setState({show_sidepop: true})}>
 				<div className={`indicator ${acc ? '' : 'no-account'}`}>
 					{acc ? <span className={`avatar-circle ${!acc || !acc.avatar ? 'empty' : ''}`}>
-						<img src={ServerAPi.getAvatarPath(acc.avatar)} /></span> : 
+						<img src={ServerAPi.getAvatarPath(acc.avatar)}  alt={'avatar'}/></span> :
 						<button>LOG IN</button>}
 				</div>
 			</div>

@@ -1,7 +1,7 @@
 import Colors, {ColorI} from '../common/colors';
 
 import Object2D from './object2d';
-// import Object2DSmooth from './object2d_smooth';
+import Object2DSmooth from './object2d_smooth';
 import Movement from '../common/movement';
 import Sensor, {SENSOR_SHAPES} from '../common/sensor';
 import Painter from '../common/painter';
@@ -19,7 +19,10 @@ if(_CLIENT_) {
 	//console.log(test);
 
 	//var EntitiesBase = require('../../../client/game/entities').default;
+	
+	// noinspection ES6ConvertVarToLetConst
 	var PlayerEmitter = require('../../../client/game/emitters/player_emitter').default;
+	// noinspection ES6ConvertVarToLetConst
 	var PoisoningEmitter = require('../../../client/game/emitters/poisoning_emitter').default;
 }
 
@@ -47,10 +50,9 @@ const POISON_STRENGTH = 0.1;
 
 let s_i, em_i;
 
-//(typeof module !== 'undefined' ? _Object2D_ : _Object2DSmooth_)
-//const _ExtendClass_ = Object2D;//TODO - Object2DSmooth client side
+const _ExtendClass_ = _CLIENT_ ? Object2DSmooth : Object2D;//Object2DSmooth client side
 
-export default class Player extends /*_ExtendClass_*/Object2D {
+export default class Player extends _ExtendClass_ {
 	public static SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
 	public static SHIP_LVL_REQUIREMENTS = [1, 3, 6];//level required to be able to use ship
 	public static SHIP_COSTS = [0, 500, 3000];//coins required to buy ship
