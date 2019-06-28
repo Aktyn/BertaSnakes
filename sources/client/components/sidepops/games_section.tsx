@@ -1,20 +1,23 @@
 import * as React from 'react';
+import {Link, Redirect} from "react-router-dom";
+
 import ServerApi from '../../utils/server_api';
 import ERROR_CODES from '../../../common/error_codes';
 import Config from '../../../common/config';
-import {GameSchema} from "../../../server/database";
+import {GameSchema, PublicAccountSchema} from "../../../server/database";
 import Utils from '../../utils/utils';
 import RewardIndicator from "../reward_indicator";
 import PagesController from "../pages_controller";
 import ResultsTable from "../results_table";
 import {offsetTop} from "./sidepops_common";
-import {Link} from "react-router-dom";
 import GameInfoList, {convertDate} from "../game_info_list";
+import UserSidepop from "./user_sidepop";
 
 interface GamesSectionProps {
 	onError: (code: ERROR_CODES) => void;
-	account_id: string;
+	account: PublicAccountSchema;
 	total_games: number;
+	container_mode: boolean;
 }
 
 interface GamesSectionState {
@@ -22,9 +25,14 @@ interface GamesSectionState {
 	page: number;
 	focused_game: GameSchema | null;
 	link_copied: boolean;
+	selected_player?: string;
+	redirect_to?: string;
 }
 
 export default class GamesSection extends React.Component<GamesSectionProps, GamesSectionState> {
+	static defaultProps: Partial<GamesSectionProps> = {
+		container_mode: false
+	};
 	
 	state: GamesSectionState = {
 		games: [],
@@ -47,7 +55,7 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 	private async loadGames(page: number) {
 		try {
 			let res = await ServerApi.postRequest('/account_games', {
-				account_id: this.props.account_id,
+				account_id: this.props.account.id,
 				page
 			});
 			if (res.error !== ERROR_CODES.SUCCESS)
@@ -71,8 +79,13 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 	
 	private renderGamesList() {
 		return this.state.games.map(game => {
-			let position = game.results.findIndex(result => result.account_id === this.props.account_id);
-			return <tr key={game._id} onClick={() => this.setState({focused_game: game})}>
+			let position = game.results.findIndex(result => result.account_id === this.props.account.id);
+			return <tr key={game._id} onClick={() => {
+				if(this.props.container_mode)
+					this.setState({redirect_to: game._id});
+				else
+					this.setState({focused_game: game});
+			}}>
 				<td style={{textAlign: 'left'}}>
 					<div style={{fontWeight: 'bold'}}>{Utils.trimString(game.name, 20)}</div>
 					<div>{convertDate(game.finish_timestamp)}</div>
@@ -102,7 +115,9 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 			<GameInfoList game={game} />
 			<hr/>
 			<div className={'fader-in'} style={{width: '100%', overflowX: 'auto'}}>
-				<ResultsTable data={game.results} no_avatars no_animation />
+				<ResultsTable data={game.results} onPlayerSelected={account_id => {
+					this.setState({selected_player: account_id});
+				}} no_avatars no_animation />
 			</div>
 			<hr/>
 			<div className={'fader-in'}>
@@ -123,15 +138,23 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 				    this.setState({link_copied: true});
 				}}>COPY</button>
 			</div>
+			{this.state.selected_player &&
+				<UserSidepop account_id={this.state.selected_player} onClose={() => {
+					this.setState({selected_player: undefined});
+				}} />
+			}
 		</>;
 	}
 	
 	render() {
+		if(this.state.redirect_to)
+			return <Redirect to={'/games/' + this.state.redirect_to} />;
 		if(this.state.focused_game)
 			return this.renderFocusedGame(this.state.focused_game);
 		if(this.props.total_games === 0)
 			return <section>No games played yet</section>;
 		return <section>
+			<h3 className={'fader-in'}>{this.props.account.username}'s games</h3>
 			<table className={'games-list fader-in'}>
 				<tbody>{this.renderGamesList()}</tbody>
 			</table>

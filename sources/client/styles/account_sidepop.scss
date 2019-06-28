@@ -1,27 +1,6 @@
 $avatarSize: 50px;
 
 .sidepop, .container {
-	.account-details, .game-details {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		align-items: center;
-		justify-content: center;
-		grid-column-gap: 10px;
-		grid-row-gap: 5px;
-
-		& > *:nth-child(odd) {
-			text-align: right;
-		}
-
-		& > *:nth-child(even) {
-			text-align: left;
-		}
-		
-		&.bold > *:nth-child(even) {
-			font-weight: bold;
-		}
-	}
-
 	.welcomer {
 		$offset: 10px;
 		padding: 0px;

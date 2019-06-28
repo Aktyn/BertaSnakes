@@ -177,7 +177,7 @@ app.post('/account_games', async (req, res) => {//account_id
 	}
 });
 
-app.post('/game_details', async (req, res) => {//account_id
+app.post('/game_details', async (req, res) => {//game_id
 	try {
 		if( !req.body.game_id )
 			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
@@ -187,6 +187,23 @@ app.post('/game_details', async (req, res) => {//account_id
 			return res.json(db_res);
 		
 		return res.json({error: ERROR_CODES.SUCCESS, game: db_res.game});
+	}
+	catch(e) {
+		console.error(e);
+		return res.json({error: ERROR_CODES.UNKNOWN});
+	}
+});
+
+app.post('/get_user_public_data', async (req, res) => {//account_id
+	try {
+		if( !req.body.account_id )
+			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+		let db_res = await Database.getUserPublicData(req.body.account_id);
+		
+		if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data)
+			return res.json(db_res);
+		
+		return res.json({error: ERROR_CODES.SUCCESS, data: db_res.data});
 	}
 	catch(e) {
 		console.error(e);

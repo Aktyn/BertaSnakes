@@ -9,7 +9,7 @@ export function convertDate(timestamp: number) {
 
 export default class GameInfoList extends React.Component<{game: GameSchema}, any> {
 	render() {
-		return <div className={'fader-in game-details bold'} style={offsetTop}>
+		return <div className={'fader-in details-list bold'} style={offsetTop}>
 			<label>Name:</label>
 			<span>{Utils.trimString(this.props.game.name, 20)}</span>
 			<label>Date:</label>

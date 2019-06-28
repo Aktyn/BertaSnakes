@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {withRouter} from "react-router";
 
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
 import ServerApi from '../utils/server_api';
@@ -7,18 +8,17 @@ import {GameSchema} from "../../server/database";
 import ResultsTable from "../components/results_table";
 import GameInfoList from "../components/game_info_list";
 
-// import './../styles/homepage.scss';
-
 interface GameDetailsState extends ContainerProps {
 	game: GameSchema | null;
 }
 
-export default class GameDetails extends React.Component<any, GameDetailsState> {
+class GameDetails extends React.Component<any, GameDetailsState> {
 	
 	state: GameDetailsState = {
 		loading: false,
 		error: undefined,
-		game: null
+		game: null,
+		show_navigator: false
 	};
 	
 	constructor(props: any) {
@@ -27,6 +27,7 @@ export default class GameDetails extends React.Component<any, GameDetailsState> 
 	
 	async componentDidMount() {
 		try {
+			this.setState({loading: true});
 			if(false === await ServerApi.pingServer())
 				return this.setError( errorMsg(ERROR_CODES.SERVER_UNREACHABLE) );
 			if(typeof this.props.match.params.id !== 'string')
@@ -37,7 +38,7 @@ export default class GameDetails extends React.Component<any, GameDetailsState> 
 			if (res.error !== ERROR_CODES.SUCCESS)
 				return this.setError( errorMsg(res.error) );
 			if(res.game)
-				this.setState({game: res.game});
+				this.setState({game: res.game, loading: false});
 		}
 		catch(e) {
 			console.error(e);
@@ -50,15 +51,20 @@ export default class GameDetails extends React.Component<any, GameDetailsState> 
 		this.setState({error: msg, loading: false});
 	}
 	
-	render() {
-		return <ContainerPage error={this.state.error} loading={this.state.loading}>
+	render() {//TODO: detect page href change and update game data accordingly
+		return <ContainerPage key={this.state.game ? this.state.game._id : 'game-details'}
+		                      error={this.state.error} loading={this.state.loading}>
 			{this.state.game && <>
 				<GameInfoList game={this.state.game} />
 				<hr/>
 				<div className={'fader-in'}>
-					<ResultsTable data={this.state.game.results} no_avatars no_animation />
+					<ResultsTable data={this.state.game.results} onPlayerSelected={(account_id) => {
+						this.props.history.push('/users/' + account_id);
+					}} no_avatars no_animation />
 				</div>
 			</>}
 		</ContainerPage>;
 	}
 }
+
+export default withRouter(GameDetails);

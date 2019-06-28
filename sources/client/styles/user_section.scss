@@ -1,0 +1,22 @@
+.user-section {
+	
+	& > h1 {
+		margin: 10px 0px;
+		padding: 0px;
+		height: 50px;
+		
+		display: grid;
+		grid-template-columns: 60px auto 60px;
+		grid-template-areas: "separator nick avatar";
+		align-items: center;
+		justify-content: space-between;
+		
+		& > span {
+			grid-area: nick;
+		}
+		& > img {
+			grid-area: avatar;
+			max-height: 100%;
+		}
+	}
+}

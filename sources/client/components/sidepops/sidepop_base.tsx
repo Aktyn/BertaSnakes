@@ -12,6 +12,8 @@ export interface SidepopProps {
 	onClose: () => void;
 }
 
+let opened_sidepops: SidepopContainer[] = [];
+
 class SidepopContainer extends React.Component<SidepopProps, any> {
 	private readonly sidepop_el: HTMLDivElement;
 
@@ -19,19 +21,44 @@ class SidepopContainer extends React.Component<SidepopProps, any> {
 		super(props);
 		this.sidepop_el = document.createElement('div');
 		this.sidepop_el.className = 'sidepop-container';
+		if(opened_sidepops.length > 0)//it is not a new sidepop
+			this.sidepop_el.classList.add('no-fade');
 
-		this.sidepop_el.onclick = e => {
-			if(e.target === this.sidepop_el)
-				this.props.onClose();
+		this.sidepop_el.onclick = e => {//clicking outside sidepop body closes every opened sidepop
+			if(e.target === this.sidepop_el) {
+				for(let sidepop of opened_sidepops)
+					sidepop.close();
+			}
 		};
 	}
 
 	componentDidMount() {
 		(page_root as HTMLDivElement).appendChild(this.sidepop_el);
+		
+		//hide previous sidepops
+		for(let sidepop of opened_sidepops)
+			sidepop.toggleView(false);
+		opened_sidepops.push(this);//push newest one
 	}
 
 	componentWillUnmount() {
 		(page_root as HTMLDivElement).removeChild(this.sidepop_el);
+		
+		for(let i=opened_sidepops.length-1; i>=0; i--) {
+			if(opened_sidepops[i] === this)
+				opened_sidepops.splice(i, 1);
+		}
+		if(opened_sidepops.length > 0)//if it was not last sidepop
+			opened_sidepops[opened_sidepops.length-1].toggleView(true);//show previous
+	}
+	
+	toggleView(show: boolean) {
+		this.sidepop_el.classList.add('no-fade');
+		this.sidepop_el.style.display = show ? 'initial' : 'none';
+	}
+	
+	close() {
+		this.props.onClose();
 	}
 
 	render() {
@@ -61,9 +88,9 @@ export default class SidepopBase extends React.Component<SidepopWrapperProps, an
 	renderNavigator() {
 		return <nav>
 			{this.props.navigator_return && 
-				<button className='sidepop_returner' 
+				<button className='returner'
 					onClick={this.props.navigator_return}>RETURN</button>}
-			<button className='sidepop_closer shaky-icon' onClick={this.props.onClose}/>
+			<button className='closer shaky-icon' onClick={this.props.onClose}/>
 		</nav>;
 	}
 

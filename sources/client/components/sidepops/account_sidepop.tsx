@@ -53,7 +53,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	state: AccountSidepopState = {
 		loading: false,
-		view: VIEWS.GAMES,//GENERAL
+		view: VIEWS.GENERAL,//GENERAL
 		account: null,
 		verify_info: false,
 		verification_resend: false,
@@ -318,7 +318,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 			case VIEWS.GAMES: {
 				if(this.state.account) {
-					return <GamesSection account_id={this.state.account.id} total_games={this.state.account.total_games}
+					return <GamesSection account={this.state.account} total_games={this.state.account.total_games}
 						onError={code => this.setError(errorMsg(code))} ref={el => this.games_section = el}/>;
 				}
 			} break;

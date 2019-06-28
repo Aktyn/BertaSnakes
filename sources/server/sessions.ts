@@ -29,23 +29,16 @@ export default {
 			return {error: insert_res.error};
 		}
 
-		Database.updateLastLoginTime(res.account.id);
+		Database.updateLastLoginTime(res.account.id).catch(console.error);
 
 		return {error: ERROR_CODES.SUCCESS, token, expiration_time, account: res.account};
 	},
 
 	async token_login(token: string) {
-		/*let account_id = await Database.getSession(token);
-		if(!account_id)
-			return {error: ERROR_CODES.SESSION_EXPIRED};
-		
-		let account = await Database.getAccount(account_id);
-		if(!account)
-			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
 
-		Database.updateLastLoginTime(account.id);
-
-		return {error: ERROR_CODES.SUCCESS, account};*/
-		return await Database.getAccountFromToken(token);
+		let login_result = await Database.getAccountFromToken(token);
+		if(login_result.error === ERROR_CODES.SUCCESS && login_result.account)
+			Database.updateLastLoginTime(login_result.account.id).catch(console.error);
+		return login_result;
 	}
 }

@@ -62,7 +62,7 @@ export default class extends StageBase<BaseProps, GameState> {
 	private chat_toggler: HTMLButtonElement | null = null;
 	private right_panel_toggler: HTMLButtonElement | null = null;
 	private exit_btn: HTMLButtonElement | null = null;
-	//@ts-ignore TODO: use this
+	//@ts-ignore
 	private timer: HTMLSpanElement | null = null;
 
 	private exit_confirmation: NodeJS.Timeout | null = null;

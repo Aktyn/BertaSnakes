@@ -76,52 +76,66 @@ export interface GameSchema {
 	results: PlayerResultJSON[];
 }
 
-export interface AccountSchema {
+export interface PublicAccountSchema {
 	id: string;
-
-	username: string,
-	email: string;
-	verified: boolean;
+	
+	username: string;
 	avatar: string;
 	creation_time: number;
-
+	last_login: number;
+	
 	level: number;
 	rank: number;
 
 	exp: number;
-	coins: number;
-
-	available_skills: number[];
+	
 	skills: (number | null)[];//chosen skills
-
-	available_ships: number[];
 	ship_type: number;
 	
 	total_games: number;
 }
 
-function extractAccountSchema(account: any): AccountSchema {
+export interface AccountSchema extends PublicAccountSchema {
+	email: string;
+	verified: boolean;
+	
+	coins: number;
+
+	available_skills: number[];
+	available_ships: number[];
+}
+
+function extractUserPublicData(account: any): PublicAccountSchema {
 	return {
-		id: (account._id as ObjectId).toHexString(), 
+		id: (account._id as ObjectId).toHexString(),
 		username: account.username || 'Noname',
-		email: account.email || '',
-		verified: account.verification_code === '',
 		avatar: account.avatar || null,
 		creation_time: account.creation_time || Date.now(),
-
+		last_login: account.last_login || new Date(824301420000),//best birthday ever
+		
 		level: account.level || 1,
 		rank: account.rank || Config.INITIAL_RANK,
 
 		exp: account.exp || 0,
-		coins: account.coins || 0,
-
-		available_skills: account.available_skills || [],
+		
 		skills: account.skills || new Array(Config.SKILLS_SLOTS).fill(null),
-
-		available_ships: account.available_ships || [],
 		ship_type: account.ship_type || 0,
 		
 		total_games: account.total_games || 0
+	};
+}
+
+function extractAccountSchema(account: any): AccountSchema {
+	return {
+		...extractUserPublicData(account),
+		
+		email: account.email || '',
+		verified: account.verification_code === '',
+		
+		coins: account.coins || 0,
+
+		available_skills: account.available_skills || [],
+		available_ships: account.available_ships || [],
 	};
 }
 
@@ -248,7 +262,7 @@ export default {
 		try {
 			let account = await getCollection(COLLECTIONS.accounts).findOne({
 				_id: ObjectId.createFromHexString(account_hex_id)
-			}/*, {projection: {_id: 1, username: 1, email: 1, verification_code: 1}}*/);
+			});
 
 			if(!account)
 				return null;
@@ -258,6 +272,25 @@ export default {
 		catch(e) {
 			console.error(e);
 			return null;
+		}
+	},
+	
+	async getUserPublicData(account_hex_id: string) {
+		try {
+			let user = await getCollection(COLLECTIONS.accounts).findOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			});
+			
+			if (!user)
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+			return {
+				error: ERROR_CODES.SUCCESS,
+				data: extractUserPublicData(user)
+			};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	},
 
@@ -476,9 +509,6 @@ export default {
                     $skip: page*Config.ITEMS_PER_GAMES_LIST_PAGE
                 }
 			]).toArray();
-			/*.limit(Config.ITEMS_PER_GAMES_LIST_PAGE).skip(page * Config.ITEMS_PER_GAMES_LIST_PAGE)*/
-			//console.log(games);
-			//Config.ITEMS_PER_GAMES_LIST_PAGE
 			
 			games.forEach(g => g._id = (g._id as unknown as ObjectId).toHexString());
 			

@@ -10,6 +10,7 @@ import Loader from './components/loader';
 import Layout from './components/layout';
 import Home from './pages/home';
 import GameDetails from './pages/game_details';
+import UserDetails from './pages/user_details';
 //import Ranking from './pages/ranking';
 
 //disable logs and errors in production
@@ -40,6 +41,7 @@ render(
 			<Route path='/' exact component={Home} />
 			<Route path='/play' component={Game} />
 			<Route path='/games/:id' component={GameDetails} />
+			<Route path='/users/:id' component={UserDetails} />
 			<Route component={NotFound} />
 		</Switch>
 	</BrowserRouter>,

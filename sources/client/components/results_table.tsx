@@ -17,11 +17,14 @@ const kills_icon = require('../img/icons/scope_icon.png');
 const deaths_icon = require('../img/icons/skull_icon.png');
 const coin_icon = require('../img/icons/coin.png');
 
-export default class ResultsTable extends React.Component<{
-	data: PlayerResultJSON[],
-	no_avatars: boolean,
-	no_animation: boolean
-}, any> {
+interface ResultsTableProps {
+	data: PlayerResultJSON[];
+	no_avatars: boolean;
+	no_animation: boolean;
+	onPlayerSelected?: (account_id: string) => void;
+}
+
+export default class ResultsTable extends React.Component<ResultsTableProps, any> {
 	static defaultProps = {
 		no_avatars: false,
 		no_animation: false
@@ -34,7 +37,11 @@ export default class ResultsTable extends React.Component<{
 				{!this.props.no_avatars &&
 					<td><img src={ServerApi.getAvatarPath(row.avatar)} alt='user avatar' /></td>
 				}
-				<td style={{textAlign: 'left'}}>
+				<td className={this.props.onPlayerSelected && row.account_id ? 'player-nick' : ''}
+				    style={{textAlign: 'left'}} onClick={() => {
+						if(this.props.onPlayerSelected && row.account_id)
+							this.props.onPlayerSelected(row.account_id);
+					}}>
 					{Utils.trimString(row.nick, 15)}
 				</td>
 				<td><img src={ship_icons[row.ship_type]} style={{opacity: 0.5}} alt='ship icon' /></td>

@@ -13,6 +13,13 @@
 		& > th > img {
 			margin: 0px;
 		}
+		
+		& > td.player-nick {
+			cursor: pointer;
+			&:hover {
+				color: #e57373;
+			}
+		}
 	}
 	
 	&:not(.no-animation) > tbody > tr {

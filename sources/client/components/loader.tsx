@@ -12,7 +12,8 @@ interface LoaderProps extends Loadable.LoadingComponentProps {
 	retry: () => void;
 }
 
-export default class extends React.Component<LoaderProps, any> {
+export default class Loader extends React.Component<LoaderProps, any> {
+	// noinspection JSUnusedGlobalSymbols
 	static defaultProps = {
 		color: '#f4f4f4',
 		isLoading: true,
@@ -28,8 +29,8 @@ export default class extends React.Component<LoaderProps, any> {
 	render() {
 		const spin_style = { backgroundColor: this.props.color };
 		return <div className='spinner'>
-			<div className='double-bounce1' style={spin_style}></div>
-			<div className='double-bounce2' style={spin_style}></div>
+			<div className='double-bounce1' style={spin_style}/>
+			<div className='double-bounce2' style={spin_style}/>
 		</div>;
 	}
 }

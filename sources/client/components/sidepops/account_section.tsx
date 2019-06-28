@@ -42,7 +42,7 @@ class AccountDataView extends React.Component<{self: AccountSidepop, account: Ac
 			<hr/>
 			{this.props.self.state.verify_info &&
 				<h2 key='verified_label' className='success fader-in'>Verification successful</h2>}
-			<div key='account_email' className='fader-in account-details'>
+			<div key='account_email' className='fader-in details-list'>
 				<label>Email:</label>
 				<div>{account.email}</div>
 				
