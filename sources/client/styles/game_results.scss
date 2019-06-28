@@ -54,31 +54,5 @@
 			background-color: nth($palette, 9);
 			color: nth($palette, 1);
 		}
-		
-		& > .results-tab {
-			img {
-				max-height: 20px;
-				margin: 0px 3px;
-			}
-			border-collapse: collapse;
-			
-			tr {//result row
-				& > td, & > th {
-					padding: 4px;
-					line-height: 28px;
-				}
-			}
-			
-			& > tbody > tr {
-				opacity: 0;
-				animation: come-from-the-heaven 0.5s cubic-bezier(.36,.07,.19,.97) forwards;
-				
-				@for $i from 1 through 4 {
-					&:nth-child(#{$i}) {
-						animation-delay: ($i - 1) * 0.1s;//0.5s can be added to be waiting for fade-in animation to finish
-					}
-				}
-			}
-		}
 	}
 }

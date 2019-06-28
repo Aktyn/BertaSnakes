@@ -79,6 +79,7 @@ export default {
 		current_account.coins           = override(data.coins, current_account.coins);
 		current_account.available_skills= override(data.available_skills, current_account.available_skills);
 		current_account.available_ships = override(data.available_ships, current_account.available_ships);
+		current_account.total_games     = override(data.total_games, current_account.total_games);
 	},
 
 	async login(nick: string, password: string) {

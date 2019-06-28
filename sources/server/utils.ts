@@ -34,7 +34,8 @@ export function md5(input: string) {
 export function AccountSchema2UserCustomData(account: AccountSchema): UserCustomData {
 	return {
 		nick: account.username,
-		level: account.level,
+		...account,
+		/*level: account.level,
 		rank: account.rank,
 		avatar: account.avatar,
 
@@ -47,5 +48,7 @@ export function AccountSchema2UserCustomData(account: AccountSchema): UserCustom
 
 		available_ships: account.available_ships,
 		ship_type: account.ship_type,
+		
+		total_games: account.total_games*/
 	};
 }

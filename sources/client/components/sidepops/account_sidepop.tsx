@@ -43,6 +43,8 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	public register_btn: 			HTMLButtonElement | null = null;
 	public verification_code_input:HTMLInputElement | null = null;
 	public clear_avatar_btn:		HTMLButtonElement | null = null;
+	
+	private games_section: GamesSection | null = null;
 
 	private register_confirm: NodeJS.Timeout | null = null;
 	private clear_avatar_confirm: NodeJS.Timeout | null = null;
@@ -86,8 +88,6 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		(async () => {
 			if(false === await ServerApi.pingServer() )
 				this.setError('Server is not available');
-
-			//TODO - get account details if user is logged in
 		})();
 	}
 
@@ -265,6 +265,10 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	}
 
 	private return() {
+		if( this.games_section && this.games_section.isGameFocused() ) {
+			this.games_section.defocusGame();
+			return;
+		}
 		//if(this.state.register_view) {
 		if(this.state.view !== VIEWS.GENERAL) {
 			this.setState({
@@ -308,14 +312,14 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 			case VIEWS.SHOP:
 				return <section>
-					<h1>💸&nbsp;SHOP&nbsp;💸</h1>
-					<span>TODO - shop section</span>
+					<h1 className={'fader-in'}>💸&nbsp;SHOP&nbsp;💸</h1>
+					<div className={'fader-in'}>TODO - shop section</div>
 				</section>;
 
 			case VIEWS.GAMES: {
 				if(this.state.account) {
-					return <GamesSection account={this.state.account}
-						onError={code => this.setError(errorMsg(code))}/>;
+					return <GamesSection account_id={this.state.account.id} total_games={this.state.account.total_games}
+						onError={code => this.setError(errorMsg(code))} ref={el => this.games_section = el}/>;
 				}
 			} break;
 		}

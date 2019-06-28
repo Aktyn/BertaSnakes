@@ -1,5 +1,4 @@
-//import * as React from 'react';
-import React from 'react';
+import * as React from 'react';
 import { render } from 'react-dom';
 import Loadable from 'react-loadable';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
@@ -10,6 +9,7 @@ import Loader from './components/loader';
 
 import Layout from './components/layout';
 import Home from './pages/home';
+import GameDetails from './pages/game_details';
 //import Ranking from './pages/ranking';
 
 //disable logs and errors in production
@@ -38,7 +38,8 @@ render(
     <BrowserRouter>
     	<Switch>
 			<Route path='/' exact component={Home} />
-			<Route path='/play' exact component={Game} />
+			<Route path='/play' component={Game} />
+			<Route path='/games/:id' component={GameDetails} />
 			<Route component={NotFound} />
 		</Switch>
 	</BrowserRouter>,

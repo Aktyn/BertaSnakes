@@ -61,6 +61,9 @@ class AccountDataView extends React.Component<{self: AccountSidepop, account: Ac
 	
 				<label>Coins:</label>
 				<div>{account.coins}</div>
+				
+				<label>Total games:</label>
+				<div>{account.total_games}</div>
 	
 				<label>TODO:</label>
 				<div>ships and skills chooserers as separate components (it will take some space)</div>
@@ -72,7 +75,8 @@ class AccountDataView extends React.Component<{self: AccountSidepop, account: Ac
 			}}>
 				<button onClick={() => this.props.self.setState({view: VIEWS.SHOP})}>SHOP</button>
 				<button onClick={() => this.props.self.setState({view: VIEWS.FRIENDS})}>FRIENDS</button>
-				<button onClick={() => this.props.self.setState({view: VIEWS.GAMES})}>GAMES</button>
+				<button onClick={() => this.props.self.setState({view: VIEWS.GAMES})}
+					disabled={this.props.account.total_games === 0}>GAMES</button>
 			</nav>
 			<hr/>
 		</>;

@@ -67,13 +67,13 @@ MongoClient.connect(uri, {
 }).catch(console.error);
 
 export interface GameSchema {
+	_id: string;
 	duration: number;
 	finish_timestamp: number;
 	gamemode: GAME_MODES;
 	map: string;
 	name: string;
 	results: PlayerResultJSON[];
-	_id: string;
 }
 
 export interface AccountSchema {
@@ -96,6 +96,8 @@ export interface AccountSchema {
 
 	available_ships: number[];
 	ship_type: number;
+	
+	total_games: number;
 }
 
 function extractAccountSchema(account: any): AccountSchema {
@@ -117,7 +119,9 @@ function extractAccountSchema(account: any): AccountSchema {
 		skills: account.skills || new Array(Config.SKILLS_SLOTS).fill(null),
 
 		available_ships: account.available_ships || [],
-		ship_type: account.ship_type || 0
+		ship_type: account.ship_type || 0,
+		
+		total_games: account.total_games || 0
 	};
 }
 
@@ -309,7 +313,9 @@ export default {
 				skills: new Array(Config.SKILLS_SLOTS).fill(null),
 
 				available_ships: [],
-				ship_type: 0
+				ship_type: 0,
+				
+				total_games: 0
 			});
 
 			if( !insert_res.result.ok )
@@ -340,6 +346,8 @@ export default {
 				
 					available_ships: data.available_ships,
 					ship_type: data.ship_type,
+					
+					total_games: data.total_games
 				}
 			});
 			
@@ -439,7 +447,7 @@ export default {
 		}
 	},
 	
-	async getAccountGames(account_hex_id: string) {
+	async getAccountGames(account_hex_id: string, page: number) {
 		try {
 			let games: GameSchema[] = await getCollection(COLLECTIONS.games).aggregate([
 				{
@@ -462,8 +470,15 @@ export default {
 						duration: 1,
 						results: 1
 					}
-				}
+				}, {
+                    $limit: (page+1)*Config.ITEMS_PER_GAMES_LIST_PAGE
+                }, {
+                    $skip: page*Config.ITEMS_PER_GAMES_LIST_PAGE
+                }
 			]).toArray();
+			/*.limit(Config.ITEMS_PER_GAMES_LIST_PAGE).skip(page * Config.ITEMS_PER_GAMES_LIST_PAGE)*/
+			//console.log(games);
+			//Config.ITEMS_PER_GAMES_LIST_PAGE
 			
 			games.forEach(g => g._id = (g._id as unknown as ObjectId).toHexString());
 			
@@ -474,90 +489,23 @@ export default {
 			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	},
-
-	/*
-	async getRequestsByStatus(_status: string) {
-		let wl_requests = getCollection(COLLECTIONS.wl_requests);
-		
-		const REQUEST_LIFETIME = 1000 * 60 * 60 * 24 * 7 * 4;//4 weeks
-		let result = await wl_requests.aggregate([
-			{ $match: {
-				status: _status, 
-				timestamp: { $gt: Date.now() - REQUEST_LIFETIME} 
-			} },
-			{ $sort: {timestamp: -1} },
-			{
-				$lookup: {
-					from: COLLECTIONS.forum_accounts,
-					localField: 'user_id',
-					foreignField: 'id',
-					as: 'forum_user'
-				}
-			},
-			{ $project: {
-				_id: 1,
-				user_id: 1,
-				timestamp: 1,
-				status: 1,
-				answers: {
-					nick_input: 1,
-					data_ur: 1
-				},
-				forum_user: {
-					name: 1, avatar: 1
-				}
-			} }
-		]).toArray();
-
-		let counts = await wl_requests.aggregate([
-			{ $group: {
-				_id: '$status',
-				count: {$sum: 1}
-			} }
-		]).toArray();
-
-		//console.log(result, result.map(res => res.forum_user));
-		return {result, counts};
-	},
-
-	async getRequestDetails(id: string) {
-		let wl_requests = getCollection(COLLECTIONS.wl_requests);
-
-		const target_id = ObjectId.createFromHexString(id);
-
-		const lookup = {
-			from: COLLECTIONS.forum_accounts,
-			localField: 'user_id',
-			foreignField: 'id',
-			as: 'forum_user'
-		};
-
-		const project = {
-			_id: 1,
-			user_id: 1,
-			timestamp: 1,
-			status: 1,
-			answers: 1,//include all answers
-			forum_user: {
-				name: 1, avatar: 1
-			}
-		};
-
-		let result = await wl_requests.aggregate([
-			{ $match: {_id: target_id} },
-			{ $lookup: lookup },
-			{ $project: project }
-		]).next();
-
-		//get every other request of this user
-		let _other_user_requests = await wl_requests.aggregate([
-			{ $match: { user_id: result.user_id, _id: {$ne: target_id} } },
-			{ $sort: {timestamp: -1} },
-			{ $lookup: lookup },
-			{ $project: project }
-		]).toArray();
-		//console.log(other_user_requests);
-
-		return {request: result, other_user_requests: _other_user_requests};
-	}*/
+	
+	async getGame(game_id: string) {
+		try {
+			let game = await getCollection(COLLECTIONS.games).findOne({
+				_id: ObjectId.createFromHexString(game_id)
+			});
+			
+			if (!game)
+				return {error: ERROR_CODES.GAME_DOES_NOT_EXISTS};
+			return {
+				error: ERROR_CODES.SUCCESS,
+				game: game as GameSchema
+			};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	}
 }

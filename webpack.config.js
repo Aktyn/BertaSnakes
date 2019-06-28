@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const {BaseHrefWebpackPlugin} = require('base-href-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
@@ -16,6 +17,7 @@ module.exports = {
 		filename: '[name].js',
 		chunkFilename: '[name].js',
 		path: path.resolve(__dirname, 'dist', 'client'),
+		publicPath: '/'
 	},
 	watch: isDevelopment,
 	watchOptions: isDevelopment ? {
@@ -37,7 +39,7 @@ module.exports = {
 		fs: "empty"
 	},
 
-	optimization: {
+	optimization: isDevelopment ? undefined : {
 		minimizer: [
 			new UglifyJsPlugin({
 				uglifyOptions: {
@@ -150,10 +152,8 @@ module.exports = {
 	},
 
 	plugins: [
-		new webpack.DefinePlugin({//TODO - try change to _UPDATE_TIME_ instead _GLOBALS_ container
-			_GLOBALS_: JSON.stringify({
-				update_time: Date.now(),
-			}),
+		new webpack.DefinePlugin({
+			_UPDATE_TIME_:  Date.now(),
 			_CLIENT_: true
 		}),
 		new CaseSensitivePathsPlugin(),
@@ -162,12 +162,14 @@ module.exports = {
 			chunkFilename: "[id].css"
 		}),
 		new HtmlWebpackPlugin({
+			//baseUrl:  'http://localhost:4000/',
 			hash: isDevelopment,
 			favicon: './sources/client/img/icons/icon.png',
 			title: 'BertaSnakes',
 			minify: !isDevelopment,
 			template: './sources/client/index.html',
-			filename: './index.html'
-		})
+			filename: 'index.html'
+		}),
+		new BaseHrefWebpackPlugin({ baseHref: '/' })
 	]
 };

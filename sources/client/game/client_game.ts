@@ -201,13 +201,9 @@ export default class ClientGame extends GameCore {
 			//@ts-ignore
 			this.renderer = null;
 		}
-
-		//if(this.onKeyDown)	$$(window).off('keydown', this.onKeyDown);
-		//if(this.onKeyUp)	$$(window).off('keyup', this.onKeyUp);
-		if(this.onKeyUp) window.removeEventListener('keyup', this.onKeyUp, true);
-		if(this.onKeyDown) window.removeEventListener('keydown', this.onKeyDown, true);
-
-		//Network.removeCurrentGameHandle();
+		
+		if(this.onKeyUp) window.removeEventListener('keyup', this.onKeyUp, false);
+		if(this.onKeyDown) window.removeEventListener('keydown', this.onKeyDown, false);
 	}
 
 	private waitForGameToLoad(callback: () => void) {
@@ -841,18 +837,12 @@ export default class ClientGame extends GameCore {
 		//assigning keyboard controls
 		window.addEventListener('keyup', this.onKeyUp, false);
 		window.addEventListener('keydown', this.onKeyDown, false);
-		//$$(window).on('keydown', this.onKeyDown);
-		//$$(window).on('keyup', this.onKeyUp);
 
 		this.remaining_time = duration || 180;
 		this.end_timestamp = Date.now() + (this.remaining_time * 1000);
 
 		this.delay = round_delay || 0;
 		this.delay_timestamp = Date.now() + (this.delay * 1000);
-
-		//for(let i=0; i<100; i++)
-		//	this.items.push( new Item(Item.randomType(), Math.random(), Math.random()) );
-		//super.drawDeathMark( 0.5, 0, Colors.SAFE_AREA );
 
 		this.running = true;
 		runLoop(this);

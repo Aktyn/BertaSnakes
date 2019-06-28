@@ -1,12 +1,10 @@
 import * as React from 'react';
 
-import './../styles/footer.scss';
+import '../styles/footer.scss';
 
 const aktyn_logo = require('../img/icons/aktyn.png');
 
-declare var _GLOBALS_: {//compile-time variable passed from webpack config
-	update_time: number;
-};
+declare var _UPDATE_TIME_: number;//compile-time variable passed from webpack config
 
 function padZ(n: number) {//pad zero at the beginning
 	return ('0'+n).slice(-2);
@@ -18,8 +16,8 @@ export default class extends React.Component<any, any> {
 		super(props);
 	}
 
-	render() {//new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
-		let dt = new Date(_GLOBALS_.update_time);
+	render() {
+		let dt = new Date(_UPDATE_TIME_);
 
 		let update_time = `${padZ(dt.getDate())}-${padZ(dt.getMonth()+1)}-${padZ(dt.getFullYear())} ` +
 			`${padZ(dt.getHours())}:${padZ(dt.getMinutes())}`;

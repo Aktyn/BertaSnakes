@@ -32,7 +32,10 @@ const enum ERROR_CODES {
 	CANNOT_JOIN_CURRENT_ROOM,
 	USER_IS_NOT_IN_ROOM,
 	
-	INCORRECT_DATA_SENT
+	INCORRECT_DATA_SENT,
+	
+	//game
+	GAME_DOES_NOT_EXISTS
 }
 
 export default ERROR_CODES;
@@ -71,5 +74,8 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.USER_IS_NOT_IN_ROOM:	return 'User is not in room';
 		
 		case ERROR_CODES.INCORRECT_DATA_SENT:   return 'Incorrect data sent';
+		
+		//game
+		case ERROR_CODES.GAME_DOES_NOT_EXISTS:  return 'Game does not exists';
 	}
 }

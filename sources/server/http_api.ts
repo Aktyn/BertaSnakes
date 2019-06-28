@@ -163,13 +163,30 @@ app.post('/upload_avatar', async (req, res) => {//token, image
 
 app.post('/account_games', async (req, res) => {//account_id
 	try {
-		if( !req.body.account_id )
+		if( !req.body.account_id || typeof req.body.page !== "number" )
 			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
-		let db_res = await Database.getAccountGames(req.body.account_id);
+		let db_res = await Database.getAccountGames(req.body.account_id, req.body.page);
 		if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.games)
 			return res.json(db_res);
 		
 		return res.json({error: ERROR_CODES.SUCCESS, games: db_res.games});
+	}
+	catch(e) {
+		console.error(e);
+		return res.json({error: ERROR_CODES.UNKNOWN});
+	}
+});
+
+app.post('/game_details', async (req, res) => {//account_id
+	try {
+		if( !req.body.game_id )
+			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+		let db_res = await Database.getGame(req.body.game_id);
+		
+		if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.game)
+			return res.json(db_res);
+		
+		return res.json({error: ERROR_CODES.SUCCESS, game: db_res.game});
 	}
 	catch(e) {
 		console.error(e);

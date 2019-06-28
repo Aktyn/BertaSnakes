@@ -10,6 +10,8 @@ export interface UserPublicData {
 
 	skills: (number | null)[];//chosen skills
 	ship_type: number;//chosen ship
+	
+	total_games: number;
 }
 
 export interface UserPrivateData {
@@ -98,7 +100,9 @@ export default class UserInfo {
 			skills: new Array(Config.SKILLS_SLOTS).fill(null),
 
 			available_ships: [0],//first ship is available for everyone
-			ship_type: 0//and selected by default
+			ship_type: 0,//and selected by default
+			
+			total_games: 0
 		} as UserCustomData);
 	}
 
@@ -137,7 +141,8 @@ export default class UserInfo {
 			rank: this.custom_data.rank,
 			avatar: this.custom_data.avatar,
 			skills: this.custom_data.skills,
-			ship_type: this.custom_data.ship_type
+			ship_type: this.custom_data.ship_type,
+			total_games: this.custom_data.total_games
 		};
 	}
 
@@ -162,7 +167,8 @@ export default class UserInfo {
 			rank: public_data['rank'],
 			avatar: public_data['avatar'],
 			skills: public_data['skills'],
-			ship_type: public_data['ship_type']
+			ship_type: public_data['ship_type'],
+			total_games: public_data['total_games']
 		};
 		return new UserInfo(json_data['id'], public_data, json_data['account_id']);
 	}
@@ -196,7 +202,9 @@ export default class UserInfo {
 			available_skills: full_data['available_skills'],
 			skills: full_data['skills'],
 			available_ships: full_data['available_ships'],
-			ship_type: full_data['ship_type']
+			ship_type: full_data['ship_type'],
+			
+			total_games: full_data['total_games']
 		};
 
 		//user.friends = full_json_data['friends'];
@@ -217,6 +225,8 @@ export default class UserInfo {
 		this.custom_data.available_skills = fresh_data['available_skills'];
 		this.custom_data.skills = fresh_data['skills'];
 		this.custom_data.available_ships = fresh_data['available_ships'];
-		this.custom_data.ship_type = fresh_data['ship_type'];		
+		this.custom_data.ship_type = fresh_data['ship_type'];
+		
+		this.custom_data.total_games = fresh_data['total_games'];
 	}
 }

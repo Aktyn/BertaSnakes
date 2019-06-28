@@ -36,4 +36,7 @@ export default {
 	//user settings
 	INITIAL_RANK: 1000,
 	SKILLS_SLOTS: 6,
+	
+	//lists settings
+	ITEMS_PER_GAMES_LIST_PAGE: 10
 }

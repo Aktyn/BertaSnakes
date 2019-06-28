@@ -1,6 +1,6 @@
 {
   "name": "bertasnakes",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "Multilayer browser game created by Aktyn",
   "main": "sources/server/main.ts",
   "scripts": {
@@ -60,6 +60,7 @@
     "@types/webpack-env": "^1.13.9",
     "@types/ws": "^6.0.1",
     "autoprefixer": "^9.5.0",
+    "base-href-webpack-plugin": "^2.0.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "css-loader": "^2.1.1",
     "fast-sass-loader": "^1.4.7",

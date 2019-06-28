@@ -36,6 +36,7 @@ async function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 		account_schema.rank = result.rank;//rank is already updated in results
 		account_schema.coins += result.coins;
 		account_schema.exp += result.exp;
+		account_schema.total_games += 1;
 		if(account_schema.exp >= 1) { //level up
 			account_schema.level = Math.min(MAX_LEVEL, account_schema.level + 1);
 			account_schema.exp -= 1;
