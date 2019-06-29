@@ -6,17 +6,17 @@ export class SkillObject {
 
 	constructor(skill_data: SkillData) {
 		this.data = skill_data;//const
-		this.data.continuous = !!this.data.continuous;//make sure it is a bool
+		//this.data.continuous = !!this.data.continuous;//make sure it is a bool
 		//this.cooldown = 0;
-		//this._in_use = false;//for continous skills
+		//this._in_use = false;//for continuous skills
 	}
 
-	canBeUsed(avaible_energy: number) {
-		return avaible_energy+0.001 >= this.data.energy_cost && this.cooldown <= 0;
+	canBeUsed(available_energy: number) {
+		return available_energy+0.001 >= this.data.energy_cost && this.cooldown <= 0;
 		// && this._in_use === false;
 	}
 
-	isContinous() {
+	isContinuous() {
 		return this.data.continuous;
 	}
 
@@ -29,7 +29,7 @@ export class SkillObject {
 
 	stopUsing() {
 		this._in_use = false;
-		//if(this.isContinous())
+		//if(this.isContinuous())
 		//	this.cooldown = 0;//NOTE - experimental (hacking vulnerability)
 	}
 
@@ -61,7 +61,7 @@ export interface SkillData {
 }
 
 interface SkillsSchema {
-	[index: string]: any;// SkillData | typeof SkillObject | ((id: number) => SkillData | undefined);
+	[index: string]:  SkillData | typeof SkillObject | ((id: number) => SkillData | undefined);
 	Skill: typeof SkillObject;
 	getById: (id: number) => SkillData | undefined;
 }
@@ -73,26 +73,26 @@ const Skills: SkillsSchema = {//SCHEMA
 		continuous: true,
 		energy_cost: 0.015,//per second (1 => 100%)
 		cooldown: 0.25,//single bullet per 0.5 sec
-		texture_name: 'shot1_skill'//client-side only (texture asset name)
+		texture_name: 'shot1.png'//client-side only (texture asset name)
 	},
 	SHOOT2: <SkillData>{//level 2 continuous shoot
 		continuous: true,
 		energy_cost: 0.01625,//per second (1 => 100%)
 		cooldown: 0.25,
-		texture_name: 'shot2_skill'
+		texture_name: 'shot2.png'
 	},
 	SHOOT3: <SkillData>{//level 3 continuous shoot
 		continuous: true,
 		energy_cost: 0.0175,//per second (1 => 100%)
 		cooldown: 0.25,
-		texture_name: 'shot3_skill'
+		texture_name: 'shot3.png'
 	},
 
-	// DEFFENSIVE SKILLS
+	// DEFENSIVE SKILLS
 	SHIELD: <SkillData>{
 		energy_cost: 0.1,
 		cooldown: 16,
-		texture_name: 'shield_skill',
+		texture_name: 'shield.png',
 
 		name: 'Shield',
 		description: 'Active shield that protects player from damage for some time.',
@@ -103,7 +103,7 @@ const Skills: SkillsSchema = {//SCHEMA
 	INSTANT_HEAL: <SkillData>{
 		energy_cost: 0.3,
 		cooldown: 15,
-		texture_name: 'heal_skill',
+		texture_name: 'heal.png',
 
 		name: 'Instant Heal',
 		description: 'Instantly restores some of your health.',
@@ -111,16 +111,16 @@ const Skills: SkillsSchema = {//SCHEMA
 		price: 8000
 	},
 
-	// OFFSENSIVE SKILLS
+	// OFFENSIVE SKILLS
 	BOUNCE_SHOT: <SkillData>{
 		continuous: true,
 		energy_cost: 0.05,
 		cooldown: 0.5,
-		texture_name: 'bounce_shot_skill',
+		texture_name: 'bounce_shot.png',
 
 		name: 'Bounce Shot',
 		description: 
-			'Shoot bullets that bounces off the walls. \nCauses stronger damage than regular ones.',
+			'Shoot bullets that bounces off the walls.\nCauses stronger damage than regular ones.',
 		lvl_required: 5,
 		price: 1000//coins
 	},
@@ -128,7 +128,7 @@ const Skills: SkillsSchema = {//SCHEMA
 	ENERGY_BLAST: <SkillData>{
 		energy_cost: 0.1,
 		cooldown: 2,
-		texture_name: 'energy_blast_skill',
+		texture_name: 'energy_blast.png',
 
 		name: 'Energy Blast',
 		description: 'Release a blast of energy that strikes nearby enemies.',
@@ -139,7 +139,7 @@ const Skills: SkillsSchema = {//SCHEMA
 	BOMB: <SkillData>{
 		energy_cost: 0.5,
 		cooldown: 30,
-		texture_name: 'bomb_skill',
+		texture_name: 'bomb.png',
 
 		name: 'Bomb',
 		description: 'Place a bomb that explodes a while later killing every nearby enemy.',
@@ -151,7 +151,7 @@ const Skills: SkillsSchema = {//SCHEMA
 	SPEED: <SkillData>{
 		energy_cost: 0.1,
 		cooldown: 4,
-		texture_name: 'speed_skill',
+		texture_name: 'speed.png',
 
 		name: 'Speed Boost',
 		description: 'Makes you fast as bullet for some period of time.',
@@ -164,7 +164,7 @@ const Skills: SkillsSchema = {//SCHEMA
 	//or change order in mysql database
 
 	getById: function(id: number) {
-		for(var s in this) {
+		for(let s in this) {
 			if(typeof this[s] === 'object' && (<SkillData>this[s]).id === id)
 				return <SkillData>this[s];
 		}

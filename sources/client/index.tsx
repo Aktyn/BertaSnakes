@@ -5,7 +5,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import './styles/main.scss';
 
-import Loader from './components/loader';
+import Loader from './components/widgets/loader';
 
 import Layout from './components/layout';
 import Home from './pages/home';

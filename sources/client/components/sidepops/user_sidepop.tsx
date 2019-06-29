@@ -43,7 +43,7 @@ export default class UserSidepop extends React.Component<UserSidepopProps, UserS
 			error={this.state.error} loading={this.state.loading} >
 			<UserSection ref={el => this.user_section = el} onError={(code) => {
 				this.setError(errorMsg(code));
-			}} account_id={this.props.account_id} />
+			}} onGamesListToggle={() => this.forceUpdate()} account_id={this.props.account_id} />
 		</SidepopBase>;
 	}
 }

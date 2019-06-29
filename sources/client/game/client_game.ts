@@ -783,7 +783,7 @@ export default class ClientGame extends GameCore {
 						}
 						else {
 							this.listeners.addChildSkill(sk.data.texture_name, 
-								s_i === 0 ? 'space' : s_i, sk.isContinous());
+								s_i === 0 ? 'space' : s_i, sk.isContinuous());
 						}
 					}
 				}
@@ -945,7 +945,7 @@ export default class ClientGame extends GameCore {
 		if( !focused || focused.spawning )
 			return;
 		s_h_n = focused.skills[index];
-		if(s_h_n !== null && s_h_n.isContinous()) {
+		if(s_h_n !== null && s_h_n.isContinuous()) {
 			Network.sendByteBuffer(Uint8Array.from(
 				[NetworkCodes.PLAYER_SKILL_STOP_REQUEST, Number(index)]));
 		}

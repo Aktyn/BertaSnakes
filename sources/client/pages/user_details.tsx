@@ -49,7 +49,7 @@ class UserDetails extends React.Component<any, UserDetailsState> {
 			{this.state.account_id &&
 				<UserSection ref={el => this.user_section = el} onError={(code) => {
 					this.setError(errorMsg(code));
-				}} account_id={this.state.account_id} container_mode />}
+				}} onGamesListToggle={() => this.forceUpdate()} account_id={this.state.account_id} container_mode />}
 		</ContainerPage>;
 	}
 }

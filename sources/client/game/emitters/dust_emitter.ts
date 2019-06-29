@@ -6,11 +6,11 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 let gauss: (n: number) => number = (n) => Math.random() * ( n <= 1 ? 1 : gauss(n-1) );
 
-var i: number;
+let i: number;
 
 export default class DustEmitter extends WeatherEmitter {
 	constructor() {
-		super('fussion_particle', PARTICLES, true);
+		super('fusion_particle', PARTICLES, true);
 
 		for(i=0; i<PARTICLES; i++) {
 			this.data[i*vals + 0] = (Math.random() * 2.0 - 1.0) * getAspect();//x

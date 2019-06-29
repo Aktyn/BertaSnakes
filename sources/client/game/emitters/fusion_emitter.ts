@@ -5,11 +5,12 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 const SCALE = 0.04;
 
-var i: number;
+let i: number;
 
-export default class FussionEmitter extends Emitter {
+// noinspection JSUnusedGlobalSymbols
+export default class FusionsEmitter extends Emitter {
 	constructor() {
-		super('fussion_particle', PARTICLES, true);
+		super('fusion_particle', PARTICLES, true);
 
 		this.setInitial();
 	}

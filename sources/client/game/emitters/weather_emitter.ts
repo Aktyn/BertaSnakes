@@ -4,7 +4,7 @@ import {Vec3f} from '../../../common/utils/vector';
 const vals = Emitter.VALUES_PER_PARTICLE;
 const PARALLAX = 0.2;
 
-var aspect: number, i: number;
+let aspect: number, i: number;
 
 export default class WeatherEmitter extends Emitter {
 	protected velocities_data: Float32Array;

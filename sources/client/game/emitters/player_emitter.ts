@@ -9,14 +9,15 @@ const SCALE = 0.05*0.8, /*SPEED = 0.1,*/ ALPHA = 0.2;
 const GROW_LENGTH = 0.9, SHRINK_LENGTH = 0.2;//range 0 to 1
 const PRECALCULATED_PROPORTION = 0.5 * ( 1.0 / (1.0 - GROW_LENGTH) );
 
-var i: number, alpha_l: number;
+let i: number, alpha_l: number;
 
+// noinspection JSUnusedGlobalSymbols
 export default class PlayerEmitter extends Emitter {
 	private player: Object2D;
 	private alphas: Float32Array;
 
 	constructor(_player: Object2D) {
-		super('fussion_particle', PARTICLES, true);
+		super('fusion_particle', PARTICLES, true);
 
 		this.player = _player;
 		//@ts-ignore

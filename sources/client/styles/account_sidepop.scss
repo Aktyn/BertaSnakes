@@ -1,3 +1,5 @@
+@import 'global.scss';
+
 $avatarSize: 50px;
 
 .sidepop, .container {
@@ -15,7 +17,6 @@ $avatarSize: 50px;
 		span {
 			grid-area: welcome;
 		}
-
 
 		.avatar-chooser {
 			grid-area: avatar;
@@ -121,6 +122,16 @@ $avatarSize: 50px;
 			&:hover {
 				background-color: #00968840;
 			}
+		}
+	}
+	
+	.skill-slot {
+		display: inline-block;
+		
+		& > span {
+			display: block;
+			font-size: 11px;
+			color: nth($palette, 3);
 		}
 	}
 }

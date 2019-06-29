@@ -250,6 +250,14 @@ export default {
 		if( !connections.delete(connection.id) )
 			console.error('Cannot delete connection. Object not found in map structure.');
 	},
+	
+	findAccount(account_id: string) {
+		for(let conn of connections.values()) {
+			if(conn.user && conn.user.account_id === account_id)
+				return conn.user;
+		}
+		return undefined;
+	},
 
 	//users in lobby are users that are not in room or are in room but not during game
 	forEachLobbyUser(func: (connection: Connection) => void) {

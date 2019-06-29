@@ -7,11 +7,12 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 const SCALE = 0.08, ALPHA = 0.5, FADING_DURATION = 1, SPEED = 0.1;
 
-var i: number;
+let i: number;
 
+// noinspection JSUnusedGlobalSymbols
 export default class PoisoningEmitter extends Emitter {
 	private x_movements: Float32Array;
-	private speeds: Float32Array;
+	private readonly speeds: Float32Array;
 
 	private parent: Object2D;
 

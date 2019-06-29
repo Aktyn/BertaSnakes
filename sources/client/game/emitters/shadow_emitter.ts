@@ -6,13 +6,13 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 const EFFECT_DURATION = 15, VANISHING_DURATION = 10;//seconds
 const INITIAL_ALPHA = 0.3333;
 
-var i: number;
+let i: number;
 
 export default class ShadowEmitter extends Emitter {
 	private timer: number;
 
 	constructor(x: number, y: number, radius: number) {
-		super('fussion_particle', PARTICLES, false);
+		super('fusion_particle', PARTICLES, false);
 
 		this.timer = 0.0;
 

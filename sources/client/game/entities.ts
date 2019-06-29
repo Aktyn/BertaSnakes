@@ -11,12 +11,12 @@ import Player, {PLAYER_TYPES} from '../../common/game/objects/player';
 export const enum LAYERS {
 	FOREGROUND = 0,
 	PAINT
-};
+}
 
 const DEFAULT_LAYER = LAYERS.FOREGROUND;
 const DEFAULT_COLOR = Colors.WHITE.buffer;
 
-var ids = 0, key: string, l: number, entity_it: EntityObjectSchema;
+let ids = 0, key: string, l: number, entity_it: EntityObjectSchema;
 
 export interface EntitySchema {
 	id?: number;
@@ -37,9 +37,9 @@ function extendType<T>(target: T): T & {[index: string]: EntitySchema} {
 	return target as T & {[index: string]: EntitySchema};
 }
 
-//definies texture colors etc of each individual game entity
-//TODO - this data can be loaded from JSON file
-var entitiesData = extendType({
+//defines texture colors etc of each individual game entity
+//NOTE: this data can be loaded from JSON file
+let entitiesData = extendType({
 	'HEALTH_ITEM': {
 		texture_name: 'health_item'//name of texture resource
 	},
@@ -136,12 +136,12 @@ export function prepareEntities() {
 		entitiesData[key].id = ids++;
 }
 
-var current_instance: EntitiesBase | null = null;
+let current_instance: EntitiesBase | null = null;
 
 export default abstract class EntitiesBase {
 	public entities: EntityObjectSchema[];
 
-	constructor() {
+	protected constructor() {
 		if(current_instance === null)
 			current_instance = this;
 		else
@@ -150,7 +150,7 @@ export default abstract class EntitiesBase {
 		//creating list of entities
 		this.entities = [];
 
-		var data: EntitySchema;
+		let data: EntitySchema;
 		for(key in entitiesData) {
 			data = entitiesData[key];
 

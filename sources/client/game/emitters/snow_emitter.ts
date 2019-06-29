@@ -6,7 +6,7 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 let gauss: (n: number) => number = (n) => Math.random() * ( n <= 1 ? 1 : gauss(n-1) );
 
-var i: number;
+let i: number;
 
 export default class SnowEmitter extends WeatherEmitter {
 	constructor() {
@@ -16,7 +16,7 @@ export default class SnowEmitter extends WeatherEmitter {
 			this.data[i*vals + 0] = (Math.random() * 2.0 - 1.0) * getAspect();//x
 			this.data[i*vals + 1] = Math.random() * 2.0 - 1.0;//yy
 
-			var rand = gauss(3);
+			let rand = gauss(3);
 			this.data[i*vals + 2] = rand * 0.15 + 0.005;//scale
 
 			this.data[i*vals + 3] = 1.0;//r

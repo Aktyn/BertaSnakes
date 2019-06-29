@@ -7,14 +7,14 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 const SCALE = 0.15;
 const SCALE_SPEED = (SCALE / 0.5);//0.5 seconds effect duration
 
-var i: number, j: number;
+let i: number, j: number;
 
 export default class HitEmitter extends Emitter {
 	private index: number;
-	private indexes: number[];
+	private readonly indexes: number[];
 
 	constructor() {
-		super('fussion_particle', PARTICLES, false);
+		super('fusion_particle', PARTICLES, false);
 
 		this.index = 0;
 		this.indexes = [];

@@ -1,4 +1,4 @@
-import '../styles/loader.scss';
+import '../../styles/loader.scss';
 
 import * as React from 'react';
 import Loadable from 'react-loadable';

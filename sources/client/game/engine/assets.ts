@@ -3,6 +3,8 @@ import Settings from './settings';
 import Emoticon, {EMOTS} from '../../../common/game/objects/emoticon';
 import Colors from '../../../common/game/common/colors';
 import Player, {PLAYER_TYPES} from '../../../common/game/objects/player';
+import Utils from '../../utils/utils';
+import Skills, {SkillData} from "../../../common/game/common/skills";
 
 interface ShaderSourceI {
 	vertex_source: string;
@@ -10,14 +12,13 @@ interface ShaderSourceI {
 }
 
 const SHADERS_PATH = require.context('../../shaders');
-const TEXTURES_PATH = require.context('../../img/textures');
-// const EMOTS_PATH = require.context('../../img/textures/emoticons');
+export const TEXTURES_PATH = require.context('../../img/textures');
 
-var shaders: {[index:string]: ShaderSourceI} = {};
-var textures: {[index:string]: HTMLCanvasElement | HTMLImageElement} = {};
+let shaders: {[index:string]: ShaderSourceI} = {};
+let textures: {[index:string]: HTMLCanvasElement | HTMLImageElement} = {};
 
-var pending = 1;//currently loading resources (0 means loaded)
-var onLoadCallbacks: (() => void)[] = [];
+let pending = 1;//currently loading resources (0 means loaded)
+let onLoadCallbacks: (() => void)[] = [];
 
 const printError = (e: Error | string | Event) => console.error(e);
 const notFound = (name: string) => { throw new Error('Resource not found: ' + name); };
@@ -31,9 +32,7 @@ function loadAssets() {
 	loadImage('speed_item', 		'items/acceleration.png');
 
 	//skills icons
-	// loadImage('basic_shot_skill', TEXTURES_PATH + 'skills_icons/basic_shot.png');
-	// loadImage('bariere_skill', TEXTURES_PATH + 'skills_icons/bariere.png');
-	loadImage('shot1_skill', 		'skills_icons/shot1.png');
+	/*loadImage('shot1_skill', 		'skills_icons/shot1.png');
 	loadImage('shot2_skill', 		'skills_icons/shot2.png');
 	loadImage('shot3_skill', 		'skills_icons/shot3.png');
 	loadImage('shield_skill', 		'skills_icons/shield.png');
@@ -41,10 +40,15 @@ function loadAssets() {
 	loadImage('energy_blast_skill', 'skills_icons/energy_blast.png');
 	loadImage('heal_skill', 		'skills_icons/heal.png');
 	loadImage('speed_skill', 		'skills_icons/speed.png');
-	loadImage('bomb_skill', 		'skills_icons/bomb.png');
-
-	//loadImage('background_test', TEXTURES_PATH + 'background1.png');
-	//console.log( EMOTS );
+	loadImage('bomb_skill', 		'skills_icons/bomb.png');*/
+	for(let skill_key in Skills) {
+		let skill = Skills[skill_key] as SkillData;
+		if(typeof skill.id === 'number') {
+			loadImage(skill.texture_name, 		'skills_icons/' + skill.texture_name);
+			//console.log('test', Skills[skill].id);
+		}
+	}
+	
 	EMOTS.forEach(emot => {
 		loadImage(Emoticon.entityName(emot.file_name), 
 			'emoticons/' + emot.file_name,
@@ -60,7 +64,7 @@ function loadAssets() {
 	loadImage('streak', 'emoticons/streak.png');
 
 	// PARTICLES
-	loadImage('fussion_particle', 	'particles/fussion.png');
+	loadImage('fusion_particle', 	'particles/fusion.png');
 	loadImage('cloud_particle', 	'particles/cloud.png');
 	loadImage('snow_particle', 		'particles/snowflake.png');
 	loadImage('plus', 				'particles/plus.png');
@@ -146,28 +150,27 @@ function generatePlayersTextures() {
 			Colors.PLAYERS_COLORS.forEach((color) => {
 				pending++;
 
-				let player_canv = document.createElement('canvas');
-				player_canv.width = img.naturalWidth;
-				player_canv.height = img.naturalHeight;
+				let player_canvas = document.createElement('canvas');
+				player_canvas.width = img.naturalWidth;
+				player_canvas.height = img.naturalHeight;
 
-				let player_ctx = 
-					<CanvasRenderingContext2D>player_canv.getContext('2d', {antialias: true});
-				player_ctx.drawImage(<CanvasImageSource><unknown>player_texture, 0, 0);
+				let player_ctx = <CanvasRenderingContext2D>player_canvas
+					.getContext('2d', {antialias: true});
+				player_ctx.drawImage(<CanvasImageSource>player_texture, 0, 0);
 
 				let canvasData = player_ctx.getImageData(0, 0, 
-						player_canv.width, player_canv.height),
+						player_canvas.width, player_canvas.height),
 			     	pix = canvasData.data;
 
-			    for(var i=0, n=pix.length, j=0; i<n; i+=4) {
+			    for(let i=0, n=pix.length, j=0; i<n; i+=4) {
 			        for(j=0; j<3; j++)
 			        	pix[i+j] = Math.min(255, pix[i+j] + color.byte_buffer[j]);
 			    }
 
 			    player_ctx.putImageData(canvasData, 0, 0);
 
-			    textures[ Player.entityName(type_i, color) ] = player_canv;
+			    textures[ Player.entityName(type_i, color) ] = player_canvas;
 			    pending--;
-				// $$(document.body).append(player_canv);
 			});
 
 			pending--;
@@ -175,11 +178,12 @@ function generatePlayersTextures() {
 		};
 		img.onerror = e => printError(e);
 		
-		img.src = TEXTURES_PATH('./players/type_' + (type_i+1) + '.png');
+		//img.src = TEXTURES_PATH('./players/type_' + (type_i+1) + '.png');
+		img.src = Utils.SHIP_TEXTURES[type_i];
 	}
 }
 
-var Assets = {
+const Assets = {
 	load() {//LOADS GAME RESOURCES ASYNCHRONOUSLY
 		if(Assets.loaded()) {
 			console.log('Assets already loaded');

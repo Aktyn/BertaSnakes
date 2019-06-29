@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import './../styles/number_input.scss';
+import '../../styles/number_input.scss';
 
 interface NumberInputProps {
 	min: number;
@@ -25,11 +25,11 @@ export default class extends React.Component<NumberInputProps, NumberInputState>
 		defaultValue: Number.MIN_SAFE_INTEGER,
 		prefix: '',
 		postfix: ''
-	}
+	};
 
 	state: NumberInputState = {
 		value: 0
-	}
+	};
 
 	constructor(props: NumberInputProps) {
 		super(props);

@@ -1,0 +1,35 @@
+$size: 30px;
+
+.ship-widget {
+	display: inline-block;
+	height: 30px;
+	margin: 0px 3px;
+	box-shadow: none !important;
+	padding: 2px;
+	cursor: auto !important;
+	
+	& > img {
+		max-height: 100%;
+		transform: scale(0.9);
+		opacity: 0.61;
+		
+		transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+	}
+	
+	&.selected {
+		background-color: rgba(#8BC34A, 0.5);
+		border: 1px solid #8BC34A;
+		border-radius: 3px;
+		
+		& > img {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+	
+	&:not(.selected):hover > img {
+		cursor: pointer;
+		transform: scale(1);
+		opacity: 1;
+	}
+}

@@ -8,13 +8,13 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 let gauss: (n: number) => number = (n) => Math.random() * ( n <= 1 ? 1 : gauss(n-1) );
 let randPos = () => Math.random() * 2.0 - 1.0;
 
-var i: number;
+let i: number;
 
 export default class CloudsEmitter extends WeatherEmitter {
 	constructor() {
 		super('cloud_particle', PARTICLES, false);
 
-		var data = new Array(CLOUDS).fill(0).map(() => {return {
+		let data = new Array(CLOUDS).fill(0).map(() => {return {
 			x: randPos() * getAspect(),
 			y: randPos(),
 			scale: Math.random() * 0.1 + 0.9,
@@ -24,14 +24,14 @@ export default class CloudsEmitter extends WeatherEmitter {
 		}});
 
 		for(i=0; i<PARTICLES; i++) {
-			var c_i = Math.floor(i / PARTICLES * CLOUDS);
+			let c_i = Math.floor(i / PARTICLES * CLOUDS);
 
 			this.data[i*vals + 0] = data[c_i].x + 
 				randPos()*CLOUD_SIZE_X*data[c_i].scale;//x
 			this.data[i*vals + 1] = data[c_i].y + 
 				randPos()*CLOUD_SIZE_Y*data[c_i].scale;//yy
 
-			var rand = 1.0 - gauss(2);
+			let rand = 1.0 - gauss(2);
 			this.data[i*vals + 2] = rand * CLOUD_SIZE_X * data[c_i].scale + 0.05;//scale
 
 			this.data[i*vals + 3] = data[c_i].lightness * data[c_i].tint[0];//r

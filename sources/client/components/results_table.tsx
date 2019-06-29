@@ -2,16 +2,10 @@ import * as React from 'react';
 
 import Utils from '../utils/utils';
 import ServerApi from '../utils/server_api';
-import RewardIndicator from "./reward_indicator";
+import RewardIndicator from "./widgets/reward_indicator";
 import {PlayerResultJSON} from '../../common/game/game_result';
 
 import '../styles/results_table.scss';
-
-const ship_icons = [
-	require('../img/textures/players/type_1.png'),
-	require('../img/textures/players/type_2.png'),
-	require('../img/textures/players/type_3.png'),
-];
 
 const kills_icon = require('../img/icons/scope_icon.png');
 const deaths_icon = require('../img/icons/skull_icon.png');
@@ -44,7 +38,7 @@ export default class ResultsTable extends React.Component<ResultsTableProps, any
 					}}>
 					{Utils.trimString(row.nick, 15)}
 				</td>
-				<td><img src={ship_icons[row.ship_type]} style={{opacity: 0.5}} alt='ship icon' /></td>
+				<td><img src={Utils.SHIP_TEXTURES[row.ship_type]} style={{opacity: 0.5}} alt='ship icon' /></td>
 				<td>{row.level}</td>
 				<td>{row.kills}</td>
 				<td>{row.deaths}</td>

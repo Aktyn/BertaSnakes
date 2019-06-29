@@ -3,7 +3,7 @@ import * as React from 'react';
 import RoomInfo from '../../common/room_info';
 import UserInfo from '../../common/user_info';
 import Network from '../game/engine/network';
-import UserBtn from './user_btn';
+import UserBtn from './widgets/user_btn';
 
 import '../styles/users_list.scss';
 

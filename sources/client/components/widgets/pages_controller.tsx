@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import '../styles/pages_controller.scss';
+import '../../styles/pages_controller.scss';
 
 interface PagesLinkProps {
 	page: number;

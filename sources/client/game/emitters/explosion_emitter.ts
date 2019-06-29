@@ -5,10 +5,10 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 const SPREAD_SPEED = 0.5, EXPLODING_TIME = 0.5, FADING_TIME = 0.9;
 
-var i: number;
+let i: number;
 
 export default class ExplosionEmitter extends Emitter {
-	private radius: number;
+	private readonly radius: number;
 	private timer: number;
 
 	constructor(x: number, y: number, radius: number) {

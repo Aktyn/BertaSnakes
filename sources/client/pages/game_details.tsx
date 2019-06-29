@@ -6,7 +6,7 @@ import ServerApi from '../utils/server_api';
 import ContainerPage, {ContainerProps} from "./container_page";
 import {GameSchema} from "../../server/database";
 import ResultsTable from "../components/results_table";
-import GameInfoList from "../components/game_info_list";
+import GameInfoList from "../components/widgets/game_info_list";
 
 interface GameDetailsState extends ContainerProps {
 	game: GameSchema | null;
@@ -51,7 +51,7 @@ class GameDetails extends React.Component<any, GameDetailsState> {
 		this.setState({error: msg, loading: false});
 	}
 	
-	render() {//TODO: detect page href change and update game data accordingly
+	render() {
 		return <ContainerPage key={this.state.game ? this.state.game._id : 'game-details'}
 		                      error={this.state.error} loading={this.state.loading}>
 			{this.state.game && <>

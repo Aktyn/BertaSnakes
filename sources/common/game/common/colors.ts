@@ -1,6 +1,6 @@
 const toHexString = (number: number) => '#'+('000000'+number.toString(16)).substr(-6);
 
-var i;
+let i;
 
 export interface ColorI {
 	byte_buffer: Uint8Array;
@@ -69,11 +69,10 @@ const Colors = {//utils methods
 		return true;
 	},
 	isPlayerColor: function(buff) {
-		for(var player_col_i=0; player_col_i<(<ColorI[]>PALETTE.PLAYERS_COLORS).length; 
+		for(let player_col_i=0; player_col_i<(<ColorI[]>PALETTE.PLAYERS_COLORS).length;
 			player_col_i++) 
 		{
-			if(Colors.compareByteBuffers(
-				(<ColorI[]>PALETTE.PLAYERS_COLORS)[player_col_i].byte_buffer, buff) === true)
+			if( Colors.compareByteBuffers((<ColorI[]>PALETTE.PLAYERS_COLORS)[player_col_i].byte_buffer, buff) )
 				return true;
 		}
 		return false;

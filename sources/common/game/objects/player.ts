@@ -27,7 +27,7 @@ if(_CLIENT_) {
 }
 
 //TYPES
-export enum PLAYER_TYPES {//enum (cannot be const since some code iterate over it)
+export enum PLAYER_TYPES {//enum a.k.a SHIP_TYPES
 	TRIANGLE = 0,
 	SQUARE,
 	PENTAGON

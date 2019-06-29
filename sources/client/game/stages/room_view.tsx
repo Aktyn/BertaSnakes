@@ -7,18 +7,12 @@ import UserInfo from '../../../common/user_info';
 
 import MapsPreview, {updateMapPreview} from './maps_preview';
 
-import NumberInput from '../../components/number_input';
-import OptionsList from '../../components/options_list';
+import NumberInput from '../../components/widgets/number_input';
+import OptionsList from '../../components/widgets/options_list';
 
 import Utils from '../../utils/utils';
 
 import '../../styles/room_view.scss';
-
-const ship_icons = [
-	require('../../img/textures/players/type_1.png'),
-	require('../../img/textures/players/type_2.png'),
-	require('../../img/textures/players/type_3.png'),
-];
 
 //const ClockWidget: React.SFC<{seconds: number}> = (props) => {
 class ClockWidget extends React.Component<{seconds: number}, any> {
@@ -176,7 +170,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 							'ready' : (user ? '' : 'empty')}>
 							{user ? <>
 								{Utils.trimString(user.nick, 15)}
-								<img src={ship_icons[user.custom_data.ship_type]} alt='ship icon' />
+								<img src={Utils.SHIP_TEXTURES[user.custom_data.ship_type]} alt='ship icon' />
 							</> : 'EMPTY'}
 						</div>;
 					})}

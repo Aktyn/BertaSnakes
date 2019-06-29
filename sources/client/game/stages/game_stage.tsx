@@ -17,7 +17,7 @@ import {PlayerResultJSON} from '../../../common/game/game_result';
 
 import GameResults from '../../components/game_results';
 import UsersList from '../../components/users_list';
-import UserBtn from '../../components/user_btn';
+import UserBtn from '../../components/widgets/user_btn';
 import RoomChat from '../../components/room_chat';
 import SkillsBar from '../../components/skills_bar';
 import {MessageSchema} from '../../components/room_chat';

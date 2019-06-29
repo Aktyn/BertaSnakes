@@ -6,7 +6,7 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 const SCALE = 0.03, SPREAD_SPEED = 0.3, SPREAD_DURATION = 0.3;
 
-var i: number, dx: number, dy: number, ddx: number, ddy: number, atan: number;
+let i: number, dx: number, dy: number, ddx: number, ddy: number, atan: number;
 
 export default class ExperienceEmitter extends Emitter {
 	private from: Object2D;
@@ -20,7 +20,7 @@ export default class ExperienceEmitter extends Emitter {
 	private timer: number;
 
 	constructor(from_object: Object2D, to_object: Object2D) {
-		super('fussion_particle', PARTICLES, true);
+		super('fusion_particle', PARTICLES, true);
 
 		this.from = from_object;
 		this.to = to_object;

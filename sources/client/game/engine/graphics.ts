@@ -1,10 +1,10 @@
 import Assets from './assets';
 import Utils from '../../utils/utils';
 
-var CANVAS: HTMLCanvasElement, GL: WebGLRenderingContext, EXT: WEBGL_draw_buffers, aspect: number;
-var initialized = false;
+let CANVAS: HTMLCanvasElement, GL: WebGLRenderingContext, EXT: WEBGL_draw_buffers, aspect: number;
+let initialized = false;
 
-var fullscreen_framebuffers: ExtendedFramebuffer[] = [];
+let fullscreen_framebuffers: ExtendedFramebuffer[] = [];
 
 /*function fixRetinaDisplay(canvas: HTMLCanvasElement, context: WebGLRenderingContext) {
 	var devicePixelRatio = window.devicePixelRatio || 1;
@@ -49,9 +49,9 @@ function loadContext() {
 					GL.getExtension("MOZ_OES_draw_buffer") ||
 				GL.getExtension("WEBKIT_OES_draw_buffer");
 		if(!GL)
-			throw new Error('Cannot aquire webgl context');
+			throw new Error('Cannot acquire webgl context');
 		if(!EXT)
-			throw new Error('Browser does not support "draw buffers" webgl extention');
+			throw new Error('Browser does not support "draw buffers" webgl extension');
 	}
 	catch(e) {//TODO - check this error on mobiles
 		console.error(e);
@@ -225,7 +225,7 @@ export const TEXTURES = {
 		return this.createFromIMG(canvas, linear);
 	},*/
 	createFrom: function(image: ImageData | HTMLCanvasElement | HTMLImageElement, linear = true) {
-		var texture = GL.createTexture();
+		let texture = GL.createTexture();
 		if(texture === null)
 			throw "Cannot create WebGLTexture";
 
@@ -239,9 +239,9 @@ export const TEXTURES = {
       	GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image);
 
       	//if image width and height are powers of two
-      	var filter = linear ? GL.LINEAR : GL.NEAREST;
+      	let filter = linear ? GL.LINEAR : GL.NEAREST;
       	if(powerOfTwo(image.width) && powerOfTwo(image.height)) {
-      		var mipmap_filter = linear ? GL.LINEAR_MIPMAP_LINEAR : GL.NEAREST_MIPMAP_NEAREST;
+      		let mipmap_filter = linear ? GL.LINEAR_MIPMAP_LINEAR : GL.NEAREST_MIPMAP_NEAREST;
       		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, filter);
 	      	GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, 
 	      		mipmaps ? mipmap_filter : filter);
@@ -290,7 +290,7 @@ export interface ExtendedFramebuffer {
 }
 
 //FRAMEBUFFERS: (function() {
-var current_fb: WebGLFramebuffer | null = null;
+let current_fb: WebGLFramebuffer | null = null;
 export const FRAMEBUFFERS = {
 	create: function(options: FramebufferOptions): ExtendedFramebuffer {
 		let linear = options.linear === undefined ? true : options.linear;//default
@@ -387,7 +387,7 @@ export const FRAMEBUFFERS = {
 //})(),
 
 //SHADERS: (function() {
-var current_shader_program: WebGLProgram | null = null;
+let current_shader_program: WebGLProgram | null = null;
 
 //CREATE GL OBJECT SHADER BY SHADER TYPE AND ITS SOURCE
 function get_shader(source: string, type: number) {
@@ -407,8 +407,8 @@ function get_shader(source: string, type: number) {
 
 //CREATE GL OBJECT SHADER FROM GIVEN SHADER SOURCES
 function compile_shader(vertex_source: string, fragment_source: string) {
-	var shader_vertex = get_shader(vertex_source, GL.VERTEX_SHADER);
-	var shader_fragment = get_shader(fragment_source, GL.FRAGMENT_SHADER);
+	let shader_vertex = get_shader(vertex_source, GL.VERTEX_SHADER);
+	let shader_fragment = get_shader(fragment_source, GL.FRAGMENT_SHADER);
 
 	if(!shader_vertex || !shader_fragment)
 		return false;
@@ -422,9 +422,9 @@ function compile_shader(vertex_source: string, fragment_source: string) {
 
 	GL.linkProgram(SHADER_PROGRAM);
 
-	var _uv = GL.getAttribLocation(SHADER_PROGRAM, "uv");
-	var _position = GL.getAttribLocation(SHADER_PROGRAM, "position");
-	var _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
+	let _uv = GL.getAttribLocation(SHADER_PROGRAM, "uv");
+	let _position = GL.getAttribLocation(SHADER_PROGRAM, "position");
+	let _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
 	if(_uv != -1)
 		GL.enableVertexAttribArray(_uv);
 	if(_color != -1)
@@ -506,11 +506,11 @@ export interface VBO_I {
 	destroy(): void;
 }
 
-//var binded: VertexBufferI | VBO_I | null = null;//curently binded VBO
+//var binded: VertexBufferI | VBO_I | null = null;//currently binded VBO
 export const VBO = {
 	create: function(data: {vertex: number[], faces: number[]}): VBO_I {
-		var vertex_buff = GL.createBuffer();
-		var faces_buff = GL.createBuffer();
+		let vertex_buff = GL.createBuffer();
+		let faces_buff = GL.createBuffer();
 
 		//VERTEXES:
 		GL.bindBuffer(GL.ARRAY_BUFFER, vertex_buff);
@@ -532,8 +532,8 @@ export const VBO = {
 			    	throw "No shader is currently binded";
 				
 				//SHADERS.getCurrent()		    	
-				var _uv = GL.getAttribLocation(current_shader_program, "uv");
-				var _position = GL.getAttribLocation(current_shader_program, "position");
+				let _uv = GL.getAttribLocation(current_shader_program, "uv");
+				let _position = GL.getAttribLocation(current_shader_program, "position");
 
 				/*bytes(float) * 2values per vertex + 2 offset for uv coords*/
 				GL.vertexAttribPointer(_position, 2, GL.FLOAT, false, 4*(2+2), 0);
@@ -556,7 +556,7 @@ export const VBO = {
 	},
 	//@count - number of values (size of buffer in floats)
 	createVertexBuffer: function(count: number): VertexBufferI {
-		var vertex_buff = GL.createBuffer();
+		let vertex_buff = GL.createBuffer();
 
 		//if(data != nullptr)
 		//	updateData(data, data_length);
@@ -576,7 +576,7 @@ export const VBO = {
 			enableAttribute: function(attrib_name, size, stride, offset) {
 				if(current_shader_program === null)
 			    	throw "No shader is currently binded";
-				var attrib = GL.getAttribLocation(current_shader_program, attrib_name);
+				let attrib = GL.getAttribLocation(current_shader_program, attrib_name);
 				if(attrib != -1)
 					GL.enableVertexAttribArray(attrib);
 				GL.vertexAttribPointer(attrib, size, GL.FLOAT, false, 4*(stride), 4*offset);
@@ -584,7 +584,6 @@ export const VBO = {
 
 			bind: function() {
 				GL.bindBuffer(GL.ARRAY_BUFFER, vertex_buff);
-				//binded = this;
 			},
 
 			destroy: function() {
@@ -608,7 +607,7 @@ const 	POSITION_VALUES = 3,
 export abstract class Emitter {
 	//private data_length = 0;
 	protected count: number;
-	private additive: boolean;
+	private readonly additive: boolean;
 	private buffer: VertexBufferI;
 
 	private texture: any;
@@ -619,7 +618,7 @@ export abstract class Emitter {
 	public expired = false;
 	public timestamp: number | Date = 0;
 
-	constructor(_texture: string, _count: number, _additive = false) {
+	protected constructor(_texture: string, _count: number, _additive = false) {
 		//this.data_length = 0;
 		this.buffer = VBO.createVertexBuffer(_count * VALUES_PER_PARTICLE);
 
@@ -669,7 +668,7 @@ export abstract class Emitter {
 	}
 
 	public static readonly VALUES_PER_PARTICLE = VALUES_PER_PARTICLE;
-};
+}
 
 /*export class CanvasExtended {
 	private static instance_id = 0;

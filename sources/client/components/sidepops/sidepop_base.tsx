@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import Loader from '../loader';
+import Loader from '../widgets/loader';
 
 import '../../styles/container.scss';
 
@@ -15,7 +15,7 @@ export interface SidepopProps {
 let opened_sidepops: SidepopContainer[] = [];
 
 class SidepopContainer extends React.Component<SidepopProps, any> {
-	private readonly sidepop_el: HTMLDivElement;
+	public readonly sidepop_el: HTMLDivElement;
 
 	constructor(props: SidepopProps) {
 		super(props);
@@ -30,26 +30,6 @@ class SidepopContainer extends React.Component<SidepopProps, any> {
 					sidepop.close();
 			}
 		};
-	}
-
-	componentDidMount() {
-		(page_root as HTMLDivElement).appendChild(this.sidepop_el);
-		
-		//hide previous sidepops
-		for(let sidepop of opened_sidepops)
-			sidepop.toggleView(false);
-		opened_sidepops.push(this);//push newest one
-	}
-
-	componentWillUnmount() {
-		(page_root as HTMLDivElement).removeChild(this.sidepop_el);
-		
-		for(let i=opened_sidepops.length-1; i>=0; i--) {
-			if(opened_sidepops[i] === this)
-				opened_sidepops.splice(i, 1);
-		}
-		if(opened_sidepops.length > 0)//if it was not last sidepop
-			opened_sidepops[opened_sidepops.length-1].toggleView(true);//show previous
 	}
 	
 	toggleView(show: boolean) {
@@ -75,6 +55,7 @@ interface SidepopWrapperProps extends SidepopProps {
 }
 
 export default class SidepopBase extends React.Component<SidepopWrapperProps, any> {
+	private container: SidepopContainer | null = null;
 
 	static defaultProps = {
 		show_navigator: false,
@@ -84,18 +65,54 @@ export default class SidepopBase extends React.Component<SidepopWrapperProps, an
 	constructor(props: SidepopWrapperProps) {
 		super(props);
 	}
+	
+	componentDidMount() {
+		if(!this.container)
+			throw new Error('Component incorrectly loaded');
+		(page_root as HTMLDivElement).appendChild(this.container.sidepop_el);
+		
+		//hide previous sidepops
+		for(let sidepop of opened_sidepops)
+			sidepop.toggleView(false);
+		opened_sidepops.push(this.container);//push newest one
+		if(opened_sidepops.length > 1)
+			this.forceUpdate();
+	}
+
+	componentWillUnmount() {
+		if(!this.container)
+			throw new Error('Component incorrectly loaded');
+		(page_root as HTMLDivElement).removeChild(this.container.sidepop_el);
+		
+		for(let i=opened_sidepops.length-1; i>=0; i--) {
+			if(opened_sidepops[i] === this.container)
+				opened_sidepops.splice(i, 1);
+		}
+		if(opened_sidepops.length > 0)//if it was not last sidepop
+			opened_sidepops[opened_sidepops.length-1].toggleView(true);//show previous
+	}
 
 	renderNavigator() {
+		let return_func = this.props.navigator_return || (
+			opened_sidepops.length > 1 ? () => {
+				if(this.container)
+					this.container.close();
+			} : undefined
+		);
 		return <nav>
-			{this.props.navigator_return && 
+			{return_func &&
 				<button className='returner'
-					onClick={this.props.navigator_return}>RETURN</button>}
-			<button className='closer shaky-icon' onClick={this.props.onClose}/>
+					onClick={return_func}>RETURN</button>}
+			<button className='closer shaky-icon' onClick={() => {
+				//since 29.06.2019 closing button closes every opened sidepop
+				for(let sidepop of opened_sidepops)
+					sidepop.close();
+			}}/>
 		</nav>;
 	}
 
 	render() {
-		return <SidepopContainer onClose={this.props.onClose}>
+		return <SidepopContainer ref={el => this.container = el} onClose={this.props.onClose}>
 			<div className='sidepop'>
 				{this.props.show_navigator && this.renderNavigator()}
 				{this.props.loading && <Loader color='#ef5350' />}

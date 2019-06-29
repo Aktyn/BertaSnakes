@@ -5,7 +5,7 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 const LIFETIME = 2, FADING_TIME = 0.75, ALPHA = 0.3;
 
-var i: number, is_fading: boolean, fading_alpha = ALPHA;
+let i: number, is_fading: boolean, fading_alpha = ALPHA;
 
 export default class InstantHealEmitter extends Emitter {
 	private velocities_data: Float32Array;
@@ -28,8 +28,8 @@ export default class InstantHealEmitter extends Emitter {
 			this.data[i*vals + 5] = 0.5;//b
 			this.data[i*vals + 6] = ALPHA;
 
-			var angle = Math.random() * 2.0 * Math.PI;
-			var speed = Math.random() * 0.1 + 0.1;
+			let angle = Math.random() * 2.0 * Math.PI;
+			let speed = Math.random() * 0.1 + 0.1;
 
 			this.velocities_data[i*2+0] = Math.cos(angle) * speed;
 			this.velocities_data[i*2+1] = Math.sin(angle) * speed;

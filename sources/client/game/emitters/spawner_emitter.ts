@@ -4,13 +4,14 @@ const PARTICLES = 100;
 const vals = Emitter.VALUES_PER_PARTICLE;
 
 const SPEED = 0.1, ALPHA = 0.15;
-var i;
+let i;
 
+// noinspection JSUnusedGlobalSymbols
 export default class SpawnerEmitter extends Emitter {
 	private angles: Float32Array;
 
 	constructor(green: boolean) {
-		super('fussion_particle', PARTICLES, true);
+		super('fusion_particle', PARTICLES, true);
 
 		this.angles = new Float32Array(PARTICLES);
 

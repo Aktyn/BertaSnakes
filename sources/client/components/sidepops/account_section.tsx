@@ -4,6 +4,9 @@ import Account, {AccountSchema} from '../../account';
 import {offsetTop, removeWhitechars} from './sidepops_common';
 import Config from '../../../common/config';
 import ServerApi from '../../utils/server_api';
+import ShipWidget from "../widgets/ship_widget";
+import {PLAYER_TYPES} from "../../../common/game/objects/player";
+import SkillWidget, {DIRECTION} from "../widgets/skill_widget";
 
 class VerificationView extends React.Component<{self: AccountSidepop, account: AccountSchema,
 	tryVerify: () => Promise<void>, tryResendVerificationCode: () => Promise<void>}, any>
@@ -34,7 +37,69 @@ class VerificationView extends React.Component<{self: AccountSidepop, account: A
 	}
 }
 
-class AccountDataView extends React.Component<{self: AccountSidepop, account: AccountSchema}, any> {
+class AccountDataView extends React.Component<{
+	self: AccountSidepop;
+	account: AccountSchema;
+	updateSetup: (ship_type: PLAYER_TYPES, skillsbar: (number | null)[]) => Promise<void>;
+}, any> {
+	
+	private renderAvailableShips(account: AccountSchema) {
+		return account.available_ships.map((ship) => {
+			let selected = ship === account.ship_type;
+			return <ShipWidget key={selected ? ship + 374511 : ship} type={ship} selected={selected} onClick={() => {
+				this.props.updateSetup(ship, account.skills).catch(console.error);
+			}} />;
+		});
+	}
+	
+	private renderAvailableSkills(account: AccountSchema) {
+		return account.available_skills.filter((skill) => {
+			return account.skills.indexOf(skill) === -1;//show only those skills that are not in skillsbar
+		}).map((skill) => {
+			return <SkillWidget key={skill} skill={skill} onClick={() => {
+				if( account.skills.indexOf(skill) !== -1 )//skill already in skillsbar
+					return;
+				for(let i=0; i<account.skills.length; i++) {
+					if(account.skills[i] === null) {
+						account.skills[i] = skill;
+						this.props.updateSetup(account.ship_type, account.skills).catch(console.error);
+						break;
+					}
+				}
+			}} />;
+		});
+	}
+	
+	private renderSkillsBar(account: AccountSchema) {
+		if(account.skills.length !== Config.SKILLS_SLOTS)
+			return <div className='error'>Incorrect account's skillsbar length</div>;
+		return account.skills.map((skill, index) => {
+			return <div key={index} className={'skill-slot'}>
+				<SkillWidget key={skill || 0} skill={skill}
+				             onClick={widget => widget.showControls()} onPutOff={() => {
+					account.skills[index] = null;
+					this.props.updateSetup(account.ship_type, account.skills).catch(console.error);
+				}} onMove={dir => {
+					if( account.skills[index] === null )//prevent moving empty slot
+						return;
+					let target_i = index + (dir === DIRECTION.LEFT ? -1 : 1);
+					if(target_i < 0)
+						target_i += account.skills.length;
+					else if(target_i >= account.skills.length)
+						target_i -= account.skills.length;
+					
+					//swap slots
+					let temp = account.skills[target_i];
+					account.skills[target_i] = account.skills[index];
+					account.skills[index] = temp;
+					
+					this.props.updateSetup(account.ship_type, account.skills).catch(console.error);
+				}} />
+				<span>{index + 1}</span>
+			</div>;
+		});
+	}
+	
 	render() {
 		let account = this.props.account;
 		let exp_percent = Math.round(account.exp*100) + '%';
@@ -64,9 +129,16 @@ class AccountDataView extends React.Component<{self: AccountSidepop, account: Ac
 				
 				<label>Total games:</label>
 				<div>{account.total_games}</div>
-	
-				<label>TODO:</label>
-				<div>ships and skills chooserers as separate components (it will take some space)</div>
+			</div>
+			<div className={'fader-in'}>
+				<label className={'separating-label'}>Your ships</label>
+				<div>{this.renderAvailableShips(account)}</div>
+				
+				<label className={'separating-label'} style={offsetTop}>Available skills</label>
+				<div style={{minHeight: '38px'}}>{this.renderAvailableSkills(account)}</div>
+				
+				<label className={'separating-label'} style={offsetTop}>Skillsbar</label>
+				<div>{this.renderSkillsBar(account)}</div>
 			</div>
 			<nav key='other_views' className='user-views-selector fader-in' style={{
 				gridTemplateColumns: '1fr 1fr 1fr',
@@ -83,9 +155,15 @@ class AccountDataView extends React.Component<{self: AccountSidepop, account: Ac
 	}
 }
 
-export default class AccountSection extends React.Component<{self: AccountSidepop, account: AccountSchema,
-	clearAvatar: () => void, uploadAvatar: (clear?: boolean) => Promise<void>,
-	tryVerify: () => Promise<void>, tryResendVerificationCode: () => Promise<void>}, any>
+export default class AccountSection extends React.Component<{
+	self: AccountSidepop;
+	account: AccountSchema;
+	clearAvatar: () => void;
+	uploadAvatar: (clear?: boolean) => Promise<void>;
+	tryVerify: () => Promise<void>;
+	tryResendVerificationCode: () => Promise<void>;
+	updateSetup: (ship_type: PLAYER_TYPES, skillsbar: (number | null)[]) => Promise<void>;
+}, any>
 {
 	render() {
 		let account = this.props.account;
@@ -121,7 +199,7 @@ export default class AccountSection extends React.Component<{self: AccountSidepo
 				</div>
 			</h1>
 			{account.verified ?
-				<AccountDataView {...{self, account}} /> :
+				<AccountDataView {...{self, account}} updateSetup={this.props.updateSetup} /> :
 				<VerificationView {...{self, account, tryVerify: this.props.tryVerify,
 					tryResendVerificationCode: this.props.tryResendVerificationCode}} />}
 			<button key='logout-btn' className='fader-in' onClick={() => {

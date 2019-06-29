@@ -3,9 +3,11 @@ import * as bodyParser from 'body-parser';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import Connections from './game/connections';
+import RoomsManager from './game/rooms_manager';
 import ERROR_CODES from '../common/error_codes';
 import Config from '../common/config';
-import {md5, sha256} from './utils';
+import {AccountSchema2UserCustomData, md5, sha256} from './utils';
 import Sessions from './sessions';
 import Database from './database';
 import Email from './email';
@@ -211,6 +213,57 @@ app.post('/get_user_public_data', async (req, res) => {//account_id
 	}
 });
 
+app.post('/update_setup', async (req, res) => {//token, ship_type, skills
+	try {
+		if( typeof req.body.token !== 'string' || typeof req.body.ship_type !== 'number' ||
+			typeof req.body.skills !== 'object' )
+		{
+			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+		}
+		
+		let account_res = await Database.getAccountFromToken(req.body.token);
+		let account = account_res.account;
+		if( account_res.error !== ERROR_CODES.SUCCESS || !account )
+			return res.json({error: account_res.error});
+		
+		if( account.available_ships.indexOf(req.body.ship_type) !== -1 )//requested ship is available
+			account.ship_type = req.body.ship_type;
+		
+		let are_skills_available = true;
+		for(let skill_id of req.body.skills) {
+			if(skill_id === null)
+				continue;
+			
+			//incorrect data type //or skill is just not available
+			if( typeof skill_id !== 'number' || account.available_skills.indexOf(skill_id) === -1 ) {
+				are_skills_available = false;
+				break;
+			}
+		}
+		
+		if(are_skills_available)
+			account.skills = req.body.skills;
+		
+		let update_res = await Database.updateAccountCustomData(account.id, account);
+		if( update_res.error !== ERROR_CODES.SUCCESS )
+			return res.json({error: update_res.error});
+		
+		//check whether user is in room and send data update to everyone in this room
+		let user_info = Connections.findAccount( account.id );
+		if(user_info) {
+			user_info.updateData( AccountSchema2UserCustomData(account) );
+			if (user_info.room && !user_info.room.game_process)//if user is in room but not during game
+				RoomsManager.onRoomUserCustomDataUpdate(user_info.room, user_info);
+		}
+		
+		return res.json({error: ERROR_CODES.SUCCESS, account});
+	}
+	catch(e) {
+		console.error(e);
+		return res.json({error: ERROR_CODES.UNKNOWN});
+	}
+});
+
 app.listen(Config.SERVER_PORT, () => console.log(`Server listens on: ${Config.SERVER_PORT}!`));
 
 export default {
@@ -221,7 +274,7 @@ export default {
 
 			const index_html = fs.readFileSync(client_dir + '/index.html', 'utf8');
 			app.get('*', (req, res) => res.send(index_html));
-			console.log('Client files are now accesible through express server');
+			console.log('Client files are now accessible through express server');
 		}
 		catch(e) {
 			console.error('Cannot share client files:', e);

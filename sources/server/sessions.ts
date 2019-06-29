@@ -35,7 +35,6 @@ export default {
 	},
 
 	async token_login(token: string) {
-
 		let login_result = await Database.getAccountFromToken(token);
 		if(login_result.error === ERROR_CODES.SUCCESS && login_result.account)
 			Database.updateLastLoginTime(login_result.account.id).catch(console.error);

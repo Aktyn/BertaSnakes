@@ -1,10 +1,13 @@
 import ServerApi from './utils/server_api';
-import ERROR_CODES from '../common/error_codes';
 import Cookies from './utils/cookies';
+
+import ERROR_CODES from '../common/error_codes';
+import {PLAYER_TYPES} from "../common/game/objects/player";
 
 import {UserCustomData} from "../common/user_info";
 
 import {AccountSchema} from '../server/database';
+
 export {AccountSchema} from '../server/database';
 
 let current_account: AccountSchema | null = null;
@@ -12,8 +15,7 @@ let on_login_listeners: ((account: AccountSchema | null) => void)[] = [];
 
 const override = (value: any, current: any) => value === undefined ? current : value;
 
-function onLogIn(account: AccountSchema | null) {
-	//console.log(account);
+function onAccountData(account: AccountSchema | null) {
 	current_account = account;
 	on_login_listeners.forEach(l => l(account));
 }
@@ -27,7 +29,7 @@ async function loginFromToken() {
 		if(res.error === ERROR_CODES.SUCCESS && typeof res.account === 'object' &&
 			typeof res.account.id === 'string' && typeof res.account.username === 'string') 
 		{
-			onLogIn(res.account);
+			onAccountData(res.account);
 			console.log('Logged in via token', current_account);
 			return {error: ERROR_CODES.SUCCESS};
 		}
@@ -74,7 +76,7 @@ export default {
 		current_account.level           = override(data.level, current_account.level);
 		current_account.rank            = override(data.rank, current_account.rank);
 		current_account.skills          = override(data.skills, current_account.skills);
-		current_account.ship_type       = override(data.exp, current_account.ship_type);
+		current_account.ship_type       = override(data.ship_type, current_account.ship_type);
 		current_account.exp             = override(data.exp, current_account.exp);
 		current_account.coins           = override(data.coins, current_account.coins);
 		current_account.available_skills= override(data.available_skills, current_account.available_skills);
@@ -90,7 +92,7 @@ export default {
 			if(!res.token || !res.expiration_time || !res.account)
 				return {error: ERROR_CODES.INCORRECT_SERVER_RESPONSE};
 
-			onLogIn(res.account);
+			onAccountData(res.account);
 
 			this.setToken(res.token, res.expiration_time);
 
@@ -163,11 +165,31 @@ export default {
 			return {error: ERROR_CODES.SERVER_UNREACHABLE};
 		}
 	},
+	
+	async updateSetup(ship_type: PLAYER_TYPES, skills: (number | null)[]) {
+		try {
+			if(!current_account)
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			let res = await ServerApi.postRequest('/update_setup', {
+				token,
+				ship_type,
+				skills
+			});
+			
+			if( res.account )
+				onAccountData(res.account);
+
+			return res;
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+	},
 
 	logout() {
 		Cookies.removeCookie('token');
 		token = null;
-		onLogIn(null);
+		onAccountData(null);
 		//TODO - send request to server for removing session
 	},
 

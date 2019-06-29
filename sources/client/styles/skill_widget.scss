@@ -1,0 +1,117 @@
+@import 'global.scss';
+
+$size: 36px;
+
+.skill-widget {
+	display: inline-block;
+	border: 1px solid nth($palette, 3);
+	background-color: rgba(nth($palette, 3), 0.5);
+	border-radius: 4px;
+	box-shadow: none !important;
+	
+	padding: 0px !important;
+	margin: 0px 3px;
+	
+	height: $size;
+	min-width: $size;
+	overflow: hidden;
+	box-sizing: content-box;
+	
+	position: relative;
+	
+	& > .description {
+		user-select: none;
+		pointer-events: none;
+		display: inline-block;
+		position: fixed;
+		z-index: 99;
+		
+		//right: 0px;
+		//top: 0px;
+		right: 0px;
+		//left: 50%;
+		transform: translate(0%, 0%) scaleY(0);
+		opacity: 0;
+		margin: auto;
+		background-color: rgba(nth($palette, 6), 0.71);
+		border: 1px solid nth($palette, 6);
+		color: #fff;
+		
+		font-size: 11px;
+		//font-weight: bold;
+		padding: 1px 8px;
+		border-radius: 16px;
+		
+		$animFunc: 0.3s cubic-bezier(.36,.07,.19,.97);
+		transition: transform $animFunc, opacity $animFunc;
+		
+		min-width: 100px;
+		& > div {//single line
+			white-space: nowrap;
+		}
+	}
+	
+	&:hover > .description {
+		transform: translate(0%, -125%) scaleY(1);
+		opacity: 1;
+	}
+	
+	img {
+		height: 100%;
+	}
+	
+	& > span {
+		user-select: none;
+		height: $size;
+		width: $size;
+		line-height: $size;
+		font-size: 10px;
+		color: nth($palette, 3);
+	}
+	
+	&:not(.clickable) {
+		cursor: auto !important;
+	}
+	
+	&.clickable {
+		&:hover {
+			border-color: #ef9a9a;
+			background-color: rgba(#ef9a9a, 0.61);
+		}
+	}
+	
+	&.controls {
+		button {
+			box-shadow: none;
+			padding: 0px;
+			margin: 0px;
+			border-radius: 0px;
+			border: none;
+			
+			background-color: nth($palette, 3);
+			
+			&:hover {
+				background-color: nth($palette, 1);
+			}
+			
+			&.move-btn {
+				width: $size/2;
+				height: $size/2;
+				
+				background-image: url('../img/icons/arrow_left.svg');
+				
+				&:last-child {//rotate arrow_left to make an arrow_right from it ;)
+					transform: rotate(180deg);
+				}
+			}
+			
+			&.put-off-btn {
+				width: $size;
+				height: $size/2;
+				color: #fff;
+				font-size: 11px;
+				font-weight: bold;
+			}
+		}
+	}
+}

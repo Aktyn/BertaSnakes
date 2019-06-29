@@ -1,15 +1,17 @@
 import * as React from 'react';
 import ERROR_CODES from "../../../common/error_codes";
-import Loader from '../loader';
+import Loader from '../widgets/loader';
 import ServerApi from '../../utils/server_api';
 import {PublicAccountSchema} from '../../../server/database';
 
 import '../../styles/user_section.scss';
 import {offsetTop} from "./sidepops_common";
 import GamesSection from "./games_section";
+import SharePanel from "./share_panel";
 
 interface UserSectionProps {
 	onError: (code: ERROR_CODES) => void;
+	onGamesListToggle?: () => void;
 	account_id: string;
 	container_mode: boolean;
 }
@@ -52,6 +54,11 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		}
 	}
 	
+	componentDidUpdate(prevProps: Readonly<UserSectionProps>, prevState: Readonly<UserSectionState>) {
+		if(this.props.onGamesListToggle && prevState.show_games !== this.state.show_games)
+			this.props.onGamesListToggle();
+	}
+	
 	public canReturn() {
 		return this.state.show_games;
 	}
@@ -74,7 +81,8 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 				<div>{new Date(user.creation_time).toLocaleDateString()}</div>
 				
 				<label>Last login:</label>
-				<div>{new Date(user.last_login).toLocaleDateString()}</div>
+				<div>{new Date(user.last_login).toLocaleString('pl-PL')
+					.replace(',', '')}</div>
 				
 				<label>Rank:</label>
 				<div>{Math.round(user.rank)}</div>
@@ -103,8 +111,12 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 			<div className={'fader-in'} style={offsetTop}>
 				<button onClick={() => this.setState({show_games: true})}>GAMES</button>
 			</div>
+			{!this.props.container_mode && this.state.user && <>
+				<hr/>
+				<SharePanel link={'/users/' + this.state.user.id} />
+			</>}
 			<hr/>
-			<div>TODO: private chat but not to yourself</div>
+			<div className={'fader-in'}>TODO: private chat but not to yourself</div>
 		</section>;
 	}
 }

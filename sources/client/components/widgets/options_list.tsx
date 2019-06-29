@@ -1,7 +1,5 @@
 import * as React from 'react';
-
-import '../styles/options_list.scss';
-
+import '../../styles/options_list.scss';
 
 interface OptionsListProps {
 	options: string[];
@@ -17,7 +15,7 @@ export default class extends React.Component<OptionsListProps, OptionsListState>
 
 	state: OptionsListState = {
 		value: ''
-	}
+	};
 
 	constructor(props: OptionsListProps) {
 		super(props);

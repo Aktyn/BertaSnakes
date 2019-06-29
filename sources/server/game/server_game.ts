@@ -739,7 +739,7 @@ export default class ServerGame extends GameCore {
 				
 				for(e_i=0; e_i<this.enemies.length; e_i++) {
 					//@ts-ignore
-					if(this.enemies[e_i].spawning === false && 
+					if(!this.enemies[e_i].spawning &&
 					Vector.distanceSqrt(this.enemies[e_i], player) <= radius_pow ) {
 						this.onPlayerAttackedEnemy(
 							player, <Enemy>this.enemies[e_i], 
@@ -787,7 +787,7 @@ export default class ServerGame extends GameCore {
 		player.energy -= skill.use();
 
 		//immediately stop non-continuous skills after it effect is applied
-		if( !skill.isContinous() )
+		if( !skill.isContinuous() )
 			skill.stopUsing();
 
 		if(immediately_response) {
@@ -907,7 +907,7 @@ export default class ServerGame extends GameCore {
 				if(s_h === null)
 					continue;
 				if(s_h.isInUse()) {//only for continuous skills
-					if(!s_h.isContinous())
+					if(!s_h.isContinuous())
 						throw new Error('Non-continuous skill has not been stopped');
 					this.applySkillEffect(p_it, s_h, p_i, s_i, false);
 				}

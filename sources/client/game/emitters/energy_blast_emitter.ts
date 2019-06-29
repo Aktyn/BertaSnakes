@@ -5,19 +5,19 @@ const vals = Emitter.VALUES_PER_PARTICLE;
 
 const LIFETIME = 0.8, FADING_TIME = 0.4, ALPHA = 0.3;
 
-var pow = (n: number) => n*n;
+let pow = (n: number) => n*n;
 
-var i: number, dst: number, fading_factor: number, scale_str: number;
+let i: number, dst: number, fading_factor: number, scale_str: number;
 
 export default class EnergyBlastEmitter extends Emitter {
-	private x: number;
-	private y: number;
-	private radius: number;
+	private readonly x: number;
+	private readonly y: number;
+	private readonly radius: number;
 	private timer: number;
 	private velocities_data: Float32Array;
 
 	constructor(x: number, y: number, radius: number, color: any) {
-		super('fussion_particle', PARTICLES, true);
+		super('fusion_particle', PARTICLES, true);
 		// console.log(color.buffer);
 
 		this.x = x;
@@ -28,7 +28,7 @@ export default class EnergyBlastEmitter extends Emitter {
 		this.velocities_data = new Float32Array(PARTICLES * 2);
 
 		for(i=0; i<PARTICLES; i++) {
-			var rand = Math.random();
+			let rand = Math.random();
 
 			this.data[i*vals + 0] = x;//x
 			this.data[i*vals + 1] = y;//yy
@@ -39,8 +39,8 @@ export default class EnergyBlastEmitter extends Emitter {
 			this.data[i*vals + 5] = color.buffer[2];//b
 			this.data[i*vals + 6] = ALPHA;//a
 
-			var angle = Math.random() * 2.0 * Math.PI;
-			var speed = (1.0 - rand) * 0.2 + ( this.radius / (LIFETIME-FADING_TIME) ) * 1.0;
+			let angle = Math.random() * 2.0 * Math.PI;
+			let speed = (1.0 - rand) * 0.2 + (this.radius / (LIFETIME - FADING_TIME));
 
 			this.velocities_data[i*2+0] = Math.cos(angle) * speed;
 			this.velocities_data[i*2+1] = Math.sin(angle) * speed;

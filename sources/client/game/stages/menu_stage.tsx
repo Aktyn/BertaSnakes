@@ -5,7 +5,7 @@ import StageBase, {BaseProps, BaseState} from './stage_base';
 import Network from './../engine/network';
 
 import HeaderNotifications from '../../components/header_notifications';
-import UserBtn from '../../components/user_btn';
+import UserBtn from '../../components/widgets/user_btn';
 import RoomsList from '../../components/rooms_list';
 import RightPanel, {MessageSchema} from '../../components/menu_right_panel';
 import RoomView from './room_view';

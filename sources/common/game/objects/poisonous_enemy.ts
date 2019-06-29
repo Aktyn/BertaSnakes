@@ -1,7 +1,7 @@
 import Enemy from './enemy';
-import {SENSOR_SHAPES} from './../common/sensor';
+import {SENSOR_SHAPES} from '../common/sensor';
 
-const ETITY_NAME = 'ENEMY_POISONOUS';
+const ENTITY_NAME = 'ENEMY_POISONOUS';
 const SCALE = 0.1, MAX_SPEED = 0.3;
 
 const STAINS_FREQUENCY = 0.2, MAX_FAZE_DURATION = 5, MAX_GAP_DURATION = 20;
@@ -14,7 +14,7 @@ export default class PoisonousEnemy extends Enemy {
 	private gap_duration: number;
 
 	constructor() {
-		super(ETITY_NAME, SENSOR_SHAPES.CIRCLE, SCALE, MAX_SPEED);
+		super(ENTITY_NAME, SENSOR_SHAPES.CIRCLE, SCALE, MAX_SPEED);
 
 		this.on_stain_listener = null;
 		this.time_to_next_stain = (Math.random() + 0.5) * STAINS_FREQUENCY;
@@ -34,7 +34,7 @@ export default class PoisonousEnemy extends Enemy {
 	update(delta: number) {
 		super.update(delta);
 
-		if(this.spawning !== true) {
+		if(!this.spawning) {
 
 			//if(!_CLIENT_) {//only server-side 
 			if(typeof module !== 'undefined') {

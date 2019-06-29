@@ -13,6 +13,12 @@ function zeroPad(num: number) {
 
 export default {
 	GAMEMODES_NAMES: ['Cooperation', 'Competition'],
+	
+	SHIP_TEXTURES: [
+		require('../img/textures/players/type_1.png'),
+		require('../img/textures/players/type_2.png'),
+		require('../img/textures/players/type_3.png'),
+	],
 
 	openImageFile(max_size = Config.MAXIMUM_IMAGE_FILE_SIZE): Promise<string> {
 		return new Promise((resolve, reject) => {

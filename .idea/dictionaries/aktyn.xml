@@ -1,8 +1,10 @@
 <component name="ProjectDictionaryState">
   <dictionary name="aktyn">
     <words>
+      <w>addive</w>
       <w>aktyn</w>
       <w>autoprefixer</w>
+      <w>binded</w>
       <w>bugfix</w>
       <w>cbuff</w>
       <w>chooserers</w>
@@ -11,13 +13,20 @@
       <w>coord</w>
       <w>datas</w>
       <w>defocus</w>
+      <w>displayer</w>
       <w>emot</w>
       <w>emots</w>
       <w>fader</w>
+      <w>framebuffers</w>
       <w>gamemode</w>
       <w>gamemodes</w>
+      <w>gmail</w>
+      <w>mipmaps</w>
+      <w>nodemailer</w>
       <w>nulling</w>
       <w>pixelated</w>
+      <w>precalculated</w>
+      <w>ratina</w>
       <w>readys</w>
       <w>respawn</w>
       <w>respawning</w>
@@ -30,10 +39,12 @@
       <w>spawners</w>
       <w>striked</w>
       <w>stringified</w>
+      <w>stringifies</w>
       <w>stroker</w>
       <w>synch</w>
       <w>toggler</w>
       <w>updatables</w>
+      <w>vals</w>
       <w>welcomer</w>
       <w>whitechars</w>
     </words>

@@ -1,17 +1,18 @@
 import * as React from 'react';
-import {Link, Redirect} from "react-router-dom";
+//import {Redirect} from "react-router-dom";
+import PropTypes from 'prop-types'
 
 import ServerApi from '../../utils/server_api';
 import ERROR_CODES from '../../../common/error_codes';
 import Config from '../../../common/config';
 import {GameSchema, PublicAccountSchema} from "../../../server/database";
 import Utils from '../../utils/utils';
-import RewardIndicator from "../reward_indicator";
-import PagesController from "../pages_controller";
+import RewardIndicator from "../widgets/reward_indicator";
+import PagesController from "../widgets/pages_controller";
 import ResultsTable from "../results_table";
-import {offsetTop} from "./sidepops_common";
-import GameInfoList, {convertDate} from "../game_info_list";
+import GameInfoList, {convertDate} from "../widgets/game_info_list";
 import UserSidepop from "./user_sidepop";
+import SharePanel from "./share_panel";
 
 interface GamesSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -24,9 +25,8 @@ interface GamesSectionState {
 	games: GameSchema[];
 	page: number;
 	focused_game: GameSchema | null;
-	link_copied: boolean;
 	selected_player?: string;
-	redirect_to?: string;
+	//redirect_to?: string;
 }
 
 export default class GamesSection extends React.Component<GamesSectionProps, GamesSectionState> {
@@ -34,11 +34,14 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 		container_mode: false
 	};
 	
+	static contextTypes = {
+        router: PropTypes.object
+    };
+	
 	state: GamesSectionState = {
 		games: [],
 		page: 0,
-		focused_game: null,
-		link_copied: false,
+		focused_game: null
 	};
 	
 	componentDidMount() {
@@ -46,10 +49,8 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 	}
 	
 	componentDidUpdate(prevProps: Readonly<GamesSectionProps>, prevState: Readonly<GamesSectionState>) {
-		if(this.state.page !== prevState.page) {
-			console.log('Page changed to:', this.state.page);
+		if(this.state.page !== prevState.page)
 			this.loadGames(this.state.page).catch(console.error);
-		}
 	}
 	
 	private async loadGames(page: number) {
@@ -74,15 +75,17 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 	}
 	
 	public defocusGame() {
-		this.setState({focused_game: null, link_copied: false});
+		this.setState({focused_game: null});
 	}
 	
 	private renderGamesList() {
 		return this.state.games.map(game => {
 			let position = game.results.findIndex(result => result.account_id === this.props.account.id);
 			return <tr key={game._id} onClick={() => {
-				if(this.props.container_mode)
-					this.setState({redirect_to: game._id});
+				if(this.props.container_mode) {
+					//this.setState({redirect_to: game._id});
+					this.context.router.history.push('/games/' + game._id);
+				}
 				else
 					this.setState({focused_game: game});
 			}}>
@@ -110,7 +113,6 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 	}
 	
 	private renderFocusedGame(game: GameSchema) {
-		let link = '/games/' + game._id;
 		return <>
 			<GameInfoList game={game} />
 			<hr/>
@@ -120,24 +122,7 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 				}} no_avatars no_animation />
 			</div>
 			<hr/>
-			<div className={'fader-in'}>
-				<div>Link&nbsp;to&nbsp;share:</div>
-				<div>
-					<Link to={link} target={'_blank'}>{location.origin + link}</Link>
-				</div>
-				<button style={{
-					...offsetTop,
-					border: this.state.link_copied ? '1px solid #9CCC65' : 'none'
-				}} onClick={() => {
-					let textField = document.createElement('textarea');
-				    textField.innerText = location.origin + link;
-				    document.body.appendChild(textField);
-				    textField.select();
-				    document.execCommand('copy');
-				    textField.remove();
-				    this.setState({link_copied: true});
-				}}>COPY</button>
-			</div>
+			<SharePanel link={'/games/' + game._id} />
 			{this.state.selected_player &&
 				<UserSidepop account_id={this.state.selected_player} onClose={() => {
 					this.setState({selected_player: undefined});
@@ -147,8 +132,8 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 	}
 	
 	render() {
-		if(this.state.redirect_to)
-			return <Redirect to={'/games/' + this.state.redirect_to} />;
+		//if(this.state.redirect_to)
+		//	return <Redirect to={'/games/' + this.state.redirect_to} />;
 		if(this.state.focused_game)
 			return this.renderFocusedGame(this.state.focused_game);
 		if(this.props.total_games === 0)

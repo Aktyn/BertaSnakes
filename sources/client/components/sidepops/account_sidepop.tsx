@@ -5,6 +5,7 @@ import ServerApi from '../../utils/server_api';
 import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
 import ERROR_CODES, {errorMsg} from '../../../common/error_codes';
+import {PLAYER_TYPES} from "../../../common/game/objects/player";
 
 import './../../styles/account_sidepop.scss';
 
@@ -217,6 +218,16 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		}
 		this.setState({loading: false, error: undefined, verification_resend: true});
 	}
+	
+	private async updateSetup(ship_type: PLAYER_TYPES, skillsbar: (number | null)[]) {
+		//console.log(ship_type, skillsbar);
+		this.setState({account: this.state.account});
+		
+		let res = await Account.updateSetup(ship_type, skillsbar);
+		if(res.error)
+			return this.setError( errorMsg(res.error) );
+		this.setState({error: undefined, account: Account.getAccount()});
+	}
 
 	private async uploadAvatar(clear = false) {
 		try {
@@ -286,7 +297,8 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	private _renderAccountSection(account: AccountSchema) {
 		return <AccountSection self={this} account={account} clearAvatar={this.clearAvatar.bind(this)}
 			uploadAvatar={this.uploadAvatar.bind(this)} tryVerify={this.tryVerify.bind(this)}
-			tryResendVerificationCode={this.tryResendVerificationCode.bind(this)} />;
+			tryResendVerificationCode={this.tryResendVerificationCode.bind(this)}
+			updateSetup={this.updateSetup.bind(this)} />;
 	}
 
 	private renderView(view: VIEWS) {

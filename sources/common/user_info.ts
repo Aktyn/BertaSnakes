@@ -1,6 +1,7 @@
 import RoomInfo from './room_info';
 import Config from './config';
 import {Connection} from '../server/game/connections';
+import {PLAYER_TYPES} from "./game/objects/player";
 
 export interface UserPublicData {
 	nick: string;
@@ -9,7 +10,7 @@ export interface UserPublicData {
 	avatar: string | null;
 
 	skills: (number | null)[];//chosen skills
-	ship_type: number;//chosen ship
+	ship_type: PLAYER_TYPES;//chosen ship
 	
 	total_games: number;
 }
@@ -21,7 +22,7 @@ export interface UserPrivateData {
 	coins: number;
 	
 	available_skills: number[];
-	available_ships: number[];
+	available_ships: PLAYER_TYPES[];
 }
 
 export interface UserCustomData extends UserPublicData, UserPrivateData {}

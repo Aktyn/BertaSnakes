@@ -83,7 +83,8 @@ $emotSize: 30px;
 					background-color: rgba(#8BC34A, 0.4);
 				}
 			}
-
+			
+			//noinspection SpellCheckingInspection
 			&.canbeused {
 				cursor: pointer;
 
@@ -120,7 +121,7 @@ $emotSize: 30px;
 	& > .emoticons-bar {
 		position: absolute;
 		top: 0px;
-		left: 0px;
+		//left: 0px;
 		left: 50%;
     	transform: translateX(-50%);
 		height: auto;

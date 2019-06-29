@@ -5,6 +5,7 @@ import Config from '../common/config';
 
 import RoomInfo, {GAME_MODES} from '../common/room_info';
 import {PlayerResultJSON} from '../common/game/game_result';
+import {PLAYER_TYPES} from "../common/game/objects/player";
 
 const uri = 'mongodb://localhost:27017';
 const DB_NAME = 'BertaSnakes';
@@ -90,7 +91,7 @@ export interface PublicAccountSchema {
 	exp: number;
 	
 	skills: (number | null)[];//chosen skills
-	ship_type: number;
+	ship_type: PLAYER_TYPES;
 	
 	total_games: number;
 }
@@ -102,7 +103,7 @@ export interface AccountSchema extends PublicAccountSchema {
 	coins: number;
 
 	available_skills: number[];
-	available_ships: number[];
+	available_ships: PLAYER_TYPES[];
 }
 
 function extractUserPublicData(account: any): PublicAccountSchema {
@@ -298,11 +299,8 @@ export default {
 		let session_data = await getCollection(COLLECTIONS.sessions).findOne({
 			token: _token
 		});
-		if(!session_data || session_data.expiration <= Date.now() || 
-			typeof session_data.account_id !== 'object')
-		{
+		if(!session_data || session_data.expiration <= Date.now() || typeof session_data.account_id !== 'object')
 			return {error: ERROR_CODES.SESSION_EXPIRED};
-		}
 		let account = await getCollection(COLLECTIONS.accounts).findOne({
 			_id: session_data.account_id
 		});
@@ -345,7 +343,7 @@ export default {
 				available_skills: [],
 				skills: new Array(Config.SKILLS_SLOTS).fill(null),
 
-				available_ships: [],
+				available_ships: [0],
 				ship_type: 0,
 				
 				total_games: 0

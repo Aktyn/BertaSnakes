@@ -9,15 +9,15 @@ if(_CLIENT_)
 const SCALE = 0.075, GROW_SCALE = 0.075, SHAKING_RADIUS = 0.02;
 const DELAY_TIME = 2, SHAKING_TIME = 2;
 
-var shake_factor, rand_a, sc;
+let shake_factor, rand_a, sc;
 
 export default class Bomb extends Object2D {
 	public parent: Player;
-	private initial_x: number;
-	private initial_y: number;
+	private readonly initial_x: number;
+	private readonly initial_y: number;
 	private timer: number;
 
-	//NOTE - parent must constains a Painter instance as 'painter' property name
+	//NOTE - parent must contains a Painter instance as 'painter' property name
 	//@parent - instance that 'owns' this bullet
 	constructor(x: number, y: number, parent: Player) {
 		super();
@@ -36,7 +36,7 @@ export default class Bomb extends Object2D {
 			EntitiesBase = require('../../../client/game/entities').default;
 			if(typeof EntitiesBase !== 'undefined') {
 				//@ts-ignore
-				this.entity_name = Bomb.entityName(parent.painter.color);//clientside only
+				this.entity_name = Bomb.entityName(parent.painter.color);//client-side only
 				//@ts-ignore
 				EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 			}

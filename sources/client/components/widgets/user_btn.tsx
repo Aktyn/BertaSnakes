@@ -1,12 +1,12 @@
 import * as React from 'react';
-import UserInfo from '../../common/user_info';
-import AccountSidepop from './sidepops/account_sidepop';
-import UserSidepop from './sidepops/user_sidepop';
-import ServerApi from '../utils/server_api';
-import Network from '../game/engine/network';
-import Utils from '../utils/utils';
+import UserInfo from '../../../common/user_info';
+import AccountSidepop from '../sidepops/account_sidepop';
+import UserSidepop from '../sidepops/user_sidepop';
+import ServerApi from '../../utils/server_api';
+import Network from '../../game/engine/network';
+import Utils from '../../utils/utils';
 
-import '../styles/user_btn.scss';
+import '../../styles/user_btn.scss';
 
 interface UserBtnProps {
 	user: UserInfo | null;

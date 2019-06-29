@@ -15,13 +15,13 @@ const transporter = nodemailer.createTransport({
 });
 
 const basic_options = {
-	from: `"Berta Snakes" <${email_address}>`,
+	from: `"Berta Snakes" \<${email_address}\>`,
 };
 
 export default {
 	sendVerificationCode(code: string, target_email: string) {
 		return new Promise((resolve, reject) => {
-			let msg = 'Congratulations! Your account has been successfuly registered. ' + 
+			let msg = 'Congratulations! Your account has been successfully registered. ' +
 				'Before you can enjoy full possibilities of BertaSnakes game you must verify your account with this code: ' + code;
 			//`http://${ip.address()}/verify?code=${code}`;
 
