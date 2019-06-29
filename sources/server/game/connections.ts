@@ -252,11 +252,12 @@ export default {
 	},
 	
 	findAccount(account_id: string) {
-		for(let conn of connections.values()) {
+		let out = undefined;//TODO - iterate over it somewhat more prettier
+		connections.forEach(conn => {
 			if(conn.user && conn.user.account_id === account_id)
-				return conn.user;
-		}
-		return undefined;
+				out = conn.user;
+		});
+		return out;
 	},
 
 	//users in lobby are users that are not in room or are in room but not during game
