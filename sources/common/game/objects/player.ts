@@ -33,6 +33,9 @@ export enum PLAYER_TYPES {//enum a.k.a SHIP_TYPES
 	PENTAGON
 }
 
+export const SHIP_LVL_REQUIREMENTS = [1, 3, 6];
+export const SHIP_COSTS = [0, 500, 3000];
+
 //array of sensor shapes with order corresponding to player TYPES
 const PLAYER_SENSOR_SHAPES: number[][][] = [
 	SENSOR_SHAPES.TRIANGLE, SENSOR_SHAPES.SQUARE, SENSOR_SHAPES.PENTAGON
@@ -54,8 +57,6 @@ const _ExtendClass_ = _CLIENT_ ? Object2DSmooth : Object2D;//Object2DSmooth clie
 
 export default class Player extends _ExtendClass_ {
 	public static SHIP_NAMES = ['Triangle ship', 'Square ship', 'Pentagon ship'];
-	public static SHIP_LVL_REQUIREMENTS = [1, 3, 6];//level required to be able to use ship
-	public static SHIP_COSTS = [0, 500, 3000];//coins required to buy ship
 
 	//server-side use variables
 	public user_id = 0;
@@ -252,13 +253,5 @@ export default class Player extends _ExtendClass_ {
 
 	/*static get SHIP_NAMES() {
 		return SHIP_NAMES;
-	}
-
-	static get SHIP_COSTS() {
-		return SHIP_COSTS;
-	}
-
-	static get SHIP_LVL_REQUIREMENTS() {
-		return SHIP_LVL_REQUIREMENTS;
 	}*/
 }

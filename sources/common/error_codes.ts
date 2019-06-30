@@ -35,7 +35,11 @@ const enum ERROR_CODES {
 	INCORRECT_DATA_SENT,
 	
 	//game
-	GAME_DOES_NOT_EXISTS
+	GAME_DOES_NOT_EXISTS,
+	INSUFFICIENT_LEVEL,
+	NOT_ENOUGH_COINS,
+	SHIP_ALREADY_BOUGHT,
+	SKILL_ALREADY_BOUGHT
 }
 
 export default ERROR_CODES;
@@ -77,5 +81,9 @@ export function errorMsg(code: ERROR_CODES) {
 		
 		//game
 		case ERROR_CODES.GAME_DOES_NOT_EXISTS:  return 'Game does not exists';
+		case ERROR_CODES.INSUFFICIENT_LEVEL:    return 'Insufficient level';
+		case ERROR_CODES.NOT_ENOUGH_COINS:      return 'Not enough coins';
+		case ERROR_CODES.SHIP_ALREADY_BOUGHT:   return 'Ship has been bought already';
+		case ERROR_CODES.SKILL_ALREADY_BOUGHT:   return 'Skill has been bought already';
 	}
 }

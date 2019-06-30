@@ -44,7 +44,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 			});
 			if (res.error !== ERROR_CODES.SUCCESS)
 				return this.props.onError( res.error );
-			console.log(res);
+			//console.log(res);
 			if(res.data)
 				this.setState({user: res.data, loading: false});
 		}

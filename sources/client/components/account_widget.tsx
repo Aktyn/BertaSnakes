@@ -13,7 +13,7 @@ interface AccountWidgetState {
 export default class AccountWidget extends React.Component<any, AccountWidgetState> {
 
 	state: AccountWidgetState = {
-		show_sidepop: true//false
+		show_sidepop: false//false
 	};
 
 	private readonly onLogIn: () => void;

@@ -24,6 +24,8 @@ interface SkillWidgetProps {
 	onPutOff?: () => void;
 	skill: number | null;
 	show_description: boolean;
+	unobtainable: boolean;
+	bought: boolean;
 }
 
 interface SkillWidgetState {
@@ -35,7 +37,9 @@ export default class SkillWidget extends React.Component<SkillWidgetProps, Skill
 	private description: HTMLDivElement | null = null;
 	
 	static defaultProps: Partial<SkillWidgetProps> = {
-		show_description: true
+		show_description: true,
+		unobtainable: false,
+		bought: false
 	};
 	
 	state: SkillWidgetState = {
@@ -87,7 +91,10 @@ export default class SkillWidget extends React.Component<SkillWidgetProps, Skill
 			return <button className={'skill-widget'}><span>EMPTY</span></button>;
 		
 		let description = getDescription(this.props.skill);
-		return <button className={`skill-widget${this.props.onClick ? ' clickable' : ''}`} onClick={() => {
+		return <button className={`skill-widget${
+			this.props.onClick ? ' clickable' : ''}${
+			this.props.unobtainable ? ' unobtainable' : ''}${
+			this.props.bought ? ' bought' : ''}`} onClick={() => {
 			if(this.props.onClick)
 				this.props.onClick(this);
 		}} onMouseMove={(event) => {

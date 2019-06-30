@@ -9,6 +9,7 @@ interface PreviewDatas {
 	red: string;
 	green: string;
 	blue: string;
+	orange: string;
 }
 let colored_previews: Map<PLAYER_TYPES, PreviewDatas> = new Map();
 
@@ -41,7 +42,8 @@ function generatePreview(type: PLAYER_TYPES): Promise<PreviewDatas> {
 			resolve({
 				red: getColorizedTexture(canvas, img, Colors.PLAYERS_COLORS[0]),
 				green: getColorizedTexture(canvas, img, Colors.PLAYERS_COLORS[1]),
-				blue: getColorizedTexture(canvas, img, Colors.PLAYERS_COLORS[2])
+				blue: getColorizedTexture(canvas, img, Colors.PLAYERS_COLORS[2]),
+				orange: getColorizedTexture(canvas, img, Colors.PLAYERS_COLORS[4])
 			});
 			
 			canvas.remove();
@@ -57,6 +59,8 @@ interface ShipWidgetProps {
 	onClick?: () => void;
 	type: PLAYER_TYPES;
 	selected: boolean;
+	bought: boolean;
+	unobtainable: boolean;
 }
 
 interface ShipWidgetState {
@@ -65,7 +69,9 @@ interface ShipWidgetState {
 
 export default class ShipWidget extends React.Component<ShipWidgetProps, ShipWidgetState> {
 	static defaultProps: Partial<ShipWidgetProps> = {
-		selected: false
+		selected: false,
+		bought: false,
+		unobtainable: false
 	};
 	
 	state: ShipWidgetState = {};
@@ -92,6 +98,10 @@ export default class ShipWidget extends React.Component<ShipWidgetProps, ShipWid
 	private setImgData(data: PreviewDatas) {
 		if(this.props.selected)
 			this.setState({img_data_url: data.green});
+		else if(this.props.bought)
+			this.setState({img_data_url: data.orange});
+		else if(this.props.unobtainable)
+			this.setState({img_data_url: data.red});
 		else
 			this.setState({img_data_url: data.blue});
 	}
@@ -100,7 +110,8 @@ export default class ShipWidget extends React.Component<ShipWidgetProps, ShipWid
 		return <button onClick={() => {
 			if(this.props.onClick)
 				this.props.onClick();
-		}} className={`ship-widget${this.props.selected ? ' selected' : ''}`}>
+		}} className={`ship-widget${this.props.selected ? ' selected' : ''}${
+			this.props.onClick ? '' : ' disabled'}${this.props.unobtainable ? ' unobtainable' : ''}`}>
 			{this.state.img_data_url && <img src={this.state.img_data_url} alt={'ship preview'} />}
 		</button>;
 	}

@@ -185,6 +185,40 @@ export default {
 			return {error: ERROR_CODES.SERVER_UNREACHABLE};
 		}
 	},
+	
+	async buyShip(ship_type: number) {
+		try {
+			if(!current_account)
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			let res = await ServerApi.postRequest('/buy_ship', {
+				token,
+				ship_type
+			});
+			if( res.account )
+				onAccountData(res.account);
+			return res;
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+	},
+	
+	async buySkill(skill_id: number) {
+		try {
+			if(!current_account)
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			let res = await ServerApi.postRequest('/buy_skill', {
+				token,
+				skill_id
+			});
+			if( res.account )
+				onAccountData(res.account);
+			return res;
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+	},
 
 	logout() {
 		Cookies.removeCookie('token');

@@ -14,6 +14,8 @@ import RegisterSection from './register_section';
 import LoginSection from './login_section';
 import AccountSection from "./account_section";
 import GamesSection from "./games_section";
+import ShopSection from "./shop_section";
+import {SkillData} from "../../../common/game/common/skills";
 
 export const enum VIEWS {//avoid 0 so this enum contains only truthy values
 	GENERAL = 1,
@@ -21,6 +23,11 @@ export const enum VIEWS {//avoid 0 so this enum contains only truthy values
 	SHOP,
 	FRIENDS,
 	GAMES
+}
+
+const enum MERCHANDISE_TYPE {
+	SHIP,
+	SKILL
 }
 
 interface AccountSidepopProps extends SidepopProps {
@@ -46,6 +53,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	public clear_avatar_btn:		HTMLButtonElement | null = null;
 	
 	private games_section: GamesSection | null = null;
+	private shop_section: ShopSection | null = null;
 
 	private register_confirm: NodeJS.Timeout | null = null;
 	private clear_avatar_confirm: NodeJS.Timeout | null = null;
@@ -220,13 +228,45 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	}
 	
 	private async updateSetup(ship_type: PLAYER_TYPES, skillsbar: (number | null)[]) {
-		//console.log(ship_type, skillsbar);
+		//update gui from local data instead of waiting for server response
 		this.setState({account: this.state.account});
 		
 		let res = await Account.updateSetup(ship_type, skillsbar);
 		if(res.error)
 			return this.setError( errorMsg(res.error) );
 		this.setState({error: undefined, account: Account.getAccount()});
+	}
+	
+	private async buyMerchandise(request:
+		                             {type: MERCHANDISE_TYPE.SHIP, ship_type: number} |
+		                             {type: MERCHANDISE_TYPE.SKILL, skill: SkillData})
+	{
+		this.setState({loading: true, error: undefined});
+		
+		let res;
+		switch (request.type) {
+			case MERCHANDISE_TYPE.SHIP:
+				res = await Account.buyShip(request.ship_type);
+				break;
+			case MERCHANDISE_TYPE.SKILL:
+				res = await Account.buySkill(request.skill.id);
+				break;
+		}
+		if(res.error)
+			return this.setError( errorMsg(res.error) );
+		
+		this.setState({loading: false, error: undefined, account: Account.getAccount()});
+		
+		if(this.shop_section)
+			this.shop_section.onTransactionSuccess();
+	}
+	
+	private async buyShip(type: number) {
+		return this.buyMerchandise({type: MERCHANDISE_TYPE.SHIP, ship_type: type});
+	}
+	
+	private async buySkill(skill: SkillData) {
+		return this.buyMerchandise({type: MERCHANDISE_TYPE.SKILL, skill: skill});
 	}
 
 	private async uploadAvatar(clear = false) {
@@ -323,11 +363,11 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				return <section>TODO - friends section</section>;
 
 			case VIEWS.SHOP:
-				return <section>
-					<h1 className={'fader-in'}>💸&nbsp;SHOP&nbsp;💸</h1>
-					<div className={'fader-in'}>TODO - shop section</div>
-				</section>;
-
+				if(this.state.account) {
+					return <ShopSection ref={el => this.shop_section = el} account={this.state.account}
+					                    buyShip={this.buyShip.bind(this)} buySkill={this.buySkill.bind(this)}/>;
+				}
+				break;
 			case VIEWS.GAMES: {
 				if(this.state.account) {
 					return <GamesSection account={this.state.account} total_games={this.state.account.total_games}

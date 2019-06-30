@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import Loader from '../widgets/loader';
 
 import '../../styles/container.scss';
+import {offsetTop} from "./sidepops_common";
 
 const page_root = document.getElementById('page');//same as in index.tsx
 if(!page_root)
@@ -116,7 +117,7 @@ export default class SidepopBase extends React.Component<SidepopWrapperProps, an
 			<div className='sidepop'>
 				{this.props.show_navigator && this.renderNavigator()}
 				{this.props.loading && <Loader color='#ef5350' />}
-				{this.props.error && <div className='error'>{this.props.error}</div>}
+				{this.props.error && <div className='error' style={{...offsetTop}}>{this.props.error}</div>}
 				{this.props.children}
 			</div>
 		</SidepopContainer>;

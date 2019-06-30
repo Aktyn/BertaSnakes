@@ -27,9 +27,18 @@ $size: 30px;
 		}
 	}
 	
-	&:not(.selected):hover > img {
+	&:not(.selected):not(.unobtainable):hover > img, &.disabled > img {
 		cursor: pointer;
 		transform: scale(1);
 		opacity: 1;
+	}
+	
+	&.disabled > img {
+		cursor: auto !important;
+	}
+	
+	&.unobtainable > img {
+		opacity: 0.61;
+		transform: scale(0.9);
 	}
 }

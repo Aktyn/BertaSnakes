@@ -80,6 +80,15 @@ $size: 36px;
 		}
 	}
 	
+	&.unobtainable > img {
+		opacity: 0.5;
+	}
+	
+	&.bought {
+		border-color: #FF8A65;
+		background-color: rgba(#FF8A65, 0.5);
+	}
+	
 	&.controls {
 		button {
 			box-shadow: none;
