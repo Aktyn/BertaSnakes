@@ -1,0 +1,18 @@
+.ranking-table {
+	display: inline-table !important;
+    width: auto !important;
+	border-collapse: collapse;
+	
+	tr > td, tr > th {
+		padding: 3px;
+	}
+	img {
+		max-height: 25px;
+	}
+	
+	@media (max-width: 500px) {
+		.hide-on-shrink {
+			display: none;
+		}
+	}
+}

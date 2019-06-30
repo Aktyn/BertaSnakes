@@ -15,6 +15,7 @@ const enum COLLECTIONS {
 	sessions = 'sessions',//account_id, token, expiration
 	games = 'games',//finish_timestamp, name, map, gamemode, duration, results
 }
+let total_accounts = 0;//cached counter
 
 let client: MongoClient;
 let db: Db;
@@ -57,6 +58,8 @@ MongoClient.connect(uri, {
 		{name: 'email_index'});
 	await db.collection(COLLECTIONS.accounts).createIndex({verification_code: 'hashed'}, 
 		{name: 'verification_index'});
+	await db.collection(COLLECTIONS.accounts).createIndex({rank: 1},
+		{name: 'rank_sorting'});
 
 	await db.collection(COLLECTIONS.sessions).createIndex({account_id: 1}, 
 		{name: 'account_session', unique: true});
@@ -65,6 +68,8 @@ MongoClient.connect(uri, {
 	
 	await db.collection(COLLECTIONS.games).createIndex({finish_timestamp: 1},
 		{name: 'timestamp_index'});
+	
+	total_accounts = await db.collection(COLLECTIONS.accounts).countDocuments();
 }).catch(console.error);
 
 export interface GameSchema {
@@ -351,7 +356,8 @@ export default {
 
 			if( !insert_res.result.ok )
 				return {error: ERROR_CODES.DATABASE_ERROR};
-
+			
+			total_accounts++;
 			return {error: ERROR_CODES.SUCCESS, inserted_id: insert_res.insertedId.toHexString()};
 		}
 		catch(e) {
@@ -471,6 +477,28 @@ export default {
 			if( !insert_res.result.ok )
 				return {error: ERROR_CODES.DATABASE_ERROR};
 			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async getRankingPage(page: number) {
+		try {
+			let accounts: PublicAccountSchema[] = await getCollection(COLLECTIONS.accounts).aggregate([
+				{
+					$sort: { rank: 1 }
+				}, {
+                    $limit: (page+1)*Config.ITEMS_PER_RANKING_PAGE
+                }, {
+                    $skip: page*Config.ITEMS_PER_RANKING_PAGE
+                }
+			]).toArray();
+			
+			accounts = accounts.map(acc => extractUserPublicData(acc));
+			
+			return {error: ERROR_CODES.SUCCESS, total_accounts: total_accounts, data: accounts};
 		}
 		catch(e) {
 			console.error(e);

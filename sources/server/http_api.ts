@@ -165,6 +165,22 @@ app.post('/upload_avatar', async (req, res) => {//token, image
 	}
 });
 
+app.post('/get_ranking', async (req, res) => {//page
+	try {
+		if( typeof req.body.page !== "number" )
+			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+		let db_res = await Database.getRankingPage(req.body.page);
+		if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data || !db_res.total_accounts)
+			return res.json(db_res);
+		
+		return res.json({error: ERROR_CODES.SUCCESS, data: db_res.data, total_users: db_res.total_accounts});
+	}
+	catch(e) {
+		console.error(e);
+		return res.json({error: ERROR_CODES.UNKNOWN});
+	}
+});
+
 app.post('/account_games', async (req, res) => {//account_id
 	try {
 		if( !req.body.account_id || typeof req.body.page !== "number" )

@@ -38,5 +38,6 @@ export default {
 	SKILLS_SLOTS: 6,
 	
 	//lists settings
-	ITEMS_PER_GAMES_LIST_PAGE: 10
+	ITEMS_PER_GAMES_LIST_PAGE: 10,
+	ITEMS_PER_RANKING_PAGE: 20
 }

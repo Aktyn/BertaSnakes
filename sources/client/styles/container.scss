@@ -54,7 +54,7 @@ $targetW: 400px;
 	border-radius: 5px;
 	margin: 10px 0px;
 	padding-bottom: 10px;
-	min-width: $targetW;
+	width: $targetW;
 	max-height: 100vh;
 	
 	& > nav {

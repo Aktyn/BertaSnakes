@@ -45,19 +45,19 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 	};
 	
 	componentDidMount() {
-		this.loadGames(this.state.page).catch(console.error);
+		this.loadGames().catch(console.error);
 	}
 	
 	componentDidUpdate(prevProps: Readonly<GamesSectionProps>, prevState: Readonly<GamesSectionState>) {
 		if(this.state.page !== prevState.page)
-			this.loadGames(this.state.page).catch(console.error);
+			this.loadGames().catch(console.error);
 	}
 	
-	private async loadGames(page: number) {
+	private async loadGames() {
 		try {
 			let res = await ServerApi.postRequest('/account_games', {
 				account_id: this.props.account.id,
-				page
+				page: this.state.page
 			});
 			if (res.error !== ERROR_CODES.SUCCESS)
 				return this.props.onError(res.error);
