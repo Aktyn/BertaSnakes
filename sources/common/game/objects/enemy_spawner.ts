@@ -18,11 +18,11 @@ export default class EnemySpawner extends Object2D {
 	private timer = 0;
 	private state = 0;
 
-	private emitter: any;
+	private readonly emitter: any;
 
-	private enemy: any;
+	private readonly enemy: any;
 
-	private entity_name?: string;
+	private readonly entity_name?: string;
 
 	constructor(enemy: any) {//@enemy - instance of Enemy
 		super();

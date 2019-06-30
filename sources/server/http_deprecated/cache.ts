@@ -1,7 +1,7 @@
 
 class Cache {
 	readonly data: any;
-	private expiration_date: number;
+	private readonly expiration_date: number;
 
 	constructor(lifetime: number, data: any) {
 		this.data = data;

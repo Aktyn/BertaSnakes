@@ -74,7 +74,7 @@ export default class HeaderNotifications extends React.Component<any, Notificati
 	}
 
 	public render() {
-		return (this.state.current === undefined ? <div></div> :
+		return (this.state.current === undefined ? <div/> :
 			<div ref={el=>this.holder=el} className='notification'>{this.state.current}</div>
 		);
 	}

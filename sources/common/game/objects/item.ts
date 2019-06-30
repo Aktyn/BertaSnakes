@@ -25,7 +25,7 @@ export default class Item extends Object2D {
 	private blink_percent = 0;
 	private timer = 0;
 
-	private entity_name?: string;
+	private readonly entity_name?: string;
 
 	constructor(_type: ITEM_TYPES) {
 		super();

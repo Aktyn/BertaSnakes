@@ -14,7 +14,7 @@ interface Point2D_I {
 }
 
 export default class Vector {
-	private _vec_size: number;
+	private readonly _vec_size: number;
 	protected _buffer: Int32Array | Float32Array;
 
 	constructor(type: VECTOR_DATA_TYPES, size: number) {

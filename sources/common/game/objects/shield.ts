@@ -12,13 +12,13 @@ var sc;
 
 export default class Shield extends Object2D {
 	private player_handle: Object2D;
-	private color: ColorI;
+	private readonly color: ColorI;
 
-	private target_scale: number;
-	private duration: number;
+	private readonly target_scale: number;
+	private readonly duration: number;
 	private timer = 0;
 
-	private entity_name?: string;
+	private readonly entity_name?: string;
 
 	constructor(player_handle: Object2D, duration: number) {
 		super();

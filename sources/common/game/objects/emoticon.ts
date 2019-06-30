@@ -17,13 +17,13 @@ export const EMOTS = [//NOTE - use uppercase letters for key values
 ];
 
 export default class Emoticon extends Object2D {
-	private name: string;
+	private readonly name: string;
 	private parent: Object2D;
 	private factor = 0;
 	private timer = 0;
-	private streak: Object2D;
+	private readonly streak: Object2D;
 
-	private entitiesClass: any;
+	private readonly entitiesClass: any;
 
 	constructor(name: string, parent: Object2D, _entitiesClass?: any) {
 		super();

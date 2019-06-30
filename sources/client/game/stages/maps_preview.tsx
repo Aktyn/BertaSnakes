@@ -28,7 +28,7 @@ export function updateMapPreview(map_name: string, canv: HTMLCanvasElement) {
 
 		for(let x=0; x<canv.width; x++) {
 			for(let y=0; y<canv.height; y++) {
-				var index = (x + y*canv.width) * 4;
+				let index = (x + y*canv.width) * 4;
 
 				if(w_data.data[index] > 0) {
 					b_data.data[index+0] = wallsColor[0];
@@ -57,7 +57,7 @@ export default class extends React.Component<MapsPreviewProps, MapsPreviewState>
 
 	state: MapsPreviewState = {
 		value: ''
-	}
+	};
 
 	constructor(props: MapsPreviewProps) {
 		super(props);
@@ -79,13 +79,13 @@ export default class extends React.Component<MapsPreviewProps, MapsPreviewState>
 	}
 
 	render() {
-		return <div className='map_previews_list'>{isReady() && Object.keys(Maps).map((map_name, i)=>{
+		return <div className='map_previews_list'>{isReady() && Object.keys(Maps).map((map_name) => {
 			return <div key={map_name} 
 				className={`${map_name === this.state.value ? 'selected ' : ''}map_preview`}
 				onClick={() => this.setState({value: map_name})}>
 				<label>{map_name}</label>
-				<canvas width={150} height={150} 
-					ref={el => el && updateMapPreview(map_name, el)}></canvas>
+				<canvas width={150} height={150}
+					ref={el => el && updateMapPreview(map_name, el)}/>
 			</div>;
 		})}</div>;
 	}

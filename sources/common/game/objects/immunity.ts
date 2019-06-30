@@ -13,8 +13,8 @@ var sc;
 
 export default class Immunity extends /*Object2DSmooth*/Object2D {
 	private player_handle: Object2D;//NOTE - it doesn't have to be a Player class
-	private target_scale: number;
-	private duration: number;
+	private readonly target_scale: number;
+	private readonly duration: number;
 	private timer: number;
 
 	constructor(player_handle: Object2D, duration: number) {

@@ -2,10 +2,10 @@ import Settings from './settings';
 
 const SOUNDS_PATH = 'sounds/';
 
-var b: number;
+let b: number;
 
 export default class SoundEffect {
-	private sound_batch: HTMLAudioElement[];
+	private readonly sound_batch: HTMLAudioElement[];
 	private b_index = 0;
 
 	constructor(file_name: string, batch = 1) {
@@ -54,4 +54,5 @@ export function updateVolumes(value: number) {
 	}
 }
 
+//@ts-ignore TODO: stop ignoring this
 updateVolumes(Settings.sound_effects);

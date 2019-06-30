@@ -13,7 +13,7 @@ export default class Header extends React.Component<any, any> {
 	render() {
 		return <div className='header'>
 			<div className='upper'>
-				<div className='background'></div>
+				<div className='background'/>
 				<div className='header-content'>
 					<nav>
 						<Link to='/forum'>FORUM</Link>
@@ -26,7 +26,7 @@ export default class Header extends React.Component<any, any> {
 				<AccountWidget />
 			</div>
 			<div className='header-bottom'>
-				<Link to='/' className='home-link'></Link>
+				<Link to='/' className='home-link'/>
 
 			</div>
 		</div>;

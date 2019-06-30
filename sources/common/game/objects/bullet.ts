@@ -21,12 +21,12 @@ export default class Bullet extends Object2D {
 	public type: BULLET_TYPE;
 	public parent: Object2D;
 	private lifetime: number;
-	private speed: number;
+	private readonly speed: number;
 	public sensor: Sensor;
 	public damage_scale = 1;
 
-	private entity_name?: string;
-	private entitiesClass: any;
+	private readonly entity_name?: string;
+	private readonly entitiesClass: any;
 
 	//NOTE - parent must constains a Painter instance as 'painter' property name
 	//@parent - instance that 'owns' this bullet
