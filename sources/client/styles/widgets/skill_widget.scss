@@ -1,4 +1,4 @@
-@import 'global.scss';
+@import '../global';
 
 $size: 36px;
 
@@ -107,7 +107,7 @@ $size: 36px;
 				width: $size/2;
 				height: $size/2;
 				
-				background-image: url('../img/icons/arrow_left.svg');
+				background-image: url('../../img/icons/arrow_left.svg');
 				
 				&:last-child {//rotate arrow_left to make an arrow_right from it ;)
 					transform: rotate(180deg);

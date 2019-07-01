@@ -1,6 +1,6 @@
 export default {
 	/**
-     * 'expires' argument must be given as number of miliseconds
+     * 'expires' argument must be given as number of milliseconds
      */
 	setCookie: function(name: string, value: string | number | boolean, expires: number) {
 	    document.cookie = name + '=' + value + ';' + 'expires=' +

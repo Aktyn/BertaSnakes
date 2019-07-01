@@ -2,7 +2,7 @@ import * as React from 'react';
 import {PLAYER_TYPES} from "../../../common/game/objects/player";
 import Utils from '../../utils/utils';
 
-import '../../styles/ship_widget.scss';
+import '../../styles/widgets/ship_widget.scss';
 import Colors, {ColorI} from "../../../common/game/common/colors";
 
 interface PreviewDatas {

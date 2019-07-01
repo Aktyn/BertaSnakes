@@ -204,9 +204,9 @@ export default class extends StageBase<BaseProps, GameState> {
 				if(this.skillsbar)
 					this.skillsbar.addEmptySkill(slot_index);
 			},
-			addChildSkill: (texture_name, key, continous) => {
+			addChildSkill: (texture_name, key, continuous) => {
 				if(this.skillsbar)
-					this.skillsbar.addSkill(texture_name, key, continous);
+					this.skillsbar.addSkill(texture_name, key, continuous);
 			},
 
 			onSkillUsed: (index, cooldown) => {

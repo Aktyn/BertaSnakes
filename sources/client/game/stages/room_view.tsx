@@ -13,6 +13,7 @@ import OptionsList from '../../components/widgets/options_list';
 import Utils from '../../utils/utils';
 
 import '../../styles/room_view.scss';
+import SlideBar from "../../components/widgets/slidebar";
 
 //const ClockWidget: React.SFC<{seconds: number}> = (props) => {
 class ClockWidget extends React.Component<{seconds: number}, any> {
@@ -45,7 +46,8 @@ interface RoomViewState {
 export default class extends React.Component<RoomViewProps, RoomViewState> {
 	private name_input: HTMLInputElement | null = null;
 	private sits_input: NumberInput | null = null;
-	private duration_input: NumberInput | null = null;
+	// private duration_input: NumberInput | null = null;
+	private duration_input: SlideBar | null = null;
 	private gamemode_input: OptionsList | null = null;
 	private map_input: MapsPreview | null = null;
 	
@@ -71,21 +73,34 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 		let room_settings = this.props.room.getSettings();
 		return <div className='room-view edit-mode'>
 			<div key='settings' className='settings-grid'>
-				<label>Name:</label><input ref={el=>this.name_input=el} 
+				<label>Name:</label>
+				<input ref={el=>this.name_input=el}
 					maxLength={Config.MAXIMUM_ROOM_NAME_LENGTH}
 					type='text' defaultValue={room_settings.name} />
-				<label>Game mode:</label><OptionsList ref={el=>this.gamemode_input=el}
+					
+				<label>Game mode:</label>
+				<OptionsList ref={el=>this.gamemode_input=el}
 					options={Utils.GAMEMODES_NAMES} 
 					onChange={opt => this.setState({gamemode_option: opt})}
 					defaultValue={Utils.GAMEMODES_NAMES[room_settings.gamemode]} />
-				<label>Sits:</label><NumberInput ref={el=>this.sits_input=el} 
+					
+				<label>Sits:</label>
+				<NumberInput ref={el=>this.sits_input=el}
 					defaultValue={room_settings.sits_number} 
 					min={this.state.gamemode_option === Utils.GAMEMODES_NAMES[1] ? 2 : 1} 
 					max={Config.MAXIMUM_SITS} />
-				<label>Duration:</label><NumberInput ref={el=>this.duration_input=el} 
+					
+				{/*---DEPRECATED--- <label>Duration:</label>
+				<NumberInput ref={el=>this.duration_input=el}
 					min={Config.MINIMUM_GAME_DURATION/60} 
 					max={Config.MAXIMUM_GAME_DURATION/60} postfix=' min' 
-					defaultValue={(room_settings.duration/60)|0} />
+					defaultValue={(room_settings.duration/60)|0} />*/}
+					
+				<label>Duration:</label>
+				<SlideBar valueSuffix={'min'} ref={el => this.duration_input=el}  precision={0}
+					minValue={Config.MINIMUM_GAME_DURATION/60}
+					maxValue={Config.MAXIMUM_GAME_DURATION/60}
+					defaultValue={(room_settings.duration/60)|0} widgetWidth={100} />
 			</div>
 			<hr key={'hr1'} />
 			<MapsPreview key='maps-prev' ref={el=>this.map_input=el} defaultValue={room_settings.map} />
@@ -98,7 +113,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 						Network.sendRoomUpdateRequest({
 							name: this.name_input.value, 
 							sits_number: this.sits_input.value, 
-							duration: this.duration_input.value*60, 
+							duration: Math.round(this.duration_input.getValue())*60,
 							map: this.map_input.value, 
 							gamemode: Utils.GAMEMODES_NAMES.indexOf(this.gamemode_input.value)
 						});

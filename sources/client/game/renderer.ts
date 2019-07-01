@@ -78,7 +78,7 @@ export default abstract class RendererBase {
 		if(this.focused !== null) {
 			let dtx = this.focused.x - this.camera.x;
 			let dty = this.focused.y - this.camera.y;
-			//TODO - multiple by smoothing value instad of const
+			//TODO - multiple by smoothing value instead of const
 			this.camera.x += dtx * delta * 3.0 * this.camera.z;
 			this.camera.y += dty * delta * 3.0 * this.camera.z;
 		}

@@ -4,7 +4,7 @@ import ServerAPi from '../utils/server_api';
 
 import AccountSidepop from './sidepops/account_sidepop';
 
-import '../styles/account_widget.scss';
+import '../styles/widgets/account_widget.scss';
 
 interface AccountWidgetState {
 	show_sidepop: boolean;

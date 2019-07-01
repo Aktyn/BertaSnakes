@@ -11,10 +11,10 @@ global._CLIENT_ = false;
 global._SERVER_ = true;
 
 import * as fs from 'fs';
-var app_version;
+let app_version;
 try {
-	var pckg_json = fs.readFileSync(__dirname + '/../../package.json', 'utf8');
-	app_version = JSON.parse(pckg_json).version;
+	let package_json = fs.readFileSync(__dirname + '/../../package.json', 'utf8');
+	app_version = JSON.parse(package_json).version;
 }
 catch(e) {
 	app_version = '1.0.0';

@@ -60,6 +60,7 @@ export default class SidepopBase extends React.Component<SidepopWrapperProps, an
 
 	static defaultProps = {
 		show_navigator: false,
+		loading: false,
 		navigator_return: undefined
 	};
 

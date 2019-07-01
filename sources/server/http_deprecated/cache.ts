@@ -32,7 +32,7 @@ export default {
 		return cache;
 	},
 
-	createCache: function(name: string, lifetime: number, data: any) {//lifetime - in miliseconds
+	createCache: function(name: string, lifetime: number, data: any) {//lifetime - in milliseconds
 		console.log('New cache object created:', name);
 		cache_store[name] = new Cache(lifetime, data);
 	}

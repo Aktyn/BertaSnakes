@@ -4,7 +4,7 @@ export const enum VECTOR_DATA_TYPES {
 }
 
 /* once declared variables for performance matter */
-var values_sum: number, length_buff: number, it: number;
+let values_sum: number, length_buff: number, it: number;
 const pow2 = (a: number) => a*a;//fast square power function
 /**************************************************/
 
@@ -13,7 +13,8 @@ interface Point2D_I {
 	y: number;
 }
 
-export default class Vector {
+export default // noinspection SpellCheckingInspection
+class Vector {
 	private readonly _vec_size: number;
 	protected _buffer: Int32Array | Float32Array;
 
@@ -36,13 +37,14 @@ export default class Vector {
 	get size() {
 		return this._vec_size;
 	}
-
+	
+	// noinspection JSMethodCanBeStatic,JSUnusedLocalSymbols
 	set size(s) {
 		throw new Error('Vector\' size cannot be changed');
 	}
 
 	set(...args: number[]) {
-		for(var i=0; i<args.length && i<this._vec_size; i++) {
+		for(let i=0; i<args.length && i<this._vec_size; i++) {
 			//if(i >= this._buffer.length)//(deprecated) safety for too many arguments
 			//	break;
 			this._buffer[i] = args[i];
@@ -72,7 +74,7 @@ export default class Vector {
 	lengthSqrt() {
 		values_sum = 0;
 		//for(value_it of this._buffer)
-		for(var value_i=0; value_i < this._buffer.length; value_i++)
+		for(let value_i=0; value_i < this._buffer.length; value_i++)
 			values_sum += pow2( this._buffer[value_i] );
 		return values_sum;
 	}
@@ -120,9 +122,9 @@ export class Vec3f extends Vector {
 		super.set(...args);
 	}
 }
-export class Vec4f extends Vector {
+/*export class Vec4f extends Vector {
 	constructor(...args: number[]) {
 		super(VECTOR_DATA_TYPES.FLOAT, 4);
 		super.set(...args);
 	}
-}
+}*/

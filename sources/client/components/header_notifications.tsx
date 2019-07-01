@@ -19,12 +19,12 @@ catch(e) {
 export default class HeaderNotifications extends React.Component<any, NotificationsState> {
 	private static instances: Set<HeaderNotifications> = new Set();
 
-	private quene: string[] = [];
-	private queneTimeout: number | null = null;
+	private queue: string[] = [];
+	private queueTimeout: number | null = null;
 
 	private holder: HTMLDivElement | null = null;
 
-	state: NotificationsState = {}
+	state: NotificationsState = {};
 
 	constructor(props: any) {
 		super(props);
@@ -41,20 +41,20 @@ export default class HeaderNotifications extends React.Component<any, Notificati
 	}
 
 	componentWillUnmount() {
-		if(this.queneTimeout)
-			clearTimeout(this.queneTimeout);
+		if(this.queueTimeout)
+			clearTimeout(this.queueTimeout);
 		HeaderNotifications.instances.delete(this);
 	}
 
 	private onExpire() {
-		if(this.quene.length > 0) {
+		if(this.queue.length > 0) {
 			if(this.holder) {
 				this.holder.classList.remove('notification');
 				void this.holder.offsetWidth;
 				this.holder.classList.add('notification');
 			}
-			this.setState({current: this.quene.shift()});
-			this.queneTimeout = setTimeout(this.onExpire.bind(this), DURATION) as never;
+			this.setState({current: this.queue.shift()});
+			this.queueTimeout = setTimeout(this.onExpire.bind(this), DURATION) as never;
 		}
 		else
 			this.setState({current: undefined});
@@ -62,14 +62,14 @@ export default class HeaderNotifications extends React.Component<any, Notificati
 
 	public add(msg: string[]) {
 		if(this.state.current) {
-			this.quene.push(...msg);
+			this.queue.push(...msg);
 		}
 		else {
 			let first = msg.shift();
-			this.quene.push(...msg);
+			this.queue.push(...msg);
 			this.setState({current: first});
 			
-			this.queneTimeout = setTimeout(this.onExpire.bind(this), DURATION) as never;
+			this.queueTimeout = setTimeout(this.onExpire.bind(this), DURATION) as never;
 		}
 	}
 
@@ -81,7 +81,7 @@ export default class HeaderNotifications extends React.Component<any, Notificati
 
 	public static push(...msg: string[]) {
 		if(HeaderNotifications.instances.size === 0) {
-			console.error('No HeaderNofication instance, cannot push notification message');
+			console.error('No HeaderNotification instance, cannot push notification message');
 			return;
 		}
 

@@ -12,6 +12,7 @@ import RoomView from './room_view';
 import AccountSidepop, {VIEWS} from '../../components/sidepops/account_sidepop';
 
 import '../../styles/menu_stage.scss';
+import SettingsSidepop from "../../components/sidepops/settings_sidepop";
 
 interface MenuProps extends BaseProps {
 	indicate_room_deletion: boolean;
@@ -21,6 +22,7 @@ interface MenuProps extends BaseProps {
 interface MenuState extends BaseState {
 	account_view?: VIEWS;
 	hide_rooms_list: boolean;
+	show_settings: boolean;
 }
 
 export default class extends StageBase<MenuProps, MenuState> {
@@ -28,7 +30,8 @@ export default class extends StageBase<MenuProps, MenuState> {
 
 	state: MenuState = {
 		account_view: undefined,
-		hide_rooms_list: false//effect visible only in small screen
+		hide_rooms_list: false,//effect visible only in small screen
+		show_settings: true//temporary true for tests
 	};
 
 	constructor(props: MenuProps) {
@@ -58,20 +61,21 @@ export default class extends StageBase<MenuProps, MenuState> {
 						: 
 						<button className='glossy no-icon' style={{marginLeft: '10px'}}
 							onClick={Network.reconnect}>RECONNECT</button>
-				}
+					}
 				</div>
 
 				<HeaderNotifications />
 				
 				<div style={{justifySelf: 'right'}}>
-					<button className='settings shaky-icon'/>
+					<button className='settings shaky-icon'
+					        onClick={() => this.setState({show_settings: true})}/>
 					<span className='separator'/>
 					<Link className='closer shaky-icon' to='/' onClick={Network.disconnect}/>
 				</div>
 			</header>
 			<section>
 				<aside className={`${this.state.hide_rooms_list ? 'hidden ' : ''}left-aside`}>
-					<h1 className='info-header'>Avaible rooms</h1>
+					<h1 className='info-header'>Available rooms</h1>
 					<div style={{textAlign: 'right'}}>
 						<button className='rooms-list-toggler glossy' onClick={() => {
 							this.setState({hide_rooms_list: !this.state.hide_rooms_list});
@@ -103,6 +107,8 @@ export default class extends StageBase<MenuProps, MenuState> {
 				this.setState({account_view: undefined});
 				Network.requestAccountData();
 			}} />}
+			{this.state.show_settings && <SettingsSidepop
+				onClose={() => this.setState({show_settings: false})} />}
 		</div>;
 	}
 }

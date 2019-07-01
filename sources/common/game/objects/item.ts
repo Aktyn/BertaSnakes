@@ -8,7 +8,7 @@ export const enum ITEM_TYPES {//enum
 	HEALTH = 0,
 	SPEED,
 	ENERGY
-};
+}
 //NOTE: sum of this array must be equal to 1 and it must be sorted with ascending order
 const PROBABILITIES = [0.1, 0.2, 0.7];
 
@@ -17,7 +17,7 @@ const SCALE = 0.075;
 //lifetime in seconds
 const SPAWN_DURATION = 1, LIFETIME = 15, BLINKING_TIME = 2.5, SHRINKING_SPEED = 0.2;
 
-var sc = 0;
+let sc = 0;
 
 export default class Item extends Object2D {
 	public type: ITEM_TYPES;
@@ -38,7 +38,7 @@ export default class Item extends Object2D {
 
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined') {
-			this.entity_name = Item.entityName(_type);//clientside only
+			this.entity_name = Item.entityName(_type);//client-side only
 			//@ts-ignore
 			EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 		}
@@ -87,7 +87,7 @@ export default class Item extends Object2D {
 		let random_value = Math.random();//[0, 1]
 		let prop_sum = 0;
 
-		for(var i=0; i<PROBABILITIES.length; i++) {
+		for(let i=0; i<PROBABILITIES.length; i++) {
 			if(random_value < PROBABILITIES[i] + prop_sum)
 				return i;
 			prop_sum += PROBABILITIES[i];

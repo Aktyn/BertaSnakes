@@ -176,7 +176,7 @@ export default {
 			try {
 				GameStarter.start_countdown(room, Config.START_GAME_COUNTDOWN);
 			}
-			catch(e) {//countdown failure - unreading everyone
+			catch(e) {//countdown failure - unready everyone
 				room.unreadyAll();
 				distributeRoomUpdateEvent(room);
 			}

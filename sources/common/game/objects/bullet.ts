@@ -28,7 +28,7 @@ export default class Bullet extends Object2D {
 	private readonly entity_name?: string;
 	private readonly entitiesClass: any;
 
-	//NOTE - parent must constains a Painter instance as 'painter' property name
+	//NOTE - parent must contains a Painter instance as 'painter' property name
 	//@parent - instance that 'owns' this bullet
 	constructor(x: number, y: number, rot: number, parent: Object2D, _type = BULLET_TYPE.NORMAL,
 		_entitiesClass?: any) 
@@ -54,7 +54,7 @@ export default class Bullet extends Object2D {
 		if(this.entitiesClass) {
 			// console.log('new bullet', Bullet.entityName(color));
 			//@ts-ignore
-			this.entity_name = Bullet.entityName(parent.painter.color);//clientside only
+			this.entity_name = Bullet.entityName(parent.painter.color);//client-side only
 			this.entitiesClass.addObject(this.entitiesClass.getEntityId(this.entity_name), this);
 		}
 	}

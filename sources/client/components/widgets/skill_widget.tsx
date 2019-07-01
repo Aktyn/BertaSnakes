@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import '../../styles/skill_widget.scss';
+import '../../styles/widgets/skill_widget.scss';
 import Skills from "../../../common/game/common/skills";
 import {TEXTURES_PATH} from "../../game/engine/assets";
 

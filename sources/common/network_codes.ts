@@ -21,7 +21,7 @@ const enum NetworkCodes {
 	START_GAME_CONFIRMATION,
 
 	//FROM SERVER
-	ON_USER_DATA,//user: UserCustomDaata
+	ON_USER_DATA,//user: UserCustomData
 	ON_ROOM_JOINED,//room: RoomCustomData, users: UserPublicData[]
 	ON_ROOM_LEFT,//room_id: number
 	ON_ROOM_CREATED,//room: RoomCustomData
@@ -126,7 +126,7 @@ const enum NetworkCodes {
 	RECEIVE_CHAT_MESSAGE,//@from - user nickname: 0, @public - boolean: 0, @msg - string message
 	//RECEIVE_PRIVATE_MESSAGE,// ----------------- // -----------------
 
-	// GAME CODES (vallue cannot be bigger then 255) //
+	// GAME CODES (value cannot be bigger then 255) //
 
 	//ON_ENEMY_BULLET_COLLISION,//enemy_id: 0, enemy_hp: 0, bullet_id: 0, player_index: 0, 
 	//hit_x: 0, hit_y: 0
@@ -137,9 +137,9 @@ const enum NetworkCodes {
 	
 	*/
 	CODES_COUNT,
-};
+}
 
-//TODO - separate enumarator for sending byte buffers
+//TODO - separate enumerator for sending byte buffers
 
 if(NetworkCodes.CODES_COUNT > 255)
 	console.error('More than 256 unique network codes exists!!!');

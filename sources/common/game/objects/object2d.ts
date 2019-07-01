@@ -11,7 +11,7 @@ export default class Object2D extends Matrix2D {
 	constructor() {
 		super();
 
-		//NOTE: clientside only use
+		//NOTE: client-side only use
 		this.timestamp = Date.now();//timestamp of previous object update
 		
 		this.id = ++Object2D.instance_id;

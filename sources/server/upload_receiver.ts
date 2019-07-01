@@ -30,7 +30,7 @@ export default {
 	UPLOADS_PATH: UPLOADS_FOLDER,
 	//URL encoded image data
 	saveAvatar(file_name: string, image_data: string): Promise<{error: ERROR_CODES, file_name: string}> {
-		//force file_name extention to .png
+		//force file_name extension to .png
 		file_name = file_name.replace(/\..+$/i, '') + '.png';
 
 		return new Promise((resolve, reject) => {

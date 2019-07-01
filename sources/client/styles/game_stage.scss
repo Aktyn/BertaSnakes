@@ -4,7 +4,7 @@ $chatHeight: 350px;
 $leftWidth: 200px;
 $rightWidth: 250px;
 
-$tooglerSize: 30px;
+$togglerSize: 30px;
 
 .game-stage {
 	position: fixed;
@@ -133,8 +133,7 @@ $tooglerSize: 30px;
 					}
 
 					& > .kills, & > .deaths {
-						padding: 0px 6px;
-						padding-right: 3px;
+						padding: 0px 3px 0px 6px;
 						// height: 18px;
 						// line-height: 18px;
 						display: grid;
@@ -249,12 +248,12 @@ $tooglerSize: 30px;
 
 			.slide-toggler {
 				display: inline-block;
-				width: $tooglerSize;
-				height: $tooglerSize;
+				width: $togglerSize;
+				height: $togglerSize;
 				padding: 0px;
 				margin: auto;
 				//background-color: #f44336;//ef5350
-				border-radius: $tooglerSize;
+				border-radius: $togglerSize;
 
 				box-shadow: 0px 1px 4px #0004;
 				background-color: nth($palette, 6);
@@ -268,8 +267,8 @@ $tooglerSize: 30px;
 				&::after {
 					content: "";
 					display: block;
-					width: $tooglerSize;
-					height: $tooglerSize;
+					width: $togglerSize;
+					height: $togglerSize;
 
 					background: url('../img/icons/arrow_left.svg') center no-repeat;
 					background-size: 80%;
@@ -285,7 +284,7 @@ $tooglerSize: 30px;
 			transform: translateX($rightWidth);
 
 			& > nav > .slide-toggler {
-				transform: translateX( -($tooglerSize + 10px) );//added padding
+				transform: translateX( -($togglerSize + 10px) );//added padding
 
 				&::after {
 					transform: rotate(0deg);

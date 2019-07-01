@@ -6,7 +6,7 @@ import ServerApi from '../../utils/server_api';
 import Network from '../../game/engine/network';
 import Utils from '../../utils/utils';
 
-import '../../styles/user_btn.scss';
+import '../../styles/widgets/user_btn.scss';
 
 interface UserBtnProps {
 	user: UserInfo | null;

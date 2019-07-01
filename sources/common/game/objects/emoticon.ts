@@ -92,6 +92,6 @@ export default class Emoticon extends Object2D {
 	}
 
 	public static entityName(emoticon_name: string) {
-		return 'EMOT_' + emoticon_name.replace(/\.[a-zA-Z]+/gi, '');//NOTE: removes extention
+		return 'EMOT_' + emoticon_name.replace(/\.[a-zA-Z]+/gi, '');//NOTE: removes extension
 	}
 }

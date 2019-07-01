@@ -103,7 +103,7 @@ export default class Map extends PaintLayer {
 			super.generateChunks();
 
 			super.paintMapWalls(map);
-			super.drawWalls( DEFAULT_WALLS_SIZE );//TODO - make it modifable from map file
+			super.drawWalls( DEFAULT_WALLS_SIZE );//TODO - make it modifiable from map file
 
 			//placing entities
 			/*Object.keys(map.data.entities).forEach(key => {//for each entity

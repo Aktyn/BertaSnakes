@@ -1,8 +1,9 @@
-@import 'global.scss';
+@import '../global';
 
 $size: 25px;
 
 .options-list {
+	display: inline-block;
 	height: $size;
 
 	background-color: #fff;

@@ -1,0 +1,57 @@
+$holderSize: 18px;
+
+.slidebar {
+	display: inline-grid;
+	grid-template-columns: auto fit-content(100%);
+	align-items: center;
+	
+	margin-left: $holderSize/2;
+
+	& > .slider {
+		//background-color: yellow;
+		
+		position: relative;
+		height: $holderSize;
+		
+		&::before {//bar
+			content: "";
+			display: inline-block;
+			position: absolute;
+			top: 0px;
+			bottom: 0px;
+			left: 0px;
+			right: 0px;
+			margin: auto;
+			height: 2px;
+			border-radius: 2px;
+			//width: calc(100% - #{$holderSize});
+			width: 100%;
+			background-color: #4DB6AC;
+			
+		}
+		
+		& > .holder {
+			display: inline-block;
+			position: absolute;
+			left: -$holderSize / 2;
+			top: 0px;
+			
+			width: $holderSize;
+			height: $holderSize;
+			border-radius: $holderSize;
+			background-color: #4DB6AC;
+			
+			&:hover {
+				background-color: #80CBC4;
+			}
+			
+			transition: transform 0.1s ease-out;
+		}
+	}
+	
+	& > .value {
+		margin-left: $holderSize;
+		min-width: 50px;
+		text-align: left;
+	}
+}

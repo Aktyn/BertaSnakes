@@ -1,5 +1,5 @@
 import * as React from 'react';
-import '../../styles/options_list.scss';
+import '../../styles/widgets/options_list.scss';
 
 interface OptionsListProps {
 	options: string[];

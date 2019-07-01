@@ -291,7 +291,7 @@ const Network = {
 	},
 
 	////////////////////////////////////////
-	//BELOW FUNCTIONS ARE BEFORE PROJECT RENEVAL
+	//BELOW FUNCTIONS ARE BEFORE PROJECT RENEWAL
 
 	/*amISitting() {
 		if(CurrentRoom === null || CurrentUser === null)

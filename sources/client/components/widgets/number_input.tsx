@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import '../../styles/number_input.scss';
+import '../../styles/widgets/number_input.scss';
 
 interface NumberInputProps {
 	min: number;

@@ -800,6 +800,7 @@ export default class ServerGame extends GameCore {
 				skill_i, player.energy );
 	}
 
+	// noinspection SpellCheckingInspection
 	updateSpawnings(delta: number) {
 		//first time spawning
 		if(this.time_to_spawn !== 0) {

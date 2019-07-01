@@ -38,7 +38,7 @@ export default class Shield extends Object2D {
 		if(_CLIENT_) {
 			EntitiesBase = require('../../../client/game/entities').default;
 			if(typeof EntitiesBase !== 'undefined') {
-				this.entity_name = Shield.entityName(this.color);//clientside only
+				this.entity_name = Shield.entityName(this.color);//client-side only
 				//@ts-ignore
 				EntitiesBase.addObject(EntitiesBase.getEntityId(this.entity_name), this);
 			}
