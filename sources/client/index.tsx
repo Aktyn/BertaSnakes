@@ -40,6 +40,8 @@ render(
     	<Switch>
 			<Route path='/' exact component={Home} />
 			<Route path='/play' component={Game} />
+			<Route path='/rankings/:type/:page' component={Rankings} />
+			<Route path='/rankings/:type' component={Rankings} />
 			<Route path='/rankings' component={Rankings} />
 			<Route path='/games/:id' component={GameDetails} />
 			<Route path='/users/:id' component={UserDetails} />

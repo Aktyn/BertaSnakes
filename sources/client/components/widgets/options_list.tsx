@@ -11,7 +11,7 @@ interface OptionsListState {
 	value: string;
 }
 
-export default class extends React.Component<OptionsListProps, OptionsListState> {
+export default class OptionsList extends React.Component<OptionsListProps, OptionsListState> {
 
 	state: OptionsListState = {
 		value: ''
@@ -34,7 +34,7 @@ export default class extends React.Component<OptionsListProps, OptionsListState>
 
 	render() {
 		return <div className='options-list'>{this.props.options.map((opt, i) => {
-			return <button key={i} className={this.state.value===opt ? 'current':''} onClick={() => {
+			return <button key={i} className={this.state.value === opt ? 'current':''} onClick={() => {
 				if(this.state.value === opt)
 					return;
 				this.setState({value: opt});

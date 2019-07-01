@@ -44,6 +44,7 @@ $bottomSize: 20px;
 			grid-template-areas: "navigator play separator";
 			grid-template-columns: 1fr fit-content(100%) 1fr;
 			grid-template-rows: auto;
+			align-items: center;
 
 			.play-btn-wrapper {
 				grid-area: play;
@@ -113,12 +114,22 @@ $bottomSize: 20px;
 				flex-wrap: wrap;
 				align-items: center;
 			   	justify-content: center;
+				max-height: $size;
 
 				& > * {
 					display: block;
 					font-size: 30px;
+					background-color: transparent;
+					box-shadow: none !important;
+					padding: 0px;
+					font-weight: normal;
+					color: #fff;
 					&:hover {
 						color: #ef9a9a;
+					}
+					
+					&.navigator-play, &.navigator-account {
+						display: none;
 					}
 				}
 			}
@@ -148,7 +159,24 @@ $bottomSize: 20px;
 		}
 	}
 
-	@media (max-width: 800px) {
-		
+	@media (max-width: 600px) {//move play button to navigator
+		.header-content {
+			grid-template-areas: "navigator" !important;
+			grid-template-columns: auto !important;
+			
+			.play-btn-wrapper {
+				display: none;
+			}
+			
+			.navigator-play {
+				display: initial !important;
+			}
+		}
+	}
+	
+	@media (max-width: 400px) {
+		.navigator-account {
+			display: initial !important;
+		}
 	}
 }

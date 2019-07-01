@@ -28,7 +28,7 @@ export default class extends StageBase<MenuProps, MenuState> {
 
 	state: MenuState = {
 		account_view: undefined,
-		hide_rooms_list: true//effect visible only in small screen
+		hide_rooms_list: false//effect visible only in small screen
 	};
 
 	constructor(props: MenuProps) {

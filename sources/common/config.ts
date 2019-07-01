@@ -2,6 +2,12 @@ const SERVER_PORT = 5348;
 
 import {GAME_MODES} from './room_info';
 
+export const enum RANKING_TYPES {
+	TOP_RANK = 0,
+	HIGHEST_LEVEL,
+	NEW_ACCOUNTS,
+}
+
 export default {
 	api_server_url: process.env.NODE_ENV === 'development' ? 
 		`http://localhost:${SERVER_PORT}` : 
@@ -39,5 +45,5 @@ export default {
 	
 	//lists settings
 	ITEMS_PER_GAMES_LIST_PAGE: 10,
-	ITEMS_PER_RANKING_PAGE: 20
+	ITEMS_PER_RANKING_PAGE: 16,
 }

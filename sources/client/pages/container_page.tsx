@@ -9,6 +9,7 @@ export interface ContainerProps {
 	error?: string;
 	show_navigator: boolean;
 	navigator_return?: () => void;
+	className?: string;
 }
 
 export default class ContainerPage extends React.Component<ContainerProps, any> {
@@ -29,7 +30,7 @@ export default class ContainerPage extends React.Component<ContainerProps, any> 
 	
 	render() {
 		return <Layout>
-			<div className={'container'}>
+			<div className={`container ${this.props.className}`}>
 				{this.props.show_navigator && this.renderNavigator()}
 				{this.props.loading && <Loader color='#ef5350' />}
 				{this.props.error && <div className='error'>{this.props.error}</div>}

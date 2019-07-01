@@ -2,7 +2,6 @@
 	padding: 3px;
 
 	border-top: 1px solid #BCC8CD;
-	//border-bottom: 1px solid #BCC8CD;
 
 	$size: 25px;
 	
@@ -23,14 +22,15 @@
 
 		&.current {
 			border-color: #e57373;
+			cursor: auto;
+			&:hover {
+				color: inherit;
+				box-shadow: 0px 1px 3px #0008;
+			}
 		}
 
 		&:not(.current) {
 			cursor: pointer;
-
-			&:hover {
-				background-color: #B0BEC5;
-			}
 		}
 	}
 }

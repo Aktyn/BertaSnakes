@@ -3,9 +3,19 @@ import { Link } from 'react-router-dom';
 import AccountWidget from './account_widget';
 
 import './../styles/header.scss';
+import AccountSidepop from './sidepops/account_sidepop';
+import {RANKING_TYPES} from '../../common/config';
 
-export default class Header extends React.Component<any, any> {
+interface HeaderState {
+	show_sidepop: boolean;
+}
 
+export default class Header extends React.Component<any, HeaderState> {
+
+	state: HeaderState = {
+		show_sidepop: false
+	};
+	
 	constructor(props: any) {
 		super(props);
 	}
@@ -16,8 +26,12 @@ export default class Header extends React.Component<any, any> {
 				<div className='background'/>
 				<div className='header-content'>
 					<nav>
+						<Link className={'navigator-play'} to='/play'>PLAY</Link>
+						<button className={'navigator-account'} onClick={() => {
+							this.setState({show_sidepop: true});
+						}}>ACCOUNT</button>
 						<Link to='/forum'>FORUM</Link>
-						<Link to='/rankings'>RANKINGS</Link>
+						<Link to={'/rankings/'+RANKING_TYPES.TOP_RANK}>RANKINGS</Link>
 					</nav>
 					<div className='play-btn-wrapper'>
 						<Link to='/play'><span>PLAY</span></Link>
@@ -29,6 +43,9 @@ export default class Header extends React.Component<any, any> {
 				<Link to='/' className='home-link'/>
 
 			</div>
+			{this.state.show_sidepop && <AccountSidepop onClose={() => {
+				this.setState({show_sidepop: false});
+			}} />}
 		</div>;
 	}
 }

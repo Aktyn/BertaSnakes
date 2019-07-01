@@ -1,18 +1,127 @@
-.ranking-table {
-	display: inline-table !important;
-    width: auto !important;
-	border-collapse: collapse;
+@import 'global.scss';
+
+.rankings-page {
+	min-height: 400px;
 	
-	tr > td, tr > th {
-		padding: 3px;
-	}
-	img {
-		max-height: 25px;
+	.ranking-table {
+		//display: inline-table !important;
+		//width: auto !important;
+		border-collapse: collapse;
+		
+		tr > td, tr > th {
+			padding: 3px;
+		}
+		
+		img {
+			max-height: 25px;
+		}
+		
+		@media (max-width: 500px) {
+			.hide-on-shrink {
+				display: none;
+			}
+		}
 	}
 	
-	@media (max-width: 500px) {
-		.hide-on-shrink {
-			display: none;
+	.type-selector {
+		$size: 35px;
+		
+		display: block;
+		position: relative;
+		height: $size;
+		text-align: center;
+		margin-bottom: 5px;
+		
+		$border: 1px solid nth($palette, 1);
+		
+		& > * {
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			width: 100%;
+			margin: auto;
+			background-color: transparent;
+		}
+		
+		& > .current {
+			font-size: 15px;
+			font-weight: bold;
+			z-index: 10;
+			
+			height: $size;
+			line-height: $size;
+			
+			padding: 0px;
+			box-shadow: none !important;
+			border-bottom: $border;
+			
+			&::before, &::after {
+				content: '▼';
+				display: inline-block;
+				margin: 0px 15px;
+			}
+		}
+		
+		& > .options {
+			overflow: hidden;
+			z-index: 9;
+			top: $size;
+			
+			height: 0px;
+			text-align: center;
+			
+			display: grid;
+			grid-template-columns: auto;
+			align-items: center;
+			justify-content: stretch;
+			
+			& > * {
+				border-radius: 0px;
+				background-color: #fff;
+				box-shadow: none !important;
+				padding: 0px 10px;
+				
+				height: $size;
+				line-height: $size;
+				
+				
+				//&:not(:last-child) {
+					border-bottom: $border;
+				//}
+				
+				opacity: 0;
+				
+				transition: transform 0.3s cubic-bezier(.36,.07,.19,.97), opacity 0.3s ease-in-out;
+				
+				@for $i from 1 through 4 {
+					&:nth-child(#{$i}) {
+						transform: translateY(-$size * $i);
+						transition-delay: 0.1s * $i;
+					}
+				}
+			}
+		}
+		
+		&.opened > .options {
+			height: auto;
+			
+			& > * {
+				transform: translateY(0px);
+				opacity: 1;
+			}
+		}
+	}
+	
+	.more-icon {
+		display: block;
+		height: 25px;
+		width: 25px;
+		background-image: url('../img/icons/dots_black.svg');
+		opacity: 0.6;
+		transition: opacity 0.2s ease-in-out;
+		
+		&:hover {
+			opacity: 1;
 		}
 	}
 }

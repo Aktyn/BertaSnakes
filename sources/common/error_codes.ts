@@ -39,7 +39,8 @@ const enum ERROR_CODES {
 	INSUFFICIENT_LEVEL,
 	NOT_ENOUGH_COINS,
 	SHIP_ALREADY_BOUGHT,
-	SKILL_ALREADY_BOUGHT
+	SKILL_ALREADY_BOUGHT,
+	INCORRECT_RANKING_TYPE
 }
 
 export default ERROR_CODES;
@@ -84,6 +85,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.INSUFFICIENT_LEVEL:    return 'Insufficient level';
 		case ERROR_CODES.NOT_ENOUGH_COINS:      return 'Not enough coins';
 		case ERROR_CODES.SHIP_ALREADY_BOUGHT:   return 'Ship has been bought already';
-		case ERROR_CODES.SKILL_ALREADY_BOUGHT:   return 'Skill has been bought already';
+		case ERROR_CODES.SKILL_ALREADY_BOUGHT:  return 'Skill has been bought already';
+		case ERROR_CODES.INCORRECT_RANKING_TYPE:return 'Incorrect ranking type';
 	}
 }

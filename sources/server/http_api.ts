@@ -15,6 +15,20 @@ import UploadReceiver from './upload_receiver';
 import {SHIP_COSTS, SHIP_LVL_REQUIREMENTS} from "../common/game/objects/player";
 import Skills from '../common/game/common/skills';
 
+//CREATING EXAMPLE ACCOUNTS
+/*setTimeout(async () => {
+	const hashed_password = sha256( 'password' );//example password
+	// noinspection SpellCheckingInspection
+	const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	for(let i=0; i<40; i++) {
+		let random_nick = new Array(10).fill(0)
+			.map(() => chars[(Math.random() * chars.length) | 0]).join('');
+		let random_email = random_nick + '@example.com';
+		let res = await Database.insertAccount(
+			random_nick, hashed_password, random_email, '');
+	}
+}, 5000);*/
+
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(bodyParser.json({limit: '10mb'}));
@@ -165,11 +179,11 @@ app.post('/upload_avatar', async (req, res) => {//token, image
 	}
 });
 
-app.post('/get_ranking', async (req, res) => {//page
+app.post('/get_ranking', async (req, res) => {//page, type
 	try {
-		if( typeof req.body.page !== "number" )
+		if( typeof req.body.page !== "number" || typeof req.body.type !== "number" )
 			return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
-		let db_res = await Database.getRankingPage(req.body.page);
+		let db_res = await Database.getRankingPage(req.body.page, req.body.type);
 		if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data || !db_res.total_accounts)
 			return res.json(db_res);
 		

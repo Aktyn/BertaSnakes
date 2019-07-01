@@ -1,7 +1,7 @@
-import {MongoClient, Db, ObjectId} from 'mongodb';
+import {Db, MongoClient, ObjectId} from 'mongodb';
 import {getArgument} from './utils';
 import ERROR_CODES from '../common/error_codes';
-import Config from '../common/config';
+import Config, {RANKING_TYPES} from '../common/config';
 
 import RoomInfo, {GAME_MODES} from '../common/room_info';
 import {PlayerResultJSON} from '../common/game/game_result';
@@ -52,14 +52,18 @@ MongoClient.connect(uri, {
 	//	{name: 'account_id', unique: true});
 	await db.collection(COLLECTIONS.accounts).createIndex({username: 'hashed'}, 
 		{name: 'username_index'});//NOTE - hashed index cannot be unique at the moment
-	await db.collection(COLLECTIONS.accounts).createIndex({password: 'hashed'}, 
-		{name: 'password_index'});
+	//await db.collection(COLLECTIONS.accounts).createIndex({password: 'hashed'},
+	//	{name: 'password_index'});
 	await db.collection(COLLECTIONS.accounts).createIndex({email: 'hashed'}, 
 		{name: 'email_index'});
-	await db.collection(COLLECTIONS.accounts).createIndex({verification_code: 'hashed'}, 
-		{name: 'verification_index'});
-	await db.collection(COLLECTIONS.accounts).createIndex({rank: 1},
+	//await db.collection(COLLECTIONS.accounts).createIndex({verification_code: 'hashed'},
+	//	{name: 'verification_index'});
+	await db.collection(COLLECTIONS.accounts).createIndex({rank: -1},
 		{name: 'rank_sorting'});
+	await db.collection(COLLECTIONS.accounts).createIndex({creation_time: -1},
+		{name: 'creation_date_sorting'});
+	await db.collection(COLLECTIONS.accounts).createIndex({level: -1, exp: -1},
+		{name: 'level sorting'});
 
 	await db.collection(COLLECTIONS.sessions).createIndex({account_id: 1}, 
 		{name: 'account_session', unique: true});
@@ -70,6 +74,15 @@ MongoClient.connect(uri, {
 		{name: 'timestamp_index'});
 	
 	total_accounts = await db.collection(COLLECTIONS.accounts).countDocuments();
+	
+	//tests
+	// db.collection(COLLECTIONS.accounts).find({}).forEach(acc => {
+	// 	if(acc.username === 'Aktyn')
+	// 		return;
+	// 	db.collection(COLLECTIONS.accounts).updateOne({_id: acc._id}, {
+	// 		$set: { creation_time: Date.now() - Math.floor(Math.random()*1000*60*60*24*31) }
+	// 	}).catch(console.error);
+	// }).catch(console.error);
 }).catch(console.error);
 
 export interface GameSchema {
@@ -484,16 +497,28 @@ export default {
 		}
 	},
 	
-	async getRankingPage(page: number) {
+	async getRankingPage(page: number, type: RANKING_TYPES) {
 		try {
+			let sort_query: {};
+			
+			switch(type) {
+				default:
+					return {error: ERROR_CODES.INCORRECT_RANKING_TYPE};
+				case RANKING_TYPES.TOP_RANK:
+					sort_query = { rank: -1 };
+					break;
+				case RANKING_TYPES.HIGHEST_LEVEL:
+					sort_query = { level: -1, exp: -1 };
+					break;
+				case RANKING_TYPES.NEW_ACCOUNTS:
+					sort_query = { creation_time: -1 };
+					break;
+			}
+			
 			let accounts: PublicAccountSchema[] = await getCollection(COLLECTIONS.accounts).aggregate([
-				{
-					$sort: { rank: 1 }
-				}, {
-                    $limit: (page+1)*Config.ITEMS_PER_RANKING_PAGE
-                }, {
-                    $skip: page*Config.ITEMS_PER_RANKING_PAGE
-                }
+				{ $sort: sort_query },
+				{ $limit: (page+1)*Config.ITEMS_PER_RANKING_PAGE },
+				{ $skip: page*Config.ITEMS_PER_RANKING_PAGE }
 			]).toArray();
 			
 			accounts = accounts.map(acc => extractUserPublicData(acc));

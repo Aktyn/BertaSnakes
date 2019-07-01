@@ -3,8 +3,10 @@
 	width: 40px;
 	height: 40px;
 
-	position: relative;
+	position: absolute;
 	margin: 20px auto;
+	left: 0px;
+	right: 0px;
 }
 
 .double-bounce1, .double-bounce2 {

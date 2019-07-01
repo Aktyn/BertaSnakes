@@ -26,7 +26,7 @@ $size: 150px;
 				left: 0px;
 				transform: rotate(45deg);
 				line-height: $size * 0.61;
-				font-family: LuckiestGuy, Roboto-Regular, Arial;
+				font-family: LuckiestGuy, Roboto-Regular, Arial, serif;
 			}
 			&:not(.no-account) {
 				left: $size * 0.475;
@@ -92,6 +92,12 @@ $size: 150px;
 					}
 				}
 			}
+		}
+	}
+	
+	@media (max-width: 400px) {
+		& {
+			display: none;
 		}
 	}
 }
