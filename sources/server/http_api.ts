@@ -9,7 +9,7 @@ import ERROR_CODES from '../common/error_codes';
 import Config from '../common/config';
 import {AccountSchema2UserCustomData, md5, sha256} from './utils';
 import Sessions from './sessions';
-import Database from './database';
+import Database, {AccountSchema} from './database';
 import Email from './email';
 import UploadReceiver from './upload_receiver';
 import {SHIP_COSTS, SHIP_LVL_REQUIREMENTS} from "../common/game/objects/player";
@@ -40,6 +40,16 @@ app.use(function(req, res, next) {//ALLOW CROSS-DOMAIN REQUESTS
 
     next();
 });
+
+//check whether user is in room and send data update to everyone in this room
+function onAccountCustomDataUpdate(account: AccountSchema) {
+	let user_info = Connections.findAccount( account.id );
+	if(user_info) {
+		user_info.updateData(AccountSchema2UserCustomData(account));
+		if (user_info.room)//if user is in room
+			RoomsManager.onRoomUserCustomDataUpdate(user_info.room, user_info);
+	}
+}
 
 app.get('/status', (req, res) => {
 	res.send('Server is running');
@@ -281,13 +291,7 @@ app.post('/update_setup', async (req, res) => {//token, ship_type, skills
 		if( update_res.error !== ERROR_CODES.SUCCESS )
 			return res.json({error: update_res.error});
 		
-		//check whether user is in room and send data update to everyone in this room
-		let user_info = Connections.findAccount( account.id );
-		if(user_info) {
-			user_info.updateData( AccountSchema2UserCustomData(account) );
-			if (user_info.room)//if user is in room
-				RoomsManager.onRoomUserCustomDataUpdate(user_info.room, user_info);
-		}
+		onAccountCustomDataUpdate( account );
 		
 		return res.json({error: ERROR_CODES.SUCCESS, account});
 	}
@@ -334,10 +338,7 @@ app.post('/buy_ship', async (req, res) => {//token, ship_type
 		if( update_res.error !== ERROR_CODES.SUCCESS )
 			return res.json({error: update_res.error});
 		
-		//update custom_data if user is in game
-		let user_info = Connections.findAccount( account.id );
-		if(user_info)
-			user_info.updateData( AccountSchema2UserCustomData(account) );
+		onAccountCustomDataUpdate( account );
 		
 		return res.json({error: ERROR_CODES.SUCCESS, account});
 	}
@@ -386,10 +387,7 @@ app.post('/buy_skill', async (req, res) => {//token, skill_id
 		if( update_res.error !== ERROR_CODES.SUCCESS )
 			return res.json({error: update_res.error});
 		
-		//update custom_data if user is in game
-		let user_info = Connections.findAccount( account.id );
-		if(user_info)
-			user_info.updateData( AccountSchema2UserCustomData(account) );
+		onAccountCustomDataUpdate( account );
 		
 		return res.json({error: ERROR_CODES.SUCCESS, account});
 	}

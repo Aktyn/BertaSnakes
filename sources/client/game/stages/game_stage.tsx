@@ -25,6 +25,8 @@ import {MessageSchema} from '../../components/room_chat';
 import Utils from '../../utils/utils';
 
 import './../../styles/game_stage.scss';
+import SettingsSidepop from '../../components/sidepops/settings_sidepop';
+import Settings from '../engine/settings';
 
 const BAR_COLORS = ['#8BC34A', '#42A5F5', '#ef5350'];
 let notifications_counter = 0;
@@ -51,6 +53,8 @@ interface GameState extends BaseState {
 	notifications: {id: number, content: string}[];
 	
 	results?: PlayerResultJSON[];
+	
+	show_settings: boolean;
 }
 
 export default class extends StageBase<BaseProps, GameState> {
@@ -73,8 +77,8 @@ export default class extends StageBase<BaseProps, GameState> {
 	private mounted = false;
 
 	state: GameState = {
-		hide_rightside: false,//TODO: get from settings
-		hide_chat: true,
+		hide_rightside: !!Settings.getValue('auto_hide_right_panel'),
+		hide_chat: !!Settings.getValue('auto_hide_chat') || !Settings.getValue('auto_hide_right_panel'),
 
 		hp_value: 1,
 		energy_value: 1,
@@ -82,7 +86,9 @@ export default class extends StageBase<BaseProps, GameState> {
 
 		am_i_playing: false,
 		players_infos: [],
-		notifications: []
+		notifications: [],
+		
+		show_settings: false
 	};
 
 	constructor(props: BaseProps) {
@@ -384,8 +390,18 @@ export default class extends StageBase<BaseProps, GameState> {
 					}} ref={el => this.right_panel_toggler = el}/>
 					<UserBtn user={this.props.current_user} />
 				</nav>
-				<button className='glossy no-icon exit-btn' ref={el => this.exit_btn = el} 
-					onClick={this.tryLeave.bind(this)} style={{margin: '10px 0px'}}>EXIT GAME</button>
+				<div style={{
+					display: 'grid',
+					gridTemplateColumns: '30px fit-content(100%) 30px',
+					alignItems: 'center',
+					justifyContent: 'space-between'
+				}}>
+					<span />
+					<button className='glossy no-icon exit-btn' ref={el => this.exit_btn = el}
+					        onClick={this.tryLeave.bind(this)} style={{margin: '10px 0px'}}>EXIT GAME</button>
+					<button className='settings shaky-icon'
+					        onClick={() => this.setState({show_settings: true})}/>
+				</div>
 				<div className='list-stretcher'>{this.props.current_room &&
 					<UsersList disable_players_kicking={true}
 					           current_user={this.props.current_user} room={this.props.current_room} />
@@ -405,6 +421,8 @@ export default class extends StageBase<BaseProps, GameState> {
 					<RoomChat current_user={this.props.current_user} ref={el => this.chatHandle = el} />
 				</div>
 			</div>
+			{this.state.show_settings && <SettingsSidepop
+				onClose={() => this.setState({show_settings: false})} />}
 		</div>;
 	}
 }

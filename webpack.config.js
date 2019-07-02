@@ -110,13 +110,13 @@ module.exports = {
 				]
 			},
 			{
-				test: /\.(jpe?g|png|gif|svg|ttf)$/,
+				test: /\.(jpe?g|png|gif|svg|ttf|ogg)$/,
 				use: [
 					{
 						loader: "file-loader",
 						options: {
 							name: '[name].[ext]',
-							outputPath: 'static/',
+							outputPath: 'assets/',
 							useRelativePath: true,
 						}
 					},
@@ -162,7 +162,6 @@ module.exports = {
 			chunkFilename: "[id].css"
 		}),
 		new HtmlWebpackPlugin({
-			//baseUrl:  'http://localhost:4000/',
 			hash: isDevelopment,
 			favicon: './sources/client/img/icons/icon.png',
 			title: 'BertaSnakes',

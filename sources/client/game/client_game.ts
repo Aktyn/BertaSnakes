@@ -9,6 +9,7 @@ import {MapJSON_I} from '../../common/game/maps';
 import {GAME_MODES} from '../../common/room_info';
 import Network from './engine/network';
 import Assets from './engine/assets';
+import {SOUND_EFFECTS} from "./engine/sound";
 
 //objects
 import EntitiesBase from './entities';
@@ -34,6 +35,8 @@ import ShadowEmitter from './emitters/shadow_emitter';
 import InstantHealEmitter from './emitters/instant_heal_emitter';
 import ExperienceEmitter from './emitters/experience_emitter';
 import EnergyBlastEmitter from './emitters/energy_blast_emitter';
+import {PAINTER_RESOLUTION} from "../../common/game/paint_layer";
+import Settings from './engine/settings';
 
 function runLoop(self: ClientGame) {
 	let last = 0, dt;
@@ -153,8 +156,12 @@ export default class ClientGame extends GameCore {
 				this.renderer = new WebGLRenderer(this, map);
 			//else
 			//	this.renderer = new Renderer.Canvas(this, map);
+			
+			let res = Settings.getValue('painter_resolution');
+			if(res === undefined)
+				res = PAINTER_RESOLUTION.MEDIUM;
 
-			let result = super.loadMap(map);
+			let result = super.loadMap(map, res as number);
 			if(result !== true)
 				throw new Error('Cannot load map');
 
@@ -320,8 +327,8 @@ export default class ClientGame extends GameCore {
 				this.explosionEffect(data[index + 2], data[index + 3],
 					GameCore.GET_PARAMS().small_explosion_radius);
 
-				//if(p_h === this.renderer.focused)
-				//	Sounds.EFFECTS.hit.play();
+				if(p_h === this.renderer.focused)
+					SOUND_EFFECTS.hit.play();
 
 				index += 6;
 				break;
@@ -340,8 +347,8 @@ export default class ClientGame extends GameCore {
 						p_h.y - data[index + 6] * p_h.height, false);
 				}
 
-				//if(p_h === this.renderer.focused)
-				//	Sounds.EFFECTS.wallHit.play();
+				if(p_h === this.renderer.focused)
+					SOUND_EFFECTS.wallHit.play();
 
 				index += 7;
 				break;
@@ -470,8 +477,8 @@ export default class ClientGame extends GameCore {
 					this.bullets.push( bullet_s );
 				}
 
-				//if(p_h === this.renderer.focused)
-				//	Sounds.EFFECTS.shoot.play();
+				if(p_h === this.renderer.focused)
+					SOUND_EFFECTS.shoot.play();
 
 				index += 3 + number_of_bullets * 4;
 				break;
@@ -485,8 +492,8 @@ export default class ClientGame extends GameCore {
 
 				this.bullets.push( bullet );
 
-				//if(p_h === this.renderer.focused)
-				//	Sounds.EFFECTS.shoot.play();
+				if(p_h === this.renderer.focused)
+					SOUND_EFFECTS.shoot.play();
 
 				index += 6;
 				break;
@@ -510,7 +517,7 @@ export default class ClientGame extends GameCore {
 					GameCore.GET_PARAMS().bomb_explosion_radius);
 
 				//TODO: calculate distance to focused player
-				//Sounds.EFFECTS.explode.play();
+				//SOUND_EFFECTS.explode.play();
 
 				index += 4;
 				break;
@@ -569,8 +576,8 @@ export default class ClientGame extends GameCore {
 						//}
 					}
 
-					//if(p_h === this.renderer.focused)
-					//	Sounds.EFFECTS.collect.play();
+					if(p_h === this.renderer.focused)
+						SOUND_EFFECTS.collect.play();
 				}
 
 				index += 2;
@@ -591,7 +598,8 @@ export default class ClientGame extends GameCore {
 					}
 
 					//deprecated: if(p_h === this.renderer.focused)
-					//Sounds.EFFECTS.shoot.play();
+					//TODO: calculate distance to focused player
+					SOUND_EFFECTS.shoot.play();
 				}
 
 				index += 4;
@@ -625,8 +633,8 @@ export default class ClientGame extends GameCore {
 
 				this.explosionEffect(xx, yy, GameCore.GET_PARAMS().explosion_radius);
 
-				//if(p_h === this.renderer.focused)
-				//	Sounds.EFFECTS.hit.play();
+				if(p_h === this.renderer.focused)
+					SOUND_EFFECTS.hit.play();
 
 				index += 10;
 				break;
@@ -679,8 +687,8 @@ export default class ClientGame extends GameCore {
 
 				index += 4;
 
-				//if(p_h === this.renderer.focused)
-				//	Sounds.EFFECTS.collect.play();
+				if(p_h === this.renderer.focused)
+					SOUND_EFFECTS.collect.play();
 
 				break;
 			//player_index, spawning_duration death_pos_x and y, explosion_radius
@@ -706,7 +714,7 @@ export default class ClientGame extends GameCore {
 					this.listeners.onNotification(
 						'You died. Respawn in ' + data[index + 2] + ' seconds');
 
-					//Sounds.EFFECTS.explode.play();
+					SOUND_EFFECTS.explode.play();
 				}
 
 				index += 6;

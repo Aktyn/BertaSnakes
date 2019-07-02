@@ -1,10 +1,10 @@
-////<reference path="maps.ts"/>
 import {MapJSON_I} from './maps';
 import Matrix2D from './../utils/matrix2d';
 import Colors from './../game/common/colors';
 
 declare var _CLIENT_: boolean;
 if(!_CLIENT_) {
+	// noinspection ES6ConvertVarToLetConst
 	var Canvas = require('canvas');
 	//console.log(Canvas);
 }
@@ -19,8 +19,14 @@ export interface ChunkSchema {
 	need_update: boolean
 }
 
+export const enum PAINTER_RESOLUTION {
+	LOW = 64,
+	MEDIUM = 128,
+	HIGH = 256
+}
+
 //CHUNK_RES / CHUNK_SIZE should be 1024 at highest settings
-let CHUNK_RES = 128;//resolution of single chunk (256)
+let CHUNK_RES = PAINTER_RESOLUTION.MEDIUM;//resolution of single chunk (256)
 //const CHUNK_SIZE = 0.25;//size of a single chunk compared to screen height
 
 const PI_2 = Math.PI * 2.0;
@@ -35,7 +41,7 @@ let clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(
 const pow2 = (a: number) => a*a;
 
 export default class PaintLayer {
-	public static CHUNK_SIZE = 0.25;//const
+	public static readonly CHUNK_SIZE = 0.25;//const
 	public walls_color = Colors.gen(255, 255, 255);
 
 	private _color = '#fff';
@@ -51,42 +57,7 @@ export default class PaintLayer {
 	private spawn_radius = 0;
 	private spawn_thickness = 0;
 
-	constructor() {
-		//TODO - enumerate PAINTER_RESOLUTION: LOW, MEDIUM AND HIGH and pass it through constructor
-		/*if(_CLIENT_) {//client-side only
-			//var applyResolution = function() {
-			//@ts-ignore
-			if(typeof SETTINGS === 'undefined')
-				throw new Error('Client-side SETTINGS module required');
-			//@ts-ignore
-			switch(SETTINGS.painter_resolution) {
-				case 'LOW':
-					CHUNK_RES = 64;
-					break;
-				case 'MEDIUM':
-					CHUNK_RES = 128;
-					break;
-				case 'HIGH':
-					CHUNK_RES = 256;
-					break;
-			}
-
-			console.info('Painter resolution:', CHUNK_RES);
-			//};
-
-			//setTimeout(applyResolution, 1);
-			//applyResolution();
-		}*/
-		// this._color = '#fff';
-		// this.composite = 'source-over';
-		// this.chunks = [];
-
-		// //this.size
-		// this.map_size = 1;//default
-		// this.walls_thickness = 0;
-		//this.spawn_radius = 0.5;
-		//this.spawn_thickness = 0.08;
-	}
+	constructor() {}
 
 	destroy() {
 		this.chunks.forEach(ch => {
@@ -107,7 +78,9 @@ export default class PaintLayer {
 		return CHUNK_SIZE;
 	}*/
 
-	generateChunks() {
+	generateChunks(res: PAINTER_RESOLUTION) {
+		CHUNK_RES = res;
+		
 		if(!this.size)
 			throw new Error('No size specified for number chunks');
 		this.size = Math.round(this.size / PaintLayer.CHUNK_SIZE);

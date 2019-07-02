@@ -139,6 +139,7 @@ $togglerSize: 30px;
 						display: grid;
 						align-items: center;
 						grid-template-columns: auto 16px;
+						text-align: right;
 
 						&::after {
 							content: "";
@@ -232,6 +233,22 @@ $togglerSize: 30px;
 			width: min-content;
     		margin-left: auto !important;
     		margin-right: auto !important;
+		}
+		
+		.settings {
+			padding: 0px;
+			background-color: transparent;
+			box-shadow: none !important;
+			width: 20px;
+			height: 20px;
+			background-image: url('./../img/icons/settings.svg');
+			
+			opacity: 0.61;
+			transition: opacity 0.2s ease-in-out;
+
+			&:hover {
+				opacity: 1;
+			}
 		}
 
 		& > .list-stretcher > .users-list {

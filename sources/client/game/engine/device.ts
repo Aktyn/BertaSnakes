@@ -64,7 +64,7 @@ function refreshInfo(_info: Info | {[index: string]: any}) {
 	_info.is_mobile = IS_MOBILE;
 	_info.is_v8 = IS_V8;
 
-	console.log('device info:', orientation_support, screen.orientation.type, getOrientation(), IS_MOBILE);
+	//console.log('device info:', orientation_support, screen.orientation.type, getOrientation(), IS_MOBILE);
 	
 	return <Info>_info;
 }

@@ -46,6 +46,11 @@ export default class SlideBar extends React.Component<SlideBarProps, SlideBarSta
 		this.onDragStopEvent = this.onDragStop.bind(this);
 	}
 	
+	componentDidUpdate(prevProps: Readonly<SlideBarProps>) {
+		if( this.props.defaultValue !== undefined && this.props.defaultValue !== prevProps.defaultValue )
+			this.setValue(this.props.defaultValue);
+	}
+	
 	public getValue() {
 		return this.state.value;
 	}
@@ -75,7 +80,7 @@ export default class SlideBar extends React.Component<SlideBarProps, SlideBarSta
 	
 	private setValue(value: number, send_update = false) {
 		value = Math.max(this.props.minValue, Math.min(this.props.maxValue, value));
-		if(value === this.state.value)
+		if(value === this.state.value && !send_update)
 			return;
 		this.setState({value});
 		
@@ -137,7 +142,7 @@ export default class SlideBar extends React.Component<SlideBarProps, SlideBarSta
 							transform: `translateX(${this.pixelOffset|0}px)`
 						}}/>
 			</div>
-			<span className={'value'}>{this.applyPrecision(this.state.value)}&nbsp;{this.props.valueSuffix}</span>
+			<span className={'value'}>{this.applyPrecision(this.state.value)}{this.props.valueSuffix}</span>
 		</div>;
 	}
 }

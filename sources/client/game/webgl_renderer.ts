@@ -110,7 +110,7 @@ export default class WebGLRenderer extends RendererBase {
 		this.emitters = [];
 		this.paint_emitters = [];
 
-		if(Settings.getValue('weather_particles')) {
+		if( Settings.getValue('weather_particles') === true) {
 			switch(map_data['weather']) {
 				default:
 				case WEATHER_TYPE.DUST:

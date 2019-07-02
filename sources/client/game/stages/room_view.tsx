@@ -97,7 +97,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					defaultValue={(room_settings.duration/60)|0} />*/}
 					
 				<label>Duration:</label>
-				<SlideBar valueSuffix={'min'} ref={el => this.duration_input=el}  precision={0}
+				<SlideBar valueSuffix={' min'} ref={el => this.duration_input=el}  precision={0}
 					minValue={Config.MINIMUM_GAME_DURATION/60}
 					maxValue={Config.MAXIMUM_GAME_DURATION/60}
 					defaultValue={(room_settings.duration/60)|0} widgetWidth={100} />

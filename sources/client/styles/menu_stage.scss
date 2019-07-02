@@ -38,6 +38,9 @@ $iconsSize: 20px;
 		}
 
 		.settings {
+			padding: 0px;
+			background-color: transparent;
+			box-shadow: none !important;
 			background-image: url('./../img/icons/settings.svg');
 		}
 

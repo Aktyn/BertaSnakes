@@ -3,7 +3,7 @@ import Player from './objects/player';
 import Enemy from './objects/enemy';
 import Bullet from './objects/bullet';
 import {MapJSON_I} from './maps';
-import PaintLayer from './paint_layer';
+import PaintLayer, {PAINTER_RESOLUTION} from './paint_layer';
 import Shield from "./objects/shield";
 import Bomb from "./objects/bomb";
 import EnemySpawner from "./objects/enemy_spawner";
@@ -89,7 +89,7 @@ export default class Map extends PaintLayer {
 		}
 	}
 
-	loadMap(map: MapJSON_I) {//synchronous
+	loadMap(map: MapJSON_I, res = PAINTER_RESOLUTION.MEDIUM) {//synchronous
 		try {
 			// console.log('(' + map['name'] + ') map data:', map);
 			console.log('map data:', map);
@@ -100,7 +100,7 @@ export default class Map extends PaintLayer {
 			//if(map.data['background_color'])
 			//	this.background.set( ...map.data['background_color'].map(v => v/256) );
 
-			super.generateChunks();
+			super.generateChunks(res);
 
 			super.paintMapWalls(map);
 			super.drawWalls( DEFAULT_WALLS_SIZE );//TODO - make it modifiable from map file

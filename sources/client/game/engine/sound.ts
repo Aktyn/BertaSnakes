@@ -1,10 +1,10 @@
 import Settings from './settings';
 
-const SOUNDS_PATH = 'sounds/';
+const SOUNDS_PATH = require.context('../../sounds');
 
 let b: number;
 
-export default class SoundEffect {
+class SoundEffect {
 	private readonly sound_batch: HTMLAudioElement[];
 	private b_index = 0;
 
@@ -12,47 +12,48 @@ export default class SoundEffect {
 		this.sound_batch = [];
 
 		for(b=0; b<batch; b++) {
-			/*this.sound_batch[b] = <HTMLAudioElement><any>$$.create('audio')
-				.setAttrib('src', SOUNDS_PATH + file_name)
-				.setAttrib('preload', 'auto')
-				.setAttrib('controls', 'none');*/
 			this.sound_batch[b] = document.createElement('audio');
-			this.sound_batch[b].setAttribute('src', SOUNDS_PATH + file_name);
+			this.sound_batch[b].setAttribute('src', SOUNDS_PATH('./' + file_name));
 			this.sound_batch[b].setAttribute('preload', 'auto');
 			this.sound_batch[b].setAttribute('controls', 'none');
 		}
 	}
 
 	play() {
-		this.sound_batch[this.b_index].play();
+		if(this.sound_batch[this.b_index].volume <= 0)
+			return;
+		this.sound_batch[this.b_index].play().catch(console.error);
 		this.b_index = (++this.b_index) % this.sound_batch.length;
 	}
 
-	pause() {
+	/*pause() {
 		for(b=0; b<this.sound_batch.length; b++)
 			this.sound_batch[b].pause();
-	}
+	}*/
 
+	// noinspection JSUnusedGlobalSymbols
 	setVolume(val: number) {//value in range: 0 -> 1
 		for(b=0; b<this.sound_batch.length; b++)
 			this.sound_batch[b].volume = val;
 	}
 }
 
-export var EFFECTS = {
+function extendType<T>(target: T): T & {[index: string]: SoundEffect} {
+	return target as T & {[index: string]: SoundEffect};
+}
+
+export const SOUND_EFFECTS = extendType({
 	hit: 		new SoundEffect('hit.ogg', 3),
 	collect: 	new SoundEffect('collect.ogg', 3),
 	explode: 	new SoundEffect('explode.ogg', 5),
 	shoot: 		new SoundEffect('shoot.ogg', 10),
 	wallHit: 	new SoundEffect('wallHit.ogg', 3)
-};
+});
 
-export function updateVolumes(value: number) {
-	for(var effect_name in EFFECTS) {
-		//@ts-ignore
-		EFFECTS[effect_name].setVolume(value);
-	}
+function updateVolumes(value: number) {
+	for(let effect_name in SOUND_EFFECTS)
+		SOUND_EFFECTS[effect_name].setVolume(value);
 }
 
-//@ts-ignore TODO: stop ignoring this
-updateVolumes(Settings.sound_effects);
+Settings.watch('sound_volume', value => updateVolumes(value as number));
+updateVolumes( (<number>Settings.getValue('sound_volume')) || 0 );

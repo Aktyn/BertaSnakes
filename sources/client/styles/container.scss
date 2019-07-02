@@ -165,14 +165,43 @@ $targetW: 400px;
 
 		& > *:nth-child(odd) {
 			text-align: right;
+			justify-self: end;
 		}
 
 		& > *:nth-child(even) {
 			text-align: left;
+			justify-self: start;
 		}
 		
 		&.bold > *:nth-child(even) {
 			font-weight: bold;
+		}
+		
+		&.breakable {
+			@media (max-width: 400px) {
+				grid-template-columns: auto;
+				& > * {
+					text-align: center;
+					justify-self: center;
+				}
+			}
+		}
+	}
+	
+	.labeled-section {
+		$labelSize: 30px;
+		
+		display: block;
+		
+		border: 1px solid #B0BEC5;
+		border-top: none;
+		padding-bottom: 10px;
+		margin: ($labelSize / 2) 10px 10px 10px;
+		
+		& > label:first-child {
+			height: $labelSize;
+			transform: translateY(-$labelSize / 2);
+			margin-bottom: -$labelSize / 2;
 		}
 	}
 	

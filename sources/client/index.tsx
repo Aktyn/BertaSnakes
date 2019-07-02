@@ -1,3 +1,10 @@
+//disable logs and errors in production
+if(process.env.NODE_ENV !== 'development') {
+	console.log('%cLogs disabled in production code.\n¯\\_(ツ)_/¯',
+		'color: #f44336; font-weight: bold; font-size: 25px;');
+	console.log = console.error = console.info = console.trace = function(){};
+}
+
 import * as React from 'react';
 import { render } from 'react-dom';
 import Loadable from 'react-loadable';
@@ -12,13 +19,6 @@ import Home from './pages/home';
 import Rankings from './pages/rankings';
 import GameDetails from './pages/game_details';
 import UserDetails from './pages/user_details';
-
-//disable logs and errors in production
-if(process.env.NODE_ENV !== 'development') {
-	console.log('%cLogs disabled in production code.\n¯\\_(ツ)_/¯', 
-		'color: #f44336; font-weight: bold; font-size: 25px;');
-	console.log = console.error = console.info = console.trace = function(){};
-}
 
 function __async(_loader: () => any) {
 	return Loadable({
