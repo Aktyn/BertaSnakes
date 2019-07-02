@@ -116,7 +116,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 				<SharePanel link={'/users/' + this.state.user.id} />
 			</>}
 			<hr/>
-			<div className={'fader-in'}>TODO: private chat but not to yourself</div>
+			<div className={'fader-in'}>TODO: get friendship info and shop private chat section (but not to yourself) and request/remove friend button depending on friendship state</div>
 		</section>;
 	}
 }

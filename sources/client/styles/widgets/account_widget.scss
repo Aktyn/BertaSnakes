@@ -62,15 +62,15 @@ $size: 150px;
 				
 				border-radius: $size;
 				overflow: hidden;
-				&.empty { 
+				/*&.empty {
 					background-color: #90A4AE;//#ef5350;
 					box-shadow: 0px 2px 4px #0008;
 					line-height: $size/3;
 					img {
-						width: $size/4;
-						height: $size/4;
+						width: $size/3;//4
+						height: $size/3;//4
 					}
-				}
+				}*/
 
 				&:not(.empty) {
 					line-height: 0px;
@@ -84,12 +84,12 @@ $size: 150px;
 				transition: transform 0.4s cubic-bezier(.36,.07,.19,.97);
 
 				&:hover {
-					&.empty {
-						background-color: #B0BEC5;//#e57373;
-					}
-					&:not(.empty) {
+					//&.empty {
+					//	background-color: #B0BEC5;//#e57373;
+					//}
+					//&:not(.empty) {
 						transform: scale(1.2);
-					}
+					//}
 				}
 			}
 		}

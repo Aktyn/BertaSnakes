@@ -41,8 +41,8 @@ class AccountDataView extends React.Component<{
 	self: AccountSidepop;
 	account: AccountSchema;
 	updateSetup: (ship_type: PLAYER_TYPES, skillsbar: (number | null)[]) => Promise<void>;
-}, any> {
-	
+}, any>
+{
 	private renderAvailableShips(account: AccountSchema) {
 		return account.available_ships.map((ship) => {
 			let selected = ship === account.ship_type;
@@ -151,6 +151,10 @@ class AccountDataView extends React.Component<{
 					disabled={this.props.account.total_games === 0}>GAMES</button>
 			</nav>
 			<hr/>
+			<div className={'fader-in'}>
+				TODO: conversations from sessionStorage (redirections to conversing user sections)
+			</div>
+			<hr/>
 		</>;
 	}
 }
@@ -168,11 +172,11 @@ export default class AccountSection extends React.Component<{
 	render() {
 		let account = this.props.account;
 		let self = this.props.self;
-		const no_avatar_style = account.avatar ? {
+		/*const no_avatar_style = account.avatar ? {
 			backgroundSize: 'contain'
 		} : {
 			backgroundSize: '61%',
-		};
+		};*/
 		
 		return <section>
 			<h1 key='welcome-key' className='fader-in welcomer'>
@@ -184,7 +188,8 @@ export default class AccountSection extends React.Component<{
 					<div key={account.avatar || 'no-avatar'}
 					     className='avatar' style={{
 						backgroundImage: `url(${ServerApi.getAvatarPath(account.avatar)})`,
-						...no_avatar_style
+						//...no_avatar_style
+						backgroundSize: 'contain'
 					}}/>
 					{
 						account.avatar ? <button className='avatar-select-btn'

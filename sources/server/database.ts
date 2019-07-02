@@ -14,6 +14,7 @@ const enum COLLECTIONS {
 	accounts = 'accounts',//username, password, email, verification_code, creation_time, last_login, ...
 	sessions = 'sessions',//account_id, token, expiration
 	games = 'games',//finish_timestamp, name, map, gamemode, duration, results
+	friendships = 'friendships'
 }
 let total_accounts = 0;//cached counter
 
@@ -47,17 +48,13 @@ MongoClient.connect(uri, {
 	connection_listeners.forEach(c => c());
 	connection_listeners = [];
 
-	//creating indexes
-	//await db.collection(COLLECTIONS.accounts).createIndex({id: 1}, 
-	//	{name: 'account_id', unique: true});
+	// INDEXES //
+	
+	//ACCOUNTS
 	await db.collection(COLLECTIONS.accounts).createIndex({username: 'hashed'}, 
 		{name: 'username_index'});//NOTE - hashed index cannot be unique at the moment
-	//await db.collection(COLLECTIONS.accounts).createIndex({password: 'hashed'},
-	//	{name: 'password_index'});
 	await db.collection(COLLECTIONS.accounts).createIndex({email: 'hashed'}, 
 		{name: 'email_index'});
-	//await db.collection(COLLECTIONS.accounts).createIndex({verification_code: 'hashed'},
-	//	{name: 'verification_index'});
 	await db.collection(COLLECTIONS.accounts).createIndex({rank: -1},
 		{name: 'rank_sorting'});
 	await db.collection(COLLECTIONS.accounts).createIndex({creation_time: -1},
@@ -65,14 +62,23 @@ MongoClient.connect(uri, {
 	await db.collection(COLLECTIONS.accounts).createIndex({level: -1, exp: -1},
 		{name: 'level sorting'});
 
+	//SESSIONS
 	await db.collection(COLLECTIONS.sessions).createIndex({account_id: 1}, 
 		{name: 'account_session', unique: true});
 	await db.collection(COLLECTIONS.sessions).createIndex({token: 'hashed'}, 
 		{name: 'session_token'});
 	
+	//GAMES
 	await db.collection(COLLECTIONS.games).createIndex({finish_timestamp: 1},
 		{name: 'timestamp_index'});
 	
+	//FRIENDS
+	await db.collection(COLLECTIONS.friendships).createIndex({left: 'hashed'},
+		{name: 'left-friend-search'});
+	await db.collection(COLLECTIONS.friendships).createIndex({right: 'hashed'},
+		{name: 'right-friend-search'});
+	
+	//some precalculations
 	total_accounts = await db.collection(COLLECTIONS.accounts).countDocuments();
 	
 	//tests
@@ -583,6 +589,59 @@ export default {
 				error: ERROR_CODES.SUCCESS,
 				game: game as GameSchema
 			};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async getAccountFriends(account_hex_id: string) {
+		try {
+			let account_id = ObjectId.createFromHexString(account_hex_id);
+			let left_friends = await getCollection(COLLECTIONS.friendships).aggregate([
+				{
+					$match: {
+						right: account_id
+					}
+				}, {
+					$limit: Config.MAXIMUM_NUMBER_OF_FRIENDS
+				}, {
+					$lookup: {
+						from: COLLECTIONS.accounts,
+						localField: 'left',
+						foreignField: '_id',
+						as: 'friend'
+					}
+				}
+			]).toArray();
+			let right_friends = await getCollection(COLLECTIONS.friendships).aggregate([
+				{
+					$match: {
+						left: account_id
+					}
+				}, {
+					$limit: Config.MAXIMUM_NUMBER_OF_FRIENDS
+				}, {
+					$lookup: {
+						from: COLLECTIONS.accounts,
+						localField: 'right',
+						foreignField: '_id',
+						as: 'friend'
+					}
+				}
+			]).toArray();
+			
+			let friends = left_friends.concat(right_friends).map(friendship_data => {
+				if( friendship_data.friend.length < 1 )
+					return null;
+				return extractUserPublicData( friendship_data.friend[0] );
+			}).filter(acc => acc !== null) as PublicAccountSchema[];
+			
+			//TODO: add information about friend being online, in which room, whether is he playing game
+			//this may be expensive so it would be nice to prevent it when server is busy (many current games)
+			
+			return {error: ERROR_CODES.SUCCESS, friends};
 		}
 		catch(e) {
 			console.error(e);

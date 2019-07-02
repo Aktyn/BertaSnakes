@@ -16,6 +16,7 @@ import AccountSection from "./account_section";
 import GamesSection from "./games_section";
 import ShopSection from "./shop_section";
 import {SkillData} from "../../../common/game/common/skills";
+import FriendsSection from "./friends_section";
 
 export const enum VIEWS {//avoid 0 so this enum contains only truthy values
 	GENERAL = 1,
@@ -62,7 +63,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	state: AccountSidepopState = {
 		loading: false,
-		view: VIEWS.GENERAL,//GENERAL
+		view: VIEWS.FRIENDS,//GENERAL
 		account: null,
 		verify_info: false,
 		verification_resend: false,
@@ -360,7 +361,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			}
 
 			case VIEWS.FRIENDS:
-				return <section>TODO - friends section</section>;
+				return <FriendsSection onError={code => this.setError(errorMsg(code))} />;
 
 			case VIEWS.SHOP:
 				if(this.state.account) {

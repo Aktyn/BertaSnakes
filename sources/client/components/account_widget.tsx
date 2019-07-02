@@ -37,7 +37,7 @@ export default class AccountWidget extends React.Component<any, AccountWidgetSta
 		return <div className='account-widget'>
 			<div className='account-widget-content' onClick={() => this.setState({show_sidepop: true})}>
 				<div className={`indicator ${acc ? '' : 'no-account'}`}>
-					{acc ? <span className={`avatar-circle ${!acc || !acc.avatar ? 'empty' : ''}`}>
+					{acc ? <span className={`avatar-circle ${/*!acc || !acc.avatar ? 'empty' : */''}`}>
 						<img src={ServerAPi.getAvatarPath(acc.avatar)}  alt={'avatar'}/></span> :
 						<button>LOG IN</button>}
 				</div>

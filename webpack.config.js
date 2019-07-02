@@ -14,8 +14,8 @@ module.exports = {
 		main: './sources/client/index.tsx',
 	},
 	output: {
-		filename: '[name].js',
-		chunkFilename: '[name].js',
+		filename: '[name]-[hash].js',
+		chunkFilename: '[name]-[hash].js',
 		path: path.resolve(__dirname, 'dist', 'client'),
 		publicPath: '/'
 	},
@@ -159,7 +159,7 @@ module.exports = {
 		new CaseSensitivePathsPlugin(),
 		new MiniCssExtractPlugin({
 			filename: "[name]-styles.css",
-			chunkFilename: "[id].css"
+			chunkFilename: "[id]-[hash].css"
 		}),
 		new HtmlWebpackPlugin({
 			hash: isDevelopment,

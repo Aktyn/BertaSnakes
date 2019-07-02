@@ -42,6 +42,7 @@ export default {
 	//user settings
 	INITIAL_RANK: 1000,
 	SKILLS_SLOTS: 6,
+	MAXIMUM_NUMBER_OF_FRIENDS: 100,
 	
 	//lists settings
 	ITEMS_PER_GAMES_LIST_PAGE: 10,

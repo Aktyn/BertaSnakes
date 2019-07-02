@@ -32,20 +32,10 @@ function loadAssets() {
 	loadImage('speed_item', 		'items/acceleration.png');
 
 	//skills icons
-	/*loadImage('shot1_skill', 		'skills_icons/shot1.png');
-	loadImage('shot2_skill', 		'skills_icons/shot2.png');
-	loadImage('shot3_skill', 		'skills_icons/shot3.png');
-	loadImage('shield_skill', 		'skills_icons/shield.png');
-	loadImage('bounce_shot_skill', 	'skills_icons/bounce_shot.png');
-	loadImage('energy_blast_skill', 'skills_icons/energy_blast.png');
-	loadImage('heal_skill', 		'skills_icons/heal.png');
-	loadImage('speed_skill', 		'skills_icons/speed.png');
-	loadImage('bomb_skill', 		'skills_icons/bomb.png');*/
 	for(let skill_key in Skills) {
 		let skill = Skills[skill_key] as SkillData;
 		if(typeof skill.id === 'number') {
 			loadImage(skill.texture_name, 		'skills_icons/' + skill.texture_name);
-			//console.log('test', Skills[skill].id);
 		}
 	}
 	

@@ -1,0 +1,19 @@
+.friends-section {
+	.friends-list {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: row;
+		flex-wrap: wrap;
+		
+		& > * {
+			padding: 5px;
+			margin: 5px;
+			
+			img {
+				height: 20px;
+				margin-right: 5px;
+			}
+		}
+	}
+}

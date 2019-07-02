@@ -219,6 +219,17 @@ export default {
 			return {error: ERROR_CODES.SERVER_UNREACHABLE};
 		}
 	},
+	
+	async getFriendsList() {
+		try {
+			if(!current_account)
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			return await ServerApi.postRequest('/get_friends_list', {token});
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+	},
 
 	logout() {
 		Cookies.removeCookie('token');
