@@ -13,18 +13,14 @@ class Cache {
 	}
 }
 
-interface CacheStore {
-	[index: string]: Cache
-}
-
-var cache_store: CacheStore = {};
+let cache_store: Map<string, Cache> = new Map();
 
 export default {
 	getCache: function(name: string): Cache | undefined {
-		var cache = cache_store[name];
+		let cache = cache_store.get(name);
 
-		if(cache && cache.expired()) {
-			delete cache_store[name];
+		if( cache && cache.expired() ) {
+			cache_store.delete(name);
 			console.log('Expired cache:', name);
 			return undefined;
 		}
@@ -33,7 +29,12 @@ export default {
 	},
 
 	createCache: function(name: string, lifetime: number, data: any) {//lifetime - in milliseconds
+		if( cache_store.has(name) ) {
+			console.warn('Cache with given name already exists:', name);
+			return;
+		}
 		console.log('New cache object created:', name);
-		cache_store[name] = new Cache(lifetime, data);
+		//cache_store[name] = new Cache(lifetime, data);
+		cache_store.set(name, new Cache(lifetime, data));
 	}
 };

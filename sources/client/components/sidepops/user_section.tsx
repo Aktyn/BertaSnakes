@@ -2,12 +2,15 @@ import * as React from 'react';
 import ERROR_CODES from "../../../common/error_codes";
 import Loader from '../widgets/loader';
 import ServerApi from '../../utils/server_api';
-import {PublicAccountSchema} from '../../../server/database';
+import Account from '../../account';
+import Social, {EVENT_NAMES, FriendSchema} from '../../social/social';
+import {PublicAccountSchema, AccountSchema} from '../../../server/database';
 
-import '../../styles/user_section.scss';
 import {offsetTop} from "./sidepops_common";
 import GamesSection from "./games_section";
 import SharePanel from "./share_panel";
+
+import '../../styles/user_section.scss';
 
 interface UserSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -19,10 +22,15 @@ interface UserSectionProps {
 interface UserSectionState {
 	loading: boolean;
 	user: PublicAccountSchema | null;
+	friend: FriendSchema | null;
+	friend_id_to_remove?: string;
 	show_games: boolean;
 }
 
 export default class UserSection extends React.Component<UserSectionProps, UserSectionState> {
+	private readonly onFriendsUpdate: (account: AccountSchema | null) => void;
+	private remove_friend_tm: NodeJS.Timeout | null = null;
+	
 	static defaultProps: Partial<UserSectionProps> = {
 		container_mode: false
 	};
@@ -30,23 +38,38 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	state: UserSectionState = {
 		loading: true,
 		user: null,
+		friend: null,
 		show_games: false
 	};
 	
+	constructor(props: UserSectionProps) {
+		super(props);
+		
+		this.onFriendsUpdate = this.updateFriends.bind(this);
+	}
+	
 	async componentDidMount() {
+		Social.on(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, this.onFriendsUpdate);
+		
 		try {
 			this.setState({loading: true});
 			if(false === await ServerApi.pingServer())
 				return this.props.onError( ERROR_CODES.SERVER_UNREACHABLE );
 
 			let res = await ServerApi.postRequest('/get_user_public_data', {
-				account_id: this.props.account_id
+				account_id: this.props.account_id,
+				//self_token: Account.getToken()//used for getting friendship data
 			});
 			if (res.error !== ERROR_CODES.SUCCESS)
 				return this.props.onError( res.error );
 			//console.log(res);
-			if(res.data)
-				this.setState({user: res.data, loading: false});
+			if(res.data) {
+				this.setState({
+					user: res.data,
+					loading: false,
+					friend: Social.getFriend(res.data.id) || null
+				});
+			}
 		}
 		catch(e) {
 			console.error(e);
@@ -54,9 +77,21 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		}
 	}
 	
+	componentWillUnmount() {
+		Social.off(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, this.onFriendsUpdate);
+		if(this.remove_friend_tm)
+			clearTimeout(this.remove_friend_tm);
+	}
+	
 	componentDidUpdate(prevProps: Readonly<UserSectionProps>, prevState: Readonly<UserSectionState>) {
 		if(this.props.onGamesListToggle && prevState.show_games !== this.state.show_games)
 			this.props.onGamesListToggle();
+	}
+	
+	private updateFriends() {
+		if( !Account.getAccount() || !this.state.user )
+			return;
+		this.setState({friend: Social.getFriend(this.state.user.id) || null});
 	}
 	
 	public canReturn() {
@@ -66,6 +101,11 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	public return() {
 		if(this.state.show_games)
 			this.setState({show_games: false});
+	}
+	
+	private cancelRemoveFriend() {
+		this.setState({friend_id_to_remove: undefined});
+		this.remove_friend_tm = null;
 	}
 	
 	private static renderUserDetails(user: PublicAccountSchema) {
@@ -100,6 +140,42 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		</>;
 	}
 	
+	private renderChat() {
+		return <div style={offsetTop}>TODO: chat</div>;
+	}
+	
+	private renderSocialSection() {
+		let acc = Account.getAccount();
+		if(!this.state.user || !acc || this.state.user.id === acc.id)
+			return undefined;
+		
+		if( !this.state.friend )
+			return <button>SEND FRIEND REQUEST</button>;
+		
+		return <>
+			<div style={{
+				color: this.state.friend.online ? '#8BC34A' : '#e57373',
+				fontWeight: 'bold'
+			}}>{this.state.friend.online ? 'online' : 'offline'}</div>
+			<button onClick={() => {
+				if(!this.state.user)
+					return;
+				if( this.state.friend_id_to_remove ) {
+					Social.removeFriend(this.state.friend_id_to_remove);
+					
+					if(this.remove_friend_tm)
+						clearTimeout(this.remove_friend_tm);
+					this.cancelRemoveFriend();
+				}
+				else {
+					this.setState({friend_id_to_remove: this.state.user.id});
+					this.remove_friend_tm = setTimeout(this.cancelRemoveFriend.bind(this), 5000) as never;
+				}
+			}}>{this.state.friend_id_to_remove ? 'CONFIRM' : 'REMOVE FROM FRIENDS'}</button>
+			{this.state.friend.online && this.renderChat()}
+		</>;
+	}
+	
 	render() {
 		if(this.state.show_games && this.state.user) {
 			return <GamesSection onError={this.props.onError} account={this.state.user}
@@ -116,7 +192,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 				<SharePanel link={'/users/' + this.state.user.id} />
 			</>}
 			<hr/>
-			<div className={'fader-in'}>TODO: get friendship info and shop private chat section (but not to yourself) and request/remove friend button depending on friendship state</div>
+			<div className={'fader-in'}>{this.renderSocialSection()}</div>
 		</section>;
 	}
 }

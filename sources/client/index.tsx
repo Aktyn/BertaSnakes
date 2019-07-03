@@ -1,8 +1,9 @@
 //disable logs and errors in production
 if(process.env.NODE_ENV !== 'development') {
+	console.clear();
 	console.log('%cLogs disabled in production code.\n¯\\_(ツ)_/¯',
 		'color: #f44336; font-weight: bold; font-size: 25px;');
-	console.log = console.error = console.info = console.trace = function(){};
+	console.log = console.error = console.info = console.trace = console.warn = function(){};
 }
 
 import * as React from 'react';

@@ -7,10 +7,6 @@ import Config from '../../../common/config';
 
 import Account from '../../account';
 
-//@ts-ignore
-// window.WebSocket = window.WebSocket || window.MozWebSocket;
-// if(typeof WebSocket === 'undefined') throw new Error('No websocket support');
-
 interface ListenersSchema {
 	onServerConnected: () => void, 
 	onServerDisconnect: () => void,

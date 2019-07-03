@@ -21,12 +21,6 @@ catch(e) {
 }
 
 global.APP_VERSION = app_version.replace(/\./g, '_') || 'unknown version';
-/*global.DATE_VERSION = (() => {
-	let date = new Date();
-	let m = date.getUTCMonth() + 1;
-	let d = date.getDate();
-	return date.getFullYear() + '_' + (m < 10 ? '0' + m : m) + '_' + (d < 10 ? '0' + d : d);
-})();*/
 
 import './database';//initializes database
 
@@ -39,11 +33,5 @@ import Config from '../common/config';
 import Core from './game/core';
 Core.runAt( Config.WEBSOCKET_PORT );
 
-/*import Config from './../common/config';
-
-import Connection from './connection';
-import Core from './core';
-
-// require('./http/http_server.js').init();
-import HttpServer from './http/http_server';
-HttpServer.init();*/
+import SocialCore from './social/core';
+SocialCore.runAt( Config.SOCIAL_WEBSOCKET_PORT );

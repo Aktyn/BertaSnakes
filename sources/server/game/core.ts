@@ -25,9 +25,9 @@ function onMessage(connection: Connection, message: any) {
 }
 
 export default {
-	runAt( port: number ) {//port for websocket server
+	runAt(port: number) {//port for websocket server
 		if(open_port)
-			throw new Error('Websocket is already open at port: ' + open_port);
+			throw new Error('WebSocketServer is already open at port: ' + open_port);
 		open_port = port;
 
 		console.log('Running WebSocketServer at port:', port);

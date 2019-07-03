@@ -10,10 +10,21 @@
 			padding: 5px;
 			margin: 5px;
 			
-			img {
-				height: 20px;
-				margin-right: 5px;
+			.status-indicator {
+				$size: 8px;
+				
+				display: inline-block;
+				margin-left: 5px;
+				width: $size;
+				height: $size;
+				border-radius: $size;
 			}
 		}
+	}
+	
+	img {
+		height: 20px;
+		border-radius: 20px;
+		margin-right: 5px;
 	}
 }

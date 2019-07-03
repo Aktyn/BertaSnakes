@@ -15,6 +15,7 @@
 			grid-area: nick;
 		}
 		& > img {
+			border-radius: 50px;
 			grid-area: avatar;
 			height: 100%;
 		}

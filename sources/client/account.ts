@@ -1,13 +1,13 @@
 import ServerApi from './utils/server_api';
 import Cookies from './utils/cookies';
 
+import Social from './social/social';
+
 import ERROR_CODES from '../common/error_codes';
 import {PLAYER_TYPES} from "../common/game/objects/player";
-
 import {UserCustomData} from "../common/user_info";
 
 import {AccountSchema} from '../server/database';
-
 export {AccountSchema} from '../server/database';
 
 let current_account: AccountSchema | null = null;
@@ -29,8 +29,9 @@ async function loginFromToken() {
 		if(res.error === ERROR_CODES.SUCCESS && typeof res.account === 'object' &&
 			typeof res.account.id === 'string' && typeof res.account.username === 'string') 
 		{
-			onAccountData(res.account);
 			console.log('Logged in via token', current_account);
+			onAccountData(res.account);
+			Social.connect(token as string);
 			return {error: ERROR_CODES.SUCCESS};
 		}
 		else
@@ -46,6 +47,11 @@ async function loginFromToken() {
 let token = Cookies.getCookie('token');
 if(token) //try to login via cookie token
 	loginFromToken().catch(console.error);
+
+function setToken(_token: string, _expires: number) {
+	token = _token;
+	Cookies.setCookie('token', _token, _expires);
+}
 
 export default {
 	getAccount() {//null if user is not logged in
@@ -93,8 +99,8 @@ export default {
 				return {error: ERROR_CODES.INCORRECT_SERVER_RESPONSE};
 
 			onAccountData(res.account);
-
-			this.setToken(res.token, res.expiration_time);
+			setToken(res.token, res.expiration_time);
+			Social.connect(res.token);
 
 			return res;
 		}
@@ -219,27 +225,12 @@ export default {
 			return {error: ERROR_CODES.SERVER_UNREACHABLE};
 		}
 	},
-	
-	async getFriendsList() {
-		try {
-			if(!current_account)
-				return {error: ERROR_CODES.NOT_LOGGED_IN};
-			return await ServerApi.postRequest('/get_friends_list', {token});
-		}
-		catch(e) {
-			return {error: ERROR_CODES.SERVER_UNREACHABLE};
-		}
-	},
 
 	logout() {
 		Cookies.removeCookie('token');
 		token = null;
 		onAccountData(null);
+		Social.disconnect();
 		//TODO - send request to server for removing session
-	},
-
-	setToken(_token: string, _expires: number) {
-		token = _token;
-		Cookies.setCookie('token', _token, _expires);
 	}
 }

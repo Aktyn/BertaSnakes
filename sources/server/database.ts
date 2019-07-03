@@ -73,10 +73,10 @@ MongoClient.connect(uri, {
 		{name: 'timestamp_index'});
 	
 	//FRIENDS
-	await db.collection(COLLECTIONS.friendships).createIndex({left: 'hashed'},
-		{name: 'left-friend-search'});
-	await db.collection(COLLECTIONS.friendships).createIndex({right: 'hashed'},
-		{name: 'right-friend-search'});
+	await db.collection(COLLECTIONS.friendships).createIndex({from: 'hashed'},
+		{name: 'from-friend-search'});
+	await db.collection(COLLECTIONS.friendships).createIndex({to: 'hashed'},
+		{name: 'to-friend-search'});
 	
 	//some precalculations
 	total_accounts = await db.collection(COLLECTIONS.accounts).countDocuments();
@@ -599,49 +599,110 @@ export default {
 	async getAccountFriends(account_hex_id: string) {
 		try {
 			let account_id = ObjectId.createFromHexString(account_hex_id);
-			let left_friends = await getCollection(COLLECTIONS.friendships).aggregate([
+			let from_friends = await getCollection(COLLECTIONS.friendships).aggregate([
 				{
 					$match: {
-						right: account_id
+						to: account_id,
+						accepted: true
 					}
 				}, {
 					$limit: Config.MAXIMUM_NUMBER_OF_FRIENDS
 				}, {
 					$lookup: {
 						from: COLLECTIONS.accounts,
-						localField: 'left',
+						localField: 'from',
 						foreignField: '_id',
 						as: 'friend'
 					}
 				}
 			]).toArray();
-			let right_friends = await getCollection(COLLECTIONS.friendships).aggregate([
+			let to_friends = await getCollection(COLLECTIONS.friendships).aggregate([
 				{
 					$match: {
-						left: account_id
+						from: account_id,
+						accepted: true
 					}
 				}, {
 					$limit: Config.MAXIMUM_NUMBER_OF_FRIENDS
 				}, {
 					$lookup: {
 						from: COLLECTIONS.accounts,
-						localField: 'right',
+						localField: 'to',
 						foreignField: '_id',
 						as: 'friend'
 					}
 				}
 			]).toArray();
 			
-			let friends = left_friends.concat(right_friends).map(friendship_data => {
-				if( friendship_data.friend.length < 1 )
+			let friends = from_friends.concat(to_friends).map(friendship_data => {
+				if( friendship_data['friend'].length < 1 )
 					return null;
-				return extractUserPublicData( friendship_data.friend[0] );
+				return extractUserPublicData( friendship_data['friend'][0] );
 			}).filter(acc => acc !== null) as PublicAccountSchema[];
 			
-			//TODO: add information about friend being online, in which room, whether is he playing game
-			//this may be expensive so it would be nice to prevent it when server is busy (many current games)
-			
 			return {error: ERROR_CODES.SUCCESS, friends};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async getAccountFriendRequests(account_hex_id: string) {
+		try {
+			let account_id = ObjectId.createFromHexString(account_hex_id);
+			
+			let requesting_friends = await getCollection(COLLECTIONS.friendships).aggregate([
+				{
+					$match: {
+						accepted: false,//not accepted request
+						to: account_id,//to given account
+					}
+				}, {
+					$limit: Config.MAXIMUM_NUMBER_OF_FRIENDS
+				}, {
+					$lookup: {
+						from: COLLECTIONS.accounts,
+						localField: 'from',
+						foreignField: '_id',
+						as: 'requesting_friend'
+					}
+				}
+			]).toArray();
+			
+			let potential_friends = requesting_friends.map(friendship_data => {
+				if( friendship_data['requesting_friend'].length < 1 )
+					return null;
+				return extractUserPublicData( friendship_data['requesting_friend'][0] );
+			}).filter(acc => acc !== null) as PublicAccountSchema[];
+			
+			return {error: ERROR_CODES.SUCCESS, potential_friends};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async removeFriendship(friend1_id: string, friend2_id: string) {
+		try {
+			let id1 = ObjectId.createFromHexString(friend1_id);
+			let id2 = ObjectId.createFromHexString(friend2_id);
+			
+			let remove_res = await getCollection(COLLECTIONS.friendships).deleteOne({
+				$or: [
+					{
+						from: id1,
+						to: id2
+					}, {
+						from: id2,
+						to: id1
+					}
+				]
+			});
+			if( !remove_res.result.ok || !remove_res.deletedCount )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
 		}
 		catch(e) {
 			console.error(e);
