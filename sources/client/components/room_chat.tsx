@@ -79,9 +79,8 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 		//same user wrote again since last message
 		if(last_i !== -1 && messages[last_i].author.id === msg.author.id)
 			messages[last_i].content.push(...msg.content);
-		else {//adding new message
+		else//adding new message
 			messages.splice(last_i+1, 0, msg);
-		}
 		this.setState({messages});
 	}
 

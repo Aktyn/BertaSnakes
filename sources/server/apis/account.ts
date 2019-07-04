@@ -3,7 +3,7 @@ import Sessions from '../sessions';
 import Email from '../email';
 import {md5, sha256} from '../utils';
 import Config from '../../common/config';
-import Database from '../database';
+import Database from '../database/database';
 import UploadReceiver from '../upload_receiver';
 import ERROR_CODES from '../../common/error_codes';
 

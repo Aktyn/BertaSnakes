@@ -1,6 +1,6 @@
 const prompt = require('prompt-sync')();
 import * as crypto from 'crypto';
-import {AccountSchema} from "./database";
+import {AccountSchema} from "./database/database";
 import {UserCustomData} from '../common/user_info';
 
 export function getArgument(name: string) {

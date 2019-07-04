@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 import ServerApi from '../../utils/server_api';
 import ERROR_CODES from '../../../common/error_codes';
 import Config from '../../../common/config';
-import {GameSchema, PublicAccountSchema} from "../../../server/database";
+import {GameSchema, PublicAccountSchema} from "../../../server/database/database";
 import Utils from '../../utils/utils';
 import RewardIndicator from "../widgets/reward_indicator";
 import PagesController from "../widgets/pages_controller";

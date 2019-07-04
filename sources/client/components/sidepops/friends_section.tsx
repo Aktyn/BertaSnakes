@@ -6,7 +6,8 @@ import ERROR_CODES from "../../../common/error_codes";
 import UserSidepop from './user_sidepop';
 
 import '../../styles/friends_section.scss';
-import {PublicAccountSchema} from "../../../server/database";
+import {PublicAccountSchema} from "../../../server/database/database";
+import PotentialFriendsTable from "./potential_friends_table";
 
 interface FriendsSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -80,17 +81,7 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 				maxHeight: '50%',
 				overflowY: 'auto'
 			}}>
-				<table style={{
-					display: 'inline-table',
-					width: 'auto'
-				}}><tbody>{this.state.potential_friends.map(user => {
-					return <tr key={user.id}>
-						<td><img src={ServerApi.getAvatarPath(user.avatar)} alt={'user\'s avatar'} /></td>
-						<td>{user.username}</td>
-						<td><button>ACCEPT</button></td>
-						<td><button>REJECT</button></td>
-					</tr>;
-				})}</tbody></table>
+				<PotentialFriendsTable users={this.state.potential_friends} />
 			</div>
 			<hr/>
 		</>;

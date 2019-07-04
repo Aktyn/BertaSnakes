@@ -1,0 +1,77 @@
+@import 'global.scss';
+
+.social-chat {
+	$bottomSize: 26px;
+	$transFunc: 0.2s ease-in-out;
+	
+	max-height: 100vh;
+	
+	border-top: 1px solid #B0BEC5;
+	
+	display: grid;
+	grid-template-columns: auto;
+	grid-template-rows: auto $bottomSize;
+	
+	.messages {
+		max-height: 100%;
+		overflow-y: auto;
+		//border-bottom: 1px solid #B0BEC5;
+	}
+	
+	.bottom {
+		height: $bottomSize;
+		
+		display: flex;
+		padding: 0px;
+		border-collapse: collapse;
+		justify-content: stretch;
+		
+		& > * {
+			line-height: $bottomSize;
+			border-radius: 0px;
+			border: none;
+			border-top: 1px solid nth($palette, 3);
+			height: $bottomSize;
+		}
+		
+		& > input {
+			flex: 2;
+			
+			&:focus {
+				border-color: #e57373;
+			}
+		}
+		
+		& > input:focus + button {
+			border-color: #e57373;
+		}
+		
+		& > button {//send button
+			//height: $bottomSize;
+			width: $bottomSize*2;
+			box-shadow: none !important;
+			//transition: border-color $transFunc;
+			padding: 0px;
+			
+			&::after {
+				content: "";
+				display: block;
+				background: url('../img/icons/send_dark.svg') center no-repeat;
+				background-size: auto 80%;
+				height: 100%;
+				width: 100%;
+				opacity: 0.5;
+
+				transition: opacity $transFunc;
+			}
+
+			&:hover {
+				//border-color: #e57373;
+
+				&::after {
+					opacity: 1;
+				}
+			}
+		}
+	}
+}

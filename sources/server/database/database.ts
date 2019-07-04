@@ -1,20 +1,23 @@
 import {Db, MongoClient, ObjectId} from 'mongodb';
-import {getArgument} from './utils';
-import ERROR_CODES from '../common/error_codes';
-import Config, {RANKING_TYPES} from '../common/config';
+import {getArgument} from '../utils';
+import ERROR_CODES from '../../common/error_codes';
+import Config, {RANKING_TYPES} from '../../common/config';
 
-import RoomInfo, {GAME_MODES} from '../common/room_info';
-import {PlayerResultJSON} from '../common/game/game_result';
-import {PLAYER_TYPES} from "../common/game/objects/player";
+import RoomInfo, {GAME_MODES} from '../../common/room_info';
+import {PlayerResultJSON} from '../../common/game/game_result';
+import {PLAYER_TYPES} from "../../common/game/objects/player";
+
+import cleanUpAll from './cleanups';
 
 const uri = 'mongodb://localhost:27017';
 const DB_NAME = 'BertaSnakes';
 
-const enum COLLECTIONS {
+export const enum COLLECTIONS {
 	accounts = 'accounts',//username, password, email, verification_code, creation_time, last_login, ...
 	sessions = 'sessions',//account_id, token, expiration
 	games = 'games',//finish_timestamp, name, map, gamemode, duration, results
-	friendships = 'friendships'
+	friendships = 'friendships',
+	social_messages = 'social_messages'
 }
 let total_accounts = 0;//cached counter
 
@@ -26,7 +29,7 @@ function assert_connection() {
 
 let connection_listeners: (() => void)[] = [];
 
-function getCollection(name: string) {
+export function getCollection(name: string) {
 	assert_connection();
 	return (db || (db = client.db(DB_NAME))).collection(name);
 }
@@ -78,6 +81,14 @@ MongoClient.connect(uri, {
 	await db.collection(COLLECTIONS.friendships).createIndex({to: 'hashed'},
 		{name: 'to-friend-search'});
 	
+	//SOCIAL MESSAGES
+	await db.collection(COLLECTIONS.social_messages).createIndex({friendship_id: 'hashed'},
+		{name: 'friendship_search'});
+	await db.collection(COLLECTIONS.social_messages).createIndex({timestamp: -1},
+		{name: 'message_time_sorting'});
+	
+	await cleanUpAll();
+	
 	//some precalculations
 	total_accounts = await db.collection(COLLECTIONS.accounts).countDocuments();
 	
@@ -99,6 +110,33 @@ export interface GameSchema {
 	map: string;
 	name: string;
 	results: PlayerResultJSON[];
+}
+
+export interface FriendSchema {
+	friendship_id: string;
+	friend_data: PublicAccountSchema;
+	is_left: boolean;//if true - this is user from 'from' field from friendships
+	online: boolean;
+}
+
+export interface SocialMessage {
+	id: string;
+	left: boolean;
+	timestamp: number;
+	content: string[];//following messages from same user in same period of time can be stacked
+}
+
+function mapFriendshipData(data: any[], is_left: boolean) {
+	return data.map(friendship_data => {
+		if( friendship_data['friend'].length < 1 )
+			return null;
+		return {
+			friendship_id: (friendship_data['_id'] as ObjectId).toHexString(),
+			friend_data: extractUserPublicData( friendship_data['friend'][0] ),
+			is_left,
+			online: false
+		};
+	}).filter(acc => acc !== null) as FriendSchema[];
 }
 
 export interface PublicAccountSchema {
@@ -177,15 +215,6 @@ export default {
 		client.close().catch(console.error);
 	},
 
-	async clearExpiredSessions() {
-		let res = await getCollection(COLLECTIONS.sessions).deleteMany({
-			expiration: {'$lte': Date.now()}
-		});
-
-		if((res.deletedCount||0) > 0)
-			console.log('Expired sessions removed:', res.deletedCount);
-	},
-
 	async addSession(_account_id: string, _token: string, _expiration_date: number) {
 		try {
 			let sessions = getCollection(COLLECTIONS.sessions);
@@ -258,7 +287,7 @@ export default {
 			await getCollection(COLLECTIONS.accounts).updateOne({
 				_id: ObjectId.createFromHexString(account_hex_id)
 			}, {
-				'$set': { last_login: Date.now() }
+				$set: { last_login: Date.now() }
 			});
 		} catch(e) {
 			console.error(e);
@@ -270,7 +299,7 @@ export default {
 			let res = await getCollection(COLLECTIONS.accounts).updateOne({
 				_id: ObjectId.createFromHexString(account_hex_id)
 			}, {
-				'$set': {avatar: _avatar}
+				$set: {avatar: _avatar}
 			});
 
 			if(!res.result.ok)
@@ -308,10 +337,8 @@ export default {
 			
 			if (!user)
 				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
-			return {
-				error: ERROR_CODES.SUCCESS,
-				data: extractUserPublicData(user)
-			};
+			
+			return {error: ERROR_CODES.SUCCESS, data: extractUserPublicData(user)};
 		}
 		catch(e) {
 			console.error(e);
@@ -390,7 +417,7 @@ export default {
 			let update_res = await getCollection(COLLECTIONS.accounts).updateOne({
 				_id: ObjectId.createFromHexString(account_hex_id)
 			}, {
-				'$set': {
+				$set: {
 					level: data.level,
 					rank: data.rank,
 				
@@ -443,7 +470,7 @@ export default {
 			let update_res = await accounts.updateOne({
 				_id: object_id
 			}, {
-				'$set': {verification_code: ''}
+				$set: {verification_code: ''}
 			});
 
 			if( !update_res.result.ok )
@@ -596,6 +623,36 @@ export default {
 		}
 	},
 	
+	////////////////////////////////////////////////////
+	
+	async getFriendshipID(self_hex: string, friend_hex: string) {
+		try {
+			let self_id = ObjectId.createFromHexString(self_hex);
+			let friend_id = ObjectId.createFromHexString(friend_hex);
+			
+			let found_on_left = await getCollection(COLLECTIONS.friendships).findOne({
+				from: friend_id,
+				to: self_id
+			}, {projection: {_id: 1}});
+			
+			if(found_on_left) return {id: found_on_left['_id'], left: true};
+			
+			let found_on_right = await getCollection(COLLECTIONS.friendships).findOne({
+				from: self_id,
+				to: friend_id
+			}, {projection: {_id: 1}});
+			
+			if(found_on_right) return {id: found_on_right['_id'], left: false};
+			
+			
+			return null;
+		}
+		catch(e) {
+			console.error(e);
+			return null;
+		}
+	},
+	
 	async getAccountFriends(account_hex_id: string) {
 		try {
 			let account_id = ObjectId.createFromHexString(account_hex_id);
@@ -634,11 +691,9 @@ export default {
 				}
 			]).toArray();
 			
-			let friends = from_friends.concat(to_friends).map(friendship_data => {
-				if( friendship_data['friend'].length < 1 )
-					return null;
-				return extractUserPublicData( friendship_data['friend'][0] );
-			}).filter(acc => acc !== null) as PublicAccountSchema[];
+			let friends = mapFriendshipData(from_friends, true).concat(
+				mapFriendshipData(to_friends, false)
+			);
 			
 			return {error: ERROR_CODES.SUCCESS, friends};
 		}
@@ -648,7 +703,7 @@ export default {
 		}
 	},
 	
-	async getAccountFriendRequests(account_hex_id: string) {
+	async getAccountFriendRequests(account_hex_id: string) {//returns those accounts who requested friendship
 		try {
 			let account_id = ObjectId.createFromHexString(account_hex_id);
 			
@@ -684,6 +739,78 @@ export default {
 		}
 	},
 	
+	async getAccountRequestedFriends(account_hex_id: string) {//returns those friends that user send request to
+		try {
+			let account_id = ObjectId.createFromHexString(account_hex_id);
+			
+			let requested_friends_res = await getCollection(COLLECTIONS.friendships).aggregate([
+				{
+					$match: {
+						accepted: false,//not accepted request
+						from: account_id,//from given account
+					}
+				}, {
+					$limit: Config.MAXIMUM_NUMBER_OF_FRIENDS
+				}, {
+					$lookup: {
+						from: COLLECTIONS.accounts,
+						localField: 'to',
+						foreignField: '_id',
+						as: 'requested_friend'
+					}
+				}
+			]).toArray();
+			
+			let requested_friends = requested_friends_res.map(friendship_data => {
+				if( friendship_data['requested_friend'].length < 1 )
+					return null;
+				return extractUserPublicData( friendship_data['requested_friend'][0] );
+			}).filter(acc => acc !== null) as PublicAccountSchema[];
+			
+			return {error: ERROR_CODES.SUCCESS, requested_friends};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async insertAccountFriendRequest(from_hex: string, to_hex: string) {
+		try {
+			const from_id = ObjectId.createFromHexString(from_hex);
+			const to_id = ObjectId.createFromHexString(to_hex);
+			
+			//make sure that same friendship does not exists already
+			let find_res = await getCollection(COLLECTIONS.friendships).findOne({
+				$or: [//check both ways
+					{
+						from: from_id,
+						to: to_id
+					}, {
+						from: to_id,
+						to: from_id
+					}
+				]
+			});
+			if(find_res)
+				return {error: ERROR_CODES.FRIENDSHIP_ALREADY_EXISTS};
+			
+			let insert_res = await getCollection(COLLECTIONS.friendships).insertOne({
+				from: from_id,
+				to: to_id,
+				accepted: false
+			});
+			
+			if( !insert_res.result.ok )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
 	async removeFriendship(friend1_id: string, friend2_id: string) {
 		try {
 			let id1 = ObjectId.createFromHexString(friend1_id);
@@ -703,6 +830,93 @@ export default {
 			if( !remove_res.result.ok || !remove_res.deletedCount )
 				return {error: ERROR_CODES.DATABASE_ERROR};
 			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async acceptFriendship(friend1_id: string, friend2_id: string) {
+		try {
+			let id1 = ObjectId.createFromHexString(friend1_id);
+			let id2 = ObjectId.createFromHexString(friend2_id);
+			
+			let update_res = await getCollection(COLLECTIONS.friendships).updateOne({
+				$or: [
+					{
+						from: id1,
+						to: id2
+					}, {
+						from: id2,
+						to: id1
+					}
+				]
+			}, {
+				$set: {
+					accepted: true
+				}
+			});
+			if( !update_res.result.ok )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async insertMessage(friendship_hex: string, is_left_friend: boolean, content: string, timestamp: number) {
+		try {
+			let insert_res = await getCollection(COLLECTIONS.social_messages).insertOne({
+				friendship_id: ObjectId.createFromHexString(friendship_hex),
+				left: is_left_friend,
+				timestamp,
+				content
+			});
+			
+			if( !insert_res.result.ok )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS, id: insert_res.insertedId.toHexString()};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async loadSocialMessages(friendship_hex: string) {
+		try {
+			let messages_raw = await getCollection(COLLECTIONS.social_messages).aggregate([
+				{
+					$match: {
+						friendship_id: ObjectId.createFromHexString(friendship_hex)
+					}
+				}, {
+					$sort: {timestamp: -1}
+				}, {
+					$project: {
+						_id: 1,
+						left: 1,
+						timestamp: 1,
+						content: 1
+					}
+				}, {
+                    $limit: 128 //TODO: move to config
+                }
+			]).toArray();
+			
+			let messages = messages_raw.map(msg => {
+				return {
+					id: (msg['_id'] as ObjectId).toHexString(),
+					left: msg['left'],
+					timestamp: msg['timestamp'],
+					content: [ msg['content'] ]
+				}
+			}) as SocialMessage[];
+			
+			return {error: ERROR_CODES.SUCCESS, messages};
 		}
 		catch(e) {
 			console.error(e);

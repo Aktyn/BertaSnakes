@@ -2,7 +2,7 @@ import {Server} from 'ws';
 import {handleMessage} from './message_handler';
 import SocialConnection from './social_connection';
 import SOCIAL_CODES, {SocialNetworkPackage} from '../../common/social_codes';
-import Database from '../database';
+import Database from '../database/database';
 import ERROR_CODES from '../../common/error_codes';
 
 let open_port = 0;//can be initialized to zero since it is falsy value
@@ -27,7 +27,7 @@ export default {
 		
 		const websocket = new Server({ port });
 
-		websocket.on('connection', function(ws, req) {
+		websocket.on('connection', function(ws/*, req*/) {
 			(<any>ws).isAlive = true;
 			ws.on('pong', () => {
 				(<any>ws).isAlive = true;//heartbeat

@@ -4,13 +4,15 @@ import Loader from '../widgets/loader';
 import ServerApi from '../../utils/server_api';
 import Account from '../../account';
 import Social, {EVENT_NAMES, FriendSchema} from '../../social/social';
-import {PublicAccountSchema, AccountSchema} from '../../../server/database';
+import Chat from '../../social/chat';
+import {AccountSchema, PublicAccountSchema} from '../../../server/database/database';
 
 import {offsetTop} from "./sidepops_common";
 import GamesSection from "./games_section";
 import SharePanel from "./share_panel";
 
 import '../../styles/user_section.scss';
+import PotentialFriendsTable from "./potential_friends_table";
 
 interface UserSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -23,6 +25,8 @@ interface UserSectionState {
 	loading: boolean;
 	user: PublicAccountSchema | null;
 	friend: FriendSchema | null;
+	potential_friend: PublicAccountSchema | null;
+	requested_friend: PublicAccountSchema | null;
 	friend_id_to_remove?: string;
 	show_games: boolean;
 }
@@ -39,6 +43,9 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		loading: true,
 		user: null,
 		friend: null,
+		potential_friend: null,
+		requested_friend: null,
+		
 		show_games: false
 	};
 	
@@ -50,6 +57,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	
 	async componentDidMount() {
 		Social.on(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, this.onFriendsUpdate);
+		Social.on(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, this.onFriendsUpdate);
 		
 		try {
 			this.setState({loading: true});
@@ -67,7 +75,9 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 				this.setState({
 					user: res.data,
 					loading: false,
-					friend: Social.getFriend(res.data.id) || null
+					friend: Social.getFriend(res.data.id) || null,
+					potential_friend: Social.getPotentialFriend(res.data.id) || null,
+					requested_friend: Social.getRequestedFriend(res.data.id) || null
 				});
 			}
 		}
@@ -79,6 +89,8 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	
 	componentWillUnmount() {
 		Social.off(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, this.onFriendsUpdate);
+		Social.off(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, this.onFriendsUpdate);
+		
 		if(this.remove_friend_tm)
 			clearTimeout(this.remove_friend_tm);
 	}
@@ -91,7 +103,11 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	private updateFriends() {
 		if( !Account.getAccount() || !this.state.user )
 			return;
-		this.setState({friend: Social.getFriend(this.state.user.id) || null});
+		this.setState({
+			friend: Social.getFriend(this.state.user.id) || null,
+			potential_friend: Social.getPotentialFriend(this.state.user.id) || null,
+			requested_friend: Social.getRequestedFriend(this.state.user.id) || null,
+		});
 	}
 	
 	public canReturn() {
@@ -140,17 +156,27 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		</>;
 	}
 	
-	private renderChat() {
-		return <div style={offsetTop}>TODO: chat</div>;
-	}
-	
 	private renderSocialSection() {
 		let acc = Account.getAccount();
 		if(!this.state.user || !acc || this.state.user.id === acc.id)
 			return undefined;
 		
+		if( this.state.potential_friend ) {
+			return <>
+				<label>Pending friend request</label><br/>
+				<PotentialFriendsTable users={[this.state.potential_friend]} show_user={false} />
+			</>;
+		}
+		
+		if( this.state.requested_friend ) {
+			return <div style={{fontWeight: 'bold'}}>Friend request sent</div>;
+		}
+		
 		if( !this.state.friend )
-			return <button>SEND FRIEND REQUEST</button>;
+			return <button onClick={() => {
+				if(this.state.user)
+					Social.requestFriend(this.state.user.id);
+			}}>SEND FRIEND REQUEST</button>;
 		
 		return <>
 			<div style={{
@@ -172,7 +198,9 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 					this.remove_friend_tm = setTimeout(this.cancelRemoveFriend.bind(this), 5000) as never;
 				}
 			}}>{this.state.friend_id_to_remove ? 'CONFIRM' : 'REMOVE FROM FRIENDS'}</button>
-			{this.state.friend.online && this.renderChat()}
+			{(this.state.friend.online || true/*TEMP*/) && <div style={{marginTop: '15px', marginBottom: '-10px'}}>
+				<Chat recipient={this.state.friend} />
+			</div>}
 		</>;
 	}
 	

@@ -1,6 +1,6 @@
 import * as express from 'express';
 import ERROR_CODES from '../../common/error_codes';
-import Database from '../database';
+import Database from '../database/database';
 import Cache from '../cache';
 
 const ranking_cache_name = (page: number, type: number) => `ranking_page_${page}_${type}`;

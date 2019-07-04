@@ -22,6 +22,7 @@ const enum ERROR_CODES {
 	CANNOT_SEND_EMAIL,
 	CANNOT_VERIFY_ACCOUNT,
 	INCORRECT_VERIFICATION_CODE,
+	FRIENDSHIP_ALREADY_EXISTS,
 
 	//files
 	CANNOT_OPEN_FILE,
@@ -68,6 +69,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.CANNOT_SEND_EMAIL:		return 'Cannot send email';
 		case ERROR_CODES.CANNOT_VERIFY_ACCOUNT:	return 'Cannot verify account';
 		case ERROR_CODES.INCORRECT_VERIFICATION_CODE: return 'Incorrect verification code';
+		case ERROR_CODES.FRIENDSHIP_ALREADY_EXISTS: return 'Friendship already exists';
 
 		//files
 		case ERROR_CODES.CANNOT_OPEN_FILE: 		return 'Cannot open file';

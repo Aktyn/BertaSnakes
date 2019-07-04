@@ -1,9 +1,7 @@
-import Database from './database';
+import Database from './database/database';
 import ERROR_CODES, {errorMsg} from '../common/error_codes';
 import Config from '../common/config';
 import {sha256} from './utils';
-
-Database.onConnect(() => Database.clearExpiredSessions());
 
 export default {
 	async login(nick: string, password: string) {
