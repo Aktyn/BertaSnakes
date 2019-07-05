@@ -5,6 +5,7 @@ import {offsetTop, removeWhitechars} from './sidepops_common';
 import Config from '../../../common/config';
 import ServerApi from '../../utils/server_api';
 import ShipWidget from "../widgets/ship_widget";
+import RecentConversations from '../recent_conversations';
 import {PLAYER_TYPES} from "../../../common/game/objects/player";
 import SkillWidget, {DIRECTION} from "../widgets/skill_widget";
 
@@ -152,7 +153,7 @@ class AccountDataView extends React.Component<{
 			</nav>
 			<hr/>
 			<div className={'fader-in'}>
-				TODO: conversations from sessionStorage (redirections to conversing user sections)
+				<RecentConversations />
 			</div>
 			<hr/>
 		</>;

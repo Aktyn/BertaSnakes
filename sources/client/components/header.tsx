@@ -5,6 +5,7 @@ import AccountWidget from './account_widget';
 import './../styles/header.scss';
 import AccountSidepop from './sidepops/account_sidepop';
 import {RANKING_TYPES} from '../../common/config';
+import NotificationsIndicator from "./widgets/notifications_indicator";
 
 interface HeaderState {
 	show_sidepop: boolean;
@@ -41,7 +42,7 @@ export default class Header extends React.Component<any, HeaderState> {
 			</div>
 			<div className='header-bottom'>
 				<Link to='/' className='home-link'/>
-
+				<NotificationsIndicator />
 			</div>
 			{this.state.show_sidepop && <AccountSidepop onClose={() => {
 				this.setState({show_sidepop: false});

@@ -142,7 +142,7 @@ $bottomSize: 20px;
 		background-color: nth($palette, 8);
 
 		display: grid;
-		grid-template-columns: fit-content(100%) fit-content(100%);
+		grid-template-columns: $bottomSize auto $bottomSize;
 		align-items: center;
 		justify-content: space-between;
 

@@ -1,4 +1,5 @@
 import {SocialMessage} from '../server/database/database';
+import Config from './config';
 
 function getPreviousMsgIndex(arr: SocialMessage[], timestamp: number) {
 	for(let i=arr.length-1; i>=0; i--) {
@@ -12,13 +13,14 @@ function getPreviousMsgIndex(arr: SocialMessage[], timestamp: number) {
 export function pushSocialMessage(arr: SocialMessage[], msg: SocialMessage) {
 	let last_i = getPreviousMsgIndex(arr, msg.timestamp);
 	
-	//TODO - compare timestamps so following messages after one minute wont get stacked
-	
-	//same user wrote again since last message
-	if(last_i !== -1 && arr[last_i].left === msg.left)//TODO: compare timestamp in this if
+	//same user wrote again since last message but no more than minute after top message on stack
+	if(last_i !== -1 && arr[last_i].left === msg.left && msg.timestamp - arr[last_i].timestamp < 1000*60)
 		arr[last_i].content.push(...msg.content);
 	else {
-		arr.splice(last_i + 1, 0, msg);
-		//TODO - shift array if it is getting too big
+		arr.splice(last_i + 1, 0, msg);//push at proper position
+		
+		//shift array if it is getting too big
+		while(arr.length > Config.MAXIMUM_LENGTH_OF_MESSAGES_CHUNK)
+			arr.shift();
 	}
 }

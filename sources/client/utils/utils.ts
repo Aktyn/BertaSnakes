@@ -65,11 +65,19 @@ export default {
 		let hour = (min/60)|0;
 		min -= hour*60;
 		if(hour > 0)
-			return `${zeroPad(hour)}${labels.hours}${delimiter}${zeroPad(min)}${labels.minutes}${delimiter}${zeroPad(sec)}${labels.seconds}`;
+			return `${zeroPad(hour)}${labels.hours}${delimiter}${
+			zeroPad(min)}${labels.minutes}${delimiter}${zeroPad(sec)}${labels.seconds}`;
 		else if(min > 0)
 			return `${zeroPad(min)}${labels.minutes}${delimiter}${zeroPad(sec)}${labels.seconds}`;
 		else
 			return `${zeroPad(sec)}${labels.seconds}`;
+	},
+	
+	formatTime: (timestamp: number) => {
+		let dt = new Date(timestamp);
+		let h = dt.getHours();
+		let m = dt.getMinutes();
+		return `${h < 10 ? '0':''}${h}:${m < 10 ? '0':''}${m}`;
 	},
 
 	trimString(str: string, max_len: number, suffix = '...') {

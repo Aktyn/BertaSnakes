@@ -53,7 +53,7 @@ export default class SocialConnection {
 	}
 	
 	//stringifies serializable object before sending over socket
-	private send<T>(data: T & {type: SOCIAL_CODES} & Exclude<T, string>) {//stringified json
+	public send<T>(data: T & {type: SOCIAL_CODES} & Exclude<T, string>) {//stringified json
 		if(this.socket.readyState !== 1)//socket not open
 			return;
 		this.socket.send( JSON.stringify(data) );

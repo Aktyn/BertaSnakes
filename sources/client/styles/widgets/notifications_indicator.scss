@@ -1,0 +1,160 @@
+@import '../global.scss';
+
+.notifications-indicator {
+	//cubic-bezier(.36,.07,.19,.97)
+	//cubic-bezier(.87,-.41,.19,1.44)
+	$size: 20px;
+	
+	width: $size;
+	height: $size;
+	
+	position: relative;
+	z-index: 50;
+	
+	& > * {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		right: 0px;
+		margin: auto;
+	}
+	
+	& > .indicator {//iconic, animated dot
+		box-shadow: 0px 1px 3px #0004 !important;
+		padding: 0px;
+		
+		width: $size;
+		height: $size;
+		border-radius: $size;
+		
+		background-color: #FF8A65;//FFAB91
+		
+		@keyframes bounce-in {
+			0%  {transform: scale(0)}
+			100%{transform: scale(1)}
+		}
+		
+		animation: bounce-in 0.7s cubic-bezier(.87,-.41,.19,1.44);
+		transition: transform 0.3s cubic-bezier(.36,.07,.19,.97), background-color 0.3s cubic-bezier(.36,.07,.19,.97);
+		
+		&:hover {
+			transform: scale(1.2);
+			background-color: #FFAB91;
+		}
+		
+		&::before, &::after {
+			content: "";
+			display: inline-block;
+			width: $size;
+			height: $size;
+			
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+		
+		&::before { //inner dot
+			border-radius: $size;
+			background-color: #fff4;
+			transform: scale(0.61);
+			
+			@keyframes indicate {
+				0%  {transform: scale(0.61)}
+				3.3%{transform: scale(0.30)}
+				6.6%{transform: scale(0.90)}
+				10% {transform: scale(0.61)}
+				
+				100%{transform: scale(0.61)}
+			}
+			
+			animation: indicate 20s ease-in-out infinite;
+		}
+		
+		&::after {//close icon (shown only when notification list is open)
+			background: url('../../img/icons/close_dark.svg') center no-repeat;
+			background-size: 61%;
+		}
+	}
+	
+	& > .side-notification {
+		left: $size + 5px;//some offset
+		display: inline-block;
+		height: $size;
+		line-height: $size;
+		width: fit-content;
+		white-space: nowrap;
+		padding: 0px 10px;
+		border-radius: $size;
+		font-weight: bold;
+		background-color: #FF8A65;//nth($palette, 6);
+		box-shadow: 0px 1px 4px #0006;
+		border: 1px solid #FFAB91;
+		
+		@keyframes pop-from-left {
+			0%  {
+				transform: translateX(-50%) scale(0);
+				opacity: 0;
+			}
+			100%{
+				transform: translateX(0%) scale(1);
+				opacity: 1;
+			}
+		}
+		
+		animation: pop-from-left 0.61s cubic-bezier(.87,-.41,.19,1.44);
+	}
+	
+	& > .list {
+		top: $size * 2;
+		left: $size/2;
+		background-color: nth($palette, 5);
+		border: 1px solid #a9c2c0;
+		border-radius: 5px;
+		width: 200px;
+		height: max-content;
+		transform: translate(-50%, 0%) scale(1);
+		
+		//position: relative;
+		
+		&::before {//up triangle
+			content: "";
+			display: inline-block;
+			position: absolute;
+			pointer-events: none;
+			top: -$size;
+			left: 0px;
+			right: 0px;
+			margin: auto;
+			width: 0px;//$size;
+			height: 0px;//$size;
+			padding: 0px;
+			
+			background-color: transparent;
+			
+			border-left: $size/2 solid transparent;
+            border-right: $size/2 solid transparent;
+  
+            border-bottom: $size solid #a9c2c0;
+		}
+		
+		@keyframes pop-from-top {
+			0% {
+				opacity: 0;
+				transform: translate(-50%, -50%) scale(0);
+			}
+			100% {
+				opacity: 1;
+				transform: translate(-50%, 0%) scale(1);
+			}
+		}
+		
+		animation: pop-from-top 0.61s cubic-bezier(.87,-.41,.19,1.44);
+		
+		& > * {
+			padding: 3px;
+			&:not(:last-child) {
+				border-bottom: 1px solid #fff2;
+			}
+		}
+	}
+}

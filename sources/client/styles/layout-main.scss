@@ -4,7 +4,7 @@
 	display: grid;
 	grid-template-areas: "header" "content" "footer";
 	grid-template-columns: 100%;
-	grid-template-rows: fit-content(100%) auto fit-content(100%);
+	grid-template-rows: min-content auto min-content;
 
 	.header {
 		grid-area: header;

@@ -27,13 +27,6 @@ function formatMessage(msg: string) {
 	return msg.trim();
 }
 
-function formatTime(timestamp: number) {
-	let dt = new Date(timestamp);
-	let h = dt.getHours();
-	let m = dt.getMinutes();
-	return `${h < 10 ? '0':''}${h}:${m < 10 ? '0':''}${m}`;
-}
-
 export default class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
 	private chat_input: HTMLInputElement | null = null;
 	private messages_container: HTMLDivElement | null = null;
@@ -104,7 +97,7 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 			<div>
 				<label>
 					<strong>{Utils.trimString(msg.author.nick, 15)}</strong>
-					<span>{formatTime(msg.timestamp)}</span>
+					<span>{Utils.formatTime(msg.timestamp)}</span>
 				</label>
 				{msg.content.map((line, line_i) => {
 					return <div key={line_i}>{line}</div>;

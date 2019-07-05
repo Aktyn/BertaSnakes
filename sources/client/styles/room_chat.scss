@@ -33,7 +33,7 @@
 
 			display: grid;
 			
-			grid-template-columns: $headerSize calc(100% - (26px));//$headerSize
+			grid-template-columns: $headerSize calc(100% - #{$headerSize});
 			justify-content: space-between;
 			//grid-column-gap: 10px;
 

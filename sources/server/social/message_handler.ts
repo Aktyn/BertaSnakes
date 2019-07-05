@@ -88,6 +88,16 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			if(rejected_friend_connection)
 				rejected_friend_connection.onAccountRejectedFriendRequest(connection.account.id);
 		}   break;
+		case SOCIAL_CODES.REQUEST_CONVERSATION_DATA: {//friendship_id: string
+			if (typeof message.friendship_id !== 'string')
+				break;
+			let conversation = await Conversations.getConversation(message.friendship_id);
+			connection.send({
+				type: SOCIAL_CODES.CONVERSATION_DATA,
+				conversation,
+				friendship_id: message.friendship_id
+			});
+		}   break;
 		case SOCIAL_CODES.SEND_CHAT_MESSAGE: {//recipient_id: string, content: string
 			if (typeof message.recipient_id !== 'string' || typeof message.content !== 'string')
 				break;
@@ -108,6 +118,7 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			//save message in database
 			message.content = message.content.substr(0, Config.MAXIMUM_MESSAGE_LENGTH);
 			let timestamp = Date.now();
+			//console.trace('test: ' + friend_data.friendship_id);
 			let res = await Database.insertMessage(
 				friend_data.friendship_id, friend_data.is_left, message.content, timestamp);
 			if(res.error !== ERROR_CODES.SUCCESS || !res.id)

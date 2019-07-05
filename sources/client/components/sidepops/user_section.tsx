@@ -24,6 +24,7 @@ interface UserSectionProps {
 interface UserSectionState {
 	loading: boolean;
 	user: PublicAccountSchema | null;
+	account: AccountSchema | null;
 	friend: FriendSchema | null;
 	potential_friend: PublicAccountSchema | null;
 	requested_friend: PublicAccountSchema | null;
@@ -34,6 +35,7 @@ interface UserSectionState {
 export default class UserSection extends React.Component<UserSectionProps, UserSectionState> {
 	private readonly onFriendsUpdate: (account: AccountSchema | null) => void;
 	private remove_friend_tm: NodeJS.Timeout | null = null;
+	private readonly account_listener: (account: AccountSchema | null) => void;
 	
 	static defaultProps: Partial<UserSectionProps> = {
 		container_mode: false
@@ -42,6 +44,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	state: UserSectionState = {
 		loading: true,
 		user: null,
+		account: null,
 		friend: null,
 		potential_friend: null,
 		requested_friend: null,
@@ -53,11 +56,13 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		super(props);
 		
 		this.onFriendsUpdate = this.updateFriends.bind(this);
+		this.account_listener = this.updateAccount.bind(this);
 	}
 	
 	async componentDidMount() {
 		Social.on(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, this.onFriendsUpdate);
 		Social.on(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, this.onFriendsUpdate);
+		Account.addLoginListener( this.account_listener );
 		
 		try {
 			this.setState({loading: true});
@@ -74,6 +79,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 			if(res.data) {
 				this.setState({
 					user: res.data,
+					account: Account.getAccount(),
 					loading: false,
 					friend: Social.getFriend(res.data.id) || null,
 					potential_friend: Social.getPotentialFriend(res.data.id) || null,
@@ -90,6 +96,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	componentWillUnmount() {
 		Social.off(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, this.onFriendsUpdate);
 		Social.off(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, this.onFriendsUpdate);
+		Account.removeLoginListener( this.account_listener );
 		
 		if(this.remove_friend_tm)
 			clearTimeout(this.remove_friend_tm);
@@ -101,13 +108,17 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	}
 	
 	private updateFriends() {
-		if( !Account.getAccount() || !this.state.user )
+		if( !this.state.account || !this.state.user )
 			return;
 		this.setState({
 			friend: Social.getFriend(this.state.user.id) || null,
 			potential_friend: Social.getPotentialFriend(this.state.user.id) || null,
 			requested_friend: Social.getRequestedFriend(this.state.user.id) || null,
 		});
+	}
+	
+	private updateAccount(account: AccountSchema | null) {
+		this.setState({account});
 	}
 	
 	public canReturn() {
@@ -157,8 +168,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	}
 	
 	private renderSocialSection() {
-		let acc = Account.getAccount();
-		if(!this.state.user || !acc || this.state.user.id === acc.id)
+		if(!this.state.account || !this.state.user || this.state.user.id === this.state.account.id)
 			return undefined;
 		
 		if( this.state.potential_friend ) {
@@ -198,8 +208,9 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 					this.remove_friend_tm = setTimeout(this.cancelRemoveFriend.bind(this), 5000) as never;
 				}
 			}}>{this.state.friend_id_to_remove ? 'CONFIRM' : 'REMOVE FROM FRIENDS'}</button>
-			{(this.state.friend.online || true/*TEMP*/) && <div style={{marginTop: '15px', marginBottom: '-10px'}}>
-				<Chat recipient={this.state.friend} />
+			{/*this.state.friend.online*/}
+			{this.state.account && <div style={{marginTop: '15px', marginBottom: '-10px'}}>
+				<Chat recipient={this.state.friend} account={this.state.account} />
 			</div>}
 		</>;
 	}

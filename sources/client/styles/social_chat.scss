@@ -16,6 +16,60 @@
 		max-height: 100%;
 		overflow-y: auto;
 		//border-bottom: 1px solid #B0BEC5;
+		
+		$headerSize: 26px;//author's header height
+		
+		& > * {//single message
+			padding: 5px 5px;
+
+			display: grid;
+			
+			grid-template-columns: $headerSize calc(100% - #{$headerSize});
+			justify-content: space-between;
+			//grid-column-gap: 10px;
+
+			&:not(:last-child) {
+				border-bottom: 1px solid rgba(nth($palette, 1), 0.75);
+			}
+
+			& > img {//avatar
+				width: $headerSize;
+				height: $headerSize;
+				border-radius: $headerSize;
+			}
+
+			& > div {//message body
+				display: block;
+
+				& > label {//user's nick and message timestamp
+					text-align: left;
+					display: grid;
+					grid-template-columns: auto auto;
+					justify-content: space-between;
+					justify-items: center;
+					padding: 0px 0px;
+					height: $headerSize;
+					line-height: $headerSize;
+
+					& > strong {
+						font-weight: bold;
+						font-size: 14px;
+						padding: 0px 5px;
+						// background-color: red;
+					}
+
+					& > span {//message time
+						font-size: 12px;
+						color: nth($palette, 4);
+					}
+				}
+				& > div {//message content
+					text-align: left;
+					//color: nth($palette, 1);
+					word-wrap: break-word;
+				}
+			}
+		}
 	}
 	
 	.bottom {

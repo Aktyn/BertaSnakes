@@ -635,14 +635,14 @@ export default {
 				to: self_id
 			}, {projection: {_id: 1}});
 			
-			if(found_on_left) return {id: found_on_left['_id'], left: true};
+			if(found_on_left) return {id: (found_on_left['_id'] as ObjectId).toHexString(), left: true};
 			
 			let found_on_right = await getCollection(COLLECTIONS.friendships).findOne({
 				from: self_id,
 				to: friend_id
 			}, {projection: {_id: 1}});
 			
-			if(found_on_right) return {id: found_on_right['_id'], left: false};
+			if(found_on_right) return {id: (found_on_right['_id'] as ObjectId).toHexString(), left: false};
 			
 			
 			return null;
@@ -829,6 +829,7 @@ export default {
 			});
 			if( !remove_res.result.ok || !remove_res.deletedCount )
 				return {error: ERROR_CODES.DATABASE_ERROR};
+			
 			return {error: ERROR_CODES.SUCCESS};
 		}
 		catch(e) {
@@ -903,7 +904,7 @@ export default {
 						content: 1
 					}
 				}, {
-                    $limit: 128 //TODO: move to config
+                    $limit: Config.MAXIMUM_LENGTH_OF_MESSAGES_CHUNK
                 }
 			]).toArray();
 			

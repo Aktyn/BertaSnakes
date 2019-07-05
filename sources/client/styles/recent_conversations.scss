@@ -1,0 +1,51 @@
+@import 'global.scss';
+
+.recent-conversations {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: row;
+	flex-wrap: wrap;
+	
+	& > * {
+		padding: 0px;
+		margin: 5px;
+		border: 1px solid #36464e4d;
+		& > .top {
+			display: grid;
+			grid-template-columns: fit-content(100%) fit-content(100%) auto;
+			align-items: center;
+			justify-content: stretch;
+			
+			border-bottom: 1px solid nth($palette, 1);
+			text-align: left;
+			& > img {//avatar
+				height: 20px;
+				border-radius: 20px;
+				margin-right: 5px;
+			}
+			
+			& > .closer {
+				width: 20px;
+				height: 20px;
+				background-image: url('../img/icons/close_dark.svg');
+				background-size: 80%;
+				justify-self: right;
+				//box-shadow: none !important;
+				opacity: 0.7;
+				&:hover {
+					opacity: 1;
+				}
+			}
+		}
+		
+		& > .last-msg {
+			font-weight: normal;
+			color: nth($palette, 4);
+		}
+		
+		& > * {
+			padding: 3px;
+		}
+	}
+}

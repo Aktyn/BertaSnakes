@@ -13,9 +13,11 @@ let requested_friends: PublicAccountSchema[] = [];
 let events = new Events();
 
 export const enum EVENT_NAMES {
+	ON_DISCONNECT = 'on_disconnect',
 	ON_FRIENDS_LIST_UPDATE = 'on_friends_update',
 	ON_FRIENDS_REQUEST_UPDATE = 'on_friends_request_update',
-	ON_CHAT_MESSAGE = 'on_chat_message'
+	ON_CHAT_MESSAGE = 'on_chat_message',
+	ON_CONVERSATION_DATA = 'on_conversation_data'
 }
 
 function sortFriends() {
@@ -42,7 +44,12 @@ function handleMessage(message: SocialNetworkPackage) {
 			requested_friends = message['requested_friends'];
 			events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
 			break;
-			
+		case SOCIAL_CODES.CONVERSATION_DATA: {//friendship_id: string, conversation: SocialMessage[]
+			events.emit(EVENT_NAMES.ON_CONVERSATION_DATA, {
+				friendship_id: message['friendship_id'],
+				conversation: message['conversation']
+			});
+		}   break;
 		case SOCIAL_CODES.ON_FRIEND_WENT_ONLINE: {
 			let friend = friends.find(f => f.friend_data.id === message['friend_id']);
 			if(friend) {
@@ -187,6 +194,14 @@ export default {
 		if(socket)
 			socket.close();
 		socket = null;
+		friends = [];
+		potential_friends = [];
+		requested_friends = [];
+		
+		events.emit(EVENT_NAMES.ON_CONVERSATION_DATA, null);
+		events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
+		events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
+		events.emit(EVENT_NAMES.ON_DISCONNECT, undefined);
 	},
 	
 	on(name: EVENT_NAMES, func: (data: any) => void) {
@@ -199,6 +214,10 @@ export default {
 	
 	getFriend(account_id: string) {
 		return friends.find(f => f.friend_data.id === account_id);
+	},
+	
+	getFriendByFriendshipID(friendship_id: string) {
+		return friends.find(f => f.friendship_id === friendship_id);
 	},
 	
 	getPotentialFriend(account_id: string) {
@@ -234,5 +253,9 @@ export default {
 	
 	sendChatMessage(recipient_id: string, content: string) {
 		send({type: SOCIAL_CODES.SEND_CHAT_MESSAGE, recipient_id, content});
+	},
+	
+	requestFriendshipConversationData(friendship_id: string) {
+		send({type: SOCIAL_CODES.REQUEST_CONVERSATION_DATA, friendship_id});
 	}
 }

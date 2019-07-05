@@ -21,7 +21,10 @@ export default {
 			return conversation;
 		}
 		
-		db_res.messages.forEach(db_msg => pushSocialMessage(conversation, db_msg));
+		//push in reverse order
+		for(let i=db_res.messages.length-1; i>=0; i--)
+			pushSocialMessage(conversation, db_res.messages[i]);
+		//db_res.messages.forEach(db_msg => pushSocialMessage(conversation, db_msg));
 		
 		return conversation;
 	},

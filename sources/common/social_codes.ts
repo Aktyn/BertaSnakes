@@ -11,6 +11,7 @@ const enum SOCIAL_CODES {
 	ACCEPT_REQUEST,//user_id: string
 	REJECT_REQUEST,//user_id: string
 	SEND_CHAT_MESSAGE,//recipient_id: string, content: string
+	REQUEST_CONVERSATION_DATA,//friendship_id: string
 	
 	//TO CLIENT
 	FRIENDS_LIST,//friends: FriendsSchema[]
@@ -26,6 +27,7 @@ const enum SOCIAL_CODES {
 	ON_FRIEND_REQUEST_ACCEPTED,//accepted_friend_id: string, online: boolean, friendship_id: string, is_left: boolean
 	ON_ACCOUNT_ACCEPTED_FRIEND_REQUEST,//requested_friend_id: string, friendship_id: string, is_left: boolean
 	ON_SOCIAL_MESSAGE,//friendship_id: string, //message: SocialMessage
+	CONVERSATION_DATA,//friendship_id: string, conversation: SocialMessage[]
 }
 
 export default SOCIAL_CODES;
