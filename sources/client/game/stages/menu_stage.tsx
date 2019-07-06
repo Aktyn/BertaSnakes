@@ -13,6 +13,7 @@ import AccountSidepop, {VIEWS} from '../../components/sidepops/account_sidepop';
 
 import '../../styles/menu_stage.scss';
 import SettingsSidepop from "../../components/sidepops/settings_sidepop";
+import NotificationsIndicator from '../../components/widgets/notifications_indicator';
 
 interface MenuProps extends BaseProps {
 	indicate_room_deletion: boolean;
@@ -46,7 +47,7 @@ export default class extends StageBase<MenuProps, MenuState> {
 	render() {
 		return <div className='menu-stage'>
 			<header>
-				<div style={{justifySelf: 'left'}}>
+				<div className={'left-side'}>
 					<UserBtn user={this.props.current_user} />
 
 					{
@@ -63,10 +64,16 @@ export default class extends StageBase<MenuProps, MenuState> {
 							onClick={Network.reconnect}>RECONNECT</button>
 					}
 				</div>
-
-				<HeaderNotifications />
 				
-				<div style={{justifySelf: 'right'}}>
+				<div className={'social-notifications'}>
+					<NotificationsIndicator />
+				</div>
+				
+				<div className={'game-notifications'}>
+					<HeaderNotifications />
+				</div>
+				
+				<div className={'right-side'}>
 					<button className='settings shaky-icon'
 					        onClick={() => this.setState({show_settings: true})}/>
 					<span className='separator'/>

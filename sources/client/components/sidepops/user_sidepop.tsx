@@ -6,6 +6,7 @@ import {errorMsg} from "../../../common/error_codes";
 
 interface UserSidepopProps extends SidepopProps {
 	account_id: string;
+	focus_chat: boolean;
 }
 
 interface UserSidepopState {
@@ -15,6 +16,10 @@ interface UserSidepopState {
 
 export default class UserSidepop extends React.Component<UserSidepopProps, UserSidepopState> {
 	private user_section: UserSection | null = null;
+	
+	static defaultProps: Partial<UserSidepopProps> = {
+		focus_chat: false
+	};
 	
 	state: UserSidepopState = {
 		loading: false,
@@ -43,7 +48,8 @@ export default class UserSidepop extends React.Component<UserSidepopProps, UserS
 			error={this.state.error} loading={this.state.loading} >
 			<UserSection ref={el => this.user_section = el} onError={(code) => {
 				this.setError(errorMsg(code));
-			}} onGamesListToggle={() => this.forceUpdate()} account_id={this.props.account_id} />
+			}} onGamesListToggle={() => this.forceUpdate()} account_id={this.props.account_id}
+			             focus_chat={this.props.focus_chat} />
 		</SidepopBase>;
 	}
 }

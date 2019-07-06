@@ -13,12 +13,14 @@ import SharePanel from "./share_panel";
 
 import '../../styles/user_section.scss';
 import PotentialFriendsTable from "./potential_friends_table";
+import NotificationsIndicator, {COMMON_LABELS} from '../widgets/notifications_indicator';
 
 interface UserSectionProps {
 	onError: (code: ERROR_CODES) => void;
 	onGamesListToggle?: () => void;
 	account_id: string;
 	container_mode: boolean;
+	focus_chat: boolean;
 }
 
 interface UserSectionState {
@@ -38,7 +40,8 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	private readonly account_listener: (account: AccountSchema | null) => void;
 	
 	static defaultProps: Partial<UserSectionProps> = {
-		container_mode: false
+		container_mode: false,
+		focus_chat: false
 	};
 	
 	state: UserSectionState = {
@@ -85,6 +88,10 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 					potential_friend: Social.getPotentialFriend(res.data.id) || null,
 					requested_friend: Social.getRequestedFriend(res.data.id) || null
 				});
+				
+				NotificationsIndicator.close(COMMON_LABELS.FRIEND_REQUEST_ACCEPTED + res.data.username);
+				NotificationsIndicator.close(res.data.username + COMMON_LABELS.FRIEND_REQUEST_REJECTED);
+				NotificationsIndicator.close(res.data.username + COMMON_LABELS.FRIEND_REMOVED);
 			}
 		}
 		catch(e) {
@@ -110,6 +117,8 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	private updateFriends() {
 		if( !this.state.account || !this.state.user )
 			return;
+		console.log('test', this.state.user.username + COMMON_LABELS.FRIEND_REMOVED);
+		NotificationsIndicator.close(this.state.user.username + COMMON_LABELS.FRIEND_REMOVED);
 		this.setState({
 			friend: Social.getFriend(this.state.user.id) || null,
 			potential_friend: Social.getPotentialFriend(this.state.user.id) || null,
@@ -210,7 +219,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 			}}>{this.state.friend_id_to_remove ? 'CONFIRM' : 'REMOVE FROM FRIENDS'}</button>
 			{/*this.state.friend.online*/}
 			{this.state.account && <div style={{marginTop: '15px', marginBottom: '-10px'}}>
-				<Chat recipient={this.state.friend} account={this.state.account} />
+				<Chat recipient={this.state.friend} account={this.state.account} autofocus={this.props.focus_chat} />
 			</div>}
 		</>;
 	}

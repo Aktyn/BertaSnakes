@@ -3,6 +3,7 @@
 .notifications-indicator {
 	//cubic-bezier(.36,.07,.19,.97)
 	//cubic-bezier(.87,-.41,.19,1.44)
+	display: inline-block;
 	$size: 20px;
 	
 	width: $size;
@@ -27,7 +28,7 @@
 		height: $size;
 		border-radius: $size;
 		
-		background-color: #FF8A65;//FFAB91
+		background-color: #FF8A65;
 		
 		@keyframes bounce-in {
 			0%  {transform: scale(0)}
@@ -68,40 +69,85 @@
 			}
 			
 			animation: indicate 20s ease-in-out infinite;
+			
+			opacity: 0;
+			transition: opacity 0.5s cubic-bezier(.36,.07,.19,.97);
+		}
+		
+		&:not(.opened)::before {
+			opacity: 1;
 		}
 		
 		&::after {//close icon (shown only when notification list is open)
-			background: url('../../img/icons/close_dark.svg') center no-repeat;
+			background: url('../../img/icons/close.svg') center no-repeat;
 			background-size: 61%;
+			
+			/*@keyframes pop-in-scale {
+				0% {
+					transform: scale(0);
+				}
+				100% {
+					transform: scale(1);
+				}
+			}
+			
+			animation: pop-in-scale 0.5s cubic-bezier(.36,.07,.19,.97);*/
+			opacity: 0;
+			transform: scale(0.25);
+			transition: opacity 0.5s cubic-bezier(.36,.07,.19,.97), transform 0.5s cubic-bezier(.36,.07,.19,.97);
+		}
+		
+		&.opened::after {
+			transform: scale(1);
+			opacity: 1;
 		}
 	}
 	
 	& > .side-notification {
 		left: $size + 5px;//some offset
 		display: inline-block;
-		height: $size;
-		line-height: $size;
+		//align-items: center;
+		//grid-template-columns: auto fit-content(100%);
+		height: $size - 2px;
+		line-height: $size - 2px;
 		width: fit-content;
 		white-space: nowrap;
-		padding: 0px 10px;
+		padding: 0px 5px 0px 10px;
 		border-radius: $size;
 		font-weight: bold;
 		background-color: #FF8A65;//nth($palette, 6);
 		box-shadow: 0px 1px 4px #0006;
 		border: 1px solid #FFAB91;
+		cursor: pointer;
+		
+		& > * {
+			display: inline-block;
+			height: $size;
+		}
+		
+		&:hover {
+			background-color: #FFAB91;
+		}
 		
 		@keyframes pop-from-left {
 			0%  {
-				transform: translateX(-50%) scale(0);
+				transform: translateX(-50%) scaleX(0);
 				opacity: 0;
 			}
 			100%{
-				transform: translateX(0%) scale(1);
+				transform: translateX(0%) scaleX(1);
 				opacity: 1;
 			}
 		}
 		
-		animation: pop-from-left 0.61s cubic-bezier(.87,-.41,.19,1.44);
+		@keyframes fade-out {
+			0%  {opacity: 1}
+			100%{opacity: 0}
+		}
+		
+		opacity: 0;
+		animation: pop-from-left 0.61s 0.7s cubic-bezier(.87,-.41,.19,1.44) forwards,
+			fade-out 1s 4.0s cubic-bezier(.87,-.41,.19,1.44) forwards;
 	}
 	
 	& > .list {
@@ -110,11 +156,11 @@
 		background-color: nth($palette, 5);
 		border: 1px solid #a9c2c0;
 		border-radius: 5px;
-		width: 200px;
+		min-width: 200px;
+		max-width: 400px;
 		height: max-content;
 		transform: translate(-50%, 0%) scale(1);
-		
-		//position: relative;
+		box-shadow: 0px 1px 4px #0004;
 		
 		&::before {//up triangle
 			content: "";
@@ -140,21 +186,57 @@
 		@keyframes pop-from-top {
 			0% {
 				opacity: 0;
-				transform: translate(-50%, -50%) scale(0);
+				transform: translate(-50%, -50%) scaleY(0);
 			}
 			100% {
 				opacity: 1;
-				transform: translate(-50%, 0%) scale(1);
+				transform: translate(-50%, 0%) scaleY(1);
 			}
 		}
 		
-		animation: pop-from-top 0.61s cubic-bezier(.87,-.41,.19,1.44);
+		animation: pop-from-top 0.61s cubic-bezier(.36,.07,.19,.97);
 		
 		& > * {
-			padding: 3px;
+			padding-left: 5px;
+			height: $size;
 			&:not(:last-child) {
 				border-bottom: 1px solid #fff2;
 			}
+			
+			display: grid;
+			grid-template-columns: auto $size;
+			align-items: center;
+			cursor: pointer;
+			
+			&:hover {
+				background-color: #fff3;
+			}
+			
+			& > .content {
+				text-align: left;
+			}
+		}
+	}
+	
+	//common
+	.closer {
+		background-image: url('../../img/icons/close.svg');
+		padding: 0px !important;
+		margin: 0px !important;
+		vertical-align: top;
+		box-shadow: none !important;
+		height: $size - 2px;
+		width: $size - 2px;
+		border-radius: 0px;
+		background-color: transparent;
+		background-size: 80%;
+		opacity: 0.61;
+		
+		transition: transform 0.3s ease-in-out;
+		
+		&:hover {
+			opacity: 1;
+			transform: scale(1.25);
 		}
 	}
 }

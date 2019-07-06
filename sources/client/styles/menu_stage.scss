@@ -19,16 +19,51 @@ $iconsSize: 20px;
 		width: 100vw;
 
 		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		grid-template-columns: fit-content(100%) fit-content(100%) auto fit-content(100%);
+		grid-template-areas: 'left social notifications right';
 		align-items: center;
-		justify-content: space-between;
-
-		@media (max-width: 350px) {
-			grid-template-columns: 100%;
-			grid-template-rows: auto fit-content(100%) auto;
+		justify-content: stretch;
+		
+		& > .left-side {
+			grid-area: left;
+			justify-self: left;
+		}
+		
+		& > .social-notifications {
+			grid-area: social;
+			justify-self: left;
+			margin-left: 10px;
+		}
+		
+		& > .game-notifications {
+			grid-area: notifications;
+			justify-self: left;
+			width: -webkit-fill-available;
+		}
+		
+		& > .right-side {
+			grid-area: right;
+			justify-self: right;
+		}
+		
+		@media (max-width: 600px) {
+			grid-template-columns: auto auto;
+			grid-template-areas: 'left right' 'social notifications';
+			grid-template-rows: auto fit-content(100%);
+			
+			& > .social-notifications {
+				justify-self: center;
+				margin-left: 0px;
+			}
 		}
 
-		& > :not(.notification) {
+		@media (max-width: 350px) {
+			grid-template-columns: auto;
+			grid-template-areas: 'left' 'notifications' 'social' 'right';
+			grid-template-rows: auto fit-content(100%) fit-content(100%) auto;
+		}
+
+		& > :not(.game-notifications):not(.social-notifications) {
 			padding: 4px 5px;
 			white-space: nowrap;
 		}

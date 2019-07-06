@@ -7,35 +7,52 @@ import Utils from '../utils/utils';
 import ServerApi from '../utils/server_api';
 
 import '../styles/social_chat.scss';
+import NotificationsIndicator, {COMMON_LABELS, NotificationSchema} from '../components/widgets/notifications_indicator';
+import UserSidepop from '../components/sidepops/user_sidepop';
 
 //key is a friendship id
 let conversations: Map<string, SocialMessage[]> = new Map();
-setTimeout(() => {//fix for EVENT_NAMES not defined
+let last_pushed_message_id = '';
+let chat_instances: Chat[] = [];
+
+function waitForSocialToLoad() {
+	if(typeof Social === 'undefined') {
+		setTimeout(waitForSocialToLoad, 100);
+		return;
+	}
+	
 	Social.on(EVENT_NAMES.ON_DISCONNECT, () => {
 		conversations.clear();
 		console.log('conversations data cleared');
 	});
-}, 1);
-let last_pushed_message_id = '';
-
-let chat_instances: Chat[] = [];
-
-Social.on(EVENT_NAMES.ON_CHAT_MESSAGE, ({friendship_id, message}: ChatMessageEvent) => {
-	let handled = false;
-	for(let chat of chat_instances) {
-		if( chat.onChatMessage(friendship_id, message) )
-			handled = true;
-	}
 	
-	//update cached conversation when there is no chat widget to handle it
-	if( !handled ) {
-		let current = conversations.get(friendship_id);
-		if (current)
-			pushSocialMessage(current, message);
+	Social.on(EVENT_NAMES.ON_CHAT_MESSAGE, ({friendship_id, message}: ChatMessageEvent) => {
+		let handled = false;
+		for(let chat of chat_instances) {
+			if( chat.onChatMessage(friendship_id, message) )
+				handled = true;
+		}
 		
-		//TODO: quick notification
-	}
-});
+		//update cached conversation when there is no chat widget to handle it
+		if( !handled ) {
+			let current = conversations.get(friendship_id);
+			if (current)
+				pushSocialMessage(current, message);
+			
+			let friendship = Social.getFriendByFriendshipID(friendship_id);
+			if(friendship) {
+				NotificationsIndicator.push({
+					content: Chat.getNotificationText(friendship.friend_data.username),
+					custom_data: {user_id: friendship.friend_data.id},
+					render: (custom_data, onClose) => {
+						return <UserSidepop account_id={custom_data.user_id} onClose={onClose} focus_chat={true} />;
+					}
+				} as NotificationSchema<{ user_id: string }>);
+			}
+		}
+	});
+}
+waitForSocialToLoad();
 
 export interface ChatMessageEvent {
 	friendship_id: string,
@@ -51,6 +68,7 @@ interface ChatProps {
 	recipient: FriendSchema;
 	account: AccountSchema;
 	height: number;//default chat height in pixels
+	autofocus: boolean;
 }
 
 interface ChatState {
@@ -59,8 +77,13 @@ interface ChatState {
 
 export default class Chat extends React.Component<ChatProps, ChatState> {
 	static defaultProps: Partial<ChatProps> = {
-		height: 300
+		height: 300,
+		autofocus: false
 	};
+	
+	public static getNotificationText(username: string) {
+		return COMMON_LABELS.CHAT_MESSAGE + Utils.trimString(username, 15)
+	}
 	
 	private chat_input: HTMLInputElement | null = null;
 	private messages_container: HTMLDivElement | null = null;
@@ -86,6 +109,13 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 			Social.requestFriendshipConversationData( this.props.recipient.friendship_id );
 		else
 			this.setState({messages: current});
+		
+		//mark notification as read
+		let marked = NotificationsIndicator.close(
+			Chat.getNotificationText(this.props.recipient.friend_data.username));
+		
+		if(this.chat_input && (this.props.autofocus || marked))
+			this.chat_input.focus();
 	}
 	
 	componentWillUnmount() {

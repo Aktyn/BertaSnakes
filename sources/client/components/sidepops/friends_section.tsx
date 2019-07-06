@@ -8,6 +8,7 @@ import UserSidepop from './user_sidepop';
 import '../../styles/friends_section.scss';
 import {PublicAccountSchema} from "../../../server/database/database";
 import PotentialFriendsTable from "./potential_friends_table";
+import NotificationsIndicator, {COMMON_LABELS} from "../widgets/notifications_indicator";
 
 interface FriendsSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -41,6 +42,8 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 		this.updateFriendRequests();
 		Social.on(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, this.onSocialUpdate);
 		Social.on(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, this.onRequestUpdate);
+		
+		NotificationsIndicator.close(COMMON_LABELS.FRIEND_REQUEST);//friends request are read
 	}
 	
 	componentWillUnmount() {

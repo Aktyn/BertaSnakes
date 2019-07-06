@@ -1,10 +1,14 @@
+import * as React from 'react';
+import NotificationsIndicator, {COMMON_LABELS, NotificationSchema} from '../components/widgets/notifications_indicator';
 import Config from '../../common/config';
 import SOCIAL_CODES, {SocialNetworkPackage} from '../../common/social_codes';
 import ERROR_CODES from '../../common/error_codes';
 import Events from "../utils/events";
 
-import {PublicAccountSchema} from "../../server/database/database";
-import {FriendSchema} from '../../server/database/database';
+import {FriendSchema, PublicAccountSchema} from "../../server/database/database";
+import AccountSidepop, {VIEWS} from "../components/sidepops/account_sidepop";
+import UserSidepop from "../components/sidepops/user_sidepop";
+
 export {FriendSchema} from '../../server/database/database';
 
 let friends: FriendSchema[] = [];
@@ -70,6 +74,14 @@ function handleMessage(message: SocialNetworkPackage) {
 		case SOCIAL_CODES.ON_FRIEND_REQUEST_RECEIVED: {//potential_friend: PublicAccountSchema
 			potential_friends.push( message['potential_friend'] );
 			events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
+			
+			NotificationsIndicator.push({
+				content: COMMON_LABELS.FRIEND_REQUEST,
+				custom_data: {},
+				render: (custom_data, onClose) => {
+					return <AccountSidepop onClose={onClose} force_view={VIEWS.FRIENDS} />;
+				}
+			} as NotificationSchema<{ user_id: string }>);
 		}   break;
 		case SOCIAL_CODES.ON_FRIEND_REQUEST_SENT: {//potential_friend: PublicAccountSchema
 			requested_friends.push( message['potential_friend'] );
@@ -78,7 +90,16 @@ function handleMessage(message: SocialNetworkPackage) {
 		
 		case SOCIAL_CODES.ON_FRIEND_REMOVED: {
 			let friend_index = friends.findIndex(f => f.friend_data.id === message['friend_id']);
+			let old_friend = friends[friend_index];
 			if(friend_index !== -1) {
+				NotificationsIndicator.push({
+					content: old_friend.friend_data.username + COMMON_LABELS.FRIEND_REMOVED,
+					custom_data: {},
+					render: (custom_data, onClose) => {
+						return <UserSidepop onClose={onClose} account_id={old_friend.friend_data.id} />;
+					}
+				} as NotificationSchema<{ user_id: string }>);
+				
 				friends.splice(friend_index, 1);
 				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
 			}
@@ -95,6 +116,15 @@ function handleMessage(message: SocialNetworkPackage) {
 			let requested_friend_index = requested_friends
 				.findIndex(f => f.id === message['requested_friend_id']);
 			if(requested_friend_index !== -1) {
+				let user_that_rejected = requested_friends[requested_friend_index];
+				NotificationsIndicator.push({
+					content: user_that_rejected.username + COMMON_LABELS.FRIEND_REQUEST_REJECTED,
+					custom_data: {},
+					render: (custom_data, onClose) => {
+						return <UserSidepop onClose={onClose} account_id={user_that_rejected.id} />;
+					}
+				} as NotificationSchema<{ user_id: string }>);
+				
 				requested_friends.splice(requested_friend_index, 1);
 				events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
 			}
@@ -110,6 +140,7 @@ function handleMessage(message: SocialNetworkPackage) {
 					is_left: message['is_left'],
 					friend_data: potential_friends[accepted_friend_index]
 				});
+				sortFriends();
 				potential_friends.splice(accepted_friend_index, 1);//it is no more potential friend
 				
 				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
@@ -120,17 +151,27 @@ function handleMessage(message: SocialNetworkPackage) {
 			let requested_friend_index = requested_friends
 				.findIndex(f => f.id === message['requested_friend_id']);
 			if(requested_friend_index !== -1) {
+				let new_friend = requested_friends[requested_friend_index];
 				//move requested friend to friends array
 				friends.push({
 					online: true,//obviously he is online because he just accepted request
 					friendship_id: message['friendship_id'],
 					is_left: message['is_left'],
-					friend_data: requested_friends[requested_friend_index]
+					friend_data: new_friend
 				});
+				sortFriends();
 				requested_friends.splice(requested_friend_index, 1);//it is no more requested friend
 				
 				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
 				events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
+				
+				NotificationsIndicator.push({
+					content: COMMON_LABELS.FRIEND_REQUEST_ACCEPTED + new_friend.username,
+					custom_data: {},
+					render: (custom_data, onClose) => {
+						return <UserSidepop onClose={onClose} account_id={new_friend.id} />;
+					}
+				} as NotificationSchema<{ user_id: string }>);
 			}
 		}   break;
 		case SOCIAL_CODES.ON_SOCIAL_MESSAGE: {//friendship_id: string, //message: SocialMessage

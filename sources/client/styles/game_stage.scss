@@ -228,6 +228,14 @@ $togglerSize: 30px;
 		min-height: 50vh;
 
 		background-color: rgba( nth($palette, 8), 0.8);
+		
+		& > .options-bar {
+			display: grid;
+			grid-template-columns: 30px fit-content(100%) 30px;
+			align-items: center;
+			justify-content: space-between;
+			justify-items: center;
+		}
 
 		& > .exit-btn {
 			width: min-content;

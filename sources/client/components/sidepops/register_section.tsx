@@ -19,7 +19,7 @@ export default class RegisterSection extends React.Component<{self: AccountSidep
 		let self = this.props.self;
 		return <section>
 			<h1 key='register_h' className='fader-in'>Create new account</h1>
-			<input key='register_username' className='fader-in' type='text' placeholder='Username'
+			<input key='register_username' className='fader-in' type='text' placeholder='Username*'
 			       ref={el => self.username_input = el} onKeyDown={e => {
 				if (e.keyCode === 13 && self.password_input)
 					self.password_input.focus();
@@ -50,6 +50,10 @@ export default class RegisterSection extends React.Component<{self: AccountSidep
 				       if (e.keyCode === 13 && self.register_btn)
 					       this.props.tryRegister().catch(console.error);
 			       }} onChange={removeWhitechars} maxLength={256}/>
+			<div className={'fader-in'} style={{
+				color: '#78909C',
+				...offsetTop
+			}}>You shouldn't use longer nickname then 15 characters</div>
 			<button key='register_btn' style={offsetTop} className='fader-in'
 			        ref={el => self.register_btn = el} onClick={() => this.props.tryRegister()}>CREATE</button>
 		</section>;

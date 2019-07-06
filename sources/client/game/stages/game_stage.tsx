@@ -27,6 +27,7 @@ import Utils from '../../utils/utils';
 import './../../styles/game_stage.scss';
 import SettingsSidepop from '../../components/sidepops/settings_sidepop';
 import Settings from '../engine/settings';
+import NotificationsIndicator from '../../components/widgets/notifications_indicator';
 
 const BAR_COLORS = ['#8BC34A', '#42A5F5', '#ef5350'];
 let notifications_counter = 0;
@@ -62,6 +63,7 @@ export default class extends StageBase<BaseProps, GameState> {
 
 	private chatHandle: RoomChat | null = null;
 	private skillsbar: SkillsBar | null = null;
+	private notifications_indicator: NotificationsIndicator | null = null;
 
 	private chat_toggler: HTMLButtonElement | null = null;
 	private right_panel_toggler: HTMLButtonElement | null = null;
@@ -387,16 +389,13 @@ export default class extends StageBase<BaseProps, GameState> {
 						if (this.right_panel_toggler)
 							this.right_panel_toggler.blur();
 						this.setState({hide_rightside: !this.state.hide_rightside});
+						if(this.notifications_indicator)
+							this.notifications_indicator.closeList();
 					}} ref={el => this.right_panel_toggler = el}/>
 					<UserBtn user={this.props.current_user} />
 				</nav>
-				<div style={{
-					display: 'grid',
-					gridTemplateColumns: '30px fit-content(100%) 30px',
-					alignItems: 'center',
-					justifyContent: 'space-between'
-				}}>
-					<span />
+				<div className={'options-bar'}>
+					<NotificationsIndicator ref={el => this.notifications_indicator = el} />
 					<button className='glossy no-icon exit-btn' ref={el => this.exit_btn = el}
 					        onClick={this.tryLeave.bind(this)} style={{margin: '10px 0px'}}>EXIT GAME</button>
 					<button className='settings shaky-icon'

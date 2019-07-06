@@ -12,23 +12,32 @@ import '../styles/recent_conversations.scss';
 let recent_conversations: {friend_id: string, last_message: string}[] = [];
 let view_instances: RecentConversations[] = [];
 
-Social.on(EVENT_NAMES.ON_CHAT_MESSAGE, ({friendship_id, message}: ChatMessageEvent) => {
-	let friend = Social.getFriendByFriendshipID(friendship_id);
-	if(!friend || friend.is_left === message.left)//no friend or I am author of this message
+function waitForSocialToLoad() {
+	if (typeof Social === 'undefined') {
+		setTimeout(waitForSocialToLoad, 100);
 		return;
+	}
 	
-	let current_index = recent_conversations.findIndex(r => !!friend && r.friend_id === friend.friend_data.id);
-	if(current_index !== -1)
-		recent_conversations.splice(current_index, 1);
-	
-	//push at beginning
-	recent_conversations.splice(0, 0, {
-		friend_id: friend.friend_data.id,
-		last_message: message.content[0] || 'Error: no message content'
+	Social.on(EVENT_NAMES.ON_CHAT_MESSAGE, ({friendship_id, message}: ChatMessageEvent) => {
+		let friend = Social.getFriendByFriendshipID(friendship_id);
+		if(!friend || friend.is_left === message.left)//no friend or I am author of this message
+			return;
+		
+		let current_index = recent_conversations.findIndex(r => !!friend && r.friend_id === friend.friend_data.id);
+		if(current_index !== -1)
+			recent_conversations.splice(current_index, 1);
+		
+		//push at beginning
+		recent_conversations.splice(0, 0, {
+			friend_id: friend.friend_data.id,
+			last_message: message.content[0] || 'Error: no message content'
+		});
+		
+		view_instances.forEach(v => v.forceUpdate());
 	});
-	
-	view_instances.forEach(v => v.forceUpdate());
-});
+}
+waitForSocialToLoad();
+
 
 function closeConversation(friendship_id: string) {
 	let index = recent_conversations.findIndex(r => r.friend_id === friendship_id);
@@ -87,7 +96,7 @@ export default class RecentConversations extends React.Component<any, RecentConv
 			{this.state.selected_user &&
 				<UserSidepop account_id={this.state.selected_user} onClose={() => {
 					this.setState({selected_user: undefined});
-				}} />
+				}} focus_chat={true} />
 			}
 		</>;
 	}
