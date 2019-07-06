@@ -1,6 +1,7 @@
 import {MapJSON_I} from './maps';
 import Matrix2D from './../utils/matrix2d';
 import Colors from './../game/common/colors';
+import {ExtendedTexture} from "../../client/game/engine/graphics";
 
 declare var _CLIENT_: boolean;
 if(!_CLIENT_) {
@@ -13,9 +14,9 @@ export interface ChunkSchema {
 	matrix: Matrix2D,
 	canvas: HTMLCanvasElement,
 	ctx: CanvasRenderingContext2D,
-	buff: any, //ctx.getImageData(0, 0, CHUNK_RES, CHUNK_RES)
+	buff: ImageData | null, //ctx.getImageData(0, 0, CHUNK_RES, CHUNK_RES)
 	//new Uint8Array(CHUNK_RES * CHUNK_RES * 4),
-	webgl_texture: any,//for WebGL rendering TODO - assign type to webgl_texture and to buff
+	webgl_texture: ExtendedTexture | null,//any,//for WebGL rendering
 	need_update: boolean
 }
 
@@ -50,7 +51,7 @@ export default class PaintLayer {
 	public chunks: ChunkSchema[] = [];
 
 	public map_size = 1;//default
-	private walls_thickness = 0;
+	public walls_thickness = 0;
 
 	public size = 0;
 
@@ -252,11 +253,9 @@ export default class PaintLayer {
 	}
 
 	paintMapWalls(map: MapJSON_I) {//synchronous function
-		//this.color = Colors.WALLS.hex;
-		//if(map.data === null)
-		//	throw "No map data found";
-		let cc = map['walls_color'];
-		this.walls_color = Colors.gen(cc[0], cc[1], cc[2]);
+		// let cc = map['walls_color'];
+		// this.walls_color = Colors.gen(cc[0], cc[1], cc[2]);
+		this.walls_color = map['walls_color'];
 			
 		let smooth = map['smooth_walls'];// || false;//image smoothing during scale
 
@@ -452,6 +451,7 @@ export default class PaintLayer {
 			pixel_i = ((relXs|0) + (relYs|0) * CHUNK_RES) * 4;
 
 			for(ii=0; ii<4; ii++) {
+				// @ts-ignore
 				out_buff[ii] = this.chunks[ch_i].buff.data[pixel_i + ii];
 			}
 		}

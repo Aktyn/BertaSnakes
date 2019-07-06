@@ -1,17 +1,19 @@
 declare var _CLIENT_: boolean;
 
 import * as path from 'path';
+import Colors, {ColorI} from './common/colors';
 
 //server side only use
-var MAP_FOLDER = path.join(__dirname, '..', '..', '..', 'sources', 'common', 'maps');
-var on_load_listeners: Array<()=>void> = [];
+let MAP_FOLDER = path.join(__dirname, '..', '..', '..', 'sources', 'common', 'maps');
+let on_load_listeners: Array<()=>void> = [];
 
-var pending = 0;
+let pending = 0;
 
 if( !_CLIENT_ ) {
-	var fs = require('fs');
-	var Canvas = require('canvas');
-	var ServerImage = Canvas.Image;
+	// noinspection ES6ConvertVarToLetConst
+	var fs = require('fs'),
+		Canvas = require('canvas'),
+		ServerImage = Canvas.Image;
 }
 
 export const enum WEATHER_TYPE {
@@ -24,7 +26,7 @@ export interface MapJSON_I {
 	map_size: number;
 
 	walls_texture: HTMLImageElement;
-	walls_color: number[];
+	walls_color: ColorI;
 	smooth_walls: boolean;
 
 	background_texture: HTMLImageElement;
@@ -84,7 +86,7 @@ function extendType<T>(maps_literal: T): T & {[index: string]: MapJSON_I} {
 export default extendType({
 	'Empty': {
 		map_size: 5,
-		walls_color: [156, 185, 237],//TODO - generate SERIALIZABLE color object
+		walls_color: Colors.gen(156, 185, 237),
 		smooth_walls: false,
 		smooth_background: false,
 		weather: WEATHER_TYPE.DUST,
@@ -95,7 +97,7 @@ export default extendType({
 	} as MapJSON_I,
 	'Open Maze': {
 		map_size: 5,
-		walls_color: [156, 185, 237],
+		walls_color: Colors.gen(156, 185, 237),
 		smooth_walls: true,
 		smooth_background: true,
 		weather: WEATHER_TYPE.DUST,
@@ -106,7 +108,7 @@ export default extendType({
 	} as MapJSON_I,
 	'Simple Maze': {
 		map_size: 5,
-		walls_color: [128, 203, 196],
+		walls_color: Colors.gen(128, 203, 196),
 		smooth_walls: false,
 		smooth_background: false,
 		weather: WEATHER_TYPE.CLOUDS,
@@ -117,7 +119,7 @@ export default extendType({
 	} as MapJSON_I,
 	'Snowflake': {
 		map_size: 5,
-		walls_color: [178, 235, 242],
+		walls_color: Colors.gen(178, 235, 242),
 		smooth_walls: true,
 		smooth_background: true,
 		weather: WEATHER_TYPE.SNOW,

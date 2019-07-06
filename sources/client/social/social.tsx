@@ -73,7 +73,6 @@ function handleMessage(message: SocialNetworkPackage) {
 		
 		case SOCIAL_CODES.ON_FRIEND_REQUEST_RECEIVED: {//potential_friend: PublicAccountSchema
 			potential_friends.push( message['potential_friend'] );
-			events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
 			
 			NotificationsIndicator.push({
 				content: COMMON_LABELS.FRIEND_REQUEST,
@@ -82,6 +81,7 @@ function handleMessage(message: SocialNetworkPackage) {
 					return <AccountSidepop onClose={onClose} force_view={VIEWS.FRIENDS} />;
 				}
 			} as NotificationSchema<{ user_id: string }>);
+			events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
 		}   break;
 		case SOCIAL_CODES.ON_FRIEND_REQUEST_SENT: {//potential_friend: PublicAccountSchema
 			requested_friends.push( message['potential_friend'] );
@@ -162,9 +162,6 @@ function handleMessage(message: SocialNetworkPackage) {
 				sortFriends();
 				requested_friends.splice(requested_friend_index, 1);//it is no more requested friend
 				
-				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
-				events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
-				
 				NotificationsIndicator.push({
 					content: COMMON_LABELS.FRIEND_REQUEST_ACCEPTED + new_friend.username,
 					custom_data: {},
@@ -172,6 +169,9 @@ function handleMessage(message: SocialNetworkPackage) {
 						return <UserSidepop onClose={onClose} account_id={new_friend.id} />;
 					}
 				} as NotificationSchema<{ user_id: string }>);
+				
+				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
+				events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
 			}
 		}   break;
 		case SOCIAL_CODES.ON_SOCIAL_MESSAGE: {//friendship_id: string, //message: SocialMessage

@@ -4,6 +4,7 @@ import Account, {AccountSchema} from '../../account';
 import {offsetTop, removeWhitechars} from './sidepops_common';
 import Config from '../../../common/config';
 import ServerApi from '../../utils/server_api';
+import Social from '../../social/social';
 import ShipWidget from "../widgets/ship_widget";
 import RecentConversations from '../recent_conversations';
 import {PLAYER_TYPES} from "../../../common/game/objects/player";
@@ -101,6 +102,18 @@ class AccountDataView extends React.Component<{
 		});
 	}
 	
+	private renderFriendRequestsInfo() {
+		let pending = Social.getPotentialFriendsList().length;
+		if(pending === 0)
+			return undefined;
+		return <>
+			<label className={'separating-label'} style={offsetTop}>
+				You have {pending} pending friend request{pending > 1 ? 's' : ''}
+			</label>
+			<button onClick={() => this.props.self.setState({view: VIEWS.FRIENDS})}>CHECK IT</button>
+		</>;
+	}
+	
 	render() {
 		let account = this.props.account;
 		let exp_percent = Math.round(account.exp*100) + '%';
@@ -131,16 +144,7 @@ class AccountDataView extends React.Component<{
 				<label>Total games:</label>
 				<div>{account.total_games}</div>
 			</div>
-			<div className={'fader-in'}>
-				<label className={'separating-label'}>Your ships</label>
-				<div>{this.renderAvailableShips(account)}</div>
-				
-				<label className={'separating-label'} style={offsetTop}>Available skills</label>
-				<div style={{minHeight: '38px'}}>{this.renderAvailableSkills(account)}</div>
-				
-				<label className={'separating-label'} style={offsetTop}>Skillsbar</label>
-				<div>{this.renderSkillsBar(account)}</div>
-			</div>
+			<hr />
 			<nav key='other_views' className='user-views-selector fader-in' style={{
 				gridTemplateColumns: '1fr 1fr 1fr',
 				maxWidth: '350px',
@@ -151,9 +155,19 @@ class AccountDataView extends React.Component<{
 				<button onClick={() => this.props.self.setState({view: VIEWS.GAMES})}
 					disabled={this.props.account.total_games === 0}>GAMES</button>
 			</nav>
-			<hr/>
+			<div className={'fader-in'} style={offsetTop}>
+				<label className={'separating-label'}>Your ships</label>
+				<div>{this.renderAvailableShips(account)}</div>
+				
+				<label className={'separating-label'} style={offsetTop}>Available skills</label>
+				<div style={{minHeight: '38px'}}>{this.renderAvailableSkills(account)}</div>
+				
+				<label className={'separating-label'} style={offsetTop}>Skillsbar</label>
+				<div>{this.renderSkillsBar(account)}</div>
+			</div>
 			<div className={'fader-in'}>
 				<RecentConversations />
+				{this.renderFriendRequestsInfo()}
 			</div>
 			<hr/>
 		</>;

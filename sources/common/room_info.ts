@@ -4,7 +4,7 @@ import Maps from './game/maps';
 
 export const enum GAME_MODES {
 	COOPERATION = 0,
-	COMPETITITON//TODO: fix this name
+	COMPETITION
 }
 const GAMEMODES_COUNT = 2;
 
@@ -187,7 +187,7 @@ export default class RoomInfo {
 		this.gamemode = Math.max(0, Math.min(GAMEMODES_COUNT-1, settings.gamemode));
 		this.name = settings.name.substr(0, Config.MAXIMUM_ROOM_NAME_LENGTH);
 
-		let min_sits = this.gamemode === GAME_MODES.COMPETITITON ? 2 : 1;
+		let min_sits = this.gamemode === GAME_MODES.COMPETITION ? 2 : 1;
 		let new_sits_count = Math.max(min_sits, Math.min(Config.MAXIMUM_SITS, settings.sits_number));
 		this.changeSitsNumber(new_sits_count);
 

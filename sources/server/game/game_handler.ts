@@ -8,6 +8,7 @@ import {AccountSchema2UserCustomData} from '../utils';
 import RoomsManager from './rooms_manager';
 import * as child_process from 'child_process';
 import * as path from 'path';
+import {PROCESS_ACTIONS} from './game_process';
 
 const MAX_LEVEL = 99;
 
@@ -105,7 +106,7 @@ export default class GameHandler {
 			});
 
 			this.room.game_process.send({
-				action: 'init_game',
+				action: PROCESS_ACTIONS.INIT_GAME,
 				//sends array of only sitting users (actual players in game)
 				playing_users: playing_users_data,
 				room_info: this.room.toJSON()
@@ -150,7 +151,7 @@ export default class GameHandler {
 
 		try {//running game server-side
 			this.room.game_process.send({
-				action: 'run_game'
+				action: PROCESS_ACTIONS.RUN_GAME
 			});
 		}
 		catch(e) {

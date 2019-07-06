@@ -4,7 +4,9 @@ import Player from './player';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities').default;
+	{ // noinspection ES6ConvertVarToLetConst
+		var EntitiesBase = require('../../../client/game/entities').default;
+	}
 
 const SCALE = 0.075, GROW_SCALE = 0.075, SHAKING_RADIUS = 0.02;
 const DELAY_TIME = 2, SHAKING_TIME = 2;

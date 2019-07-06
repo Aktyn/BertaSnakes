@@ -64,7 +64,7 @@ interface ShipWidgetProps {
 }
 
 interface ShipWidgetState {
-	img_data_url?: string;//TODO - change name to url... something
+	img_data_url?: string;
 }
 
 export default class ShipWidget extends React.Component<ShipWidgetProps, ShipWidgetState> {

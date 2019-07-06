@@ -286,56 +286,6 @@ const Network = {
 		return sendJSON({'type': NetworkCodes.START_GAME_CONFIRMATION});
 	},
 
-	////////////////////////////////////////
-	//BELOW FUNCTIONS ARE BEFORE PROJECT RENEWAL
-
-	/*amISitting() {
-		if(CurrentRoom === null || CurrentUser === null)
-			return false;
-		return CurrentRoom.isUserSitting(CurrentUser.id);
-	},
-	subscribeLobby() {
-		sendJSON( {'type': NetworkCodes.SUBSCRIBE_LOBBY_REQUEST} );
-	},
-	
-	sendPrivateMessage(msg: string, target_user_id: number) {
-		sendJSON( {'type': NetworkCodes.SEND_PRIVATE_MESSAGE, 
-			'msg': msg, 'user_id': target_user_id} );
-	},
-	sendAddFriendRequest(user_id: number) {
-		sendJSON( {'type': NetworkCodes.ADD_FRIEND_REQUEST, 'user_id': user_id} );
-	},
-	sendRemoveFriendRequest(user_id: number) {
-		sendJSON( {'type': NetworkCodes.REMOVE_FRIEND_REQUEST, 'user_id': user_id} );
-	},
-	requestShipUse(type: number) {//TODO - check this types
-		sendJSON( {'type': NetworkCodes.SHIP_USE_REQUEST, 'ship_type': type} );
-	},
-	requestShipBuy(type: number) {
-		sendJSON( {'type': NetworkCodes.SHIP_BUY_REQUEST, 'ship_type': type} );
-	},
-	requestSkillBuy(skill_id: number) {
-		sendJSON( {'type': NetworkCodes.SKILL_BUY_REQUEST, 'skill_id': skill_id} );
-	},
-	requestSkillUse(skill_id: number) {
-		sendJSON( {'type': NetworkCodes.SKILL_USE_REQUEST, 'skill_id': skill_id} );
-	},
-	requestSkillPutOff(skill_id: number) {
-		sendJSON( {'type': NetworkCodes.SKILL_PUT_OFF_REQUEST, 'skill_id': skill_id} );
-	},
-	//@skills - array of skill indexes and nulls
-	requestSkillsOrder(skills: (number | null)[]) {
-		sendJSON( {'type': NetworkCodes.SKILLS_ORDER_REQUEST, 'skills': skills} );
-	},
-	*/
-
-	/*assignCurrentGameHandle: function(game: ClientGame.Game) {
-		CurrentGameHandle = game;
-	},
-	removeCurrentGameHandle: function() {
-		CurrentGameHandle = null;
-	},*/
-
 	sendByteBuffer(buffer: Uint8Array) {
 		try {
 			if(socket !== null)

@@ -136,7 +136,7 @@ export default class ServerGame extends GameCore {
 
 		if(room.gamemode === GAME_MODES.COOPERATION)
 			this.maximum_enemies = MAXIMUM_ENEMIES;
-		else if(room.gamemode === GAME_MODES.COMPETITITON)
+		else if(room.gamemode === GAME_MODES.COMPETITION)
 			this.maximum_enemies = MAXIMUM_COMPETITION_ENEMIES;
 
 		this.bounceVec = new Vec2f();//buffer object for storing bounce results
@@ -331,7 +331,7 @@ export default class ServerGame extends GameCore {
 		}
 		else if(Colors.isPlayerColor(color)) {//checking collisions with other players curves
 			//other painter collisions only in competition mode
-			if(this.room.gamemode === GAME_MODES.COMPETITITON) {
+			if(this.room.gamemode === GAME_MODES.COMPETITION) {
 				for(const player_col_i in Colors.PLAYERS_COLORS) {
 					if( Colors.compareByteBuffers(Colors.PLAYERS_COLORS[player_col_i].byte_buffer, color) ) {
 						// console.log('You hit other player\'s painter');
@@ -543,7 +543,7 @@ export default class ServerGame extends GameCore {
 	onPlayerAttackedPlayer(attacker: Player, victim: Player, 
 		damage: number)
 	{
-		if(this.room.gamemode !== GAME_MODES.COMPETITITON)
+		if(this.room.gamemode !== GAME_MODES.COMPETITION)
 			return;
 
 		victim.hp -= damage;//must be before putting data for clients
@@ -605,7 +605,7 @@ export default class ServerGame extends GameCore {
 					<Enemy>this.enemies[e_i], 1.0);
 			}
 		}
-		if(this.room.gamemode === GAME_MODES.COMPETITITON) {
+		if(this.room.gamemode === GAME_MODES.COMPETITION) {
 			for(p_i=0; p_i<this.players.length; p_i++) {
 				//@ts-ignore
 				if(this.players[p_i] !== bomb.parent && !this.players[p_i].spawning &&
@@ -747,7 +747,7 @@ export default class ServerGame extends GameCore {
 					}
 				}
 
-				if(this.room.gamemode === GAME_MODES.COMPETITITON) {
+				if(this.room.gamemode === GAME_MODES.COMPETITION) {
 					for(p_i=0; p_i<this.players.length; p_i++) {
 						//@ts-ignore
 						if(this.players[p_i] !== player && !this.players[p_i].spawning &&

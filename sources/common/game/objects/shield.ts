@@ -3,12 +3,14 @@ import Colors, {ColorI} from './../common/colors';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities').default;
+	{ // noinspection ES6ConvertVarToLetConst
+		var EntitiesBase = require('../../../client/game/entities').default;
+	}
 
 const SCALE_FACTOR = 1.9;
 const GROWING_TIME = 0.4, SHRINKING_TIME = 2.0;
 
-var sc;
+let sc;
 
 export default class Shield extends Object2D {
 	private player_handle: Object2D;
@@ -49,7 +51,7 @@ export default class Shield extends Object2D {
 		//@ts-ignore
 		if(typeof EntitiesBase !== 'undefined')
 			//@ts-ignore
-			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name), this);
+			EntitiesBase.removeObject(EntitiesBase.getEntityId(this.entity_name as string), this);
 	}
 
 	update(delta: number) {

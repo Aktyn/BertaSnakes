@@ -102,44 +102,11 @@ const enum NetworkCodes {
 	PLAYER_EMOTICON,//comes with emoticon index
 	PLAYER_SKILL_USE_REQUEST,//comes with skill index
 	PLAYER_SKILL_STOP_REQUEST,// -------- // --------
-
-	//BELOW CODES ARE BEFORE 2019
-
-	/*SUBSCRIBE_LOBBY_REQUEST,
 	
-	SEND_PRIVATE_MESSAGE,//@msg - 'string', @user_id - 'number'
-	ADD_FRIEND_REQUEST,//@user_id - 'number'
-	REMOVE_FRIEND_REQUEST,// ----- // -----
-	
-	SHIP_USE_REQUEST,//@ship_type - 'number'
-	SHIP_BUY_REQUEST,// ------- // -------
-	SKILL_BUY_REQUEST,//@skill_id - 'number'
-	SKILL_USE_REQUEST,// ------- // -------
-	SKILL_PUT_OFF_REQUEST,// ------- // -------
-	SKILLS_ORDER_REQUEST,//@skills - array of skill indexes and nulls
-	
-	TRANSACTION_ERROR,//goes with error_detail (string)
-	ADD_FRIEND_CONFIRM,//goes with user_id
-	REMOVE_FRIEND_CONFIRM,// ----- // -----
-	SUBSCRIBE_LOBBY_CONFIRM,//goes with array of JSON RoomInfo's in @rooms property
-
-	RECEIVE_CHAT_MESSAGE,//@from - user nickname: 0, @public - boolean: 0, @msg - string message
-	//RECEIVE_PRIVATE_MESSAGE,// ----------------- // -----------------
-
-	// GAME CODES (value cannot be bigger then 255) //
-
-	//ON_ENEMY_BULLET_COLLISION,//enemy_id: 0, enemy_hp: 0, bullet_id: 0, player_index: 0, 
-	//hit_x: 0, hit_y: 0
-
-	
-	//ON_SMALL_EXPLOSION,//pos_x: 0, pos_y
-
-	
-	*/
-	CODES_COUNT,
+	CODES_COUNT
 }
 
-//TODO - separate enumerator for sending byte buffers
+//NOTE: codes sending in byte buffers can be separated from enumerator if it gets too big
 
 if(NetworkCodes.CODES_COUNT > 255)
 	console.error('More than 256 unique network codes exists!!!');

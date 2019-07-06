@@ -3,9 +3,10 @@ import {SENSOR_SHAPES} from '../common/sensor';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_) {
-	var RendererBase = require('../../../client/game/renderer').default;
-	var WebGLRenderer = require('../../../client/game/webgl_renderer').default;
-	var FusionEmitter = require('../../../client/game/emitters/fusion_emitter').default;
+	// noinspection ES6ConvertVarToLetConst
+	var RendererBase = require('../../../client/game/renderer').default,
+		WebGLRenderer = require('../../../client/game/webgl_renderer').default,
+		FusionEmitter = require('../../../client/game/emitters/fusion_emitter').default;
 }
 
 const ENTITY_NAME = 'ENEMY_ROCKET';

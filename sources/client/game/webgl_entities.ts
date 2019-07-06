@@ -5,7 +5,7 @@ import Assets from './engine/assets';
 
 const LINEAR_AS_DEFAULT_FILTERING = true;
 
-var ii: number, obj_it: Object2D, entity_it: EntityObjectSchema;
+let ii: number, obj_it: Object2D, entity_it: EntityObjectSchema;
 
 export default class WebGLEntities extends EntitiesBase {
 	private rect: VBO_I;

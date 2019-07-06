@@ -928,7 +928,7 @@ export default class ClientGame extends GameCore {
 	}
 
 	onPlayerKilledPlayer(attacker_i: number, victim_i: number) {
-		this.onPlayerKill(attacker_i, 'Player killed', GAME_MODES.COMPETITITON,
+		this.onPlayerKill(attacker_i, 'Player killed', GAME_MODES.COMPETITION,
 			GameCore.GET_PARAMS().points_for_player_kill, this.players[victim_i]);
 	}
 

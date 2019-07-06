@@ -64,7 +64,6 @@ function open(app: express.Express) {
 		}
 	});
 	
-	//TODO: refactor purchase requests code
 	app.post('/buy_ship', async (req, res) => {//token, ship_type
 		try {
 			if( typeof req.body.token !== 'string' || typeof req.body.ship_type !== 'number')

@@ -31,9 +31,9 @@ export function updateMapPreview(map_name: string, canv: HTMLCanvasElement) {
 				let index = (x + y*canv.width) * 4;
 
 				if(w_data.data[index] > 0) {
-					b_data.data[index+0] = wallsColor[0];
-					b_data.data[index+1] = wallsColor[1];
-					b_data.data[index+2] = wallsColor[2];
+					b_data.data[index+0] = wallsColor.byte_buffer[0];
+					b_data.data[index+1] = wallsColor.byte_buffer[1];
+					b_data.data[index+2] = wallsColor.byte_buffer[2];
 				}
 			}
 		}

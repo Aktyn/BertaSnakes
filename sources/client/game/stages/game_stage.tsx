@@ -59,7 +59,7 @@ interface GameState extends BaseState {
 }
 
 export default class extends StageBase<BaseProps, GameState> {
-	private game: ClientGame | null = null;//TODO - change to private or public
+	private game: ClientGame | null = null;
 
 	private chatHandle: RoomChat | null = null;
 	private skillsbar: SkillsBar | null = null;

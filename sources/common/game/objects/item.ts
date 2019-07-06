@@ -2,7 +2,9 @@ import Object2D from './object2d';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities').default;
+	{ // noinspection ES6ConvertVarToLetConst
+		var EntitiesBase = require('../../../client/game/entities').default;
+	}
 
 export const enum ITEM_TYPES {//enum
 	HEALTH = 0,

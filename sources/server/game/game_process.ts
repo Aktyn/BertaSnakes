@@ -34,9 +34,14 @@ let waitForGameInitialize = (callback: (game: ServerGame) => void) => {
 		setTimeout(waitForGameInitialize, 100, callback);
 };
 
+export const enum PROCESS_ACTIONS {
+	INIT_GAME = 0,
+	RUN_GAME
+}
+
 interface MessageSchema {
 	user_id: number;
-	action: string;
+	action: PROCESS_ACTIONS;
 	data: any;
 	room_info: string;
 	playing_users: UserFullData[]
@@ -57,7 +62,7 @@ process.on('message', function(msg: MessageSchema) {
 	else {
 		//@msg - {action, ...} where @action - string representing given action
 		switch(msg.action) {
-			case 'init_game'://TODO - const enum actions instead of strings
+			case PROCESS_ACTIONS.INIT_GAME:
 				console.log('Initializing server-side game');
 
 				let room = RoomInfo.fromJSON( msg.room_info );
@@ -86,7 +91,7 @@ process.on('message', function(msg: MessageSchema) {
 
 				//console.log(room);
 				break;
-			case 'run_game':
+			case PROCESS_ACTIONS.RUN_GAME:
 				console.log('Running game');
 				waitForGameInitialize( game => game.start() );
 				break;

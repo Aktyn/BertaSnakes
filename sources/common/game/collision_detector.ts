@@ -3,6 +3,7 @@
 import Vector, {Vec2f} from '../utils/vector';
 import {GAME_MODES} from '../room_info';
 import Object2D from './objects/object2d';
+import GameMap from './game_map';
 
 interface PainterCollisionListener {
 	(object: Object2D, pixel_buffer: Uint8Array): void;
@@ -242,7 +243,7 @@ export default {//ABSTRACT CLASS INTERFACE
 			}
 
 			//player to bullet collision (only competition mode)
-			if(gamemode === GAME_MODES.COMPETITITON) {
+			if(gamemode === GAME_MODES.COMPETITION) {
 				for(b_i=0; b_i<map.bullets.length; b_i++) {
 					if( twoObjectsIntersect(map.players[p_i], map.bullets[b_i]) )
 						this.onPlayerBulletCollision(map.players[p_i], map.bullets[b_i]);
@@ -255,7 +256,7 @@ export default {//ABSTRACT CLASS INTERFACE
 			this.detectSensorToPainterCollision( 
 				map, map.enemies[e_i], this.onEnemyPainterCollision );
 
-			if(map.enemies[e_i].spawning === false) {//only spawned enemies
+			if(!map.enemies[e_i].spawning) {//only spawned enemies
 
 				//enemy to enemy spawner collision
 				for(es_i=0; es_i<map.enemy_spawners.length; es_i++) {
@@ -305,8 +306,7 @@ export default {//ABSTRACT CLASS INTERFACE
 		}
 	},
 	
-	//TODO - try GameMap type
-	findRandomEmptySpot: function(map: any, _radius: number, out_vec: Vector) {
+	findRandomEmptySpot: function(map: GameMap, _radius: number, out_vec: Vector) {
 		find_trials = 0;
 
 		const sc = map.map_size;

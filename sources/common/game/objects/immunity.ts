@@ -2,14 +2,16 @@ import Object2D from './object2d';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_)
-	var EntitiesBase = require('../../../client/game/entities').default;
+	{ // noinspection ES6ConvertVarToLetConst
+		var EntitiesBase = require('../../../client/game/entities').default;
+	}
 
 const SCALE_FACTOR = 1.5;
 
 const GROWING_TIME = 0.4, SHRINKING_TIME = 2.0;
 const ENTITY_NAME = 'IMMUNITY_AUREOLE';
 
-var sc;
+let sc;
 
 export default class Immunity extends /*Object2DSmooth*/Object2D {
 	private player_handle: Object2D;//NOTE - it doesn't have to be a Player class

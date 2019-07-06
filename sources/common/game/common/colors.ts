@@ -79,8 +79,6 @@ const Colors = {//utils methods
 	},
 	gen: gen,
 
-	//PLAYERS_COLORS: PALETTE.PLAYERS_COLORS,//TODO - check for duplicate
-
 	...PALETTE
 } as ColorsSchema;
 

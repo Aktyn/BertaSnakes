@@ -41,7 +41,7 @@ export default {
 				let canv = Canvas.createCanvas(AVATAR_SIZE, AVATAR_SIZE);
 				let ctx = canv.getContext('2d');
 
-				var aspect = img.width / img.height;
+				let aspect = img.width / img.height;
 				if(img.width >= img.height)
 		  			ctx.drawImage(img, 
 		  				(AVATAR_SIZE/2) - (AVATAR_SIZE/2)*aspect, 0, AVATAR_SIZE * aspect, AVATAR_SIZE);

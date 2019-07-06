@@ -3,7 +3,7 @@ import Object2D from './object2d';
 const SCALE = 0.07, DURATION = 2, FADING_DURATION = 0.5;//durations in seconds
 const OFFSET_ANGLE = Math.PI / 4.0, PARENT_OFFSET = 0.15;
 
-var sc = 0;
+let sc = 0;
 
 export const EMOTS = [//NOTE - use uppercase letters for key values
 	{	file_name: 'hand.png', 		key: 'Q'	},
@@ -41,8 +41,6 @@ export default class Emoticon extends Object2D {
 		this.streak.setRot( OFFSET_ANGLE );
 
 		if(this.entitiesClass) {
-			//hand.svg is deprecated emoticon
-			//if(name !== 'hand.svg')//exception (TODO - hand icon in yellow circle)
 			this.entitiesClass.addObject(this.entitiesClass.getEntityId('STREAK'), this.streak);
 			this.entitiesClass.addObject(
 				this.entitiesClass.getEntityId(Emoticon.entityName(this.name)), this);

@@ -4,11 +4,11 @@ import PoisonousEnemy from './poisonous_enemy';
 
 declare var _CLIENT_: boolean;
 if(_CLIENT_) {
-	var EntitiesBase = require('../../../client/game/entities').default;
-
-	var RendererBase = require('../../../client/game/renderer').default;
-	var WebGLRenderer = require('../../../client/game/webgl_renderer').default;
-	var SpawnerEmitter = require('../../../client/game/emitters/spawner_emitter').default;
+	// noinspection ES6ConvertVarToLetConst
+	var EntitiesBase = require('../../../client/game/entities').default,
+		RendererBase = require('../../../client/game/renderer').default,
+		WebGLRenderer = require('../../../client/game/webgl_renderer').default,
+		SpawnerEmitter = require('../../../client/game/emitters/spawner_emitter').default;
 }
 
 const SCALE = 0.15, GROWING_TIME = 1, SHRINKING_TIME = 1, ENEMY_GROWING_TIME = 0.5, GAP_TIME = 2.0;

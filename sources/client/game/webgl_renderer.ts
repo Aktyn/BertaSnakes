@@ -240,8 +240,7 @@ export default class WebGLRenderer extends RendererBase {
 
 					if(chunk_ref.webgl_texture == null) {//generate texture for the first time
 						chunk_ref.webgl_texture =
-							//@ts-ignore
-							Graphics.TEXTURES.createFrom(chunk_ref.canvas, true/*, true*/);
+							Graphics.TEXTURES.createFrom(chunk_ref.canvas, true);
 						//this.chunks_handlers.push( chunk_ref.webgl_texture );
 
 						//chunk_ref.buff = chunk_ref.ctx.getImageData(0, 0, 
@@ -260,6 +259,7 @@ export default class WebGLRenderer extends RendererBase {
 					}
 				}
 
+				// @ts-ignore
 				chunk_ref.webgl_texture.bind();
 				//@ts-ignore
 				Graphics.SHADERS.uniform_mat3('u_matrix', <Float32Array>chunk_ref.matrix.buffer);

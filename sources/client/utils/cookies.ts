@@ -13,7 +13,7 @@ export default {
 
 	getCookie: function(name: string) {
 	    try {
-	    	var match = decodeURIComponent(document.cookie)
+	    	let match = decodeURIComponent(document.cookie)
 	    		.match(new RegExp('.*'+name+'=([^;]*)', 'i'));
 	    	if(match && match.length > 1)
 		   		return match[1];

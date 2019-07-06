@@ -7,12 +7,12 @@ interface NotificationsState {
 	current?: string;
 }
 
+let DURATION = 1000 * 8;
 try {
-	var DURATION = parseInt(variables.duration) || (1000 * 8);
+	DURATION = parseInt(variables.duration) || (1000 * 8);
 }
 catch(e) {
 	console.error(e);
-	var DURATION = 1000 * 8;
 }
 // console.log(variables, DURATION);
 

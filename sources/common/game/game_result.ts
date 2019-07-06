@@ -68,11 +68,13 @@ function calculateRankReward(players: Player[], target_index: number) {
 	let total_reward = 0;//stores sum of partial rewards
 
 	let Ra: number = players[target_index].rank;
+	if( !players[target_index].account_id )
+		return 0;//ignore guests (update 07.07.2019)
 
 	for(let i=0; i<players.length; i++) {
 		let Rb: number = players[i].rank;
 
-		if(i !== target_index)//TODO - ignore guests
+		if(i !== target_index)
 			total_reward += eloRating(Ra, Rb, i > target_index);
 	}
 

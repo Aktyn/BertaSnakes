@@ -89,10 +89,11 @@ export default class RecentConversations extends React.Component<any, RecentConv
 	
 	render() {
 		if(recent_conversations.length === 0)
-			return <span>No recent conversations</span>;
+			return <span/>;
+			//return <label className={'separating-label'} style={offsetTop}>No recent conversations</label>;
 		return <>
-			<div>Recent conversations</div>
-			<div className={'recent-conversations'} style={offsetTop}>{this.renderConversations()}</div>
+			<label className={'separating-label'} style={offsetTop}>Recent conversations</label>
+			<div className={'recent-conversations'}>{this.renderConversations()}</div>
 			{this.state.selected_user &&
 				<UserSidepop account_id={this.state.selected_user} onClose={() => {
 					this.setState({selected_user: undefined});

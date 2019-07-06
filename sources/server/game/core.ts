@@ -1,6 +1,6 @@
 import Connections, {Connection} from './connections';
 import {Server} from 'ws';
-import {handleJSON, onDisconnect} from './message_handler';
+import {handleByteBuffer, handleJSON, onDisconnect} from './message_handler';
 
 let open_port = 0;//can be initialized to zero since it is falsy value
 
@@ -8,15 +8,8 @@ function onMessage(connection: Connection, message: any) {
 	try {
 		if(typeof message === 'string')//stringified JSON object
 			handleJSON( connection, JSON.parse(message) ).catch(console.error);
-		else if(typeof message === 'object') {//object - probably array buffer
-			let room = connection.getRoom();
-			if(connection.user && room && room.game_process)//TODO - move to 
-				room.game_process.send({user_id: connection.user.id, data: message});
-			/*if(this.user && this.user.room && this.user.room.game_process) {
-				this.user.room.game_process.send( 
-					{user_id: this.user.id, data: message} );
-			}*/
-		}
+		else if(typeof message === 'object')//object - probably array buffer
+			handleByteBuffer(connection, message);
 		else console.error('Message must by type of string or object');
 	}
 	catch(e) {

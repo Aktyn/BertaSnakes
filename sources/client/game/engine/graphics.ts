@@ -296,7 +296,7 @@ export const FRAMEBUFFERS = {
 		let linear = options.linear === undefined ? true : options.linear;//default
 		let width = options.width || 0,
 			height = options.height || 0;
-		if(options.fullscreen === true) {
+		if(options.fullscreen) {
 			width = CANVAS.width;
 			height = CANVAS.height;
 		}
@@ -328,7 +328,7 @@ export const FRAMEBUFFERS = {
 		//var buffers = [];
 		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, 
 			GL.TEXTURE_2D, texture, 0);
-		//buffers.push(EXT.COLOR_ATTACHMENT0_WEBGL);//TODO no need to use array ...
+		//buffers.push(EXT.COLOR_ATTACHMENT0_WEBGL);
 		
 		//EXT.drawBuffersWEBGL(buffers);//... [EXT.COLOR_ATTACHMENT0_WEBGL] instead of buffers
 		GL.bindTexture(GL.TEXTURE_2D, null);
@@ -375,7 +375,7 @@ export const FRAMEBUFFERS = {
 			}
 		};
 
-		if(options.fullscreen === true)
+		if(options.fullscreen)
 			fullscreen_framebuffers.push(framebuffer);
 
 		return framebuffer;

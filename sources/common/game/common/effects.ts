@@ -30,7 +30,7 @@ export const AVAILABLE_EFFECTS = extendType({//SCHEMA
 	POISONING: <EffectSchema>{ duration: 0.5 }
 });
 
-var e_i = 0;
+let e_i = 0;
 
 for(let eff in AVAILABLE_EFFECTS) {
 	//@ts-ignore
@@ -81,6 +81,7 @@ export default class Effects {
 	}
 
 	onEffectStart(effect: EffectSchema) {
+		// noinspection JSRedundantSwitchStatement
 		switch(effect) {
 			default: break;
 			case AVAILABLE_EFFECTS.SPEED:
@@ -93,6 +94,7 @@ export default class Effects {
 	}
 
 	onEffectEnd(effect_id: number) {
+		// noinspection JSRedundantSwitchStatement
 		switch(effect_id) {
 			default: break;
 			case AVAILABLE_EFFECTS.SPEED.id:
@@ -106,7 +108,7 @@ export default class Effects {
 
 	update(delta: number) {
 		for(e_i=0; e_i<this.a_effects.length; e_i++) {
-			if((this.a_effects[e_i].timer+=delta) >= this.a_effects[e_i].duration === true) {
+			if((this.a_effects[e_i].timer += delta) >= this.a_effects[e_i].duration) {
 				this.onEffectEnd( this.a_effects[e_i].id );
 				this.a_effects.splice(e_i, 1);
 				e_i--;

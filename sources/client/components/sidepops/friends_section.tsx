@@ -61,6 +61,7 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 		if( !Account.getAccount() )
 			return this.props.onError(ERROR_CODES.NOT_LOGGED_IN);
 		this.setState({potential_friends: Social.getPotentialFriendsList()});
+		NotificationsIndicator.close(COMMON_LABELS.FRIEND_REQUEST);//friends request are read
 	}
 	
 	private renderFriendsList() {
@@ -77,7 +78,7 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 		});
 	}
 	
-	private renderFriendRequests() {//TODO: finish this
+	private renderFriendRequests() {
 		return <>
 			<label className={'separating-label'}>Pending friend requests</label>
 			<div style={{//scroll view
