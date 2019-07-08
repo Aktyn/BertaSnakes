@@ -5,10 +5,10 @@ import Social, {EVENT_NAMES} from './social';
 import {pushSocialMessage} from "../../common/social_utils";
 import Utils from '../utils/utils';
 import ServerApi from '../utils/server_api';
-
-import '../styles/social_chat.scss';
 import NotificationsIndicator, {COMMON_LABELS, NotificationSchema} from '../components/widgets/notifications_indicator';
 import UserSidepop from '../components/sidepops/user_sidepop';
+
+import '../styles/social_chat.scss';
 
 //key is a friendship id
 let conversations: Map<string, SocialMessage[]> = new Map();
@@ -73,12 +73,13 @@ interface ChatProps {
 
 interface ChatState {
 	messages: SocialMessage[];
+	spam_warning: boolean;
 }
 
 export default class Chat extends React.Component<ChatProps, ChatState> {
 	static defaultProps: Partial<ChatProps> = {
 		height: 300,
-		autofocus: false
+		autofocus: false,
 	};
 	
 	public static getNotificationText(username: string) {
@@ -88,21 +89,27 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 	private chat_input: HTMLInputElement | null = null;
 	private messages_container: HTMLDivElement | null = null;
 	private readonly conversation_data_listener: (conversation: ConversationEvent | null) => void;
+	private readonly spam_warning_listener: () => void;
+	
+	private spam_warning_tm: NodeJS.Timeout | null = null;
 	
 	private sticks = true;
 	
 	state: ChatState = {
-		messages: []
+		messages: [],
+		spam_warning: false
 	};
 	
 	constructor(props: ChatProps) {
 		super(props);
 		this.conversation_data_listener = this.onConversationData.bind(this);
+		this.spam_warning_listener = this.onSpamWarning.bind(this);
 	}
 	
 	componentDidMount() {
 		chat_instances.push(this);
 		Social.on(EVENT_NAMES.ON_CONVERSATION_DATA, this.conversation_data_listener);
+		Social.on(EVENT_NAMES.ON_SPAM_WARNING, this.spam_warning_listener);
 		
 		let current = conversations.get( this.props.recipient.friendship_id );
 		if(!current)
@@ -124,6 +131,10 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 			chat_instances.splice(i, 1);
 		
 		Social.off(EVENT_NAMES.ON_CONVERSATION_DATA, this.conversation_data_listener);
+		Social.off(EVENT_NAMES.ON_SPAM_WARNING, this.spam_warning_listener);
+		
+		if(this.spam_warning_tm)
+			clearTimeout(this.spam_warning_tm);
 	}
 	
 	componentDidUpdate() {
@@ -136,6 +147,11 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 	private onConversationData(conversation_data: ConversationEvent | null) {
 		if( !conversation_data || conversation_data.friendship_id !== this.props.recipient.friendship_id )
 			return;
+		
+		console.log( conversation_data.conversation.reduce((prev, curr) => {
+			prev.content = prev.content.concat(curr.content);
+			return prev;
+		}).content.length );
 		
 		//NOTE: there is assumption here that there are fever current messages that in conversation
 		//so we are pushing current messages into just received conversation
@@ -163,6 +179,16 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 		this.setState({messages: current});
 		
 		return true;
+	}
+	
+	private onSpamWarning() {
+		this.setState({spam_warning: true});
+		if(this.spam_warning_tm)
+			clearTimeout(this.spam_warning_tm);
+		this.spam_warning_tm = setTimeout(() => {
+			this.setState({spam_warning: false});
+			this.spam_warning_tm = null;
+		}, 5000) as never;
 	}
 	
 	private send() {
@@ -214,7 +240,11 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 					return;
 				this.sticks = this.messages_container.clientHeight +
 					this.messages_container.scrollTop+32 >= this.messages_container.scrollHeight;
-			}} ref={el => this.messages_container = el}>{this.renderMessages()}</div>
+			}} ref={el => this.messages_container = el}>
+				{this.renderMessages()}
+				{this.state.spam_warning &&
+					<div className={'spam-warning'}>You are sending messages to fast. Calm down.</div>}
+			</div>
 			<div className={'bottom'}>
 				<input type={'text'} placeholder={'Type your message here'} onKeyDown={e => {
 					if(e.keyCode === 13)

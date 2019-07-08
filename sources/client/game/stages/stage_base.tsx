@@ -20,4 +20,6 @@ export default abstract class StageBase<Props, State> extends React.Component<Pr
 
 	// noinspection JSUnusedGlobalSymbols
 	protected abstract onChatMessage(msg: MessageSchema): void;
+	// noinspection JSUnusedGlobalSymbols
+	protected abstract onSpamWarning(): void;
 }

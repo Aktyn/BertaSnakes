@@ -52,10 +52,12 @@ function loadContext() {
 			throw new Error('Cannot acquire webgl context');
 		if(!EXT)
 			throw new Error('Browser does not support "draw buffers" webgl extension');
+		
 	}
-	catch(e) {//TODO - check this error on mobiles (can be simulated by disabling webgl in browser settings)
+	catch(e) {
 		console.error(e);
-		//alert('No WebGL support');
+		alert('No WebGL support. You are not able to play BertaSnakes in this browser.');
+		location.reload();
 	}
 
 	// Turn off rendering to alpha
@@ -152,9 +154,9 @@ export function onResize(width: number, height: number) {
 	//fixRetinaDisplay(CANVAS, GL);
 	//loadContext();
 }
-export function getWidth() {
+/*export function getWidth() {
 	return CANVAS.width;
-}
+}*/
 export function getHeight() {
 	return CANVAS.height;
 }
@@ -265,9 +267,9 @@ export const TEXTURES = {
 		GL.activeTexture(GL.TEXTURE0 + number);
 	},
 
-	unbind: function() {
+	/*unbind: function() {
 		GL.bindTexture(GL.TEXTURE_2D, null);
-	}
+	}*/
 };
 //})(),
 
@@ -291,6 +293,7 @@ export interface ExtendedFramebuffer {
 
 //FRAMEBUFFERS: (function() {
 let current_fb: WebGLFramebuffer | null = null;
+// noinspection JSUnusedGlobalSymbols
 export const FRAMEBUFFERS = {
 	create: function(options: FramebufferOptions): ExtendedFramebuffer {
 		let linear = options.linear === undefined ? true : options.linear;//default
@@ -462,9 +465,9 @@ export const SHADERS = {
 			}
 		};
 	},
-	getCurrent: function() {//returns number
+	/*getCurrent: function() {//returns number
 		return current_shader_program;
-	},
+	},*/
 
 	//UNIFORMS
 	uniform_int: function(name: string, value: number) {

@@ -88,8 +88,13 @@ export default class extends StageBase<MenuProps, MenuState> {
 	}
 	
 	public onChatMessage(msg: MessageSchema) {
-		if(this.right_panel)
-			this.right_panel.pushMessage(msg);
+		if(this.right_panel && this.right_panel.chatHandle)
+			this.right_panel.chatHandle.pushMessage(msg);
+	}
+	
+	public onSpamWarning() {
+		if(this.right_panel && this.right_panel.chatHandle)
+			this.right_panel.chatHandle.spamWarning();
 	}
 	
 	private renderInfos() {

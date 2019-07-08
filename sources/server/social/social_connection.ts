@@ -2,8 +2,10 @@ import Database, {AccountSchema, PublicAccountSchema, FriendSchema, SocialMessag
 import ERROR_CODES from "../../common/error_codes";
 import SOCIAL_CODES from "../../common/social_codes";
 
+const TIMESTAMP_SAMPLES = 10;
+
 //account_hex_id is map key
-let connections: Map<string, SocialConnection> = new Map();
+let connections: Map<string, SocialConnection[]> = new Map();
 
 export default class SocialConnection {
 	private readonly socket: any;
@@ -13,10 +15,12 @@ export default class SocialConnection {
 	private potential_friends: PublicAccountSchema[] = [];
 	private requested_friends: PublicAccountSchema[] = [];
 	
+	private message_timestamps: number[] = [];//for anti-spam system
+	
 	  //----------------------------------//
 	 //        STATIC METHODS            //
 	//----------------------------------//
-	public static getConnection(id: string) {
+	public static getConnections(id: string) {
 		return connections.get(id);
 	}
 	//----------------------------------//
@@ -27,7 +31,11 @@ export default class SocialConnection {
 		this.socket = socket;
 		this.account = account;
 		
-		connections.set(account.id, this);
+		let account_connections = connections.get(account.id);
+		if(account_connections)
+			account_connections.push(this);
+		else
+			connections.set(account.id, [this]);
 		
 		this.loadFriends().then(() => {
 			return this.loadFriendRequests();
@@ -37,17 +45,31 @@ export default class SocialConnection {
 	}
 	
 	destroy() {
-		if( !connections.delete(this.account.id) )
+		let removed = false;
+		let account_connections = connections.get(this.account.id);
+		if(account_connections) {
+			let conn_i = account_connections.indexOf(this);
+			
+			if(conn_i !== -1) {
+				account_connections.splice(conn_i, 1);
+				removed = true;
+			}
+			if(account_connections.length < 1)
+				connections.delete(this.account.id);
+		}
+		if( !removed )
 			console.error('Cannot delete social connection. Object not found in map structure.');
 		
 		//tell other friends who just went offline
-		for(let friend of this.friends) {
-			if( friend.online ) {
-				let friend_connection = connections.get(friend.friend_data.id);
-				if(!friend_connection)
-					continue;
-				
-				friend_connection.onFriendDisappear( this.account.id );
+		if(!account_connections || account_connections.length === 0) {
+			for (let friend of this.friends) {
+				if (friend.online) {
+					let friend_connections = connections.get(friend.friend_data.id);
+					if (!friend_connections)
+						continue;
+					for (let friend_connection of friend_connections)
+						friend_connection.onFriendDisappear(this.account.id);
+				}
 			}
 		}
 	}
@@ -77,14 +99,16 @@ export default class SocialConnection {
 		
 		//add online status for each friend
 		for(let friend_schema of db_res.friends) {
-			let friend_connection = connections.get(friend_schema.friend_data.id);
+			let friend_connections = connections.get(friend_schema.friend_data.id);
 			this.friends.push({
 				...friend_schema,//friendship_id, friend_data
-				online: friend_connection !== undefined
+				online: friend_connections !== undefined
 			});
 			
-			if( friend_connection )
-				friend_connection.onFriendAppear( this.account.id );
+			if( friend_connections ) {
+				for(let friend_connection of friend_connections)
+					friend_connection.onFriendAppear(this.account.id);
+			}
 		}
 		
 		//distribute
@@ -232,5 +256,20 @@ export default class SocialConnection {
 			friendship_id,
 			message
 		});
+	}
+	
+	public sendSpamWarning() {
+		this.send({type: SOCIAL_CODES.SPAM_WARNING});
+	}
+	
+	public canSendChatMessage() {//server-side only for anti-spam system
+		return this.message_timestamps.length < TIMESTAMP_SAMPLES ||
+			(Date.now() - this.message_timestamps[0]) > TIMESTAMP_SAMPLES*1000;//one second per message
+	}
+	
+	public registerLastMessageTimestamp(timestamp: number) {//server-side only for anti-spam system
+		this.message_timestamps.push(timestamp);
+		while( this.message_timestamps.length > TIMESTAMP_SAMPLES )//store last N message timestamps
+			this.message_timestamps.shift();
 	}
 }

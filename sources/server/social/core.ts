@@ -27,7 +27,7 @@ export default {
 		
 		const websocket = new Server({ port });
 
-		websocket.on('connection', function(ws/*, req*/) {//TODO: handle multiple connections from same account
+		websocket.on('connection', function(ws/*, req*/) {
 			(<any>ws).isAlive = true;
 			ws.on('pong', () => {
 				(<any>ws).isAlive = true;//heartbeat

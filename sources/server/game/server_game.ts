@@ -33,19 +33,13 @@ const ITEM_SPAWN_FREQUENCY = 0.2;//changed from 0.5 (04.09.2018)
 
 const RESPAWN_DURATION = 3;//seconds
 
-//predefined bullets spawn offsets relative to player for each player type
-//TODO - move this offsets to player modules
-const bullets_offsets_1 = [{x: 0, y: 1}];
-const bullets_offsets_2 = [{x: -0.5, y: 1}, {x: 0.5, y: 1}];
-const bullets_offsets_3 = [{x: 0, y: 1}, {x: -0.5, y: 0.5}, {x: 0.5, y: 0.5}];
-
 //game logic variables
 let wave_i: number, chunk_it: number, chunk_ref, ss_i: number, obj_i: number,
 	p_i: number, e_i: number, s_i: number, b_i: number, s_h, 
-	async_p_i: number, p_it: Player, 
+	async_p_i: number, p_it: Player, b_arr: Bullet[],
 	async_p_it: Player, async_s, 
 	r_p_i: number,//e_h, e_h2
-	hit_x: number, hit_y: number, offsets, sin: number, cos: number, synch_array;
+	hit_x: number, hit_y: number, sin: number, cos: number, synch_array;
 
 let emitAction = (action: number, data?: any) => {
 	try {
@@ -105,8 +99,19 @@ const runLoop = (function() {
 	};
 })();
 
-//@ts-ignore
-export default class ServerGame extends GameCore {
+interface CollisionsDetector {
+	onPlayerPainterCollision: (player: Player, color: Uint8Array) => void;
+	onEnemyPainterCollision: (enemy: Enemy, color: Uint8Array) => void;
+	onBulletPainterCollision: (bullet: Bullet, color: Uint8Array) => void;
+	onPlayerEnemyCollision: (player: Player, enemy: Enemy) => void;
+	onPlayerEnemySpawnerCollision: (player: Player, spawner: EnemySpawner) => void;
+	onEnemyEnemySpawnerCollision: (enemy: Enemy, spawner: EnemySpawner) => void;
+	onPlayerBulletCollision: (player: Player, bullet: Bullet) => void;
+	onEnemyBulletCollision: (enemy: Enemy, bullet: Bullet) => void;
+	onPlayerItemCollision: (player: Player, item: Item) => void;
+}
+
+export default class ServerGame extends GameCore implements CollisionsDetector {
 	private room: RoomInfo;
 	public running: boolean;
 	//private duration: number;
@@ -677,57 +682,39 @@ export default class ServerGame extends GameCore {
 			case Skills.SHOOT1:
 			case Skills.SHOOT2:
 			case Skills.SHOOT3:
-				offsets = skill.data === Skills.SHOOT1 ? bullets_offsets_1 : 
-					(skill.data === Skills.SHOOT2 ? bullets_offsets_2 : bullets_offsets_3);
+				b_arr = player.shootBullets(skill.data);
+				this.bullets.push(...b_arr);
 
-				this.dataForClients.push( NetworkCodes.ON_BULLET_SHOT, player_i, 
-					offsets.length );	
+				this.dataForClients.push( NetworkCodes.ON_BULLET_SHOT, player_i, b_arr.length );
 
-				for(let i in offsets) {
-					sin = Math.sin(-player.rot);
-					cos = Math.cos(-player.rot);
-
-					let bullet_i = new Bullet(
-						(offsets[i].x * cos - offsets[i].y * sin) * player.width + player.x, 
-						(offsets[i].x * sin + offsets[i].y * cos) * player.height + player.y, 
-						player.rot, 
-						player, BULLET_TYPE.NORMAL
-					);
-					if(skill.data === Skills.SHOOT2)
-						bullet_i.damage_scale = 0.6;
-					else if(skill.data === Skills.SHOOT3)
-						bullet_i.damage_scale = 0.4;
-					this.bullets.push( bullet_i );
-
-					//fill rest data for clients
+				for(let bullet_i of b_arr)//fill rest data for clients
 					this.dataForClients.push( bullet_i.id, bullet_i.x, bullet_i.y, bullet_i.rot );
-				}
 				break;
-			case Skills.BOUNCE_SHOT:
+			case Skills.BOUNCE_SHOT: {
 				//BUGFIX - cannot use bounce shot inside poison
-				if(player.effects.isActive(AVAILABLE_EFFECTS.POISONING)) {
+				if( player.effects.isActive(AVAILABLE_EFFECTS.POISONING) ) {
 					skill.stopUsing();
-					this.dataForClients.push(NetworkCodes.ON_PLAYER_SKILL_CANCEL, 
+					this.dataForClients.push(NetworkCodes.ON_PLAYER_SKILL_CANCEL,
 						player_i, skill_i);
 					return;
 				}
-
+				
 				sin = Math.sin(-player.rot);
 				cos = Math.cos(-player.rot);
-
+				
 				let bullet = new Bullet(
-					-sin * player.width + player.x, 
-					cos * player.height + player.y, 
-					player.rot, 
+					-sin * player.width + player.x,
+					cos * player.height + player.y,
+					player.rot,
 					player,//.painter.color,
 					BULLET_TYPE.BOUNCING // bouncing
 				);
-				this.bullets.push( bullet );
-
+				this.bullets.push(bullet);
+				
 				//player_index, bullet_id, pos_x, pos_y, rot
-				this.dataForClients.push( NetworkCodes.ON_BOUNCE_BULLET_SHOT, player_i, bullet.id,
-					bullet.x, bullet.y, bullet.rot );
-				break;
+				this.dataForClients.push(NetworkCodes.ON_BOUNCE_BULLET_SHOT, player_i, bullet.id,
+					bullet.x, bullet.y, bullet.rot);
+			}   break;
 			case Skills.ENERGY_BLAST:
 				// super.paintHole(player.x, player.y, GameCore.GET_PARAMS().energy_blast_radius);
 				this.dataForClients.push( 

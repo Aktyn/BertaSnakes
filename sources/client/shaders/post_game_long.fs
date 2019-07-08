@@ -79,8 +79,8 @@ void main() {
         ((vUV.y-0.5) / camera.z + (camera.y+map_scale)/2.0)/map_scale
     );
 
-    //TODO - find workaround to not use this negative bias value
-    vec3 background_tex = texture2D(background_texture, tile_coord, -5.0).rgb;
+    //NOTE: -5.0 bias value removed on 08.07.2019 without visible effect
+    vec3 background_tex = texture2D(background_texture, tile_coord/*, -5.0*/).rgb;
     gl_FragColor = vec4(mix(background_tex * (1.-shadow), scene.rgb, scene.a), 1.);
     // gl_FragColor = vec4(mix(background_color * (1.-shadow), scene.rgb, scene.a), 1.);
 }

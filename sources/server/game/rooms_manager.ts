@@ -70,7 +70,10 @@ export default {
 
 	sendRoomsList(from_connection: Connection) {
 		if(from_connection.isInLobby()) {
-			let available_rooms = Array.from(rooms.values()).filter(room => !room.game_process);
+			let available_rooms = Array.from(rooms.values()).filter(room => {
+				//rooms that are not games and user in not banned from joining this room
+				return !room.game_process && from_connection.user && !room.banned_users.has(from_connection.user.id);
+			});
 			from_connection.sendRoomsList( available_rooms );
 		}
 	},
@@ -103,9 +106,9 @@ export default {
 			this.leaveRoom(from_connection);
 
 		let room = rooms.get(room_id);
-		if(!room || !from_connection.user)
+		if(!room || !from_connection.user || room.banned_users.has(from_connection.user.id))
 			return;
-
+		
 		room.addUser(from_connection.user);
 		from_connection.onRoomJoined();
 
@@ -143,7 +146,10 @@ export default {
 			this.leaveRoom( user_to_kick.connection );
 
 			user_to_kick.connection.sendKickInfo(room);
-			//TODO: short ban for joining this room
+			
+			//ban for joining this room again
+			room.banned_users.add( user_to_kick.id );
+			user_to_kick.connection.onRoomRemove(room);
 		}
 	},
 
@@ -188,7 +194,11 @@ export default {
 		if(!room || !from_connection.user)
 			return;
 
-		//TODO - store few previous user message timestamps to prevent spamming
+		if( !from_connection.user.canSendChatMessage() ) {
+			if( from_connection.user.connection )
+				from_connection.user.connection.sendSpamWarning(room.id);
+			return;
+		}
 
 		let message = {
 			author_id: from_connection.user.id,
@@ -201,5 +211,7 @@ export default {
 			user.connection.sendRoomMessage((<RoomInfo>room).id, 
 				message.author_id, message.timestamp, message.content);
 		});
+		
+		from_connection.user.registerLastMessageTimestamp(message.timestamp);
 	}
 }

@@ -91,7 +91,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				//@ts-ignore
 				this.password_confirm_input.value = 'password';
 				//@ts-ignore
-				this.email_input.value = 'xxxx@gmail.com';//TODO - remove of course
+				this.email_input.value = 'xxxx@gmail.com';
 			}
 			catch(e) {}
 		}

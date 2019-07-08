@@ -43,7 +43,7 @@ export default class RoomInfo {
 
 	public to_remove = false;//client-side only user
 
-	// public onUserConfirm: ((user_id: number) => void) | null = null;
+	public banned_users: Set<number> = new Set();//server-side only use (stores UserInfo's id)
 
 	//if not null => game is running
 	public game_process: any = null;

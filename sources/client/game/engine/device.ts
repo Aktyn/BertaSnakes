@@ -94,7 +94,8 @@ function onFullscreenChange() {
 
 if (document.addEventListener) {
     document.addEventListener('webkitfullscreenchange', onFullscreenChange, false);
-    document.addEventListener('mozfullscreenchange', onFullscreenChange, false);
+    // noinspection SpellCheckingInspection
+	document.addEventListener('mozfullscreenchange', onFullscreenChange, false);
     document.addEventListener('fullscreenchange', onFullscreenChange, false);
     document.addEventListener('MSFullscreenChange', onFullscreenChange, false);
 }

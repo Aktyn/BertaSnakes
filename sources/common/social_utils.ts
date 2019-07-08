@@ -1,6 +1,8 @@
 import {SocialMessage} from '../server/database/database';
 import Config from './config';
 
+declare var _CLIENT_: boolean;
+
 function getPreviousMsgIndex(arr: SocialMessage[], timestamp: number) {
 	for(let i=arr.length-1; i>=0; i--) {
 		if(arr[i].timestamp < timestamp)
@@ -19,8 +21,9 @@ export function pushSocialMessage(arr: SocialMessage[], msg: SocialMessage) {
 	else {
 		arr.splice(last_i + 1, 0, msg);//push at proper position
 		
-		//shift array if it is getting too big
-		while(arr.length > Config.MAXIMUM_LENGTH_OF_MESSAGES_CHUNK)
-			arr.shift();
+		if( !_CLIENT_ ) {//shift array if it is getting too big (server-side only)
+			while(arr.length > Config.MAXIMUM_LENGTH_OF_MESSAGES_CHUNK)
+				arr.shift();
+		}
 	}
 }

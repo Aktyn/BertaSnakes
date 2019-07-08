@@ -231,6 +231,5 @@ export default {
 		token = null;
 		onAccountData(null);
 		Social.disconnect();
-		//TODO - send request to server for removing session
 	}
 }

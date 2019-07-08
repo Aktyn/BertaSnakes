@@ -1,5 +1,5 @@
 import Object2D from './object2d';
-import {MOVEMENT_FLAGS} from './../common/movement';
+import {MOVEMENT_FLAGS} from '../common/movement';
 import PoisonousEnemy from './poisonous_enemy';
 
 declare var _CLIENT_: boolean;

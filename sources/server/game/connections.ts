@@ -205,6 +205,12 @@ export class Connection {
 			content
 		});
 	}
+	
+	sendSpamWarning(room_id: number) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+		this.send({type: NetworkCodes.SPAM_WARNING, room_id});
+	}
 
 	sendCountdown(room_id: number, time: number | null) {
 		if(!this.user)

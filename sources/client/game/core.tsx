@@ -233,6 +233,12 @@ export default class extends React.Component<any, CoreState> {
 						}
 					}
 				}	break;
+				case NetworkCodes.SPAM_WARNING: {
+					let room_s = Network.getCurrentRoom();
+					if(this.stageHandle && room_s && room_s.id === data['room_id']) {
+						this.stageHandle.onSpamWarning();
+					}
+				}   break;
 
 				case NetworkCodes.GAME_COUNTDOWN_UPDATE:
 					let _room = Network.getCurrentRoom();

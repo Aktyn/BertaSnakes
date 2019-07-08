@@ -1,7 +1,13 @@
 import {MapJSON_I} from './maps';
 import Matrix2D from './../utils/matrix2d';
 import Colors from './../game/common/colors';
-import {ExtendedTexture} from "../../client/game/engine/graphics";
+
+interface ExtendedTexture {
+	webgl_texture: WebGLTexture;
+	update(pixels: TexImageSource, linear: boolean): void;
+	bind(): void;
+	destroy(): void;
+}
 
 declare var _CLIENT_: boolean;
 if(!_CLIENT_) {

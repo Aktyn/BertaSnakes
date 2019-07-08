@@ -21,7 +21,8 @@ export const enum EVENT_NAMES {
 	ON_FRIENDS_LIST_UPDATE,
 	ON_FRIENDS_REQUEST_UPDATE,
 	ON_CHAT_MESSAGE,
-	ON_CONVERSATION_DATA
+	ON_CONVERSATION_DATA,
+	ON_SPAM_WARNING
 }
 
 function sortFriends() {
@@ -180,6 +181,9 @@ function handleMessage(message: SocialNetworkPackage) {
 				message: message['message']//SocialMessage
 			});
 		}   break;
+		case SOCIAL_CODES.SPAM_WARNING: {
+			events.emit(EVENT_NAMES.ON_SPAM_WARNING, {});
+		}   break;
 	}
 	console.log(message);
 }
@@ -215,7 +219,9 @@ export default {
 			if(typeof msg.data !== 'string' || !msg.isTrusted)
 				return;
 			try {
-				handleMessage(JSON.parse(msg.data));
+				//console.log('Incoming social data size:',
+				//	(new Blob([msg.data]).size/1024).toFixed(2), 'kb');
+				handleMessage( JSON.parse(msg.data) );
 			}
 			catch(e) {
 				console.error(e);

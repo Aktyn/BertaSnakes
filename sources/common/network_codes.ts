@@ -34,6 +34,7 @@ const enum NetworkCodes {
 	ON_KICKED_FROM_ROOM,//room_name: string
 	ACCOUNT_ALREADY_LOGGED_IN,
 	ON_ROOM_MESSAGE,//room_id: number, author_id: number, timestamp: number, content: string
+	SPAM_WARNING,//room_id: number
 	GAME_COUNTDOWN_UPDATE,//room_id: number, time: number | null
 
 	ON_GAME_START,//room_id: number

@@ -8,6 +8,8 @@ import EnemySpawner from './objects/enemy_spawner';
 import {Vec2f} from '../utils/vector';
 import Item, {ITEM_TYPES} from './objects/item';
 
+declare var _CLIENT_: boolean;
+
 export interface InitDataSchema {
 	id: number;
 	account_id?: string;
@@ -71,15 +73,15 @@ let InterfaceWith = function(ParentInstance: any, Interface: any) {
 };
 
 /////////////
-let vec2 = new Vec2f(), p_i: number, st_i: number;
+let vec2 = new Vec2f(),/* p_i: number,*/ st_i: number;
 
 export default class GameCore extends GameMap {
 	private last_respawn_angle = Math.PI / 2.0;
 
 	constructor() {
 		super();
-		//if(!_CLIENT_) {//interface only server side because collision are handling on server
-		if(typeof module !== 'undefined') {
+		//interface only server side because collision are handling on server
+		if(!_CLIENT_) {
 			console.log( 'Assigning collision detecting methods to GameCore instance' );
 			InterfaceWith(this, CollisionDetector);//assigns CollisionDetector interface
 		}
@@ -193,13 +195,13 @@ export default class GameCore extends GameMap {
 		
 	}
 
-	findPlayerIndexByColor(color: ColorI) {
+	/*findPlayerIndexByColor(color: ColorI) {
 		for(p_i=0; p_i<this.players.length; p_i++) {
 			if(this.players[p_i].painter.color === color)//NOTE strict equal operator
 				return p_i;
 		}
 		return -1;//in case player with given color is not found
-	}
+	}*/
 
 	update(delta: number) {
 		super.update(delta);

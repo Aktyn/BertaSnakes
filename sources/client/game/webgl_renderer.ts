@@ -1,6 +1,5 @@
 import RendererBase from './renderer';
 import WebGLEntities from './webgl_entities';
-// import './webgl_entities';
 import {LAYERS} from './entities';
 import Assets from './engine/assets';
 import Settings from './engine/settings';
@@ -178,7 +177,7 @@ export default class WebGLRenderer extends RendererBase {
 		this.entities.drawLayer( LAYERS.PAINT );
 	}
 
-	drawParticles(list: /*GraphicsScope.Modules.Emitter[]*/any) {
+	drawParticles(list: Graphics.Emitter[]) {
 		this.particles_shader.bind();
 
 		Graphics.SHADERS.uniform_float('screen_height', windowHeight);

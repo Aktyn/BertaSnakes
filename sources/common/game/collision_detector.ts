@@ -216,121 +216,119 @@ function paintOverlap(map: any, in_vec: Vector, _radius: number) {
 const twoObjectsIntersect = (obj1: Object2D, obj2: Object2D) => 
 	Vector.distanceSqrt(obj1, obj2) <= pow2(obj1.width + obj2.width);
 
-export default {//ABSTRACT CLASS INTERFACE
-	detectCollisions: function(map: any, gamemode: any) {
+export default{//ABSTRACT CLASS INTERFACE
+	detectCollisions: function (map: GameMap, gamemode: GAME_MODES) {
 		
-		for(p_i=0; p_i<map.players.length; p_i++) {//for each player
+		for (p_i = 0; p_i < map.players.length; p_i++) {//for each player
 			//player to painter collision
-			this.detectSensorToPainterCollision( 
-				map, map.players[p_i], this.onPlayerPainterCollision );
-
+			this.detectSensorToPainterCollision(
+				map, map.players[p_i], this.onPlayerPainterCollision);
+			
 			//player to enemy collision
-			for(e_i=0; e_i<map.enemies.length; e_i++) {
-				if( twoObjectsIntersect(map.players[p_i], map.enemies[e_i]) )
-					this.onPlayerEnemyCollision( map.players[p_i], map.enemies[e_i] );
+			for (e_i = 0; e_i < map.enemies.length; e_i++) {
+				if (twoObjectsIntersect(map.players[p_i], map.enemies[e_i]))
+					this.onPlayerEnemyCollision(map.players[p_i], map.enemies[e_i]);
 			}
-
+			
 			//player to enemy spawner collision
-			for(es_i=0; es_i<map.enemy_spawners.length; es_i++) {
-				if( twoObjectsIntersect(map.players[p_i], map.enemy_spawners[es_i]) )
+			for (es_i = 0; es_i < map.enemy_spawners.length; es_i++) {
+				if (twoObjectsIntersect(map.players[p_i], map.enemy_spawners[es_i]))
 					this.onPlayerEnemySpawnerCollision(map.players[p_i], map.enemy_spawners[es_i]);
 			}
-
+			
 			//player to item collision
-			for(i_i=0; i_i<map.items.length; i_i++) {
-				if( twoObjectsIntersect(map.players[p_i], map.items[i_i]) )
+			for (i_i = 0; i_i < map.items.length; i_i++) {
+				if (twoObjectsIntersect(map.players[p_i], map.items[i_i]))
 					this.onPlayerItemCollision(map.players[p_i], map.items[i_i]);
 			}
-
+			
 			//player to bullet collision (only competition mode)
-			if(gamemode === GAME_MODES.COMPETITION) {
-				for(b_i=0; b_i<map.bullets.length; b_i++) {
-					if( twoObjectsIntersect(map.players[p_i], map.bullets[b_i]) )
+			if (gamemode === GAME_MODES.COMPETITION) {
+				for (b_i = 0; b_i < map.bullets.length; b_i++) {
+					if (twoObjectsIntersect(map.players[p_i], map.bullets[b_i]))
 						this.onPlayerBulletCollision(map.players[p_i], map.bullets[b_i]);
 				}
 			}
 		}
-
-		for(e_i=0; e_i<map.enemies.length; e_i++) {//for each enemy
+		
+		for (e_i = 0; e_i < map.enemies.length; e_i++) {//for each enemy
 			//enemy to painter collision
-			this.detectSensorToPainterCollision( 
-				map, map.enemies[e_i], this.onEnemyPainterCollision );
-
-			if(!map.enemies[e_i].spawning) {//only spawned enemies
-
+			this.detectSensorToPainterCollision(
+				map, map.enemies[e_i], this.onEnemyPainterCollision);
+			
+			if (!map.enemies[e_i].spawning) {//only spawned enemies
+				
 				//enemy to enemy spawner collision
-				for(es_i=0; es_i<map.enemy_spawners.length; es_i++) {
-					if( twoObjectsIntersect(map.enemies[e_i], map.enemy_spawners[es_i]) )
-						this.onEnemyEnemySpawnerCollision(map.enemies[e_i], 
+				for (es_i = 0; es_i < map.enemy_spawners.length; es_i++) {
+					if (twoObjectsIntersect(map.enemies[e_i], map.enemy_spawners[es_i]))
+						this.onEnemyEnemySpawnerCollision(map.enemies[e_i],
 							map.enemy_spawners[es_i]);
 				}
-
+				
 				//enemy to bullet collision
-				for(b_i=0; b_i<map.bullets.length; b_i++) {
-					if( twoObjectsIntersect(map.enemies[e_i], map.bullets[b_i]) )
+				for (b_i = 0; b_i < map.bullets.length; b_i++) {
+					if (twoObjectsIntersect(map.enemies[e_i], map.bullets[b_i]))
 						this.onEnemyBulletCollision(map.enemies[e_i], map.bullets[b_i]);
 				}
-
+				
 			}
 		}
-
+		
 		//bullet to painter collision, NOTE - should be after testing collisions with objects
-		for(b_i=0; b_i<map.bullets.length; b_i++) {//for each bullet
-			this.detectSensorToPainterCollision( 
-				map, map.bullets[b_i], this.onBulletPainterCollision );
+		for (b_i = 0; b_i < map.bullets.length; b_i++) {//for each bullet
+			this.detectSensorToPainterCollision(
+				map, map.bullets[b_i], this.onBulletPainterCollision);
 		}
-
+		
 	},
-	detectSensorToPainterCollision: function(map: any, object: Object2D, 
-		onCollide: PainterCollisionListener) 
-	{
+	detectSensorToPainterCollision: function (map: GameMap, object: Object2D, onCollide: PainterCollisionListener) {
 		//@ts-ignore
-		if(object.sensor === undefined)
+		if (object.sensor === undefined)
 			console.log(object);
 		//@ts-ignore
 		coords = (<Sensor>object.sensor).shape;
-
-		for(c_i=0; c_i < coords.length; c_i++) {
+		
+		for (c_i = 0; c_i < coords.length; c_i++) {
 			s = Math.sin(-object.rot);
 			c = Math.cos(-object.rot);
-
-			xx = (coords[c_i][0] * c - coords[c_i][1] * s) * object.width  + object.x;
+			
+			xx = (coords[c_i][0] * c - coords[c_i][1] * s) * object.width + object.x;
 			yy = (coords[c_i][0] * s + coords[c_i][1] * c) * object.height + object.y;
-
+			
 			map.getPixelColor(xx, yy, pixel_buffer);
 			
-			if(pixel_buffer[3] === 255) {
+			if (pixel_buffer[3] === 255) {
 				//this.onPlayerPainterCollision(object, pixel_buffer);
 				onCollide.call(this, object, pixel_buffer);
 			}
 		}
 	},
 	
-	findRandomEmptySpot: function(map: GameMap, _radius: number, out_vec: Vector) {
+	findRandomEmptySpot: function (map: GameMap, _radius: number, out_vec: Vector) {
 		find_trials = 0;
-
+		
 		const sc = map.map_size;
 		const wall_margin = map.walls_thickness * 2.0 + _radius;
-		while(find_trials++ < 16) {//maximum trials for performance matter
-			out_vec.set( randRange(-sc, sc), randRange(-sc, sc) );
+		while (find_trials++ < 16) {//maximum trials for performance matter
+			out_vec.set(randRange(-sc, sc), randRange(-sc, sc));
 			
-			if(/*distanceSqrt(out_vec.x(), out_vec.y(), 0, 0) //TODO - check distance to safe area
+			if (/*distanceSqrt(out_vec.x(), out_vec.y(), 0, 0) //TODO - check distance to safe area
 				> pow2f(SAFE_AREA_RADIUS+_radius)
-				&&*/ out_vec.x > -sc+wall_margin && out_vec.x < sc-wall_margin && 
-				out_vec.y > -sc+wall_margin && out_vec.y < sc-wall_margin && 
-				objectOverlap(map, out_vec, _radius) === false && 
+				&&*/ out_vec.x > -sc + wall_margin && out_vec.x < sc - wall_margin &&
+				out_vec.y > -sc + wall_margin && out_vec.y < sc - wall_margin &&
+				objectOverlap(map, out_vec, _radius) === false &&
 				paintOverlap(map, out_vec, _radius) === false)
-					return true;
+				return true;
 		}
-
+		
 		return false;
 	},
-
+	
 	bounceOneObjectFromAnother: bounceOneObjectFromAnother,
-
+	
 	//@color - Uint8Array buffer (color to bounce of), @out_bounce_vec - Vec2f
 	bounceOutOfColor: bounceOutOfColor,
-
+	
 	//abstract functions
 	onPlayerPainterCollision: abstractFunc_painter,
 	onEnemyPainterCollision: abstractFunc_painter,

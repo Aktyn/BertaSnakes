@@ -21,6 +21,7 @@ interface RoomChatProps {
 
 interface RoomChatState {
 	messages: MessageSchema[];
+	spam_warning: boolean;
 }
 
 function formatMessage(msg: string) {
@@ -30,25 +31,24 @@ function formatMessage(msg: string) {
 export default class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
 	private chat_input: HTMLInputElement | null = null;
 	private messages_container: HTMLDivElement | null = null;
+	private spam_warning_tm: NodeJS.Timeout | null = null;
 
 	private sticks = true;
 
 	state: RoomChatState = {
-		messages: []
+		messages: [],
+		spam_warning: false
 	};
 
 	constructor(props: RoomChatProps) {
 		super(props);
 	}
 
-	/*componentDidMount() {
-		//test
-		if(!this.chat_input)
-			return;
-		this.chat_input.value = 'Test message';
-		this.send();
-	}*/
-
+	componentWillUnmount() {
+		if(this.spam_warning_tm)
+			clearTimeout(this.spam_warning_tm);
+	}
+	
 	componentDidUpdate() {
 		if(this.sticks && this.messages_container) {
 			this.messages_container.scrollTop = 
@@ -75,6 +75,16 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 		else//adding new message
 			messages.splice(last_i+1, 0, msg);
 		this.setState({messages});
+	}
+	
+	public spamWarning() {
+		this.setState({spam_warning: true});
+		if(this.spam_warning_tm)
+			clearTimeout(this.spam_warning_tm);
+		this.spam_warning_tm = setTimeout(() => {
+			this.setState({spam_warning: false});
+			this.spam_warning_tm = null;
+		}, 5000) as never;
 	}
 
 	private send() {
@@ -116,9 +126,11 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 			}} onClick={() => {
 				if(this.chat_input)
 					this.chat_input.focus();
-			}} ref={el => this.messages_container = el}>{
-				this.state.messages.map(RoomChat.renderMessage.bind(this))
-			}</div>
+			}} ref={el => this.messages_container = el}>
+				{this.state.messages.map(RoomChat.renderMessage.bind(this))}
+				{this.state.spam_warning &&
+					<div className={'spam-warning'}>You are sending messages to fast.<br/>Calm down.</div>}
+			</div>
 			<div className='bottom'>
 				<input type='text' placeholder='Type message' ref={el => this.chat_input = el}
 					onKeyDown={e => {

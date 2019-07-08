@@ -33,21 +33,7 @@ export interface UserFullData {
 	data: UserCustomData;
 }
 
-/*export interface FriendInfoI {
-	id: number;
-	nick: string;
-	online?: boolean;
-}
-
-export interface UserJsonI {
-	id: number;
-	nick: string;
-	avatar: string | null;
-	level: number;
-	rank: number;
-
-	[index: string]: number | string | null;
-}*/
+const TIMESTAMP_SAMPLES = 10;
 
 export default class UserInfo {
 	private static guest_id = -1000;
@@ -61,7 +47,8 @@ export default class UserInfo {
 	//public friends: FriendInfoI[];
 
 	public connection: Connection | null = null;//only server-side use
-	public room: RoomInfo | null = null;
+	public room: RoomInfo | null = null;//only server-side use
+	private message_timestamps: number[] = [];//only server-side use
 
 	//public lobby_subscriber = false;
 
@@ -79,10 +66,6 @@ export default class UserInfo {
 		//console.log(this.account_id, this.session_token);
 
 		this.custom_data = _custom_data;
-
-		//use only server-side
-		// this.connection = null;
-		// this.room = null;
 	}
 
 	public static createGuest() {
@@ -229,5 +212,16 @@ export default class UserInfo {
 		this.custom_data.ship_type = fresh_data['ship_type'];
 		
 		this.custom_data.total_games = fresh_data['total_games'];
+	}
+	
+	public canSendChatMessage() {//server-side only for anti-spam system
+		return this.message_timestamps.length < TIMESTAMP_SAMPLES ||
+			(Date.now() - this.message_timestamps[0]) > TIMESTAMP_SAMPLES*1000;//one second per message
+	}
+	
+	public registerLastMessageTimestamp(timestamp: number) {//server-side only for anti-spam system
+		this.message_timestamps.push(timestamp);
+		while( this.message_timestamps.length > TIMESTAMP_SAMPLES )//store last N message timestamps
+			this.message_timestamps.shift();
 	}
 }

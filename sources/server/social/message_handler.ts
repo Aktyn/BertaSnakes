@@ -29,11 +29,13 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			
 			connection.onFriendRequestSent( to_account );
 			
-			let potential_friend_conn = SocialConnection.getConnection(to_account.id);
-			if(potential_friend_conn) {
+			let potential_friend_connections = SocialConnection.getConnections(to_account.id);
+			if(potential_friend_connections) {
 				let get_public_data_res = await Database.getUserPublicData(from_id);
-				if( get_public_data_res.data )
-					potential_friend_conn.onFriendRequestReceived( get_public_data_res.data );
+				if( get_public_data_res.data ) {
+					for(let potential_friend_conn of potential_friend_connections)
+						potential_friend_conn.onFriendRequestReceived(get_public_data_res.data);
+				}
 			}
 		}   break;
 		case SOCIAL_CODES.REMOVE_FRIEND: {//friend_id: string
@@ -41,9 +43,11 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 				break;
 			if( connection.removeFriend(message.friend_id) ) {
 				
-				let friend_connection = SocialConnection.getConnection(message.friend_id);
-				if(friend_connection)
-					friend_connection.removeFriend(connection.account.id);//remove self on friend's side
+				let friend_connections = SocialConnection.getConnections(message.friend_id);
+				if(friend_connections) {
+					for(let friend_connection of friend_connections)
+						friend_connection.removeFriend(connection.account.id);//remove self on friend's side
+				}
 				
 				let res = await Database.removeFriendship(message.friend_id, connection.account.id);
 				if(res.error !== ERROR_CODES.SUCCESS)
@@ -65,13 +69,15 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			if( !friendship )
 				break;
 			
-			let accepted_friend_connection = SocialConnection.getConnection(message.user_id);
+			let accepted_friend_connections = SocialConnection.getConnections(message.user_id);
 			
-			connection.onRequestAccepted(message.user_id, friendship.id, friendship.left, !!accepted_friend_connection);
+			connection.onRequestAccepted(message.user_id, friendship.id, friendship.left, !!accepted_friend_connections);
 			
-			if(accepted_friend_connection) {
-				accepted_friend_connection.onAccountAcceptedFriendRequest(
-					connection.account.id, friendship.id, !friendship.left);
+			if(accepted_friend_connections) {
+				for(let accepted_friend_connection of accepted_friend_connections) {
+					accepted_friend_connection.onAccountAcceptedFriendRequest(
+						connection.account.id, friendship.id, !friendship.left);
+				}
 			}
 		}   break;
 		case SOCIAL_CODES.REJECT_REQUEST: {//user_id: string
@@ -84,9 +90,11 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			
 			connection.onRequestRejected(message.user_id);
 			
-			let rejected_friend_connection = SocialConnection.getConnection(message.user_id);
-			if(rejected_friend_connection)
-				rejected_friend_connection.onAccountRejectedFriendRequest(connection.account.id);
+			let rejected_friend_connections = SocialConnection.getConnections(message.user_id);
+			if(rejected_friend_connections) {
+				for(let rejected_friend_connection of rejected_friend_connections)
+					rejected_friend_connection.onAccountRejectedFriendRequest(connection.account.id);
+			}
 		}   break;
 		case SOCIAL_CODES.REQUEST_CONVERSATION_DATA: {//friendship_id: string
 			if (typeof message.friendship_id !== 'string')
@@ -102,14 +110,18 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			if (typeof message.recipient_id !== 'string' || typeof message.content !== 'string')
 				break;
 			
-			//TODO - anti-spam check for connection sending message
+			//anti-spam check for connection sending messages too frequent
+			if( !connection.canSendChatMessage() ) {
+				connection.sendSpamWarning();
+				return;
+			}
 			
 			let friend_data = connection.getFriend(message.recipient_id);
 			if(!friend_data)//only messaging friend is allowed
 				break;
 			
-			let recipient_connection = SocialConnection.getConnection(message.recipient_id);
-			if( !recipient_connection ) {//making sure this user exists
+			let recipient_connections = SocialConnection.getConnections(message.recipient_id);
+			if( !recipient_connections ) {//making sure this user exists
 				let db_res = await Database.getUserPublicData(message.recipient_id);
 				if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data)
 					break;
@@ -131,11 +143,15 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 				content: [<string>message.content]
 			};
 			
+			connection.registerLastMessageTimestamp(timestamp);
+			
 			await Conversations.store(friend_data.friendship_id, msg);
 			
 			connection.onMessage(friend_data.friendship_id, msg);
-			if(recipient_connection)
-				recipient_connection.onMessage(friend_data.friendship_id, msg);
+			if(recipient_connections) {
+				for(let recipient_connection of recipient_connections)
+					recipient_connection.onMessage(friend_data.friendship_id, msg);
+			}
 		}   break;
 	}
 }

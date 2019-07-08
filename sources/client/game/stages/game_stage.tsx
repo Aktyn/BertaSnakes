@@ -319,6 +319,12 @@ export default class extends StageBase<BaseProps, GameState> {
 		if(this.chatHandle)
 			this.chatHandle.pushMessage(msg);
 	}
+	
+	// noinspection JSUnusedGlobalSymbols
+	public onSpamWarning() {
+		if(this.chatHandle)
+			this.chatHandle.spamWarning();
+	}
 
 	private tryLeave() {
 		if(!this.exit_btn)

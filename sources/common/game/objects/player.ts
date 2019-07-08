@@ -7,6 +7,7 @@ import Sensor, {SENSOR_SHAPES} from '../common/sensor';
 import Painter from '../common/painter';
 
 import Skills, {SkillData, SkillObject} from '../common/skills';
+import Bullet, {BULLET_TYPE} from './bullet';
 import Effects, {AVAILABLE_EFFECTS} from '../common/effects';
 
 import Emoticon from './emoticon';
@@ -51,7 +52,12 @@ const PLAYER_BASIC_SKILLS: SkillData[] = [
 const SCALE = 0.05, THICKNESS = 0.015, MAX_SPEED = 0.4, TURN_SPEED = Math.PI;
 const POISON_STRENGTH = 0.1;
 
-let s_i, em_i;
+//predefined bullets spawn offsets relative to player for each player's ship type
+const bullets_offsets_1 = [{x: 0, y: 1}];
+const bullets_offsets_2 = [{x: -0.5, y: 1}, {x: 0.5, y: 1}];
+const bullets_offsets_3 = [{x: 0, y: 1}, {x: -0.5, y: 0.5}, {x: 0.5, y: 0.5}];
+
+let s_i: number, em_i: number, offsets: {x: number, y: number}[], sin: number, cos: number;
 
 const _ExtendClass_ = _CLIENT_ ? Object2DSmooth : Object2D;//Object2DSmooth client side
 
@@ -172,6 +178,32 @@ export default class Player extends _ExtendClass_ {
 		for(em_i=0; em_i<this.emoticons.length; em_i++)
 			this.emoticons[em_i].endEffect();
 		this.emoticons.push( new Emoticon(name, this, this.entitiesClass) );
+	}
+	
+	shootBullets(skill_data: typeof Skills.SHOOT1 | typeof Skills.SHOOT2 | typeof Skills.SHOOT3) {
+		offsets = skill_data === Skills.SHOOT1 ? bullets_offsets_1 :
+			(skill_data === Skills.SHOOT2 ? bullets_offsets_2 : bullets_offsets_3);
+		
+		let bullets: Bullet[] = [];
+		
+		for(let offset of offsets) {
+			sin = Math.sin(-this.rot);
+			cos = Math.cos(-this.rot);
+
+			let bullet_i = new Bullet(
+				(offset.x * cos - offset.y * sin) * this.width + this.x,
+				(offset.x * sin + offset.y * cos) * this.height + this.y,
+				this.rot,
+				this, BULLET_TYPE.NORMAL
+			);
+			if(skill_data === Skills.SHOOT2)
+				bullet_i.damage_scale = 0.6;
+			else if(skill_data === Skills.SHOOT3)
+				bullet_i.damage_scale = 0.4;
+			bullets.push( bullet_i );
+		}
+		
+		return bullets;
 	}
 
 	update(delta: number) {
