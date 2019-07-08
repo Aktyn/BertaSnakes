@@ -19,6 +19,7 @@
       <w>displayer</w>
       <w>emot</w>
       <w>emots</w>
+      <w>externs</w>
       <w>fader</w>
       <w>framebuffers</w>
       <w>gamemode</w>
@@ -53,6 +54,7 @@
       <w>stroker</w>
       <w>synch</w>
       <w>toggler</w>
+      <w>tsickle</w>
       <w>updatables</w>
       <w>vals</w>
       <w>welcomer</w>

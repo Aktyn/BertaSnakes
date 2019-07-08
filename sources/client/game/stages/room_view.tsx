@@ -90,12 +90,6 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					min={this.state.gamemode_option === Utils.GAMEMODES_NAMES[1] ? 2 : 1} 
 					max={Config.MAXIMUM_SITS} />
 					
-				{/*---DEPRECATED--- <label>Duration:</label>
-				<NumberInput ref={el=>this.duration_input=el}
-					min={Config.MINIMUM_GAME_DURATION/60} 
-					max={Config.MAXIMUM_GAME_DURATION/60} postfix=' min' 
-					defaultValue={(room_settings.duration/60)|0} />*/}
-					
 				<label>Duration:</label>
 				<SlideBar valueSuffix={' min'} ref={el => this.duration_input=el}  precision={0}
 					minValue={Config.MINIMUM_GAME_DURATION/60}

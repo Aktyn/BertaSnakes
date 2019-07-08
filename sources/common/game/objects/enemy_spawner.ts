@@ -1,5 +1,5 @@
 import Object2D from './object2d';
-import Movement from './../common/movement';
+import {MOVEMENT_FLAGS} from './../common/movement';
 import PoisonousEnemy from './poisonous_enemy';
 
 declare var _CLIENT_: boolean;
@@ -66,7 +66,7 @@ export default class EnemySpawner extends Object2D {
 
 		if(this.enemy) {
 			this.enemy.spawning = false;
-			this.enemy.movement.set( Movement.FLAGS.UP, true );//enemy moving forward
+			this.enemy.movement.set( MOVEMENT_FLAGS.UP, true );//enemy moving forward
 		}
 		if(this.emitter)
 			this.emitter.expired = true;

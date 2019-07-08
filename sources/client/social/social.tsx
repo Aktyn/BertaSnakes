@@ -17,11 +17,11 @@ let requested_friends: PublicAccountSchema[] = [];
 let events = new Events();
 
 export const enum EVENT_NAMES {
-	ON_DISCONNECT = 'on_disconnect',
-	ON_FRIENDS_LIST_UPDATE = 'on_friends_update',
-	ON_FRIENDS_REQUEST_UPDATE = 'on_friends_request_update',
-	ON_CHAT_MESSAGE = 'on_chat_message',
-	ON_CONVERSATION_DATA = 'on_conversation_data'
+	ON_DISCONNECT = 0,
+	ON_FRIENDS_LIST_UPDATE,
+	ON_FRIENDS_REQUEST_UPDATE,
+	ON_CHAT_MESSAGE,
+	ON_CONVERSATION_DATA
 }
 
 function sortFriends() {

@@ -101,13 +101,39 @@ button.glossy, a.glossy {
 
 /*********************/
 
-.shaky-icon:hover {
-	animation: shk-rot 0.82s cubic-bezier(.36,.07,.19,.97) both;
-}
-
 @keyframes shk-rot {
 	10%, 90% { transform: rotate(-2deg); }
 	20%, 80% { transform: rotate(4deg); }
 	30%, 50%, 70% { transform: rotate(-8deg); }
 	40%, 60% { transform: rotate(8deg); }
+}
+
+.shaky-icon:hover {
+	animation: shk-rot 0.82s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+	0%, 10%, 100% {
+		transform: rotate(0deg);
+	}
+	
+	1%, 9% {
+		transform: rotate(-2deg);
+	}
+
+	2%, 8% {
+		transform: rotate(4deg);
+	}
+
+	3%, 5%, 7% {
+		transform: rotate(-8deg);
+	}
+
+	4%, 6% {
+		transform: rotate(8deg);
+	}
+}
+
+.infinite-shaker {
+	animation: shake 10s cubic-bezier(.36,.07,.19,.97) infinite;
 }

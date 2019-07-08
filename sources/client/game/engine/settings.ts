@@ -1,15 +1,13 @@
 import Device from './device';
 import {PAINTER_RESOLUTION} from '../../../common/game/paint_layer';
 
-const device_info = Device.getInfo();
-
 const DEFAULTS = {
 	'shadows_type': 'LONG',//'LONG', 'FLAT;
-	'painter_resolution': device_info.is_mobile ? PAINTER_RESOLUTION.MEDIUM : PAINTER_RESOLUTION.HIGH,
+	'painter_resolution': Device.isMobile() ? PAINTER_RESOLUTION.MEDIUM : PAINTER_RESOLUTION.HIGH,
 	'weather_particles': true,
-	'auto_hide_right_panel': device_info.is_mobile,
+	'auto_hide_right_panel': Device.isMobile(),
 	'auto_hide_chat': true,
-	'sound_volume': device_info.is_mobile ? 1.0 : 0.5,
+	'sound_volume': Device.isMobile() ? 1.0 : 0.5,
 };
 
 type setting_name = keyof typeof DEFAULTS;
@@ -18,6 +16,11 @@ type setting_name = keyof typeof DEFAULTS;
 let settings_store: {[index: string]: boolean | string | number} = {};
 let watchers: {[index: string]: (value: boolean | string | number) => void} = {};
 
+let storage = typeof localStorage === 'undefined' ? {
+	removeItem: () => {},
+	setItem: () => {}
+} : localStorage;
+
 const Settings = {
 	setValue: (key: setting_name, value?: boolean | string | number) => {
 		if(value === undefined)
@@ -25,7 +28,7 @@ const Settings = {
 
 		settings_store[key] = value;
 
-		localStorage.setItem(key, JSON.stringify({
+		storage.setItem(key, JSON.stringify({
 			type: typeof value,
 			value: value.toString()
 		}));
@@ -54,7 +57,7 @@ const Settings = {
 
 	remove(key: setting_name) {
 		delete settings_store['key'];
-		localStorage.removeItem(key);
+		storage.removeItem(key);
 	},
 
 	//Set all settings to default values

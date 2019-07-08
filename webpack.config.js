@@ -4,7 +4,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {BaseHrefWebpackPlugin} = require('base-href-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -40,6 +39,7 @@ module.exports = {
 	},
 
 	optimization: isDevelopment ? undefined : {
+		minimize: true,
 		minimizer: [
 			new UglifyJsPlugin({
 				uglifyOptions: {
@@ -51,6 +51,7 @@ module.exports = {
 				}
 			})
 		],
+		usedExports: true,
 		splitChunks: {
 			//chunks: 'all',
 			automaticNameDelimiter: '-',
@@ -66,7 +67,8 @@ module.exports = {
 					enforce: true,
 				}
 			}
-		}
+		},
+		concatenateModules: true
 	},
 
 	module: {
@@ -76,10 +78,10 @@ module.exports = {
 				loader: 'ts-loader',
 				//loader: 'awesome-typescript-loader',
 			},
-			{ 
+			/*{
 				test: /\.handlebars$/, 
 				loader: "handlebars-loader" 
-			},
+			},*/
 			{
 				test: /\.(scss|css)$/,
 				use: [
@@ -156,7 +158,6 @@ module.exports = {
 			_UPDATE_TIME_:  Date.now(),
 			_CLIENT_: true
 		}),
-		new CaseSensitivePathsPlugin(),
 		new MiniCssExtractPlugin({
 			filename: "[name]-styles.css",
 			chunkFilename: "[id]-[hash].css"

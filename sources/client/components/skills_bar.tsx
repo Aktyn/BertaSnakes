@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import Assets from '../game/engine/assets';
+import Device from '../game/engine/device';
 import Emoticon, {EMOTS} from '../../common/game/objects/emoticon';
 
 import '../styles/skills_bar.scss';
@@ -152,7 +153,9 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 					{skill.texture && <img src={skill.texture} alt={`skill ${skill.key}`} />}
 					{skill.cooldown > 0 && <div className='cooldown'>{skill.cooldown|0}</div>}
 				</div>
-				<div className='key'>{skill.key}</div>
+				<div className='key' style={{
+					display: Device.isMobile() ? 'none' : 'inline-block'
+				}}>{skill.key}</div>
 			</button>;
 		});
 	}
@@ -168,7 +171,9 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 			<div className='emoticons-bar'>{this.state.available_emots.map((emot, index) => {
 				return <button key={index} onClick={() => this.props.onEmoticonUse(index)}>
 					<img src={emot.source} alt='emoticon preview' />
-					<span>{emot.key}</span>
+					<span style={{
+						display: Device.isMobile() ? 'none' : 'inline-block'
+					}}>{emot.key}</span>
 				</button>;
 			})}</div>
 		</div>;

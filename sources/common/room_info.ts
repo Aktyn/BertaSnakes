@@ -1,6 +1,6 @@
 import UserInfo, {UserPublicData} from './user_info';
 import Config from './config';
-import Maps from './game/maps';
+import Maps, {map_name} from './game/maps';
 
 export const enum GAME_MODES {
 	COOPERATION = 0,
@@ -10,7 +10,7 @@ const GAMEMODES_COUNT = 2;
 
 export interface RoomSettings {
 	name: string;
-	map: string;
+	map: map_name;
 	gamemode: number;
 	duration: number;
 
@@ -20,7 +20,7 @@ export interface RoomSettings {
 export interface RoomCustomData {
 	id: number;
 	name: string;
-	map: string;
+	map: map_name;
 	gamemode: GAME_MODES;
 	duration: number;
 	sits: number[];
@@ -54,7 +54,7 @@ export default class RoomInfo {
 
 		if( !(this.map in Maps) ) {
 			console.error('Given map name is not correct:', this.map);
-			this.map = Object.keys(Maps)[0];//fail-back to first map
+			this.map = Object.keys(Maps)[0] as map_name;//fail-back to first map
 		}
 		//use only server-side
 		//this.confirmations = null;//if not null => waiting for confirmations before start

@@ -1,19 +1,23 @@
+import Events from '../../utils/events';
+
 const orientation_support = "orientation" in screen;
 if(!orientation_support)
-	console.info('No screen.orientation support');
+	console.warn('No screen.orientation support');
 
-interface OrientationSchema {
-	LANDSCAPE: number;
-	PORTRAIT: number;
+export const enum EVENTS {
+	ORIENTATION_CHANGE = 0,
+	FULLSCREEN_CHANGE
 }
 
-export const Orientation : OrientationSchema = {
-	LANDSCAPE: 0,
-	PORTRAIT: 1
-};
+const device_events = new Events();
+
+export const enum ORIENTATION {
+	LANDSCAPE = 0,
+	PORTRAIT
+}
 
 interface Info {
-	orientation: number;
+	orientation: ORIENTATION;
 	fullscreen: boolean;
 	is_mobile: boolean;
 	is_v8: boolean;
@@ -46,14 +50,14 @@ function getFullScreen(): boolean {
 
 function getOrientation() {
 	return screen.orientation.type.indexOf('portrait') !== -1 ? 
-		Orientation.PORTRAIT : Orientation.LANDSCAPE;
+		ORIENTATION.PORTRAIT : ORIENTATION.LANDSCAPE;
 }
 
 function getOrientationName(target: number): OrientationType | OrientationLockType {
 	switch(target) {
 		default: throw "Invalid argument";
-		case Orientation.LANDSCAPE: return "landscape-primary";
-		case Orientation.PORTRAIT: return "portrait-primary";
+		case ORIENTATION.LANDSCAPE: return "landscape-primary";
+		case ORIENTATION.PORTRAIT: return "portrait-primary";
 	}
 }
 
@@ -71,19 +75,21 @@ function refreshInfo(_info: Info | {[index: string]: any}) {
 
 let info: Info = refreshInfo({});
 
-let orientation_listeners: ( (orient: number) => void )[] = [];
+//let orientation_listeners: ( (orient: number) => void )[] = [];
 
 if(orientation_support) {
 	screen.orientation.addEventListener("change", function() {
 		refreshInfo(info);
 
-		for(let cb of orientation_listeners)
-			cb( info.orientation );
+		device_events.emit(EVENTS.ORIENTATION_CHANGE, info.orientation);
+		//for(let cb of orientation_listeners)
+		//	cb( info.orientation );
 	}, false);
 }
 
 function onFullscreenChange() {
 	refreshInfo(info);
+	device_events.emit(EVENTS.FULLSCREEN_CHANGE, info.fullscreen);
 }
 
 if (document.addEventListener) {
@@ -94,38 +100,48 @@ if (document.addEventListener) {
 }
 
 export default {
-	getInfo() {
-		return info;
+	on(event: EVENTS, func: (data: any) => void) {
+		device_events.on(event, func);
+	},
+	
+	off(event: EVENTS, func: (data: any) => void) {
+		device_events.off(event, func);
+	},
+	
+	isMobile() {
+		return info.is_mobile;
+	},
+	
+	isV8() {
+		return info.is_v8;
+	},
+	
+	isFullscreen() {
+		return info.fullscreen;
+	},
+	
+	getOrientation() {
+		return info.orientation;
 	},
 
-	onOrientationChange(callback: (orient: number) => void) {
-		orientation_listeners.push(callback);
-	},
-
-	onOrientationChangeRelease(callback: (orient: number) => void) {
-		let index = orientation_listeners.indexOf(callback);
-		if(index !== -1)
-			orientation_listeners.splice(index, 1);
-	},
-
-	goFullscreen() {
+	async goFullscreen() {
 		try {
 			if(document.documentElement === null)
 				return false;
 			if (document.documentElement.requestFullscreen)
-				document.documentElement.requestFullscreen().catch(console.error);
+				await document.documentElement.requestFullscreen();
 				//@ts-ignore
 			else if (document.documentElement.mozRequestFullScreen)
 				//@ts-ignore
-				document.documentElement.mozRequestFullScreen();
+				await document.documentElement.mozRequestFullScreen();
 				//@ts-ignore
 			else if (document.documentElement.webkitRequestFullScreen)
 				//@ts-ignore
-				document.documentElement.webkitRequestFullScreen();
+				await document.documentElement.webkitRequestFullScreen();
 				//@ts-ignore
 			else if (document.documentElement.msRequestFullscreen)
 				//@ts-ignore
-				document.documentElement.msRequestFullscreen();
+				await document.documentElement.msRequestFullscreen();
 			return true;
 		}
 		catch(e) {
@@ -133,18 +149,28 @@ export default {
 		}
 	},
 
-	setOrientation(target: number) {//works only in fullscreen mode
-		let target_name = getOrientationName(target);
-		screen.orientation.lock(target_name).catch((e: Error) => {
-			console.info(e.message);
-
+	async setOrientation(target: ORIENTATION) {//works only in fullscreen mode
+		try {
+			let target_name = getOrientationName(target);
+			await screen.orientation.lock(target_name);
+			return true;
+		}
+		catch(e) {
+			console.warn(e.message);
 			try {
 				//@ts-ignore
-				screen.msLockOrientation.lock(target_name).catch(console.error);
-				//@ts-ignore
-				screen.mozLockOrientation.lock(target_name).catch(console.error);
+				await screen.msLockOrientation.lock(target_name);
+				return true;
+			} catch (e) {
+				try {
+					//@ts-ignore
+					await screen.mozLockOrientation.lock(target_name);
+					return true;
+				}
+				catch(e) {
+					return false;
+				}
 			}
-			catch(e) {}
-		});
+		}
 	}
 }

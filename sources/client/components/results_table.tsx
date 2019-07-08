@@ -29,7 +29,7 @@ export default class ResultsTable extends React.Component<ResultsTableProps, any
 			return <tr key={row.user_id || index}>
 				<td>{index+1}</td>
 				{!this.props.no_avatars &&
-					<td><img src={ServerApi.getAvatarPath(row.avatar)} alt='user avatar' /></td>
+					<td><img className={'avatar'} src={ServerApi.getAvatarPath(row.avatar)} alt='user avatar' /></td>
 				}
 				<td className={this.props.onPlayerSelected && row.account_id ? 'player-nick' : ''}
 				    style={{textAlign: 'left'}} onClick={() => {

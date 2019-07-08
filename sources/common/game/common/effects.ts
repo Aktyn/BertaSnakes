@@ -1,5 +1,5 @@
 import Object2D from '../objects/object2d';
-import Movement from './movement';
+import Movement, {MOVEMENT_FLAGS} from './movement';
 
 interface ActiveEffect {
 	id: number;
@@ -86,7 +86,7 @@ export default class Effects {
 			default: break;
 			case AVAILABLE_EFFECTS.SPEED:
 				if(this.owner.movement !== undefined) {//affect object's movement
-					this.owner.movement.set(Movement.FLAGS.LOCKED_SPEED, true);
+					this.owner.movement.set(MOVEMENT_FLAGS.LOCKED_SPEED, true);
 					this.owner.movement.speed = SPEED_VALUE;
 				}
 				break;
@@ -100,7 +100,7 @@ export default class Effects {
 			case AVAILABLE_EFFECTS.SPEED.id:
 				if(this.owner.movement !== undefined) {//affect object's movement
 					this.owner.movement.speed = this.owner.movement.maxSpeed;
-					this.owner.movement.set(Movement.FLAGS.LOCKED_SPEED, false);
+					this.owner.movement.set(MOVEMENT_FLAGS.LOCKED_SPEED, false);
 				}
 				break;
 		}

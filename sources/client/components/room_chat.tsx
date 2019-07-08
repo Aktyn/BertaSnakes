@@ -113,6 +113,9 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 					return;
 				this.sticks = this.messages_container.clientHeight + 
 					this.messages_container.scrollTop+32 >= this.messages_container.scrollHeight;
+			}} onClick={() => {
+				if(this.chat_input)
+					this.chat_input.focus();
 			}} ref={el => this.messages_container = el}>{
 				this.state.messages.map(RoomChat.renderMessage.bind(this))
 			}</div>

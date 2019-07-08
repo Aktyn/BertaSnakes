@@ -33,6 +33,8 @@ function open(app: express.Express) {
 	app.post('/register', async (req, res) => {//nick, password, email
 		try {
 			const nick = req.body.nick.substr(0, Config.MAX_LOGIN_LENGTH);
+			if(nick < Config.MIN_LOGIN_LENGTH || req.body.password < Config.MIN_PASSWORD_LENGTH)
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			const hashed_password = sha256( req.body.password.substr(0, Config.MAX_PASSWORD_LENGTH) );
 			const email = req.body.email;
 	

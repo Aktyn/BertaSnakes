@@ -22,15 +22,26 @@ $emotSize: 30px;
 	border-top-right-radius: 50px;
 
 	position: relative;
+	
+	@media (max-width: 600px) {
+		& {
+			padding-left: 0px;
+			border-top-left-radius: 5px;
+			border-top-right-radius: 5px;
+		}
+	}
 
 	& > .skill-slots {
 		grid-area: slots;
 		margin-top: 7px;
 		display: flex;
+		flex-wrap: wrap;
+		max-width: calc(100vw - 4 * 30px - 40px - 40px);
+		
 		& > * {//single skill block
 			box-shadow: none !important;
 			border-radius: 0px;
-			background-color: transparent;;
+			background-color: transparent;
 			margin: 0px 3px;
 			padding: 0px;
 
@@ -52,6 +63,7 @@ $emotSize: 30px;
 				& > img {
 					height: 100%;
 					width: auto;
+					pointer-events: none;
 				}
 
 				& > .cooldown {

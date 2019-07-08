@@ -4,6 +4,7 @@ import ServerApi from '../../utils/server_api';
 
 import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
+import Config from '../../../common/config';
 import ERROR_CODES, {errorMsg} from '../../../common/error_codes';
 import {PLAYER_TYPES} from "../../../common/game/objects/player";
 
@@ -151,11 +152,11 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		let password = this.password_input.value;
 		let email = this.email_input.value;
 
-		if(nick.length < 3) {//TODO - move this requirements into config and check them server-side
+		if(nick.length < Config.MIN_LOGIN_LENGTH) {
 			this.username_input.focus();
 			return this.setError('Username must be at least 3 characters long');
 		}
-		if(password.length < 6) {
+		if(password.length < Config.MIN_PASSWORD_LENGTH) {
 			this.password_input.focus();
 			return this.setError('Password must be at least 6 characters long');
 		}

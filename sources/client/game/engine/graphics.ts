@@ -53,7 +53,7 @@ function loadContext() {
 		if(!EXT)
 			throw new Error('Browser does not support "draw buffers" webgl extension');
 	}
-	catch(e) {//TODO - check this error on mobiles
+	catch(e) {//TODO - check this error on mobiles (can be simulated by disabling webgl in browser settings)
 		console.error(e);
 		//alert('No WebGL support');
 	}

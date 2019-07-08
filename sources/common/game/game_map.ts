@@ -9,9 +9,6 @@ import Bomb from "./objects/bomb";
 import EnemySpawner from "./objects/enemy_spawner";
 import Item from "./objects/item";
 
-//const MAP_FOLDER = 'play/res/maps';
-const DEFAULT_WALLS_SIZE = 0.08;
-
 //helper variables
 let ui: number, obj_i: number, temp_arr: Object2D[];
 
@@ -103,7 +100,7 @@ export default class Map extends PaintLayer {
 			super.generateChunks(res);
 
 			super.paintMapWalls(map);
-			super.drawWalls( DEFAULT_WALLS_SIZE );//TODO - make it modifiable from map file
+			super.drawWalls( map.walls_size );
 
 			//placing entities
 			/*Object.keys(map.data.entities).forEach(key => {//for each entity

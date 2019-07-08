@@ -1,6 +1,7 @@
 const SERVER_PORT = 5348;
 
 import {GAME_MODES} from './room_info';
+import {map_name} from './game/maps';
 
 export const enum RANKING_TYPES {
 	TOP_RANK = 0,
@@ -20,7 +21,9 @@ export default {
 	
 	TOKEN_LIFETIME: 1000 * 60 * 60 * 24 * 7, //one week
 	MAX_LOGIN_LENGTH: 64,
+	MIN_LOGIN_LENGTH: 3,
 	MAX_PASSWORD_LENGTH: 64,
+	MIN_PASSWORD_LENGTH: 6,
 
 	MAXIMUM_IMAGE_FILE_SIZE: 1024*1024*2,//2MB
 	//server will scale uploaded avatar to this resolution before saving it as file
@@ -37,7 +40,7 @@ export default {
 	DEFAULT_GAME_MODE: GAME_MODES.COOPERATION,
 	DEFAULT_SITS: 1,
 	MAXIMUM_SITS: 8,
-	DEFAULT_MAP: 'Simple Maze',
+	DEFAULT_MAP: 'Simple Maze' as map_name,
 	MAXIMUM_MESSAGE_LENGTH: 2048,
 
 	//user settings

@@ -73,9 +73,6 @@ $iconsSize: 20px;
 		}
 
 		.settings {
-			padding: 0px;
-			background-color: transparent;
-			box-shadow: none !important;
 			background-image: url('./../img/icons/settings.svg');
 		}
 
@@ -86,13 +83,18 @@ $iconsSize: 20px;
 		.friends {
 			background-image: url('./../img/icons/chat.svg');
 		}
+		
+		.fullscreen {
+			background-image: url('./../img/icons/fullscreen_open.svg');
+		}
 
-		.closer, .settings, .shop, .friends {//icon buttons
+		.closer, .settings, .shop, .friends, .fullscreen {//icon buttons
 			width: $iconsSize;
 			height: $iconsSize;
 			background-color: transparent;
 			box-shadow: none;
 			display: inline-block;
+			padding: 0px;
 
 			margin: 5px 0px;
 

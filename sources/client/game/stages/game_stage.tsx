@@ -2,32 +2,31 @@ import * as React from 'react';
 
 import StageBase, {BaseProps, BaseState} from './stage_base';
 import MenuStage from './menu_stage';
-
 import Network from '../engine/network';
 import Maps from '../../../common/game/maps';
 import RoomInfo from '../../../common/room_info';
-
-import {prepareEntities} from '../entities';
-import ClientGame, {ListenersSchema, InitDataSchema} from '../client_game';
-import Entities from '../entities';
+import Entities, {prepareEntities} from '../entities';
+import ClientGame, {InitDataSchema, ListenersSchema} from '../client_game';
 import Assets from '../engine/assets';
 import Player from '../../../common/game/objects/player';
 import Colors from '../../../common/game/common/colors';
 import {PlayerResultJSON} from '../../../common/game/game_result';
-
 import GameResults from '../../components/game_results';
 import UsersList from '../../components/users_list';
 import UserBtn from '../../components/widgets/user_btn';
-import RoomChat from '../../components/room_chat';
+import RoomChat, {MessageSchema} from '../../components/room_chat';
 import SkillsBar from '../../components/skills_bar';
-import {MessageSchema} from '../../components/room_chat';
-
 import Utils from '../../utils/utils';
-
-import './../../styles/game_stage.scss';
 import SettingsSidepop from '../../components/sidepops/settings_sidepop';
 import Settings from '../engine/settings';
+import Device, {EVENTS, ORIENTATION} from '../engine/device';
 import NotificationsIndicator from '../../components/widgets/notifications_indicator';
+
+import '../../styles/game_stage.scss';
+import {MOVEMENT_FLAGS} from "../../../common/game/common/movement";
+
+const arrow_down = require('../../img/icons/arrow_down.svg');
+const arrow_left = require('../../img/icons/arrow_left.svg');
 
 const BAR_COLORS = ['#8BC34A', '#42A5F5', '#ef5350'];
 let notifications_counter = 0;
@@ -56,6 +55,7 @@ interface GameState extends BaseState {
 	results?: PlayerResultJSON[];
 	
 	show_settings: boolean;
+	show_fullscreen_icon: boolean;
 }
 
 export default class extends StageBase<BaseProps, GameState> {
@@ -72,11 +72,13 @@ export default class extends StageBase<BaseProps, GameState> {
 	private timer: HTMLSpanElement | null = null;
 
 	private exit_confirmation: NodeJS.Timeout | null = null;
+	private readonly fullscreen_change_listener: (fullscreen: boolean) => void;
 
 	private speed_update_filter = 0;
 
 	//public ready = false;
 	private mounted = false;
+	private preserved_oncontextmenu_event: any = null;
 
 	state: GameState = {
 		hide_rightside: !!Settings.getValue('auto_hide_right_panel'),
@@ -90,11 +92,14 @@ export default class extends StageBase<BaseProps, GameState> {
 		players_infos: [],
 		notifications: [],
 		
-		show_settings: false
+		show_settings: false,
+		show_fullscreen_icon: false
 	};
 
 	constructor(props: BaseProps) {
 		super(props);
+		
+		this.fullscreen_change_listener = this.onFullscreenChange.bind(this);
 	}
 
 	componentDidMount() {
@@ -122,15 +127,45 @@ export default class extends StageBase<BaseProps, GameState> {
 				}
 			});
 		}
+		
+		this.preserved_oncontextmenu_event = window.oncontextmenu;
+		window.oncontextmenu = function(event) {
+		     event.preventDefault();
+		     event.stopPropagation();
+		     return false;
+		};
+		
+		Device.on(EVENTS.FULLSCREEN_CHANGE, this.fullscreen_change_listener);
+		
+		if( Device.isMobile() && !Device.isFullscreen() ) {//go fullscreen automatically on mobiles
+			if(process.env.NODE_ENV !== 'development') {
+				Device.goFullscreen().then(() => {
+					Device.setOrientation(ORIENTATION.LANDSCAPE).catch(console.error);
+				});
+			}
+		}
+		else
+			this.onFullscreenChange( Device.isFullscreen() );
 	}
 
 	componentWillUnmount() {
+		Device.off(EVENTS.FULLSCREEN_CHANGE, this.fullscreen_change_listener);
+		
 		this.mounted = false;
 		if(this.game)
 			this.game.destroy();
 		if(this.exit_confirmation)
 			clearTimeout(this.exit_confirmation);
 		//this.ready = false;
+		
+		//restore oncontextmenu event
+		window.oncontextmenu = this.preserved_oncontextmenu_event;
+	}
+	
+	private onFullscreenChange(fullscreen: boolean) {
+		if( Device.isMobile() ) {
+			this.setState({show_fullscreen_icon: !fullscreen});
+		}
 	}
 
 	private initListeners(): ListenersSchema {
@@ -353,6 +388,11 @@ export default class extends StageBase<BaseProps, GameState> {
 			</section>;
 		});
 	}
+	
+	private onControlBtn(dir: MOVEMENT_FLAGS, pressed: boolean) {
+		if(this.game)
+			this.game.controlPlayer(dir, pressed);
+	}
 
 	render() {
 		if( this.state.results && this.props.current_room )
@@ -371,7 +411,20 @@ export default class extends StageBase<BaseProps, GameState> {
 					return <div key={notification.id}>{notification.content}</div>;
 				})}</div>
 			</div>
-			<div className='skillsbar-container'>
+			<div className={`skillsbar-container${Device.isMobile() ? ' mobile' : ''}`}>
+				<button className={'controls-btn'} style={{//slow down
+					backgroundImage: `url(${arrow_down})`
+				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.DOWN, true)}
+					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.DOWN, true)}
+					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.DOWN, false)}
+					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.DOWN, false)}/>
+				<button className={'controls-btn'} style={{//turn left
+					backgroundImage: `url(${arrow_left})`
+				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, true)}
+					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, true)}
+					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, false)}
+					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, false)} />
+				
 				<SkillsBar ref={el => this.skillsbar = el} onEmoticonUse={index => {
 					if(this.game)
 						this.game.tryEmoticonUse(index);
@@ -382,6 +435,21 @@ export default class extends StageBase<BaseProps, GameState> {
 					if(this.game)
 						this.game.trySkillStop(index);
 				}} />
+				
+				<button className={'controls-btn'} style={{//turn right
+					backgroundImage: `url(${arrow_left})`,
+					transform: 'scaleX(-1)'
+				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.RIGHT, true)}
+					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.RIGHT, true)}
+					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.RIGHT, false)}
+					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.RIGHT, false)} />
+				<button className={'controls-btn'} style={{//speed up
+					backgroundImage: `url(${arrow_down})`,
+					transform: 'scaleY(-1)'
+				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.UP, true)}
+					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.UP, true)}
+					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.UP, false)}
+					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.UP, false)} />
 			</div>
 			<div className={`right-panel${this.state.hide_rightside ? ' hidden' : ''}`}>
 				<nav>
@@ -396,8 +464,20 @@ export default class extends StageBase<BaseProps, GameState> {
 				</nav>
 				<div className={'options-bar'}>
 					<NotificationsIndicator ref={el => this.notifications_indicator = el} />
+					<span />
+					
 					<button className='glossy no-icon exit-btn' ref={el => this.exit_btn = el}
 					        onClick={this.tryLeave.bind(this)} style={{margin: '10px 0px'}}>EXIT GAME</button>
+					
+					<span>{
+						this.state.show_fullscreen_icon && <>
+							<button className={`fullscreen shaky-icon`} onClick={async () => {
+								await Device.goFullscreen();
+								if( Device.isMobile() )
+									Device.setOrientation(ORIENTATION.LANDSCAPE).catch(console.error);
+							}}/>
+						</>
+					}</span>
 					<button className='settings shaky-icon'
 					        onClick={() => this.setState({show_settings: true})}/>
 				</div>

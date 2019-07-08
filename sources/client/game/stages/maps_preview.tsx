@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import Maps, {isReady, onMapsLoaded} from '../../../common/game/maps';
+import Maps, {map_name, isReady, onMapsLoaded} from '../../../common/game/maps';
 
-export function updateMapPreview(map_name: string, canv: HTMLCanvasElement) {
+export function updateMapPreview(map_name: map_name, canv: HTMLCanvasElement) {
 	let map = Maps[map_name];
 	if(map === null)
 		throw new Error('Cannot find map by it\'s name: ' + map_name);
@@ -46,17 +46,17 @@ export function updateMapPreview(map_name: string, canv: HTMLCanvasElement) {
 }
 
 interface MapsPreviewProps {
-	defaultValue?: string;
+	defaultValue?: map_name;
 }
 
 interface MapsPreviewState {
-	value: string;
+	value: map_name;
 }
 
 export default class extends React.Component<MapsPreviewProps, MapsPreviewState> {
 
 	state: MapsPreviewState = {
-		value: ''
+		value: Object.keys(Maps)[0] as map_name
 	};
 
 	constructor(props: MapsPreviewProps) {
@@ -71,7 +71,7 @@ export default class extends React.Component<MapsPreviewProps, MapsPreviewState>
 		if(this.props.defaultValue && Maps[this.props.defaultValue] !== undefined)
 			this.setState({value: this.props.defaultValue});
 		else
-			this.setState({value: Object.keys(Maps)[0] || ''});
+			this.setState({value: (Object.keys(Maps)[0] as map_name) || ''});
 	}
 
 	componentWillMount() {
@@ -82,10 +82,10 @@ export default class extends React.Component<MapsPreviewProps, MapsPreviewState>
 		return <div className='map_previews_list'>{isReady() && Object.keys(Maps).map((map_name) => {
 			return <div key={map_name} 
 				className={`${map_name === this.state.value ? 'selected ' : ''}map_preview`}
-				onClick={() => this.setState({value: map_name})}>
+				onClick={() => this.setState({value: map_name as map_name})}>
 				<label>{map_name}</label>
 				<canvas width={150} height={150}
-					ref={el => el && updateMapPreview(map_name, el)}/>
+					ref={el => el && updateMapPreview(map_name as map_name, el)}/>
 			</div>;
 		})}</div>;
 	}

@@ -22,19 +22,6 @@ export const enum WEATHER_TYPE {
 	CLOUDS
 }
 
-export interface MapJSON_I {
-	map_size: number;
-
-	walls_texture: HTMLImageElement;
-	walls_color: ColorI;
-	smooth_walls: boolean;
-
-	background_texture: HTMLImageElement;
-	smooth_background: boolean;
-
-	weather: WEATHER_TYPE;
-}
-
 function loadImage(path: string | null) {
 	let img = _CLIENT_ ? new Image() : new ServerImage();
 
@@ -78,14 +65,31 @@ export function onMapsLoaded(callback: ()=>void) {
 		on_load_listeners.push(callback);
 }
 
-function extendType<T>(maps_literal: T): T & {[index: string]: MapJSON_I} {
-	return maps_literal as T & {[index: string]: MapJSON_I};
+export interface MapJSON_I {
+	map_size: number;
+	walls_size: number;
+
+	walls_texture: HTMLImageElement;
+	walls_color: ColorI;
+	smooth_walls: boolean;
+
+	background_texture: HTMLImageElement;
+	smooth_background: boolean;
+
+	weather: WEATHER_TYPE;
 }
 
-// const self = {
-export default extendType({
+/*function extendType<T>(maps_literal: T): T & {[index: string]: MapJSON_I} {
+	return maps_literal as T & {[index: string]: MapJSON_I};
+}*/
+
+const DEFAULT_WALLS_SIZE = 0.08;
+
+//export default extendType({
+const Maps = {
 	'Empty': {
 		map_size: 5,
+		walls_size: DEFAULT_WALLS_SIZE,
 		walls_color: Colors.gen(156, 185, 237),
 		smooth_walls: false,
 		smooth_background: false,
@@ -97,6 +101,7 @@ export default extendType({
 	} as MapJSON_I,
 	'Open Maze': {
 		map_size: 5,
+		walls_size: DEFAULT_WALLS_SIZE,
 		walls_color: Colors.gen(156, 185, 237),
 		smooth_walls: true,
 		smooth_background: true,
@@ -108,6 +113,7 @@ export default extendType({
 	} as MapJSON_I,
 	'Simple Maze': {
 		map_size: 5,
+		walls_size: DEFAULT_WALLS_SIZE,
 		walls_color: Colors.gen(128, 203, 196),
 		smooth_walls: false,
 		smooth_background: false,
@@ -119,6 +125,7 @@ export default extendType({
 	} as MapJSON_I,
 	'Snowflake': {
 		map_size: 5,
+		walls_size: DEFAULT_WALLS_SIZE,
 		walls_color: Colors.gen(178, 235, 242),
 		smooth_walls: true,
 		smooth_background: true,
@@ -128,6 +135,7 @@ export default extendType({
 		walls_texture: loadImage(_CLIENT_ ? 
 			require('../maps/Snowflake.svg') : path.join(MAP_FOLDER, 'Snowflake.png'))
 	} as MapJSON_I
-});
+};
 
-// export default extendType(self);
+export type map_name = keyof typeof Maps;
+export default Maps;

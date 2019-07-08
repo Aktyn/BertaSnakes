@@ -23,7 +23,7 @@ import Bomb from '../../common/game/objects/bomb';
 import Shield from '../../common/game/objects/shield';
 import Immunity from '../../common/game/objects/immunity';
 import {SkillObject} from '../../common/game/common/skills';
-import Movement from '../../common/game/common/movement';
+import {MOVEMENT_FLAGS} from '../../common/game/common/movement';
 import Colors from '../../common/game/common/colors';
 import {EMOTS} from '../../common/game/objects/emoticon';
 import {AVAILABLE_EFFECTS} from '../../common/game/common/effects';
@@ -37,6 +37,7 @@ import ExperienceEmitter from './emitters/experience_emitter';
 import EnergyBlastEmitter from './emitters/energy_blast_emitter';
 import {PAINTER_RESOLUTION} from "../../common/game/paint_layer";
 import Settings from './engine/settings';
+import Vector from "../../common/utils/vector";
 
 function runLoop(self: ClientGame) {
 	let last = 0, dt;
@@ -284,8 +285,8 @@ export default class ClientGame extends GameCore {
 				p_h = this.players[ data[index + 1] | 0 ];
 				//p_h.setPos(data[index + 2], data[index + 3]);
 
-				if( !(data[index + 3] & Movement.FLAGS.LEFT) && //if player doesn't turn
-					!(data[index + 3] & Movement.FLAGS.RIGHT) ) {
+				if( !(data[index + 3] & MOVEMENT_FLAGS.LEFT) && //if player doesn't turn
+					!(data[index + 3] & MOVEMENT_FLAGS.RIGHT) ) {
 
 					p_h.setRot( data[index + 2] );
 					p_h.movement.smooth = true;
@@ -510,14 +511,17 @@ export default class ClientGame extends GameCore {
 				break;
 			case NetworkCodes.ON_BOMB_EXPLODED://bomb_id, pos_x, pos_y
 				for(b_i=0; b_i<this.bombs.length; b_i++) {//pre expiring bomb for server sync
-					if(this.bombs[b_i].id === data[index+1])
+					if(this.bombs[b_i].id === data[index+1]) {
 						this.bombs[b_i].expired = true;
+						if(this.renderer.focused) {
+							let bomb_dst = Vector.distanceSqrt(this.renderer.focused, this.bombs[b_i]);
+							if (bomb_dst < 1)
+								SOUND_EFFECTS.explode.play();
+						}
+					}
 				}
 				this.explosionEffect(data[index+2], data[index+3],
 					GameCore.GET_PARAMS().bomb_explosion_radius);
-
-				//TODO: calculate distance to focused player
-				//SOUND_EFFECTS.explode.play();
 
 				index += 4;
 				break;
@@ -596,9 +600,9 @@ export default class ClientGame extends GameCore {
 						WebGLRenderer.addEmitter( blast_emitter );
 						this.emitters.push( blast_emitter );
 					}
-
-					//deprecated: if(p_h === this.renderer.focused)
-					//TODO: calculate distance to focused player
+					
+					// no need to calculate distance to focused player
+					// since this function invokes only within visible area
 					SOUND_EFFECTS.shoot.play();
 				}
 
@@ -796,43 +800,6 @@ export default class ClientGame extends GameCore {
 					}
 				}
 			});
-
-			//TODO - make this methods as ClientGame's class methods
-			/*
-			this.renderer.GUI.onTurnArrowPressed((dir: number, released: boolean) => {
-				var focused = this.renderer.focused;
-				if(focused === null || focused.spawning === true)
-					return;
-
-				var preserved_state = focused.movement.state;
-
-				focused.movement.set( dir === ClientGame.TurnDirection.LEFT 
-					? Movement.FLAGS.LEFT
-					: Movement.FLAGS.RIGHT, !released );
-
-				if(preserved_state != focused.movement.state) {
-					focused.movement.smooth = false;
-					Network.sendByteBuffer(Uint8Array.from(
-						[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
-				}
-			});
-
-			this.renderer.GUI.onSpeedChange((dir: number) => {
-				var focused = this.renderer.focused;
-				if(focused === null || focused.spawning === true)
-					return;
-
-				var preserved_state = focused.movement.state;
-
-				focused.movement.set( Movement.FLAGS.UP, dir === TurnDirection.UP );
-				focused.movement.set( Movement.FLAGS.DOWN, dir === TurnDirection.DOWN );
-
-				if(preserved_state != focused.movement.state) {
-					focused.movement.smooth = false;
-					Network.sendByteBuffer(Uint8Array.from(
-						[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
-				}
-			});*/
 		}
 		catch(e) {
 			console.error(e);
@@ -966,6 +933,21 @@ export default class ClientGame extends GameCore {
 			[NetworkCodes.PLAYER_EMOTICON, index]
 		));
 	}
+	
+	public controlPlayer(dir: MOVEMENT_FLAGS, pressed: boolean) {
+		let focused = this.renderer.focused;
+		if(focused === null || focused.spawning === true)
+			return;
+		
+		let preserved_state = focused.movement.state;
+		focused.movement.set( dir, pressed );
+		
+		if(preserved_state !== focused.movement.state) {
+			focused.movement.smooth = false;
+			Network.sendByteBuffer(Uint8Array.from(
+				[NetworkCodes.PLAYER_MOVEMENT, focused.movement.state]));
+		}
+	}
 
 	onKey(event: KeyboardEvent, pressed: boolean) {
 		let focused = this.renderer.focused;
@@ -974,13 +956,13 @@ export default class ClientGame extends GameCore {
 
 		let preserved_state = focused.movement.state;
 		if(event.key === 'a' || event.key === 'ArrowLeft')//left
-			focused.movement.set( Movement.FLAGS.LEFT, pressed );
+			focused.movement.set( MOVEMENT_FLAGS.LEFT, pressed );
 		else if(event.key === 'd' || event.key === 'ArrowRight')//right
-			focused.movement.set( Movement.FLAGS.RIGHT, pressed );
+			focused.movement.set( MOVEMENT_FLAGS.RIGHT, pressed );
 		else if(event.key === 'w' || event.key === 'ArrowUp')//up
-			focused.movement.set( Movement.FLAGS.UP, pressed );
+			focused.movement.set( MOVEMENT_FLAGS.UP, pressed );
 		else if(event.key === 's' || event.key === 'ArrowDown')//down
-			focused.movement.set( Movement.FLAGS.DOWN, pressed );
+			focused.movement.set( MOVEMENT_FLAGS.DOWN, pressed );
 		else if(event.key === ' ') {//space
 			if(pressed)
 				this.trySkillUse(0);
@@ -1048,7 +1030,6 @@ export default class ClientGame extends GameCore {
 				(this.remaining_time = (((this.end_timestamp - Date.now())/1000)|0)) ) {
 			if(this.remaining_time < 0)
 				this.remaining_time = 0;
-			//TODO: assign listeners for this
 			this.listeners.onTimerUpdate( this.remaining_time );
 		}
 

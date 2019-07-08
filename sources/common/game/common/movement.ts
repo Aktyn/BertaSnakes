@@ -6,19 +6,27 @@ interface MovementOptionsI {
 	turnSpeed?: number;
 }
 
-export default class Movement {
-	// private static H_PI = Math.PI/2;
-	private static PI_2 = Math.PI * 2;
-	private static fixAngle = (a: number) => -a + Math.PI/2;
-	private static rot = 0;
+const PI_2 = Math.PI * 2;
+const fixAngle = (a: number) => -a + Math.PI/2;
+let rot = 0;
 
-	public static FLAGS = {
+export const enum MOVEMENT_FLAGS {
+	LEFT        = 1 << 0,
+	RIGHT       = 1 << 1,
+	UP          = 1 << 2,
+	DOWN        = 1 << 3,
+	LOCKED_SPEED= 1 << 4
+}
+
+export default class Movement {
+
+	/*public static FLAGS = {
 		LEFT: 	1 << 0,
 		RIGHT: 	1 << 1,
 		UP: 	1 << 2,
 		DOWN: 	1 << 3,
 		LOCKED_SPEED: 1 << 4
-	};
+	};*/
 
 	public speed = 0;
 	private _state = 0;
@@ -32,16 +40,16 @@ export default class Movement {
 		//EMPTY SINCE ALL PARAMS ARE INITIALIZED ABOVE
 	}
 
-	set(flag: number, enable = false) {
+	set(flag: MOVEMENT_FLAGS, enable = false) {
 		if(enable)
 			this._state |= flag;
 		else
 			this._state &= ~flag;
 	}
 
-	isFlagEnabled(flag: number) {
+	/*isFlagEnabled(flag: number) {
 		return !!(this._state & flag);
-	}
+	}*/
 
 	resetState(): void {
 		this._state = 0;
@@ -65,27 +73,27 @@ export default class Movement {
 	}
 
 	applyMove(object: Object2D, delta: number) {
-		if((this._state & Movement.FLAGS.LOCKED_SPEED) === 0) {
-			if(this._state & Movement.FLAGS.UP)
+		if((this._state & MOVEMENT_FLAGS.LOCKED_SPEED) === 0) {
+			if(this._state & MOVEMENT_FLAGS.UP)
 				this.speed = Math.min(this.speed + this.acceleration * delta, this.maxSpeed);
-			if(this._state & Movement.FLAGS.DOWN)
+			if(this._state & MOVEMENT_FLAGS.DOWN)
 				this.speed = Math.max(this.speed - this.acceleration * delta, 0);
 		}
-		Movement.rot = object.rot;
-		if(this._state & Movement.FLAGS.LEFT)
-			Movement.rot -= delta * this.turnSpeed;
-		if(this._state & Movement.FLAGS.RIGHT)
-			Movement.rot += delta * this.turnSpeed;
-		while(Movement.rot < 0)
-			Movement.rot += Movement.PI_2;
-		while(Movement.rot > Movement.PI_2)
-			Movement.rot -= Movement.PI_2;
+		rot = object.rot;
+		if(this._state & MOVEMENT_FLAGS.LEFT)
+			rot -= delta * this.turnSpeed;
+		if(this._state & MOVEMENT_FLAGS.RIGHT)
+			rot += delta * this.turnSpeed;
+		while(rot < 0)
+			rot += PI_2;
+		while(rot > PI_2)
+			rot -= PI_2;
 
 		//@ts-ignore
-		object.setRot(Movement.rot, !this.smooth);
+		object.setRot(rot, !this.smooth);
 		
 		object.move( 
-			Math.cos(Movement.fixAngle(Movement.rot)) * delta * this.speed, 
-			Math.sin(Movement.fixAngle(Movement.rot)) * delta * this.speed);
+			Math.cos(fixAngle(rot)) * delta * this.speed,
+			Math.sin(fixAngle(rot)) * delta * this.speed);
 	}
 }
