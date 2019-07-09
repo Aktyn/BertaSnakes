@@ -10,6 +10,7 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import Loadable from 'react-loadable';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import Config from '../common/config';
 
 import './styles/main.scss';
 
@@ -35,6 +36,8 @@ function NotFound() {
 const Game = __async(
 	() => import(/* webpackChunkName: "game", webpackPrefetch: true */ './game/core')
 );
+
+document.title = Config.PAGE_TITLE;
 
 render(
     <BrowserRouter>

@@ -3,7 +3,10 @@ import AccountSidepop, {VIEWS} from './account_sidepop';
 import {offsetTop, removeWhitechars} from './sidepops_common';
 import Config from '../../../common/config';
 
-export default class LoginSection extends React.Component<{self: AccountSidepop, tryLogin: () => Promise<void>}, any> {
+export default class LoginSection extends React.Component<{
+	self: AccountSidepop,
+	tryLogin: () => Promise<void>
+}, any> {
 	render() {
 		return <section>
 			<h1 key={'login_h'} className='fader-in'>Log in to your account</h1>
@@ -34,6 +37,15 @@ export default class LoginSection extends React.Component<{self: AccountSidepop,
 						verify_info: false
 					});
 				}}>REGISTER</button>
+			<hr />
+			<button className='fader-in' onClick={() => {
+				this.props.self.setState({
+					view: VIEWS.PASSWORD_RESET,
+					error: undefined,
+					loading: false,
+					verify_info: false
+				})
+			}}>Lost your password?</button>
 		</section>;
 	}
 }

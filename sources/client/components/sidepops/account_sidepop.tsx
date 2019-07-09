@@ -18,10 +18,12 @@ import GamesSection from "./games_section";
 import ShopSection from "./shop_section";
 import {SkillData} from "../../../common/game/common/skills";
 import FriendsSection from "./friends_section";
+import PasswordResetSection from "./password_reset_section";
 
 export const enum VIEWS {//avoid 0 so this enum contains only truthy values
 	GENERAL = 1,
 	REGISTER,
+	PASSWORD_RESET,
 	SHOP,
 	FRIENDS,
 	GAMES
@@ -110,7 +112,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		}
 	}
 
-	private setError(msg: string) {
+	private setError(msg?: string) {
 		this.setState({error: msg, loading: false, verify_info: false});
 	}
 
@@ -311,6 +313,16 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		
 		this.uploadAvatar(true).catch(console.error);
 	}
+	
+	private changeView(view: VIEWS) {
+		this.setState({
+			view,
+			error: undefined,
+			loading: false,
+			verify_info: false,
+			verification_resend: false
+		});
+	}
 
 	private canReturn() {
 		//return this.state.register_view;
@@ -324,14 +336,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		}
 		//if(this.state.register_view) {
 		if(this.state.view !== VIEWS.GENERAL) {
-			this.setState({
-				//register_view: false,
-				view: VIEWS.GENERAL,
-				error: undefined,
-				loading: false,
-				verify_info: false,
-				verification_resend: false
-			});
+			this.changeView(VIEWS.GENERAL);
 			return;
 		}
 	}
@@ -360,6 +365,11 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 				}
 				return <RegisterSection self={this} tryRegister={this.tryRegister.bind(this)} />;
 			}
+			
+			case VIEWS.PASSWORD_RESET:
+				return <PasswordResetSection onError={msg => this.setError(msg)} onBackToLogin={() => {
+					this.changeView(VIEWS.GENERAL);
+				}} />;
 
 			case VIEWS.FRIENDS:
 				return <FriendsSection onError={code => this.setError(errorMsg(code))} />;

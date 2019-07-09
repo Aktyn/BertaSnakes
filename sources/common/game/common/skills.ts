@@ -186,6 +186,9 @@ for(let prop in Skills) {
 		(<SkillData>Skills[prop]).create = skillCreator( <SkillData>Skills[prop] );
 	}
 }
-console.log('Total available skills:', i);
+
+declare var _CLIENT_: boolean;
+if(_CLIENT_)
+	console.log('Total available skills:', i);
 
 export default Skills;

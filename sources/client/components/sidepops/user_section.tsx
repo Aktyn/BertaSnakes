@@ -6,14 +6,13 @@ import Account from '../../account';
 import Social, {EVENT_NAMES, FriendSchema} from '../../social/social';
 import Chat from '../../social/chat';
 import {AccountSchema, PublicAccountSchema} from '../../../server/database/database';
-
 import {offsetTop} from "./sidepops_common";
 import GamesSection from "./games_section";
 import SharePanel from "./share_panel";
-
-import '../../styles/user_section.scss';
 import PotentialFriendsTable from "./potential_friends_table";
 import NotificationsIndicator, {COMMON_LABELS} from '../widgets/notifications_indicator';
+
+import '../../styles/user_section.scss';
 
 interface UserSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -217,10 +216,6 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 					this.remove_friend_tm = setTimeout(this.cancelRemoveFriend.bind(this), 5000) as never;
 				}
 			}}>{this.state.friend_id_to_remove ? 'CONFIRM' : 'REMOVE FROM FRIENDS'}</button>
-			{/*this.state.friend.online*/}
-			{this.state.account && <div style={{marginTop: '15px', marginBottom: '-10px'}}>
-				<Chat recipient={this.state.friend} account={this.state.account} autofocus={this.props.focus_chat} />
-			</div>}
 		</>;
 	}
 	
@@ -230,17 +225,28 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 				total_games={this.state.user.total_games} container_mode={this.props.container_mode}/>;
 		}
 		return <section className={'user-section'}>
-			{this.state.loading && <Loader color='#ef5350' />}
-			{this.state.user && UserSection.renderUserDetails(this.state.user)}
-			<div className={'fader-in'} style={offsetTop}>
-				<button onClick={() => this.setState({show_games: true})}>GAMES</button>
-			</div>
-			{!this.props.container_mode && this.state.user && <>
+			<div className={'user-container'}>
+				{this.state.loading && <Loader color='#ef5350' />}
+				{this.state.user && UserSection.renderUserDetails(this.state.user)}
+				<div className={'fader-in'} style={offsetTop}>
+					<button onClick={() => this.setState({show_games: true})}>GAMES</button>
+				</div>
+				{!this.props.container_mode && this.state.user && <>
+					<hr/>
+					<SharePanel link={'/users/' + this.state.user.id} />
+				</>}
 				<hr/>
-				<SharePanel link={'/users/' + this.state.user.id} />
-			</>}
-			<hr/>
-			<div className={'fader-in'}>{this.renderSocialSection()}</div>
+				<div className={'fader-in'}>{this.renderSocialSection()}</div>
+			</div>
+			{(
+				this.state.account && this.state.friend && this.state.user &&
+				this.state.user.id !== this.state.account.id
+			) && <div className={'chat-container fader-in'} style={
+				this.props.container_mode ? {marginBottom: '-9px', minHeight: '300px'} : {minHeight: '300px'}
+			}>
+				<Chat recipient={this.state.friend} account={this.state.account} autofocus={this.props.focus_chat}
+					minHeight={300}/>
+			</div>}
 		</section>;
 	}
 }

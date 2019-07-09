@@ -18,28 +18,36 @@ const basic_options = {
 	from: `"Berta Snakes" \<${email_address}\>`,
 };
 
+function sendEmail(text_content: string, html_content: string, subject: string, target_email: string) {
+	return new Promise((resolve, reject) => {
+		let opts = Object.assign({
+			subject,
+			to: target_email,
+			text: text_content,
+			html: html_content,
+		}, basic_options);
+
+		transporter.sendMail(opts, function(error: Error | null, info: string) {
+			if(error)
+				reject(error);
+			else
+				resolve(info);
+		});
+	});
+}
+
 export default {
 	sendVerificationCode(code: string, target_email: string) {
-		return new Promise((resolve, reject) => {
-			let msg = 'Congratulations! Your account has been successfully registered. ' +
-				'Before you can enjoy full possibilities of BertaSnakes game you must verify your account with this code: ' + code;
-			//`http://${ip.address()}/verify?code=${code}`;
-
-			let opts = Object.assign({
-				subject: 'Account verification',
-				to: target_email,
-				text: msg,
-				html: msg,//TODO - html version
-			}, basic_options);
-
-			transporter.sendMail(opts, function(error: Error | null, info: string) {
-				if(error)
-					reject(error);
-				else
-					resolve(info);
-			});
-		});
+		let msg = 'Congratulations! Your account has been successfully registered. ' +
+			'Before you can enjoy full possibilities of BertaSnakes game you must verify your account with this code: ' + code;
+		//TODO: html version
+		return sendEmail(msg, msg, 'Account verification', target_email);
 	},
+	
+	sendPasswordResetCode(code: string, target_email: string) {
+		let msg = 'Password reset code: ' + code;
+		return sendEmail(msg, msg, 'Password reset', target_email);
+	}
 
 	/*checkExistence(email: string) {
 		return emailExists({ 

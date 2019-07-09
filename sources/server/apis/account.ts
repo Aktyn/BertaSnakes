@@ -7,6 +7,9 @@ import Database from '../database/database';
 import UploadReceiver from '../upload_receiver';
 import ERROR_CODES from '../../common/error_codes';
 
+//<code, account_id>
+let reset_codes: Map<string, string> = new Map();
+
 function open(app: express.Express) {
 	app.post('/login', async (req, res) => {
 		try {
@@ -81,6 +84,8 @@ function open(app: express.Express) {
 	
 	app.post('/request_verification_code', async (req, res) => {//token
 		try {
+			if( typeof req.body.token !== "string" )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			let result = await Database.getAccountVerificationCode(req.body.token);
 			if(result.error !== ERROR_CODES.SUCCESS)
 				return res.json({error: result.error});
@@ -100,8 +105,73 @@ function open(app: express.Express) {
 		}
 	});
 	
+	app.post('/request_password_reset_code',async (req, res) => {//email
+		try {
+			if( typeof req.body.email !== "string" )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			let db_res = await Database.getAccountFromEmail(req.body.email);
+			if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.account)
+				return res.json({error: db_res.error});
+			
+			let awaiting_code: string | undefined = undefined;
+			reset_codes.forEach((value, key) => {
+				if(db_res.account && value === db_res.account.id)//found not used reset code for this account
+					awaiting_code = key;
+			});
+	
+			if(awaiting_code) {//previous code was not used yet
+				//resend this code
+				await Email.sendPasswordResetCode(awaiting_code, req.body.email);
+				return res.json({error: ERROR_CODES.SUCCESS});
+			}
+			
+			//generate reset code
+			let password_reset_code = md5( Date.now().toString() + db_res.account.username + req.body.email );
+			reset_codes.set(password_reset_code, db_res.account.id);
+			//console.log(password_reset_code);
+			
+			//send code via email
+			await Email.sendPasswordResetCode(password_reset_code, req.body.email);
+	
+			return res.json({error: ERROR_CODES.SUCCESS});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
+	
+	app.post('/reset_password', async (req, res) => {//new_password, reset_code
+		try {
+			if( typeof req.body.new_password !== "string" || typeof req.body.reset_code !== "string" )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			
+			if(req.body.new_password < Config.MIN_PASSWORD_LENGTH)
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			const hashed_password = sha256( req.body.new_password.substr(0, Config.MAX_PASSWORD_LENGTH) );
+			
+			let account_id_to_password_reset = reset_codes.get(req.body.reset_code);
+			if( !account_id_to_password_reset )
+				return res.json({error: ERROR_CODES.INCORRECT_RESET_CODE});
+			
+			reset_codes.delete(req.body.reset_code);
+			
+			let db_res = await Database.updateAccountPassword(account_id_to_password_reset, hashed_password);
+			if(db_res.error !== ERROR_CODES.SUCCESS)
+				return res.json({error: db_res.error});
+	
+			return res.json({error: ERROR_CODES.SUCCESS});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
+	
 	app.post('/upload_avatar', async (req, res) => {//token, image
 		try {
+			if( typeof req.body.token !== "string" )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			let session_account_id = await Database.getSession(req.body.token);
 			if(!session_account_id)
 				return res.json({error: ERROR_CODES.ACCOUNT_NOT_LOGGED_IN});

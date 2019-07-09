@@ -12,17 +12,14 @@ $targetW: 400px;
 	width: 100vw;
 	height: 100%;
 	background-color: #26323880;
+	
+	@keyframes fade-in {
+		0%  { opacity: 0; }
+		100%{ opacity: 1; }
+	}
 
 	&:not(.no-fade) {
 		animation: fade-in 0.5s cubic-bezier(.36, .07, .19, .97) forwards;
-		@keyframes fade-in {
-			0% {
-				opacity: 0;
-			}
-			100% {
-				opacity: 1;
-			}
-		}
 		
 		& > .sidepop {
 			will-change: transform;
@@ -259,6 +256,7 @@ $targetW: 400px;
 	hr {
 		background-color: #B0BEC5;
 		margin: 15px 0px;
+		animation: fade-in 1s cubic-bezier(.36, .07, .19, .97) forwards;
 	}
 	
 	table {

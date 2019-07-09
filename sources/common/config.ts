@@ -19,6 +19,8 @@ export default {
 	WEBSOCKET_PORT: 2674,
 	SOCIAL_WEBSOCKET_PORT: 2675,
 	
+	PAGE_TITLE: 'BertaSnakes',
+	
 	TOKEN_LIFETIME: 1000 * 60 * 60 * 24 * 7, //one week
 	MAX_LOGIN_LENGTH: 64,
 	MIN_LOGIN_LENGTH: 3,

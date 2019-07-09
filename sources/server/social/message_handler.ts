@@ -147,7 +147,11 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			
 			await Conversations.store(friend_data.friendship_id, msg);
 			
-			connection.onMessage(friend_data.friendship_id, msg);
+			let self_connections = connection.getAccountConnections();
+			if(self_connections) {
+				for(let self_connection of self_connections)
+					self_connection.onMessage(friend_data.friendship_id, msg);
+			}
 			if(recipient_connections) {
 				for(let recipient_connection of recipient_connections)
 					recipient_connection.onMessage(friend_data.friendship_id, msg);

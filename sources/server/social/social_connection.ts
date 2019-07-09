@@ -74,6 +74,10 @@ export default class SocialConnection {
 		}
 	}
 	
+	public getAccountConnections() {
+		return SocialConnection.getConnections(this.account.id);
+	}
+	
 	//stringifies serializable object before sending over socket
 	public send<T>(data: T & {type: SOCIAL_CODES} & Exclude<T, string>) {//stringified json
 		if(this.socket.readyState !== 1)//socket not open

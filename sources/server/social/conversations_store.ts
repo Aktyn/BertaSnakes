@@ -1,5 +1,5 @@
 import Database, {SocialMessage} from '../database/database';
-import {pushSocialMessage} from '../../common/social_utils';
+// import {pushSocialMessage} from '../../common/social_utils';
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
 
 //key is a friendship id
@@ -23,7 +23,8 @@ export default {
 		
 		//push in reverse order
 		for(let i=db_res.messages.length-1; i>=0; i--)
-			pushSocialMessage(conversation, db_res.messages[i]);
+			conversation.push(db_res.messages[i]);
+			//pushSocialMessage(conversation, db_res.messages[i]);
 		//db_res.messages.forEach(db_msg => pushSocialMessage(conversation, db_msg));
 		
 		return conversation;
@@ -31,6 +32,7 @@ export default {
 	
 	async store(friendship_id: string, message: SocialMessage) {
 		let conversation = await this.getConversation(friendship_id);
-		pushSocialMessage(conversation, message);
+		conversation.push(message);
+		//pushSocialMessage(conversation, message);
 	}
 }

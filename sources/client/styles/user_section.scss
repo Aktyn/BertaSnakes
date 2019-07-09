@@ -1,23 +1,43 @@
 .user-section {
+	height: calc(100% - 25px);//25px must match $navSize from container.scss
+	max-height: calc(100% - 25px);
 	
-	& > h1 {
-		margin: 10px 0px;
-		padding: 0px;
-		height: 50px;
-		
-		display: grid;
-		grid-template-columns: 60px auto 60px;
-		grid-template-areas: "separator nick avatar";
-		align-items: center;
-		justify-content: space-between;
-		
-		& > span {
-			grid-area: nick;
+	display: grid;
+	grid-template-columns: auto;
+	grid-template-rows: fit-content(100%) auto;
+	
+	& > .user-container {//section separated from chat-container
+		& > h1 {
+			margin: 0px 0px;
+			padding: 10px;
+			height: 50px;
+			
+			display: grid;
+			grid-template-columns: 60px auto 60px;
+			grid-template-areas: "separator nick avatar";
+			align-items: center;
+			justify-content: space-between;
+			
+			& > span {
+				grid-area: nick;
+			}
+			& > img {
+				border-radius: 50px;
+				grid-area: avatar;
+				height: 100%;
+			}
 		}
-		& > img {
-			border-radius: 50px;
-			grid-area: avatar;
-			height: 100%;
+	}
+	
+	& > .chat-container {
+		margin-top: 15px;
+		
+		position: relative;
+		
+		& > * {
+			position: absolute;
+		    top: 0px;
+		    bottom: 0px;
 		}
 	}
 }

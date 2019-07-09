@@ -50,9 +50,17 @@ function waitForSocialToLoad() {
 				} as NotificationSchema<{ user_id: string }>);
 			}
 		}
+		else if( document.visibilityState !== 'visible' ) {//force title notification even if chat is open
+			let friendship = Social.getFriendByFriendshipID(friendship_id);
+			if(friendship)
+				document.title = Chat.getNotificationText(friendship.friend_data.username);
+		}
 	});
 }
 waitForSocialToLoad();
+
+// noinspection RegExpRedundantEscape
+const url_regex = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi);
 
 export interface ChatMessageEvent {
 	friendship_id: string,
@@ -67,7 +75,7 @@ interface ConversationEvent {
 interface ChatProps {
 	recipient: FriendSchema;
 	account: AccountSchema;
-	height: number;//default chat height in pixels
+	minHeight: number ;//default chat height in pixels
 	autofocus: boolean;
 }
 
@@ -78,7 +86,7 @@ interface ChatState {
 
 export default class Chat extends React.Component<ChatProps, ChatState> {
 	static defaultProps: Partial<ChatProps> = {
-		height: 300,
+		minHeight: 300,
 		autofocus: false,
 	};
 	
@@ -148,17 +156,34 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 		if( !conversation_data || conversation_data.friendship_id !== this.props.recipient.friendship_id )
 			return;
 		
-		console.log( conversation_data.conversation.reduce((prev, curr) => {
+		/*console.log( conversation_data.conversation.reduce((prev, curr) => {
 			prev.content = prev.content.concat(curr.content);
 			return prev;
-		}).content.length );
+		}).content.length );*/
 		
 		//NOTE: there is assumption here that there are fever current messages that in conversation
 		//so we are pushing current messages into just received conversation
-		for(let msg of this.state.messages)
+		/*for(let msg of this.state.messages)
 			pushSocialMessage(conversation_data.conversation, msg);
 		conversations.set(conversation_data.friendship_id, conversation_data.conversation);
-		this.setState({messages: conversation_data.conversation});//and set updated conversation in chat state
+		this.setState({messages: conversation_data.conversation});*///and set updated conversation in chat state
+		
+		let messages = this.state.messages;
+		conversations.set(conversation_data.friendship_id, messages);
+		
+		const chunk = 64;
+		let pushChunk = (index: number) => {
+			for(let i=index; i<index+chunk; i++) {
+				if(i >= conversation_data.conversation.length) {
+					this.setState({messages});
+					return;
+				}
+				pushSocialMessage(messages, conversation_data.conversation[i]);
+			}
+			//this.setState({messages});
+			setTimeout(pushChunk,16,index+chunk);
+		};
+		pushChunk(0);
 	}
 	
 	public onChatMessage(friendship_id: string, message: SocialMessage) {
@@ -210,6 +235,29 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 			return this.props.account;
 	}
 	
+	private static renderLinkMessage(line: string, line_i: number, links: string[]) {
+		let texts: string[] = [];
+		for(let match of links) {
+			let split = line.split(match);
+			texts.push( split.shift() || '' );
+			line = split.join('');
+		}
+		texts.push(line);
+		
+		return <div key={line_i}>{texts.map((text, index) => {
+			if(!links)
+				return undefined;
+			return <React.Fragment key={index}>
+				<span>{text}</span>
+				{links[index] &&
+					<a href={links[index]} target={'_blank'}>{
+						links[index].replace(/^https?:\/\/(www\.)?/i, '')
+					}</a>
+				}
+			</React.Fragment>;
+		})}</div>;
+	}
+	
 	private renderMessages() {
 		return this.state.messages.map(msg => {
 			let author = this.getAuthor(msg);
@@ -221,6 +269,9 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 						<span>{Utils.formatTime(msg.timestamp)}</span>
 					</label>
 					{msg.content.map((line, line_i) => {
+						let link_matches = line.match(url_regex);
+						if( link_matches )
+							return Chat.renderLinkMessage(line, line_i, link_matches);
 						return <div key={line_i}>{line}</div>;
 					})}
 				</div>
@@ -230,9 +281,13 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 	
 	render() {
 		return <div className={'social-chat'} style={{
-			height: this.props.height + 'px'
+			minHeight: this.props.minHeight
 		}}>
 			<div className={'messages'} onClick={() => {
+				if(this.messages_container) {
+					if( window.getSelection().toString().length > 0 )
+						return;
+				}
 				if(this.chat_input)
 					this.chat_input.focus();
 			}} onScroll={() => {

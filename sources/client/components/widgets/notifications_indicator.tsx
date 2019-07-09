@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Utils from '../../utils/utils';
+import Config from '../../../common/config';
 
 import '../../styles/widgets/notifications_indicator.scss';
-//import UserSidepop from "../sidepops/user_sidepop";
 
 const POPUP_LIFETIME = 5000;
 
@@ -44,9 +44,10 @@ let notification_indicators: Set<NotificationsIndicator> = new Set();
 // 	});
 // }, 1000);
 
-interface NotificationsProps {
-
-}
+document.addEventListener('visibilitychange', () => {
+	if( document.visibilityState === 'visible' )//user focused tab
+		document.title = Config.PAGE_TITLE;
+}, false);
 
 interface NotificationsState {
 	currently_popping_notification: GenericNotificationSchema | null;
@@ -54,13 +55,16 @@ interface NotificationsState {
 	open_list: boolean;
 }
 
-export default class NotificationsIndicator extends React.Component<NotificationsProps, NotificationsState> {
+export default class NotificationsIndicator extends React.Component<any, NotificationsState> {
 	
 	public static push(notification: Omit<GenericNotificationSchema, 'unique_id'>) {
 		let unique_notification: GenericNotificationSchema = {
 			unique_id: notification_id++,
 			...notification
 		};
+		
+		if( document.visibilityState !== 'visible' )
+			document.title = notification.content;
 		
 		//check whether notification already exists
 		if( notifications.findIndex(n => n.content === notification.content) !== -1 ) {
@@ -88,8 +92,6 @@ export default class NotificationsIndicator extends React.Component<Notification
 	
 	///////////////////////////////////////////////////////////////////
 	
-	static defaultProps: Partial<NotificationsProps> = {};
-	
 	state: NotificationsState = {
 		currently_popping_notification: null,
 		active_notification: null,
@@ -100,7 +102,7 @@ export default class NotificationsIndicator extends React.Component<Notification
 	private notifications_to_popup: GenericNotificationSchema[] = [];
 	private close_tm: NodeJS.Timeout | null = null;
 	
-	constructor(props: NotificationsProps) {
+	constructor(props: any) {
 		super(props);
 	}
 	

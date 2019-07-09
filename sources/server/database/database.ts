@@ -347,17 +347,57 @@ export default {
 	},
 
 	async getAccountFromToken(_token: string) {
-		let session_data = await getCollection(COLLECTIONS.sessions).findOne({
-			token: _token
-		});
-		if(!session_data || session_data.expiration <= Date.now() || typeof session_data.account_id !== 'object')
-			return {error: ERROR_CODES.SESSION_EXPIRED};
-		let account = await getCollection(COLLECTIONS.accounts).findOne({
-			_id: session_data.account_id
-		});
-		if(!account)
-			return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
-		return { error: ERROR_CODES.SUCCESS, account: extractAccountSchema(account) }
+		try {
+			let session_data = await getCollection(COLLECTIONS.sessions).findOne({
+				token: _token
+			});
+			if (!session_data || session_data.expiration <= Date.now() || typeof session_data.account_id !== 'object')
+				return {error: ERROR_CODES.SESSION_EXPIRED};
+			let account = await getCollection(COLLECTIONS.accounts).findOne({
+				_id: session_data.account_id
+			});
+			if (!account)
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+			return {error: ERROR_CODES.SUCCESS, account: extractAccountSchema(account)};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async getAccountFromEmail(_email: string) {
+		try {
+			let account = await getCollection(COLLECTIONS.accounts).findOne({
+				email: _email
+			});
+			if (!account)
+				return {error: ERROR_CODES.EMAIL_IS_NOT_REGISTERED};
+			return {error: ERROR_CODES.SUCCESS, account: extractAccountSchema(account)};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async updateAccountPassword(account_hex_id: string, new_password: string) {
+		try {
+			let update_res = await getCollection(COLLECTIONS.accounts).updateOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			}, {
+				$set: {
+					password: new_password
+				}
+			});
+			if( !update_res.result.ok )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
 	},
 
 	async insertAccount(_nick: string, _hashed_password: string, _email: string, _verification_code: string) {

@@ -41,7 +41,7 @@ export default {
 	async pingServer() {
 		try {
 			let res = await postRequest('/ping', {});
-			return res.error === 0;//success
+			return res.error === 0;//code_send_success
 		}
 		catch(e) {
 			return false;

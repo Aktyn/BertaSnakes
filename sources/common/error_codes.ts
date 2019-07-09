@@ -14,6 +14,7 @@ const enum ERROR_CODES {
 	NOT_LOGGED_IN,
 
 	ACCOUNT_DOES_NOT_EXISTS,
+	EMAIL_IS_NOT_REGISTERED,
 	ACCOUNT_NOT_VERIFIED,
 	ACCOUNT_ALREADY_VERIFIED,
 	ACCOUNT_ALREADY_LOGGED_IN,
@@ -22,6 +23,7 @@ const enum ERROR_CODES {
 	CANNOT_SEND_EMAIL,
 	CANNOT_VERIFY_ACCOUNT,
 	INCORRECT_VERIFICATION_CODE,
+	INCORRECT_RESET_CODE,
 	FRIENDSHIP_ALREADY_EXISTS,
 
 	//files
@@ -61,6 +63,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.ACCOUNT_NOT_LOGGED_IN:
 		case ERROR_CODES.NOT_LOGGED_IN:			return 'You are not logged in';
 		case ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS: return 'Account does not exists';
+		case ERROR_CODES.EMAIL_IS_NOT_REGISTERED:return 'There is no account registered with this email';
 		case ERROR_CODES.ACCOUNT_NOT_VERIFIED:	return 'Account is not verified';
 		case ERROR_CODES.ACCOUNT_ALREADY_VERIFIED: return 'Account is already verified';
 		case ERROR_CODES.ACCOUNT_ALREADY_LOGGED_IN:return 'Account already logged in';
@@ -69,6 +72,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.CANNOT_SEND_EMAIL:		return 'Cannot send email';
 		case ERROR_CODES.CANNOT_VERIFY_ACCOUNT:	return 'Cannot verify account';
 		case ERROR_CODES.INCORRECT_VERIFICATION_CODE: return 'Incorrect verification code';
+		case ERROR_CODES.INCORRECT_RESET_CODE:  return 'Incorrect password reset code';
 		case ERROR_CODES.FRIENDSHIP_ALREADY_EXISTS: return 'Friendship already exists';
 
 		//files

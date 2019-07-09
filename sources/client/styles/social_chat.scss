@@ -5,6 +5,7 @@
 	$transFunc: 0.2s ease-in-out;
 	
 	max-height: 100vh;
+	width: 100%;
 	
 	border-top: 1px solid #B0BEC5;
 	
@@ -68,6 +69,10 @@
 					//color: nth($palette, 1);
 					word-wrap: break-word;
 				}
+			}
+			
+			a {
+				font-style: italic;
 			}
 		}
 		
