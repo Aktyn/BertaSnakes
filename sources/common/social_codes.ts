@@ -21,6 +21,8 @@ const enum SOCIAL_CODES {
 	ON_FRIEND_REQUEST_RECEIVED,//potential_friend: PublicAccountSchema
 	ON_FRIEND_WENT_ONLINE,//friend_id: string
 	ON_FRIEND_WENT_OFFLINE,//friend_id: string
+	ON_FRIEND_ROOM_DATA_UPDATE,//friend_id: string, room_data: RoomCustomData | null
+	ON_FRIEND_IS_PLAYING_STATE_UPDATE,//friend_id: string, is_playing: boolean
 	ON_FRIEND_REMOVED,//friend_id: string
 	ON_FRIEND_REQUEST_REJECTED,//potential_friend_id: string
 	ON_ACCOUNT_REJECTED_FRIEND_REQUEST,//requested_friend_id: string

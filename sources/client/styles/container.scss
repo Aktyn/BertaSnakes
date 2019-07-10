@@ -259,6 +259,10 @@ $targetW: 400px;
 		animation: fade-in 1s cubic-bezier(.36, .07, .19, .97) forwards;
 	}
 	
+	.separator {
+		background-color: #B0BEC5;
+	}
+	
 	table {
 		display: table;
 		width: 100%;

@@ -1,11 +1,10 @@
 import UserInfo, {UserCustomData} from '../../common/user_info';
-import RoomInfo from '../../common/room_info';
+import RoomInfo, {RoomCustomData} from '../../common/room_info';
 
-import NetworkCodes from '../../common/network_codes';
+import NetworkCodes, {NotificationCodes} from '../../common/network_codes';
+import SocialConnection from "../social/social_connection";
 
 let connections: Map<number, Connection> = new Map();
-
-// type NotString<T> = Exclude<T, string>;
 
 export class Connection {
 	private static counter = 0;
@@ -22,7 +21,7 @@ export class Connection {
 		console.log('Connection id:', this.id, ', ip:', this.client_ip);
 	}
 
-	private get client_ip(): string {
+	public get client_ip(): string {
 		return this.req.connection.remoteAddress.replace(/::ffff:/, '');
 	}
 
@@ -47,6 +46,9 @@ export class Connection {
 		{[index: string]: (T & Exclude<T, string>)} & {type: NetworkCodes}) 
 	{
 		this.send(data);
+		if(data.type === NetworkCodes.END_GAME && this.user && this.user.account_id) {
+			Connection.updateSocialIsPlayingState(this.user.account_id, false);
+		}
 	}
 
 	public sendBuffer(buffer: Float32Array) {
@@ -57,6 +59,22 @@ export class Connection {
 
 	public isInLobby() {
 		return this.user && (!this.user.room || !this.user.room.game_process);
+	}
+	
+	private static updateSocialRoomData(account_id: string, room_data: RoomCustomData | null) {
+		let social_connections = SocialConnection.getConnections(account_id);
+		if(social_connections) {
+			for(let conn of social_connections)
+				conn.updateRoomData(room_data);
+		}
+	}
+	
+	private static updateSocialIsPlayingState(account_id: string, is_playing: boolean) {
+		let social_connections = SocialConnection.getConnections(account_id);
+		if(social_connections) {
+			for(let conn of social_connections)
+				conn.updatePlayingState(is_playing);
+		}
 	}
 
 	loginAsGuest() {
@@ -90,6 +108,12 @@ export class Connection {
 			type: NetworkCodes.ON_USER_DATA,
 			user: this.user.toFullJSON()
 		});
+	}
+	
+	sendNotification(code: NotificationCodes) {
+		if(!this.user)
+			throw new Error('This connection has no user');
+		this.send({type: NetworkCodes.NOTIFICATION, code});
 	}
 
 	sendRoomsList(rooms_list: RoomInfo[]) {
@@ -142,10 +166,14 @@ export class Connection {
 		if(!this.user)
 			throw new Error('This connection has no user');
 
+		let room_data = room.toJSON();
 		this.send({
 			type: NetworkCodes.ON_ROOM_DATA_UPDATE,
-			room: room.toJSON()
+			room: room_data
 		});
+		
+		if( this.user.account_id )
+			Connection.updateSocialRoomData(this.user.account_id, room_data);
 	}
 
 	onRoomJoined() {//sends user's current room data
@@ -154,11 +182,15 @@ export class Connection {
 		if(!this.user.room)
 			throw new Error('User has no room assigned');
 
+		let room_data = this.user.room.toJSON();
 		this.send({
 			type: NetworkCodes.ON_ROOM_JOINED,
-			room: this.user.room.toJSON(),
+			room: room_data,
 			users: this.user.room.getUsersPublicData()
 		});
+		
+		if( this.user.account_id )
+			Connection.updateSocialRoomData(this.user.account_id, room_data);
 	}
 
 	onRoomLeft(left_room_id: number) {
@@ -169,6 +201,9 @@ export class Connection {
 			type: NetworkCodes.ON_ROOM_LEFT,
 			room_id: left_room_id
 		});
+		
+		if( this.user.account_id )
+			Connection.updateSocialRoomData(this.user.account_id, null);
 	}
 
 	onUserLeftRoom(user_id: number, room_id: number) {
@@ -230,6 +265,8 @@ export class Connection {
 			type: NetworkCodes.ON_GAME_START,
 			room_id: room.id,
 		});
+		if( this.user.account_id )
+			Connection.updateSocialIsPlayingState(this.user.account_id, true);
 	}
 
 	sendGameStartFailEvent(room: RoomInfo) {

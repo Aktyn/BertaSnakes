@@ -3,6 +3,21 @@ export interface NetworkPackage {
 	[index: string]: any;
 }
 
+export const enum NotificationCodes {
+	ROOM_DOES_NOT_EXISTS,
+	BANNED_FROM_ROOM,
+	CANNOT_JOIN_AFTER_GAME_START
+}
+
+export function notificationMsg(code: NotificationCodes) {
+	switch (code) {
+		default: return 'Unknown notification';
+		case NotificationCodes.ROOM_DOES_NOT_EXISTS:return 'Room doesn\'t exist';
+		case NotificationCodes.BANNED_FROM_ROOM:    return 'You were banned from this room';
+		case NotificationCodes.CANNOT_JOIN_AFTER_GAME_START: return 'You cannot join room after game start';
+	}
+}
+
 const enum NetworkCodes {
 	//TO SERVER
 	LOGIN = 0,//token: string
@@ -21,6 +36,7 @@ const enum NetworkCodes {
 	START_GAME_CONFIRMATION,
 
 	//FROM SERVER
+	NOTIFICATION,//code: NotificationCodes
 	ON_USER_DATA,//user: UserCustomData
 	ON_ROOM_JOINED,//room: RoomCustomData, users: UserPublicData[]
 	ON_ROOM_LEFT,//room_id: number

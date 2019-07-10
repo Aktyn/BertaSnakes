@@ -178,7 +178,7 @@ function open(app: express.Express) {
 	
 			let account = await Database.getAccount(session_account_id);
 			if(!account)
-				return res.json({error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS});
+				return res.json({error: ERROR_CODES.ACCOUNT_DOES_NOT_EXIST});
 	
 			if(!account.verified)
 				return res.json({error: ERROR_CODES.ACCOUNT_NOT_VERIFIED});

@@ -13,7 +13,7 @@ const enum ERROR_CODES {
 	ACCOUNT_NOT_LOGGED_IN,
 	NOT_LOGGED_IN,
 
-	ACCOUNT_DOES_NOT_EXISTS,
+	ACCOUNT_DOES_NOT_EXIST,
 	EMAIL_IS_NOT_REGISTERED,
 	ACCOUNT_NOT_VERIFIED,
 	ACCOUNT_ALREADY_VERIFIED,
@@ -38,7 +38,7 @@ const enum ERROR_CODES {
 	INCORRECT_DATA_SENT,
 	
 	//game
-	GAME_DOES_NOT_EXISTS,
+	GAME_DOES_NOT_EXIST,
 	INSUFFICIENT_LEVEL,
 	NOT_ENOUGH_COINS,
 	SHIP_ALREADY_BOUGHT,
@@ -62,7 +62,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.SESSION_EXPIRED: 		return 'Session expired';
 		case ERROR_CODES.ACCOUNT_NOT_LOGGED_IN:
 		case ERROR_CODES.NOT_LOGGED_IN:			return 'You are not logged in';
-		case ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS: return 'Account does not exists';
+		case ERROR_CODES.ACCOUNT_DOES_NOT_EXIST: return 'Account does not exist';
 		case ERROR_CODES.EMAIL_IS_NOT_REGISTERED:return 'There is no account registered with this email';
 		case ERROR_CODES.ACCOUNT_NOT_VERIFIED:	return 'Account is not verified';
 		case ERROR_CODES.ACCOUNT_ALREADY_VERIFIED: return 'Account is already verified';
@@ -87,7 +87,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.INCORRECT_DATA_SENT:   return 'Incorrect data sent';
 		
 		//game
-		case ERROR_CODES.GAME_DOES_NOT_EXISTS:  return 'Game does not exists';
+		case ERROR_CODES.GAME_DOES_NOT_EXIST:  return 'Game does not exist';
 		case ERROR_CODES.INSUFFICIENT_LEVEL:    return 'Insufficient level';
 		case ERROR_CODES.NOT_ENOUGH_COINS:      return 'Not enough coins';
 		case ERROR_CODES.SHIP_ALREADY_BOUGHT:   return 'Ship has been bought already';

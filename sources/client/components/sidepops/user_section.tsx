@@ -1,7 +1,9 @@
 import * as React from 'react';
+import {Link} from 'react-router-dom';
 import ERROR_CODES from "../../../common/error_codes";
 import Loader from '../widgets/loader';
 import ServerApi from '../../utils/server_api';
+import Utils from '../../utils/utils';
 import Account from '../../account';
 import Social, {EVENT_NAMES, FriendSchema} from '../../social/social';
 import Chat from '../../social/chat';
@@ -11,6 +13,7 @@ import GamesSection from "./games_section";
 import SharePanel from "./share_panel";
 import PotentialFriendsTable from "./potential_friends_table";
 import NotificationsIndicator, {COMMON_LABELS} from '../widgets/notifications_indicator';
+import {RoomCustomData} from "../../../common/room_info";
 
 import '../../styles/user_section.scss';
 
@@ -175,6 +178,29 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		</>;
 	}
 	
+	private static renderRoomInfo(room: RoomCustomData | null, is_playing: boolean) {
+		if(room === null)
+			return <div>Friend is not in any room</div>;
+		return <>
+			<div>
+				<span>{Utils.trimString(room.name, 20)}</span>
+				<span className={'separator'}/>
+				<span>{room.map}</span>
+				<span className={'separator'}/>
+				<span>{room.sits.filter(s => s).length}/{room.sits.length}</span>
+				<span className={'separator'}/>
+				<span>{(room.duration/60)|0}&nbsp;min</span>
+				<span className={'separator'}/>
+				<span>{Utils.GAMEMODES_NAMES[room.gamemode]}</span>
+			</div>
+			<div style={offsetTop}>{!is_playing ?
+				<Link to={'/play/' + room.id} className={'button-style'}>JOIN ROOM</Link>
+				:
+				<span>Game started</span>
+			}</div>
+		</>;
+	}
+	
 	private renderSocialSection() {
 		if(!this.state.account || !this.state.user || this.state.user.id === this.state.account.id)
 			return undefined;
@@ -201,7 +227,9 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 				color: this.state.friend.online ? '#8BC34A' : '#e57373',
 				fontWeight: 'bold'
 			}}>{this.state.friend.online ? 'online' : 'offline'}</div>
-			<button onClick={() => {
+			{this.state.friend.online && !(this.state.friend.room_data === null && this.state.friend.is_playing) &&
+				UserSection.renderRoomInfo(this.state.friend.room_data, this.state.friend.is_playing)}
+			<button style={offsetTop} onClick={() => {
 				if(!this.state.user)
 					return;
 				if( this.state.friend_id_to_remove ) {

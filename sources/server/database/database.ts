@@ -3,7 +3,7 @@ import {getArgument} from '../utils';
 import ERROR_CODES from '../../common/error_codes';
 import Config, {RANKING_TYPES} from '../../common/config';
 
-import RoomInfo, {GAME_MODES} from '../../common/room_info';
+import RoomInfo, {GAME_MODES, RoomCustomData} from '../../common/room_info';
 import {PlayerResultJSON} from '../../common/game/game_result';
 import {PLAYER_TYPES} from "../../common/game/objects/player";
 
@@ -117,6 +117,8 @@ export interface FriendSchema {
 	friend_data: PublicAccountSchema;
 	is_left: boolean;//if true - this is user from 'from' field from friendships
 	online: boolean;
+	room_data: RoomCustomData | null;
+	is_playing: boolean;
 }
 
 export interface SocialMessage {
@@ -134,8 +136,10 @@ function mapFriendshipData(data: any[], is_left: boolean) {
 			friendship_id: (friendship_data['_id'] as ObjectId).toHexString(),
 			friend_data: extractUserPublicData( friendship_data['friend'][0] ),
 			is_left,
-			online: false
-		};
+			online: false,
+			room_data: null,
+			is_playing: false
+		} as FriendSchema;
 	}).filter(acc => acc !== null) as FriendSchema[];
 }
 
@@ -336,7 +340,7 @@ export default {
 			});
 			
 			if (!user)
-				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXIST};
 			
 			return {error: ERROR_CODES.SUCCESS, data: extractUserPublicData(user)};
 		}
@@ -357,7 +361,7 @@ export default {
 				_id: session_data.account_id
 			});
 			if (!account)
-				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXIST};
 			return {error: ERROR_CODES.SUCCESS, account: extractAccountSchema(account)};
 		}
 		catch(e) {
@@ -502,7 +506,7 @@ export default {
 				_id: object_id
 			});
 			if(!account)
-				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXIST};
 			//console.log(account);
 			if(account.verification_code !== _verification_code)
 				return {error: ERROR_CODES.INCORRECT_VERIFICATION_CODE};
@@ -533,7 +537,7 @@ export default {
 				_id: ObjectId.createFromHexString(session_account_id)
 			});
 			if (!account)
-				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXISTS};
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXIST};
 			return {
 				error: ERROR_CODES.SUCCESS,
 				code: account.verification_code as string,
@@ -651,7 +655,7 @@ export default {
 			});
 			
 			if (!game)
-				return {error: ERROR_CODES.GAME_DOES_NOT_EXISTS};
+				return {error: ERROR_CODES.GAME_DOES_NOT_EXIST};
 			return {
 				error: ERROR_CODES.SUCCESS,
 				game: game as GameSchema

@@ -43,6 +43,7 @@ render(
     <BrowserRouter>
     	<Switch>
 			<Route path='/' exact component={Home} />
+			<Route path='/play/:room_id' component={Game} />
 			<Route path='/play' component={Game} />
 			<Route path='/rankings/:type/:page' component={Rankings} />
 			<Route path='/rankings/:type' component={Rankings} />

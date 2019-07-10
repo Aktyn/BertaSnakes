@@ -1,10 +1,9 @@
 import * as React from 'react';
 import Network from './engine/network';
-import NetworkCodes, {NetworkPackage} from '../../common/network_codes';
+import NetworkCodes, {NetworkPackage, notificationMsg} from '../../common/network_codes';
 import {UserCustomData} from '../../common/user_info';
 import RoomInfo, {RoomCustomData} from '../../common/room_info';
 import HeaderNotifications from '../components/header_notifications';
-
 //main stages
 import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
@@ -23,6 +22,7 @@ interface CoreState extends BaseProps {
 export default class extends React.Component<any, CoreState> {
 	private active = false;
 	private disconnect_notify = false;
+	private room_id_to_join?: number;
 	private room_refresh_tm: NodeJS.Timeout | null = null;
 	private room_deletion_tm: NodeJS.Timeout | null = null;
 
@@ -67,10 +67,21 @@ export default class extends React.Component<any, CoreState> {
 			clearTimeout(this.room_deletion_tm);
 	}
 	
-	componentDidUpdate() {
+	componentDidUpdate(prevProps: any) {
 		if( this.disconnect_notify ) {
 			this.disconnect_notify = false;
 			HeaderNotifications.push('Connection with server failed');
+		}
+		
+		if(this.props.location !== prevProps.location)
+			this.room_id_to_join = parseInt(this.props.match.params.room_id);
+		
+		if(this.room_id_to_join) {
+			console.log('auto joining:', this.room_id_to_join);
+			Network.joinRoom( this.room_id_to_join );
+			this.room_id_to_join = undefined;
+			//console.log(this.props.history);
+			this.props.history.replace('/play');
 		}
 	}
 	
@@ -115,8 +126,13 @@ export default class extends React.Component<any, CoreState> {
 		try {
 			switch(data['type']) {
 				case NetworkCodes.ON_USER_DATA: {
-					if(!this.state.current_user)//first login
+					if(!this.state.current_user) {//first login
 						Network.requestRoomsList();
+						
+						if(this.props.match.params.room_id !== undefined)//auto join from invitation link
+							this.room_id_to_join = parseInt(this.props.match.params.room_id);
+					}
+					
 					let updated_user = Network.getCurrentUser();
 					this.setState({current_user: updated_user});
 
@@ -129,6 +145,9 @@ export default class extends React.Component<any, CoreState> {
 						}
 					}
 				}	break;
+				case NetworkCodes.NOTIFICATION:
+					HeaderNotifications.push( notificationMsg(data['code']) );
+					break;
 
 				case NetworkCodes.ON_ROOM_JOINED:
 					if(TDD2) {

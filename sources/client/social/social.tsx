@@ -71,6 +71,20 @@ function handleMessage(message: SocialNetworkPackage) {
 				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
 			}
 		}   break;
+		case SOCIAL_CODES.ON_FRIEND_ROOM_DATA_UPDATE: {//friend_id: string, room_data: RoomCustomData | null
+			let friend = friends.find(f => f.friend_data.id === message['friend_id']);
+			if(friend) {
+				friend.room_data = message['room_data'];
+				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
+			}
+		}   break;
+		case SOCIAL_CODES.ON_FRIEND_IS_PLAYING_STATE_UPDATE: {//friend_id: string, is_playing: boolean
+			let friend = friends.find(f => f.friend_data.id === message['friend_id']);
+			if(friend) {
+				friend.is_playing = message['is_playing'];
+				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
+			}
+		}   break;
 		
 		case SOCIAL_CODES.ON_FRIEND_REQUEST_RECEIVED: {//potential_friend: PublicAccountSchema
 			potential_friends.push( message['potential_friend'] );
@@ -139,7 +153,9 @@ function handleMessage(message: SocialNetworkPackage) {
 					online: message['online'],
 					friendship_id: message['friendship_id'],
 					is_left: message['is_left'],
-					friend_data: potential_friends[accepted_friend_index]
+					friend_data: potential_friends[accepted_friend_index],
+					room_data: null,//null and true combination means there is no information of it yet
+					is_playing: true
 				});
 				sortFriends();
 				potential_friends.splice(accepted_friend_index, 1);//it is no more potential friend
@@ -158,7 +174,9 @@ function handleMessage(message: SocialNetworkPackage) {
 					online: true,//obviously he is online because he just accepted request
 					friendship_id: message['friendship_id'],
 					is_left: message['is_left'],
-					friend_data: new_friend
+					friend_data: new_friend,
+					room_data: null,//null and true combination means there is no information of it yet
+					is_playing: true
 				});
 				sortFriends();
 				requested_friends.splice(requested_friend_index, 1);//it is no more requested friend

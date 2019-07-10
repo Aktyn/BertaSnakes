@@ -1,6 +1,7 @@
 import Database, {AccountSchema, PublicAccountSchema, FriendSchema, SocialMessage} from '../database/database';
 import ERROR_CODES from "../../common/error_codes";
 import SOCIAL_CODES from "../../common/social_codes";
+import {RoomCustomData} from "../../common/room_info";
 
 const TIMESTAMP_SAMPLES = 10;
 
@@ -141,6 +142,68 @@ export default class SocialConnection {
 		this.send({type: SOCIAL_CODES.REQUESTED_FRIENDS_LIST, requested_friends: this.requested_friends});
 	}
 	
+	public updateRoomData(room_data: RoomCustomData | null) {
+		//distribute to every friend
+		for(let friend of this.friends) {
+			if( !friend.online )//skip offline friend
+				continue;
+			
+			let friend_connections = connections.get(friend.friend_data.id);
+			
+			if( friend_connections ) {
+				for(let friend_connection of friend_connections)
+					friend_connection.onFriendRoomDataUpdate(this.account.id, room_data);
+			}
+		}
+	}
+	
+	public updatePlayingState(is_playing: boolean) {
+		//distribute to every friend
+		for(let friend of this.friends) {
+			if( !friend.online )//skip offline friend
+				continue;
+			
+			let friend_connections = connections.get(friend.friend_data.id);
+			
+			if( friend_connections ) {
+				for(let friend_connection of friend_connections)
+					friend_connection.onFriendPlayingStateUpdate(this.account.id, is_playing);
+			}
+		}
+	}
+	
+	public onFriendRoomDataUpdate(friend_id: string, room_data: RoomCustomData | null) {
+		let friend = this.friends.find(f => f.friend_data.id === friend_id);
+		if(!friend) {
+			console.error('User of id:', this.account.id, 'does not have friend of id:', friend_id);
+			return;
+		}
+		
+		friend.room_data = room_data;
+		
+		this.send({
+			type: SOCIAL_CODES.ON_FRIEND_ROOM_DATA_UPDATE,
+			friend_id: friend.friend_data.id,
+			room_data
+		});
+	}
+	
+	public onFriendPlayingStateUpdate(friend_id: string, is_playing: boolean) {
+		let friend = this.friends.find(f => f.friend_data.id === friend_id);
+		if(!friend) {
+			console.error('User of id:', this.account.id, 'does not have friend of id:', friend_id);
+			return;
+		}
+		
+		friend.is_playing = is_playing;
+		
+		this.send({
+			type: SOCIAL_CODES.ON_FRIEND_IS_PLAYING_STATE_UPDATE,
+			friend_id: friend.friend_data.id,
+			is_playing
+		});
+	}
+	
 	public onFriendAppear(friend_id: string) {
 		let friend = this.friends.find(f => f.friend_data.id === friend_id);
 		if(!friend) {
@@ -206,7 +269,9 @@ export default class SocialConnection {
 			friendship_id,
 			friend_data: this.potential_friends[accepted_friend_index],
 			is_left,
-			online: is_online
+			online: is_online,
+			room_data: null,
+			is_playing: false
 		});
 		this.potential_friends.splice(accepted_friend_index, 1);//it is no more potential friend
 		
@@ -231,7 +296,9 @@ export default class SocialConnection {
 			friendship_id,
 			friend_data: this.requested_friends[requested_friend_index],
 			is_left,
-			online: true//obviously he is online because he just accepted request
+			online: true,//obviously he is online because he just accepted request
+			room_data: null,
+			is_playing: false
 		});
 		this.requested_friends.splice(requested_friend_index, 1);//it is no more requested friend
 		

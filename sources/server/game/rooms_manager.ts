@@ -3,6 +3,7 @@ import RoomInfo, {RoomSettings} from '../../common/room_info';
 import GameStarter from './game_starter';
 import Config from '../../common/config';
 import UserInfo from "../../common/user_info";
+import {NotificationCodes} from '../../common/network_codes';
 
 const MINIMUM_ROOMS = 3;
 
@@ -72,7 +73,7 @@ export default {
 		if(from_connection.isInLobby()) {
 			let available_rooms = Array.from(rooms.values()).filter(room => {
 				//rooms that are not games and user in not banned from joining this room
-				return !room.game_process && from_connection.user && !room.banned_users.has(from_connection.user.id);
+				return !room.game_process && from_connection.user && !room.banned_ips.has(from_connection.client_ip);
 			});
 			from_connection.sendRoomsList( available_rooms );
 		}
@@ -106,8 +107,20 @@ export default {
 			this.leaveRoom(from_connection);
 
 		let room = rooms.get(room_id);
-		if(!room || !from_connection.user || room.banned_users.has(from_connection.user.id))
+		if(!from_connection.user)
 			return;
+		if(!room) {
+			from_connection.sendNotification(NotificationCodes.ROOM_DOES_NOT_EXISTS);
+			return;
+		}
+		if( room.game_process ) {
+			from_connection.sendNotification(NotificationCodes.CANNOT_JOIN_AFTER_GAME_START);
+			return;
+		}
+		if( room.banned_ips.has(from_connection.client_ip) ) {
+			from_connection.sendNotification(NotificationCodes.BANNED_FROM_ROOM);
+			return;
+		}
 		
 		room.addUser(from_connection.user);
 		from_connection.onRoomJoined();
@@ -148,7 +161,8 @@ export default {
 			user_to_kick.connection.sendKickInfo(room);
 			
 			//ban for joining this room again
-			room.banned_users.add( user_to_kick.id );
+			room.banned_ips.add( user_to_kick.connection.client_ip );
+			//room.banned_users.add( user_to_kick.id );
 			user_to_kick.connection.onRoomRemove(room);
 		}
 	},

@@ -11,7 +11,7 @@ const GAMEMODES_COUNT = 2;
 export interface RoomSettings {
 	name: string;
 	map: map_name;
-	gamemode: number;
+	gamemode: GAME_MODES;
 	duration: number;
 
 	sits_number: number;
@@ -39,11 +39,11 @@ export default class RoomInfo {
 	public readys: boolean[] = new Array(Config.DEFAULT_SITS).fill(false);
 	//public users: UserInfo[] = [];
 	private users: Map<number, UserInfo> = new Map();//contains UserInfo instances
-	public gamemode = Config.DEFAULT_GAME_MODE;
+	public gamemode: GAME_MODES = Config.DEFAULT_GAME_MODE;
 
 	public to_remove = false;//client-side only user
 
-	public banned_users: Set<number> = new Set();//server-side only use (stores UserInfo's id)
+	public banned_ips: Set<string> = new Set();//server-side only use (stores Connection's ip addresses)
 
 	//if not null => game is running
 	public game_process: any = null;

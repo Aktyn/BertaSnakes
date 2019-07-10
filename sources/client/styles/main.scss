@@ -32,17 +32,6 @@ body, html {
     text-align: center;
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
-    outline: none;
-    cursor: pointer;
-
-    &:hover {
-        color: #80CBC4;
-    }
-}
-
 hr {
     width: 100%;
     border: none;
@@ -67,7 +56,21 @@ textarea:focus, input:focus {
     border-color: #e57373;
 }
 
-button {
+a {
+    text-decoration: none;
+    outline: none;
+}
+
+a:not(.button-style) {
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+        color: #80CBC4;
+    }
+}
+
+button, a.button-style {
     outline: none;
     
     border: none;
