@@ -75,9 +75,14 @@ export default {
 	
 	formatTime: (timestamp: number) => {
 		let dt = new Date(timestamp);
+		let now = new Date();
+		let same_day = dt.getDate() === now.getDate() &&
+			dt.getMonth() === now.getMonth() &&
+			dt.getFullYear() === now.getFullYear();
 		let h = dt.getHours();
 		let m = dt.getMinutes();
-		return `${h < 10 ? '0':''}${h}:${m < 10 ? '0':''}${m}`;
+		return (same_day ? '' : `${ zeroPad(dt.getDate()) }.${ zeroPad(dt.getMonth()+1) }.${dt.getFullYear()} `) +
+			`${ zeroPad(h) }:${ zeroPad(m) }`;
 	},
 
 	trimString(str: string, max_len: number, suffix = '...') {

@@ -43,6 +43,7 @@ interface PlayerInfo extends InitDataSchema {
 interface GameState extends BaseState {
 	hide_rightside: boolean;
 	hide_chat: boolean;
+	chat_notification: boolean;
 
 	hp_value: number;
 	energy_value: number;
@@ -83,6 +84,7 @@ export default class extends StageBase<BaseProps, GameState> {
 	state: GameState = {
 		hide_rightside: !!Settings.getValue('auto_hide_right_panel'),
 		hide_chat: !!Settings.getValue('auto_hide_chat') || !Settings.getValue('auto_hide_right_panel'),
+		chat_notification: false,
 
 		hp_value: 1,
 		energy_value: 1,
@@ -316,8 +318,12 @@ export default class extends StageBase<BaseProps, GameState> {
 
 	// noinspection JSUnusedGlobalSymbols
 	public onChatMessage(msg: MessageSchema) {
-		if(this.chatHandle)
+		if(this.chatHandle) {
 			this.chatHandle.pushMessage(msg);
+			
+			if(this.state.hide_chat && this.state.hide_rightside)
+				this.setState({chat_notification: true});
+		}
 	}
 	
 	// noinspection JSUnusedGlobalSymbols
@@ -495,14 +501,15 @@ export default class extends StageBase<BaseProps, GameState> {
 			<div className={`chat-container${this.state.hide_chat && this.state.hide_rightside ? 
 				' hidden' : ''}`}>
 				<div className='chat-body'>
-					<button className={`chat-toggler${this.state.hide_rightside ? '' : ' disabled'}`} 
-						onClick={() => {
-							if(this.chat_toggler)
-								this.chat_toggler.blur();
-							this.setState({hide_chat: !this.state.hide_chat});
-						}} ref={el => this.chat_toggler = el}>{
-							this.state.hide_chat && this.state.hide_rightside ? 'SHOW' : 'HIDE'
-						}</button>
+					<button onClick={() => {
+						if(this.chat_toggler)
+							this.chat_toggler.blur();
+						this.setState({hide_chat: !this.state.hide_chat, chat_notification: false});
+					}} ref={el => this.chat_toggler = el} className={`chat-toggler${
+						this.state.hide_rightside ? '' : ' disabled'}${
+						this.state.chat_notification ? ' notify' : ''}`}>{
+						this.state.hide_chat && this.state.hide_rightside ? 'SHOW' : 'HIDE'
+					}</button>
 					<RoomChat current_user={this.props.current_user} ref={el => this.chatHandle = el} />
 				</div>
 			</div>
