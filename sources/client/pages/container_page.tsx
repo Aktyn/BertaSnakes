@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Layout from "../components/layout";
+// import Layout from "../components/layout";
 import Loader from '../components/widgets/loader';
 
 import '../styles/container.scss';
@@ -29,13 +29,11 @@ export default class ContainerPage extends React.Component<ContainerProps, any> 
 	}
 	
 	render() {
-		return <Layout>
-			<div className={`container ${this.props.className}`}>
-				{this.props.show_navigator && this.renderNavigator()}
-				{this.props.loading && <Loader color='#ef5350' />}
-				{this.props.error && <div className='error'>{this.props.error}</div>}
-				{this.props.children}
-			</div>
-		</Layout>;
+		return <div className={`container ${this.props.className}`}>
+			{this.props.show_navigator && this.renderNavigator()}
+			{this.props.loading && <Loader color='#ef5350' />}
+			{this.props.error && <div className='error'>{this.props.error}</div>}
+			{this.props.children}
+		</div>;
 	}
 }

@@ -1,33 +1,46 @@
 @import './global.scss';
 
-$size: 200px;
+$size: 350px;//200
+$mobileSize: 200px;
+$playBtnSize: 230px;
 $bottomSize: 20px;
 
 .header {
 	grid-area: header;
 
 	box-shadow: 0px 0px 10px #0008;
+	
+	$anim-func: 0.5s cubic-bezier(.36,.07,.19,.97);
 
 	.upper {
 		position: relative;
 		height: $size;
 		overflow: hidden;
+		
+		transition: height $anim-func;
 
 		.background {
 			position: absolute;
-			height: 100%;
+			height: 100vh;
 			left: 0px;
 			right: 0px;
 			top: 0px;
+			
+			transform: translateZ(-8px) scale(2);
+            transform-origin: center;
 
-			background-image: url('../img/header_bgs/header1.png');
+			background-image: url('../img/header_bgs/header2.jpg');
+			background-repeat: repeat;
 			background-size: cover;
+			//background-attachment: fixed;
+			//filter: blur(5px);
 
 			z-index: 1;
 		}
 
 		.header-content {
-			background-color: #006064a0;
+			//background-color: #006064a0;
+			background-color: rgba(nth($palette, 6), 0.66);
 
 			* {
 				font-family: LuckiestGuy, Roboto-Regular, Arial, serif;
@@ -36,7 +49,7 @@ $bottomSize: 20px;
 			position: absolute;
 			z-index: 2;
 			width: 100%;
-			height: $size;
+			height: 100%;
 			left: 0px;
 			top: 0px;
 
@@ -53,11 +66,9 @@ $bottomSize: 20px;
 				user-select: none;
 
 				& > * {
-					$anim-func: 0.5s cubic-bezier(.36,.07,.19,.97);
-
 					display: block;
-					line-height: $size;
-					height: $size;
+					line-height: $playBtnSize;
+					height: $playBtnSize;
 					
 					font-size: 50px;
 
@@ -71,7 +82,8 @@ $bottomSize: 20px;
 					position: relative;
 					z-index: 2;
 
-					transition: color $anim-func, background-color $anim-func;
+					transition: color $anim-func, background-color $anim-func,
+						height $anim-func, line-height $anim-func;
 
 					&::before {
 						content: "";
@@ -124,8 +136,20 @@ $bottomSize: 20px;
 					padding: 0px;
 					font-weight: normal;
 					color: #fff;
+					transition: text-shadow 0.2s ease-in-out;
 					&:hover {
-						color: #ef9a9a;
+						//color: #ef9a9a;
+						$outlineCol: #ef5350;
+						$outlineSize: 1px;
+						text-shadow: #{-$outlineSize} 0px 0px $outlineCol,
+							$outlineSize 0px 0px $outlineCol,
+							0px #{-$outlineSize} 0px $outlineCol,
+							0px $outlineSize 0px $outlineCol,
+							#{-$outlineSize} $outlineSize 0px $outlineCol,
+							$outlineSize $outlineSize 0px $outlineCol,
+							#{-$outlineSize} #{-$outlineSize} 0px $outlineCol,
+							$outlineSize #{-$outlineSize} 0px $outlineCol,
+							0px 0px $outlineSize $outlineCol;
 					}
 					
 					&.navigator-play, &.navigator-account {
@@ -158,6 +182,17 @@ $bottomSize: 20px;
 			}
 		}
 	}
+	
+	&.compact {
+		.upper {
+			height: $mobileSize;
+			
+			.play-btn-wrapper > * {
+				height: min($mobileSize, $playBtnSize);
+				line-height: min($mobileSize, $playBtnSize);
+			}
+		}
+	}
 
 	@media (max-width: 600px) {//move play button to navigator
 		.header-content {
@@ -175,6 +210,9 @@ $bottomSize: 20px;
 	}
 	
 	@media (max-width: 400px) {
+		.upper {
+			height: $mobileSize;
+		}
 		.navigator-account {
 			display: initial !important;
 		}

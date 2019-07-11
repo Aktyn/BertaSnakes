@@ -30,7 +30,38 @@ function __async(_loader: () => any) {
 }
 
 function NotFound() {
-	return <Layout><p>SORRY<br/>REQUESTED PAGE WAS NOT FOUND</p></Layout>;
+	return <div><p>SORRY<br/>REQUESTED PAGE WAS NOT FOUND</p></div>;
+}
+
+class LayoutRoutes extends React.Component<any, {compactHeader: boolean}> {
+	state = {
+		compactHeader: false
+	};
+	
+	componentDidMount() {
+		if(this.props.location.pathname.length > 1)
+			this.setState({compactHeader: true});
+	}
+	
+	componentDidUpdate(prevProps: any) {
+		//routed
+		if(this.props.location.pathname !== prevProps.location.pathname)
+			this.setState({compactHeader: true});
+	}
+	
+	render() {
+		return <Layout compactHeader={this.state.compactHeader}>
+			<Switch>
+				<Route path='/' exact component={Home}/>
+				<Route path='/rankings/:type/:page' component={Rankings}/>
+				<Route path='/rankings/:type' component={Rankings}/>
+				<Route path='/rankings' component={Rankings}/>
+				<Route path='/games/:id' component={GameDetails}/>
+				<Route path='/users/:id' component={UserDetails}/>
+				<Route component={NotFound}/>
+			</Switch>
+		</Layout>;
+	}
 }
 
 const Game = __async(
@@ -39,18 +70,12 @@ const Game = __async(
 
 document.title = Config.PAGE_TITLE;
 
-render(
-    <BrowserRouter>
-    	<Switch>
-			<Route path='/' exact component={Home} />
-			<Route path='/play/:room_id' component={Game} />
+render(<BrowserRouter>
+	    <Switch>
+		    <Route path='/play/:room_id' component={Game} />
 			<Route path='/play' component={Game} />
-			<Route path='/rankings/:type/:page' component={Rankings} />
-			<Route path='/rankings/:type' component={Rankings} />
-			<Route path='/rankings' component={Rankings} />
-			<Route path='/games/:id' component={GameDetails} />
-			<Route path='/users/:id' component={UserDetails} />
-			<Route component={NotFound} />
+			
+			<Route path={'/'} component={LayoutRoutes} />
 		</Switch>
 	</BrowserRouter>,
     document.getElementById('page'),

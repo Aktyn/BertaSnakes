@@ -1,28 +1,32 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import AccountWidget from './account_widget';
-
-import './../styles/header.scss';
 import AccountSidepop from './sidepops/account_sidepop';
 import {RANKING_TYPES} from '../../common/config';
 import NotificationsIndicator from "./widgets/notifications_indicator";
+
+import './../styles/header.scss';
+
+interface HeaderProps {
+	compact: boolean;
+}
 
 interface HeaderState {
 	show_sidepop: boolean;
 }
 
-export default class Header extends React.Component<any, HeaderState> {
+export default class Header extends React.Component<HeaderProps, HeaderState> {
 
 	state: HeaderState = {
-		show_sidepop: false
+		show_sidepop: false,
 	};
 	
-	constructor(props: any) {
+	constructor(props: HeaderProps) {
 		super(props);
 	}
 
 	render() {
-		return <div className='header'>
+		return <div className={`header${this.props.compact ? ' compact' : ''}`}>
 			<div className='upper'>
 				<div className='background'/>
 				<div className='header-content'>

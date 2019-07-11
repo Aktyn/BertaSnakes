@@ -1,10 +1,18 @@
 .layout-main {
-	min-height: 100vh;
+	//min-height: 100%;
 
 	display: grid;
 	grid-template-areas: "header" "content" "footer";
 	grid-template-columns: 100%;
 	grid-template-rows: min-content auto min-content;
+	
+	/* parallax container */
+	height: 100vh;
+    overflow-y: auto;
+	overflow-x: hidden;
+    perspective: 8px;
+    perspective-origin: top;
+	/**********************/
 
 	.header {
 		grid-area: header;

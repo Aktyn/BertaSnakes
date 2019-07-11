@@ -1,20 +1,25 @@
 import * as React from 'react';
-// import { withRouter } from 'react-router-dom';
-
 import Header from './header';
 import Footer from './footer';
 
 import '../styles/layout-main.scss';
 
-export default class Layout extends React.Component<any, any> {
+interface LayoutProps {
+	compactHeader: boolean;
+}
 
-	constructor(props: any) {
+export default class Layout extends React.Component<LayoutProps, any> {
+	static defaultProps: Partial<LayoutProps> = {
+		compactHeader: false
+	};
+	
+	constructor(props: LayoutProps) {
 		super(props);
 	}
 
 	render() {
 		return <div className='layout-main'>
-			<Header/>
+			<Header compact={this.props.compactHeader}/>
 			<div className='layout-content'>{this.props.children}</div>
 			<Footer/>
 		</div>;
