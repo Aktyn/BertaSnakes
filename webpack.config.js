@@ -1,10 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {BaseHrefWebpackPlugin} = require('base-href-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const autoprefixer = require('autoprefixer');
+const RobotstxtPlugin = require('robotstxt-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -13,8 +14,8 @@ module.exports = {
 		main: './sources/client/index.tsx',
 	},
 	output: {
-		filename: '[name]-[hash].js',
-		chunkFilename: '[name]-[hash].js',
+		filename: '[name]-[contenthash].js',
+		chunkFilename: '[name]-[contenthash].js',
 		path: path.resolve(__dirname, 'dist', 'client'),
 		publicPath: '/'
 	},
@@ -53,11 +54,13 @@ module.exports = {
 		],
 		usedExports: true,
 		runtimeChunk: 'single',
+        moduleIds: 'hashed',
 		splitChunks: {
 			chunks: 'all',
 			maxInitialRequests: Infinity,
-      		minSize: 0,
-			automaticNameDelimiter: '-',
+			maxAsyncRequests: Infinity,
+      		minSize: 10000,
+			automaticNameDelimiter: '.',
 
 			cacheGroups: {
 				styles: {
@@ -68,7 +71,12 @@ module.exports = {
 					priority: -1,
 					reuseExistingChunk: true,
 					enforce: true,
-				}
+				},
+				/*vendor: {
+					test: /[\\/]node_modules[\\/]/,
+		          	name: 'vendors',
+		          	chunks: 'all'
+				}*/
 			}
 		},
 		concatenateModules: true
@@ -153,10 +161,12 @@ module.exports = {
 			_UPDATE_TIME_:  Date.now(),
 			_CLIENT_: true
 		}),
+
 		new MiniCssExtractPlugin({
 			filename: "[name]-styles.css",
 			chunkFilename: "[id]-[hash].css"
 		}),
+
 		new HtmlWebpackPlugin({
 			hash: isDevelopment,
 			favicon: './sources/client/img/icons/icon.png',
@@ -165,6 +175,17 @@ module.exports = {
 			template: './sources/client/index.html',
 			filename: 'index.html'
 		}),
-		new BaseHrefWebpackPlugin({ baseHref: '/' })
+
+		new BaseHrefWebpackPlugin({ baseHref: '/' }),
+
+        new RobotstxtPlugin({
+			policy: [{
+				userAgent: "*",
+				//allow: "/",
+				disallow: ["/admin", "/users", "/games"],
+				crawlDelay: 1,//seconds (useful for sites with huge amount of pages)
+			}],
+			//TODO: host: "https://bertasnakes.pl"
+		}),
 	]
 };

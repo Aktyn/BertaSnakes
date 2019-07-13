@@ -5,12 +5,12 @@ import SOCIAL_CODES, {SocialNetworkPackage} from '../../common/social_codes';
 import ERROR_CODES from '../../common/error_codes';
 import Events from "../utils/events";
 
-import {FriendSchema, PublicAccountSchema} from "../../server/database/database";
+import {FriendSchema, PublicAccountSchema} from "../../server/database/core";
 import AccountSidepop, {VIEWS} from "../components/sidepops/account_sidepop";
 import UserSidepop from "../components/sidepops/user_sidepop";
 import Chat from './chat';
 
-export {FriendSchema} from '../../server/database/database';
+export {FriendSchema} from '../../server/database/core';
 
 let friends: FriendSchema[] = [];
 let potential_friends: PublicAccountSchema[] = [];

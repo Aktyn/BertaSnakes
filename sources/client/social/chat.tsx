@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {AccountSchema, FriendSchema, SocialMessage} from "../../server/database/database";
+import {AccountSchema, FriendSchema, SocialMessage} from "../../server/database/core";
 import Config from '../../common/config';
 import Social, {EVENT_NAMES} from './social';
 import {pushSocialMessage} from "../../common/social_utils";

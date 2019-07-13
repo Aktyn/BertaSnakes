@@ -1,4 +1,4 @@
-import {SocialMessage} from '../server/database/database';
+import {SocialMessage} from '../server/database/core';
 import Config from './config';
 
 declare var _CLIENT_: boolean;

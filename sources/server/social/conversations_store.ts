@@ -1,4 +1,4 @@
-import Database, {SocialMessage} from '../database/database';
+import Database, {SocialMessage} from '../database/core';
 // import {pushSocialMessage} from '../../common/social_utils';
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
 

@@ -7,7 +7,7 @@ import Utils from '../../utils/utils';
 import Account from '../../account';
 import Social, {EVENT_NAMES, FriendSchema} from '../../social/social';
 import Chat from '../../social/chat';
-import {AccountSchema, PublicAccountSchema} from '../../../server/database/database';
+import {AccountSchema, PublicAccountSchema} from '../../../server/database/core';
 import {offsetTop} from "./sidepops_common";
 import GamesSection from "./games_section";
 import SharePanel from "./share_panel";

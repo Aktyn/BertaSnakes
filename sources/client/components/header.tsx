@@ -5,7 +5,7 @@ import AccountSidepop from './sidepops/account_sidepop';
 import {RANKING_TYPES} from '../../common/config';
 import NotificationsIndicator from "./widgets/notifications_indicator";
 
-import './../styles/header.scss';
+import '../styles/header.scss';
 
 interface HeaderProps {
 	compact: boolean;
@@ -38,6 +38,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 						<Link to='/forum'>FORUM</Link>
 						<Link to={'/rankings/'+RANKING_TYPES.TOP_RANK}>RANKINGS</Link>
 						<Link to={'/gallery'}>GALLERY</Link>
+						{/*<Link to={'/admin'}>ADMIN PANEL</Link>*/}
 					</nav>
 					<div className='play-btn-wrapper'>
 						<Link to='/play'><span>PLAY</span></Link>

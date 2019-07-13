@@ -6,7 +6,7 @@ import ERROR_CODES from "../../../common/error_codes";
 import UserSidepop from './user_sidepop';
 
 import '../../styles/friends_section.scss';
-import {PublicAccountSchema} from "../../../server/database/database";
+import {PublicAccountSchema} from "../../../server/database/core";
 import PotentialFriendsTable from "./potential_friends_table";
 import NotificationsIndicator, {COMMON_LABELS} from "../widgets/notifications_indicator";
 

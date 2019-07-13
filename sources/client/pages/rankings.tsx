@@ -5,7 +5,7 @@ import ServerApi from '../utils/server_api';
 import Utils from '../utils/utils';
 import Config, {RANKING_TYPES} from '../../common/config';
 import ERROR_CODES, {errorMsg} from '../../common/error_codes';
-import {PublicAccountSchema} from "../../server/database/database";
+import {PublicAccountSchema} from "../../server/database/core";
 
 import '../styles/rankings.scss';
 import {Link} from "react-router-dom";

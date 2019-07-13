@@ -17,6 +17,7 @@ import './styles/main.scss';
 import Loader from './components/widgets/loader';
 
 import Layout from './components/layout';
+import NotFound from './pages/not_found';
 import Home from './pages/home';
 import Rankings from './pages/rankings';
 import GameDetails from './pages/game_details';
@@ -31,10 +32,7 @@ function __async(_loader: () => any) {
 
 const Game = __async(() => import(/* webpackChunkName: "game", webpackPrefetch: true */ './game/core'));
 const Gallery = __async(() => import(/* webpackChunkName: "gallery", webpackPrefetch: true */ './pages/gallery'));
-
-function NotFound() {
-	return <div><p>SORRY<br/>REQUESTED PAGE WAS NOT FOUND</p></div>;
-}
+const Admin = __async(() => import(/* webpackChunkName: "admin", webpackPrefetch: true */ './pages/admin'));
 
 class LayoutRoutes extends React.Component<any, {compactHeader: boolean}> {
 	state = {
@@ -62,6 +60,7 @@ class LayoutRoutes extends React.Component<any, {compactHeader: boolean}> {
 				<Route path='/games/:id' component={GameDetails}/>
 				<Route path='/users/:id' component={UserDetails}/>
 				<Route path='/gallery' component={Gallery}/>
+				<Route path='/admin' component={Admin}/>
 				<Route component={NotFound}/>
 			</Switch>
 		</Layout>;

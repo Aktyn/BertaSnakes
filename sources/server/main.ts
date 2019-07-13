@@ -22,7 +22,7 @@ catch(e) {
 
 global.APP_VERSION = app_version.replace(/\./g, '_') || 'unknown version';
 
-import './database/database';//initializes database
+import './database/core';//initializes database
 
 import HTTP_API from './apis/api';
 HTTP_API.shareUploads();

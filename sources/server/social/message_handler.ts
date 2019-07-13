@@ -2,7 +2,7 @@ import SOCIAL_CODES, {SocialNetworkPackage} from '../../common/social_codes';
 import Config from '../../common/config';
 import SocialConnection from './social_connection';
 import Conversations from './conversations_store';
-import Database, {SocialMessage} from '../database/database';
+import Database, {SocialMessage} from '../database/core';
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
 
 export async function handleMessage(connection: SocialConnection, message: SocialNetworkPackage) {

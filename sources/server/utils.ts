@@ -1,7 +1,9 @@
-const prompt = require('prompt-sync')();
 import * as crypto from 'crypto';
-import {AccountSchema} from "./database/database";
+import * as express from 'express';
+import {AccountSchema} from "./database/core";
 import {UserCustomData} from '../common/user_info';
+
+const prompt = require('prompt-sync')();
 
 export function getArgument(name: string) {
 	for(let arg of process.argv) {
@@ -34,21 +36,15 @@ export function md5(input: string) {
 export function AccountSchema2UserCustomData(account: AccountSchema): UserCustomData {
 	return {
 		nick: account.username,
-		...account,
-		/*level: account.level,
-		rank: account.rank,
-		avatar: account.avatar,
-
-		verified: account.verified,
-		exp: account.exp,
-		coins: account.coins,
-		
-		available_skills: account.available_ships,
-		skills: account.skills,
-
-		available_ships: account.available_ships,
-		ship_type: account.ship_type,
-		
-		total_games: account.total_games*/
+		...account
 	};
+}
+
+export function extractIP(req: express.Request) {
+	let forwards = req.headers['x-forwarded-for'];
+	if (typeof forwards === 'object')//an array
+		forwards = forwards[0];// forwards.join(',');
+	if (typeof forwards === 'string')
+		forwards = forwards.split(',')[0];
+	return (forwards || req.connection.remoteAddress || '').replace(/::ffff:/, '');
 }

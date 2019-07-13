@@ -47,6 +47,10 @@ export default {
 			return false;
 		}
 	},
+	
+	registerGuestVisit() {//just for statistics
+		postRequest('/register_guest_visit', {}).catch(void(0));//error is insignificant
+	},
 
 	getAvatarPath(avatar: string | null) {
 		if(avatar === null)

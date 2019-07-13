@@ -7,8 +7,8 @@ import ERROR_CODES from '../common/error_codes';
 import {PLAYER_TYPES} from "../common/game/objects/player";
 import {UserCustomData} from "../common/user_info";
 
-import {AccountSchema} from '../server/database/database';
-export {AccountSchema} from '../server/database/database';
+import {AccountSchema} from '../server/database/core';
+export {AccountSchema} from '../server/database/core';
 
 let current_account: AccountSchema | null = null;
 let on_login_listeners: ((account: AccountSchema | null) => void)[] = [];
@@ -27,7 +27,7 @@ async function loginFromToken() {
 		let res = await ServerApi.postRequest('/token_login', {token});
 
 		if(res.error === ERROR_CODES.SUCCESS && typeof res.account === 'object' &&
-			typeof res.account.id === 'string' && typeof res.account.username === 'string') 
+			typeof res.account.id === 'string' && typeof res.account.username === 'string')
 		{
 			onAccountData(res.account);
 			Social.connect(token as string);
@@ -47,6 +47,8 @@ async function loginFromToken() {
 let token = Cookies.getCookie('token');
 if(token) //try to login via cookie token
 	loginFromToken().catch(console.error);
+else
+	ServerApi.registerGuestVisit();
 
 function setToken(_token: string, _expires: number) {
 	token = _token;
@@ -93,8 +95,9 @@ export default {
 	async login(nick: string, password: string) {
 		try {
 			let res = await ServerApi.postRequest('/login', {nick, password});
-			if(res.error)
+			if(res.error !== ERROR_CODES.SUCCESS)
 				return res;
+			console.log(res);
 			if(!res.token || !res.expiration_time || !res.account)
 				return {error: ERROR_CODES.INCORRECT_SERVER_RESPONSE};
 

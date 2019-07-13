@@ -10,10 +10,12 @@
       <w>canv</w>
       <w>cbuff</w>
       <w>chooserers</w>
+      <w>contenthash</w>
       <w>cooldown</w>
       <w>cooldowns</w>
       <w>coord</w>
       <w>datas</w>
+      <w>datasets</w>
       <w>decrementer</w>
       <w>defocus</w>
       <w>displayer</w>
@@ -44,6 +46,7 @@
       <w>respawning</w>
       <w>rightside</w>
       <w>roboto</w>
+      <w>robotstxt</w>
       <w>sidepop</w>
       <w>sidepops</w>
       <w>skillsbar</w>

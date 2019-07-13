@@ -3,7 +3,7 @@ import {UserFullData} from '../../common/user_info';
 import NetworkCodes from '../../common/network_codes';
 import Connections, {Connection} from './connections';
 import {GameResultJSON} from '../../common/game/game_result';
-import Database from '../database/database';
+import Database from '../database/core';
 import {AccountSchema2UserCustomData} from '../utils';
 import RoomsManager from './rooms_manager';
 import * as child_process from 'child_process';

@@ -1,9 +1,9 @@
 import * as express from 'express';
 import Sessions from '../sessions';
 import Email from '../email';
-import {md5, sha256} from '../utils';
+import {extractIP, md5, sha256} from '../utils';
 import Config from '../../common/config';
-import Database from '../database/database';
+import Database from '../database/core';
 import UploadReceiver from '../upload_receiver';
 import ERROR_CODES from '../../common/error_codes';
 
@@ -14,6 +14,8 @@ function open(app: express.Express) {
 	app.post('/login', async (req, res) => {
 		try {
 			let result = await Sessions.login(req.body.nick, req.body.password);
+			Database.registerVisit(result.account || null,
+				req.headers['user-agent'] || '', extractIP(req));
 			res.json(result);
 		}
 		catch(e) {
@@ -25,6 +27,8 @@ function open(app: express.Express) {
 	app.post('/token_login', async (req, res) => {
 		try {
 			let result = await Sessions.token_login(req.body.token);
+			Database.registerVisit(result.account || null,
+				req.headers['user-agent'] || '', extractIP(req));
 			res.json(result);
 		}
 		catch(e) {

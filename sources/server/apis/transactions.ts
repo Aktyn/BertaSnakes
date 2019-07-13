@@ -4,7 +4,7 @@ import RoomsManager from '../game/rooms_manager';
 import ERROR_CODES from '../../common/error_codes';
 import {SHIP_COSTS, SHIP_LVL_REQUIREMENTS} from "../../common/game/objects/player";
 import Skills from '../../common/game/common/skills';
-import Database, {AccountSchema} from '../database/database';
+import Database, {AccountSchema} from '../database/core';
 import {AccountSchema2UserCustomData} from '../utils';
 
 //check whether user is in room and send data update to everyone in this room

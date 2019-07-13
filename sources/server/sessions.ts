@@ -1,4 +1,4 @@
-import Database from './database/database';
+import Database from './database/core';
 import ERROR_CODES, {errorMsg} from '../common/error_codes';
 import Config from '../common/config';
 import {sha256} from './utils';
