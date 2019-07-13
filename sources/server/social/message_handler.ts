@@ -156,6 +156,15 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 				for(let recipient_connection of recipient_connections)
 					recipient_connection.onMessage(friend_data.friendship_id, msg);
 			}
+			else {
+				//await for this user to login to send him unread messages notification
+				let awaits = SocialConnection.awaiting_messages.get(message.recipient_id);
+				if(!awaits) {
+					awaits = new Set();
+					SocialConnection.awaiting_messages.set(message.recipient_id, awaits);
+				}
+				awaits.add( friend_data.friendship_id );
+			}
 		}   break;
 	}
 }

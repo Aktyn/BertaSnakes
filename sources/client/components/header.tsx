@@ -37,6 +37,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 						}}>ACCOUNT</button>
 						<Link to='/forum'>FORUM</Link>
 						<Link to={'/rankings/'+RANKING_TYPES.TOP_RANK}>RANKINGS</Link>
+						<Link to={'/gallery'}>GALLERY</Link>
 					</nav>
 					<div className='play-btn-wrapper'>
 						<Link to='/play'><span>PLAY</span></Link>

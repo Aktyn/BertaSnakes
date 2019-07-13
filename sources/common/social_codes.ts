@@ -14,7 +14,7 @@ const enum SOCIAL_CODES {
 	REQUEST_CONVERSATION_DATA,//friendship_id: string
 	
 	//TO CLIENT
-	FRIENDS_LIST,//friends: FriendsSchema[]
+	FRIENDS_LIST,//friends: FriendsSchema[], awaiting_conversations: [friendship_id: string]
 	FRIEND_REQUESTS_LIST,//potential_friends: PublicAccountSchema[]
 	REQUESTED_FRIENDS_LIST,//requested_friends: PublicAccountSchema[]
 	ON_FRIEND_REQUEST_SENT,//potential_friend: PublicAccountSchema

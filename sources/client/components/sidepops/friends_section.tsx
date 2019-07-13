@@ -44,6 +44,7 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 		Social.on(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, this.onRequestUpdate);
 		
 		NotificationsIndicator.close(COMMON_LABELS.FRIEND_REQUEST);//friends request are read
+		NotificationsIndicator.close(COMMON_LABELS.PENDING_FRIEND_REQUESTS);
 	}
 	
 	componentWillUnmount() {

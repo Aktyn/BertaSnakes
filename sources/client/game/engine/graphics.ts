@@ -1,7 +1,7 @@
 import Assets from './assets';
 import Utils from '../../utils/utils';
 
-let CANVAS: HTMLCanvasElement, GL: WebGLRenderingContext, EXT: WEBGL_draw_buffers, aspect: number;
+let CANVAS: HTMLCanvasElement, GL: WebGLRenderingContext, /*EXT: WEBGL_draw_buffers,*/ aspect: number;
 let initialized = false;
 
 let fullscreen_framebuffers: ExtendedFramebuffer[] = [];
@@ -44,14 +44,14 @@ function loadContext() {
 	try {//premultipliedAlpha
 		GL = <WebGLRenderingContext>CANVAS.getContext('webgl', {antialias: true, alpha: false});
 
-		EXT = 	GL.getExtension('WEBGL_draw_buffers') || 
+		/*EXT = 	GL.getExtension('WEBGL_draw_buffers') ||
 				GL.getExtension("OES_draw_buffer") ||
 					GL.getExtension("MOZ_OES_draw_buffer") ||
-				GL.getExtension("WEBKIT_OES_draw_buffer");
+				GL.getExtension("WEBKIT_OES_draw_buffer");*/
 		if(!GL)
 			throw new Error('Cannot acquire webgl context');
-		if(!EXT)
-			throw new Error('Browser does not support "draw buffers" webgl extension');
+		//if(!EXT)
+		//	throw new Error('Browser does not support "draw buffers" webgl extension');
 		
 	}
 	catch(e) {

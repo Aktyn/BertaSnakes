@@ -26,13 +26,12 @@ $bottomSize: 20px;
 			right: 0px;
 			top: 0px;
 			
-			transform: translateZ(-8px) scale(2);
+			transform: translateZ(-6px) scale(1.75);
             transform-origin: center;
 
 			background-image: url('../img/header_bgs/header2.jpg');
 			background-repeat: repeat;
 			background-size: cover;
-			//background-attachment: fixed;
 			//filter: blur(5px);
 
 			z-index: 1;
@@ -40,8 +39,9 @@ $bottomSize: 20px;
 
 		.header-content {
 			//background-color: #006064a0;
-			background-color: rgba(nth($palette, 6), 0.66);
-
+			//background-color: rgba(nth($palette, 6), 0.66);
+			background: linear-gradient(45deg, rgba(nth($palette, 6), 0.66), rgba(nth($palette, 7), 0.66));
+			
 			* {
 				font-family: LuckiestGuy, Roboto-Regular, Arial, serif;
 			}
@@ -209,9 +209,14 @@ $bottomSize: 20px;
 		}
 	}
 	
-	@media (max-width: 400px) {
+	@media (max-width: 700px) {
 		.upper {
 			height: $mobileSize;
+			
+			.play-btn-wrapper > * {
+				height: min($mobileSize, $playBtnSize) !important;
+				line-height: min($mobileSize, $playBtnSize) !important;
+			}
 		}
 		.navigator-account {
 			display: initial !important;

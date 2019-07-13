@@ -9,6 +9,8 @@ const TIMESTAMP_SAMPLES = 10;
 let connections: Map<string, SocialConnection[]> = new Map();
 
 export default class SocialConnection {
+	public static awaiting_messages: Map<string, Set<string>> = new Map();
+	
 	private readonly socket: any;
 	
 	public readonly account: AccountSchema;
@@ -116,8 +118,16 @@ export default class SocialConnection {
 			}
 		}
 		
+		let awaiting_conversations: string[] = [];
+		
+		let awaits = SocialConnection.awaiting_messages.get(this.account.id);
+		if(awaits) {
+			awaiting_conversations = Array.from(awaits);
+			SocialConnection.awaiting_messages.delete(this.account.id);
+		}
+		
 		//distribute
-		this.send({type: SOCIAL_CODES.FRIENDS_LIST, friends: this.friends});
+		this.send({type: SOCIAL_CODES.FRIENDS_LIST, friends: this.friends, awaiting_conversations});
 	}
 	
 	private async loadFriendRequests() {

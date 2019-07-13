@@ -18,7 +18,7 @@ export default class Layout extends React.Component<LayoutProps, any> {
 	}
 
 	render() {
-		return <div className='layout-main'>
+		return <div className='layout-main' id={'layout'}>
 			<Header compact={this.props.compactHeader}/>
 			<div className='layout-content'>{this.props.children}</div>
 			<Footer/>

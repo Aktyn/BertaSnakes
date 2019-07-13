@@ -29,9 +29,9 @@ async function loginFromToken() {
 		if(res.error === ERROR_CODES.SUCCESS && typeof res.account === 'object' &&
 			typeof res.account.id === 'string' && typeof res.account.username === 'string') 
 		{
-			console.log('Logged in via token', current_account);
 			onAccountData(res.account);
 			Social.connect(token as string);
+			console.log('Logged in via token', current_account);
 			return {error: ERROR_CODES.SUCCESS};
 		}
 		else

@@ -116,11 +116,11 @@ $targetW: 400px;
 					 position: absolute;
 					 left: 0px;
 					 top: 0px;
-					 background-image: url('../img/icons/arrow_down.svg');
+					 background-image: url('../img/icons/arrow_left.svg');
 					 background-size: 80%;
 					 background-position: center;
 					 float: left;
-					 transform: rotate(90deg);
+					 //transform: rotate(90deg);
 				 }
 				 opacity: 0.5;
 				
@@ -182,39 +182,6 @@ $targetW: 400px;
 					justify-self: center;
 				}
 			}
-		}
-	}
-	
-	.labeled-section {
-		$labelSize: 30px;
-		
-		display: block;
-		
-		border: 1px solid #B0BEC5;
-		border-top: none;
-		padding-bottom: 10px;
-		margin: ($labelSize / 2) 10px 10px 10px;
-		
-		& > label:first-child {
-			height: $labelSize;
-			transform: translateY(-$labelSize / 2);
-			margin-bottom: -$labelSize / 2;
-		}
-	}
-	
-	.separating-label {
-		display: grid;
-		grid-template-columns: 1fr fit-content(100%) 1fr;
-		align-items: center;
-		grid-column-gap: 10px;
-		margin: 5px 0px;
-		
-		&::before, &::after {
-			content: "";
-			display: block;
-			height: 1px;
-			width: auto;
-			background-color: #B0BEC5;
 		}
 	}
 	

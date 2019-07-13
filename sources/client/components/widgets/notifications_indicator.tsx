@@ -11,7 +11,8 @@ export const enum COMMON_LABELS {
 	FRIEND_REQUEST = 'New friend request',
 	FRIEND_REQUEST_ACCEPTED = 'New friend: ',
 	FRIEND_REQUEST_REJECTED = ' rejected friend request',
-	FRIEND_REMOVED = ' ended friendship'
+	FRIEND_REMOVED = ' ended friendship',
+	PENDING_FRIEND_REQUESTS = 'Pending friends: '
 }
 
 export interface NotificationSchema<DataType> {
@@ -77,7 +78,7 @@ export default class NotificationsIndicator extends React.Component<any, Notific
 	}
 	
 	public static close(content: string) {//close notification by its content
-		let index = notifications.findIndex(n => n.content === content);
+		let index = notifications.findIndex(n => n.content.includes(content));
 		if(index === -1)
 			return false;
 		
@@ -183,6 +184,10 @@ export default class NotificationsIndicator extends React.Component<any, Notific
 		NotificationsIndicator.close(notification.content);
 	}
 	
+	private closeActive() {
+		this.setState({active_notification: null});
+	}
+	
 	private renderPopping(notification: GenericNotificationSchema) {
 		//NOTE: unique key may be needed to restart popup animation
 		return <div className={'side-notification'} key={notification.unique_id} onClick={() => {
@@ -200,7 +205,6 @@ export default class NotificationsIndicator extends React.Component<any, Notific
 		</div>;
 	}
 	
-	// noinspection JSMethodCanBeStatic
 	private renderList() {
 		return <div className={'list'} ref={el => this.list_div = el}>{notifications.map(notification => {
 			return <div key={notification.unique_id} onClick={() => {
@@ -214,11 +218,14 @@ export default class NotificationsIndicator extends React.Component<any, Notific
 					event.stopPropagation();
 				}} />
 			</div>;
-		})}</div>;
-	}
-	
-	private closeActive() {
-		this.setState({active_notification: null});
+		})}
+			{notifications.length > 1 && <div style={{display: 'block'}}>
+				<span className={'content'} style={{textAlign: 'center'}} onClick={(event) => {
+					notifications.forEach(n => this.closeNotification(n));
+					event.stopPropagation();
+				}}>DISCARD ALL</span>
+			</div>}
+		</div>;
 	}
 	
 	render() {

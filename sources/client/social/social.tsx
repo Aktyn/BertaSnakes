@@ -8,6 +8,7 @@ import Events from "../utils/events";
 import {FriendSchema, PublicAccountSchema} from "../../server/database/database";
 import AccountSidepop, {VIEWS} from "../components/sidepops/account_sidepop";
 import UserSidepop from "../components/sidepops/user_sidepop";
+import Chat from './chat';
 
 export {FriendSchema} from '../../server/database/database';
 
@@ -36,14 +37,36 @@ function handleMessage(message: SocialNetworkPackage) {
 		default:
 			throw new Error('Unknown social message type: ' + message['type']);
 			
-		case SOCIAL_CODES.FRIENDS_LIST:
+		case SOCIAL_CODES.FRIENDS_LIST://friends: FriendsSchema[], awaiting_conversations: [friendship_id: string]
 			friends = message['friends'];
 			sortFriends();
 			events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
+			
+			for(let friendship_id of message['awaiting_conversations'] as string[]) {
+				let friendship = Social.getFriendByFriendshipID(friendship_id);
+				if(friendship) {
+					NotificationsIndicator.push({
+						content: Chat.getNotificationText(friendship.friend_data.username),
+						custom_data: {user_id: friendship.friend_data.id},
+						render: (custom_data, onClose) => {
+							return <UserSidepop account_id={custom_data.user_id} onClose={onClose} focus_chat={true}/>;
+						}
+					} as NotificationSchema<{ user_id: string }>);
+				}
+			}
 			break;
 		case SOCIAL_CODES.FRIEND_REQUESTS_LIST://potential_friends: PublicAccountSchema[]
 			potential_friends = message['potential_friends'];
 			events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
+			if(potential_friends.length > 0) {
+				NotificationsIndicator.push({
+					content: COMMON_LABELS.PENDING_FRIEND_REQUESTS + potential_friends.length,
+					custom_data: {},
+					render: (custom_data, onClose) => {
+						return <AccountSidepop onClose={onClose} force_view={VIEWS.FRIENDS} />;
+					}
+				} as NotificationSchema<{ user_id: string }>);
+			}
 			break;
 		case SOCIAL_CODES.REQUESTED_FRIENDS_LIST://requested_friends: PublicAccountSchema[]
 			requested_friends = message['requested_friends'];
@@ -219,7 +242,7 @@ function send(data: SocialNetworkPackage) {
 	}
 }
 
-export default {
+const Social = {
 	connect(token: string) {
 		if(socket !== null) {
 			console.log('Social Websocket connection already established');
@@ -323,4 +346,6 @@ export default {
 	requestFriendshipConversationData(friendship_id: string) {
 		send({type: SOCIAL_CODES.REQUEST_CONVERSATION_DATA, friendship_id});
 	}
-}
+};
+
+export default Social;
