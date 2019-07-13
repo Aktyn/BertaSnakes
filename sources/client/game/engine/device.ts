@@ -125,24 +125,24 @@ export default {
 		return info.orientation;
 	},
 
-	async goFullscreen() {
+	goFullscreen() {
 		try {
 			if(document.documentElement === null)
 				return false;
 			if (document.documentElement.requestFullscreen)
-				await document.documentElement.requestFullscreen();
+				document.documentElement.requestFullscreen().catch(console.error);
 				//@ts-ignore
 			else if (document.documentElement.mozRequestFullScreen)
 				//@ts-ignore
-				await document.documentElement.mozRequestFullScreen();
+				document.documentElement.mozRequestFullScreen();
 				//@ts-ignore
 			else if (document.documentElement.webkitRequestFullScreen)
 				//@ts-ignore
-				await document.documentElement.webkitRequestFullScreen();
+				document.documentElement.webkitRequestFullScreen();
 				//@ts-ignore
 			else if (document.documentElement.msRequestFullscreen)
 				//@ts-ignore
-				await document.documentElement.msRequestFullscreen();
+				document.documentElement.msRequestFullscreen();
 			return true;
 		}
 		catch(e) {

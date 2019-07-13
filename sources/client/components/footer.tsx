@@ -25,7 +25,7 @@ export default class extends React.Component<any, any> {
 		return <div className='footer'>
 			<span>Last update: {update_time}</span>
 			<span>Copyright &copy; 2019 - Aktyn <img alt='author logo' src={aktyn_logo} /> - All rights reserved</span>
-			<a href='https://github.com/Aktyn' target='_blank'>https://github.com/Aktyn</a>
+			<a href='https://github.com/Aktyn' target='_blank' rel="noreferrer">https://github.com/Aktyn</a>
 		</div>;
 	}
 }

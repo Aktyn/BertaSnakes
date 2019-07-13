@@ -3,13 +3,33 @@
 .homepage {
 	overflow: hidden;
 	
-	@keyframes appear {
+	@keyframes appear-home {
 		0% {
 			transform: translateY(60px) scale(3, 0.3);
 			opacity: 0;
 		}
 		100% {
 			transform: translateY(0px) scale(1, 1);
+			opacity: 1;
+		}
+	}
+	
+	@keyframes fade-in-desc {
+		0% {
+			opacity: 0;
+			transform: scale(1.2);
+		}
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+	
+	@keyframes fade-in-opacity {
+		0% {
+			opacity: 0;
+		}
+		100% {
 			opacity: 1;
 		}
 	}
@@ -42,6 +62,9 @@
 			
 			transform: translateZ(-6px) scale(1.75);
 			transform-origin: top;
+			
+			//lazy loading animation
+			animation: fade-in-opacity 1.5s cubic-bezier(.36,.07,.19,.97);
 		}
 		
 		@media (max-width: 600px) {//move play button to navigator
@@ -71,19 +94,8 @@
 			background-size: cover;
 			background-position: center;
 			
-			@keyframes fade-in {
-				0% {
-					opacity: 0;
-					transform: scale(1.2);
-				}
-				100% {
-					opacity: 1;
-					transform: scale(1);
-				}
-			}
-			
 			opacity: 0;
-			animation: fade-in 0.6s 0.4s cubic-bezier(.36,.07,.19,.97) forwards;
+			animation: fade-in-desc 0.6s 0.4s cubic-bezier(.36,.07,.19,.97) forwards;
 		}
 		
 		height: 256px;
@@ -110,6 +122,10 @@
 		& > section {
 			width: 400px;
 			max-width: 100vw;
+			
+			& > * {
+				margin: auto;
+			}
 		}
 	}
 	
@@ -124,16 +140,16 @@
 		
 		padding: 30px 8px;
 		
-		& > section {
+		& > section {//card
 			width: 250px;
 			height: 300px;
 			font-size: 14px;
-			padding: 0px 5px;
+			padding: 0px 15px;
 			margin: 10px 5px;
-			box-shadow: 0px 2px 4px #0008;
-			border-radius: 8px;
-			border: 1px solid nth($palette, 3);
-			background-color: #fff;
+			//box-shadow: 0px 2px 4px #0008;
+			//border-radius: 8px;
+			//border: 1px solid nth($palette, 3);
+			//background-color: #fff;
 			
 			display: grid;
 			grid-template-columns: auto;
@@ -145,7 +161,7 @@
 			visibility: hidden;
 			
 			&.appear {
-				animation: appear 0.6s cubic-bezier(.36,.07,.19,.97) forwards;
+				animation: appear-home 0.6s cubic-bezier(.36,.07,.19,.97) forwards;
 				visibility: visible;
 				
 				@media (min-width: 800px) {
@@ -180,7 +196,7 @@
 	.appear-animation > * {
 		display: block;
 		opacity: 0;
-		animation: appear 0.6s cubic-bezier(.36,.07,.19,.97) forwards;
+		animation: appear-home 0.6s cubic-bezier(.36,.07,.19,.97) forwards;
 		
 		@for $i from 1 through 10 {
 			&:nth-child(#{$i}) {

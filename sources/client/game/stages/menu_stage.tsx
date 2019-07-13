@@ -121,7 +121,7 @@ export default class extends StageBase<MenuProps, MenuState> {
 							<span>Forcing orientation isn't available on this device</span>
 							:
 							<button onClick={async () => {
-								await Device.goFullscreen();
+								Device.goFullscreen();
 								if( false === await Device.setOrientation(ORIENTATION.LANDSCAPE) )
 									this.setState({force_orientation_error: true});
 							}}>
@@ -176,8 +176,8 @@ export default class extends StageBase<MenuProps, MenuState> {
 				<div className={'right-side'}>
 					{
 						this.state.show_fullscreen_icon && <>
-							<button className={`fullscreen shaky-icon`} onClick={async () => {
-								await Device.goFullscreen();
+							<button className={`fullscreen shaky-icon`} onClick={() => {
+								Device.goFullscreen();
 							}}/>
 							<span className='separator'/>
 						</>

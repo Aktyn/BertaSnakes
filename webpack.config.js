@@ -52,8 +52,11 @@ module.exports = {
 			})
 		],
 		usedExports: true,
+		runtimeChunk: 'single',
 		splitChunks: {
-			//chunks: 'all',
+			chunks: 'all',
+			maxInitialRequests: Infinity,
+      		minSize: 0,
 			automaticNameDelimiter: '-',
 
 			cacheGroups: {
@@ -73,16 +76,10 @@ module.exports = {
 
 	module: {
 		rules: [
-			{
+		    {
 				test: /\.(ts|tsx)$/,
-				loader: 'ts-loader',
-				//loader: 'awesome-typescript-loader',
-			},
-			/*{
-				test: /\.handlebars$/, 
-				loader: "handlebars-loader" 
-			},*/
-			{
+				loader: 'ts-loader'
+			}, {
 				test: /\.(scss|css)$/,
 				use: [
 					MiniCssExtractPlugin.loader,
@@ -110,8 +107,7 @@ module.exports = {
 						options: {}
 					}
 				]
-			},
-			{
+			}, {
 				test: /\.(jpe?g|png|gif|svg|ttf|ogg)$/,
 				use: [
 					{
@@ -145,8 +141,7 @@ module.exports = {
 						}
 					}
 				]
-			},
-			{
+			}, {
 				test: /\.(fs|vs|glsl|txt)$/i,
 				use: 'raw-loader',
 			}

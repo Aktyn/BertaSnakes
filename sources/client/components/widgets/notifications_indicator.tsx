@@ -29,6 +29,16 @@ type GenericNotificationSchema = NotificationSchema<any>;
 let notifications: GenericNotificationSchema[] = [];
 let notification_indicators: Set<NotificationsIndicator> = new Set();
 
+let sound_path = require('../../sounds/notification.ogg');
+let notification_sound = (() => {
+	let element = document.createElement('audio');
+	element.setAttribute('src', sound_path);
+	element.setAttribute('preload', 'auto');
+	element.setAttribute('controls', 'none');
+	element.volume = 0.3;
+	return element;
+})();
+
 // setTimeout(() => {//tests
 // 	NotificationsIndicator.push({
 // 		content: 'test notification',
@@ -64,8 +74,10 @@ export default class NotificationsIndicator extends React.Component<any, Notific
 			...notification
 		};
 		
-		if( document.visibilityState !== 'visible' )
+		if( document.visibilityState !== 'visible' ) {
 			document.title = notification.content;
+			notification_sound.play().catch(console.error);
+		}
 		
 		//check whether notification already exists
 		if( notifications.findIndex(n => n.content === notification.content) !== -1 ) {

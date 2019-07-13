@@ -46,7 +46,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 				<AccountWidget />
 			</div>
 			<div className='header-bottom'>
-				<Link to='/' className='home-link'/>
+				<Link to='/' className='home-link' aria-label={'homepage-link'}/>
 				<NotificationsIndicator />
 			</div>
 			{this.state.show_sidepop && <AccountSidepop onClose={() => {

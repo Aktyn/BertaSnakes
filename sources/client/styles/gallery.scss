@@ -1,0 +1,43 @@
+.gallery-main {
+	text-align: center;
+	
+	//TODO: more custom styles
+	.gallery-container {
+		margin: auto;
+		//background-color: #0008;
+		
+		.image-gallery-content:not(.fullscreen) {
+		    margin: 20px auto !important;
+		
+		    .image-gallery-slide img {
+		        max-height: 506.25px;
+		        width: auto !important;
+		        max-width: 100% !important;
+		    }
+		
+		    .image-gallery-slide {
+		        background-color: transparent !important;
+		    }
+		}
+		
+		.image-gallery-content.fullscreen {
+		    .image-gallery-slide img {
+		        width: auto !important;
+		        max-height: calc(100vh - 82px) !important;
+		        max-width: 100% !important;
+		    }
+		}
+		
+		.image-gallery-fullscreen-button::before, .image-gallery-play-button::before {
+		    transform: scale(0.9) !important;
+		}
+		
+		.image-gallery-fullscreen-button:hover::before, .image-gallery-play-button:hover::before {
+		    transform: scale(1) !important;
+		}
+		
+		button {
+			box-shadow: none;
+		}
+	}
+}

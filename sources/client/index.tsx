@@ -29,6 +29,9 @@ function __async(_loader: () => any) {
 	});
 }
 
+const Game = __async(() => import(/* webpackChunkName: "game", webpackPrefetch: true */ './game/core'));
+const Gallery = __async(() => import(/* webpackChunkName: "gallery", webpackPrefetch: true */ './pages/gallery'));
+
 function NotFound() {
 	return <div><p>SORRY<br/>REQUESTED PAGE WAS NOT FOUND</p></div>;
 }
@@ -58,15 +61,12 @@ class LayoutRoutes extends React.Component<any, {compactHeader: boolean}> {
 				<Route path='/rankings' component={Rankings}/>
 				<Route path='/games/:id' component={GameDetails}/>
 				<Route path='/users/:id' component={UserDetails}/>
+				<Route path='/gallery' component={Gallery}/>
 				<Route component={NotFound}/>
 			</Switch>
 		</Layout>;
 	}
 }
-
-const Game = __async(
-	() => import(/* webpackChunkName: "game", webpackPrefetch: true */ './game/core')
-);
 
 document.title = Config.PAGE_TITLE;
 

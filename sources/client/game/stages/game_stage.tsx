@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import StageBase, {BaseProps, BaseState} from './stage_base';
 import MenuStage from './menu_stage';
 import Network from '../engine/network';
@@ -21,9 +20,9 @@ import SettingsSidepop from '../../components/sidepops/settings_sidepop';
 import Settings from '../engine/settings';
 import Device, {EVENTS, ORIENTATION} from '../engine/device';
 import NotificationsIndicator from '../../components/widgets/notifications_indicator';
+import {MOVEMENT_FLAGS} from "../../../common/game/common/movement";
 
 import '../../styles/game_stage.scss';
-import {MOVEMENT_FLAGS} from "../../../common/game/common/movement";
 
 const arrow_down = require('../../img/icons/arrow_down.svg');
 const arrow_left = require('../../img/icons/arrow_left.svg');
@@ -95,7 +94,7 @@ export default class extends StageBase<BaseProps, GameState> {
 		notifications: [],
 		
 		show_settings: false,
-		show_fullscreen_icon: false
+		show_fullscreen_icon: Device.isMobile()
 	};
 
 	constructor(props: BaseProps) {
@@ -139,11 +138,11 @@ export default class extends StageBase<BaseProps, GameState> {
 		
 		Device.on(EVENTS.FULLSCREEN_CHANGE, this.fullscreen_change_listener);
 		
-		if( Device.isMobile() && !Device.isFullscreen() ) {//go fullscreen automatically on mobiles
+		if( Device.isMobile()/* && !Device.isFullscreen() */) {//go fullscreen automatically on mobiles
 			if(process.env.NODE_ENV !== 'development') {
-				Device.goFullscreen().then(() => {
+				Device.goFullscreen();//.then(() => {
 					Device.setOrientation(ORIENTATION.LANDSCAPE).catch(console.error);
-				});
+				//});
 			}
 		}
 		else
@@ -165,9 +164,8 @@ export default class extends StageBase<BaseProps, GameState> {
 	}
 	
 	private onFullscreenChange(fullscreen: boolean) {
-		if( Device.isMobile() ) {
+		if( Device.isMobile() )
 			this.setState({show_fullscreen_icon: !fullscreen});
-		}
 	}
 
 	private initListeners(): ListenersSchema {
@@ -483,8 +481,8 @@ export default class extends StageBase<BaseProps, GameState> {
 					
 					<span>{
 						this.state.show_fullscreen_icon && <>
-							<button className={`fullscreen shaky-icon`} onClick={async () => {
-								await Device.goFullscreen();
+							<button className={`fullscreen shaky-icon`} onClick={() => {
+								Device.goFullscreen();
 								if( Device.isMobile() )
 									Device.setOrientation(ORIENTATION.LANDSCAPE).catch(console.error);
 							}}/>
