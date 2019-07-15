@@ -46,9 +46,8 @@ export class Connection {
 		{[index: string]: (T & Exclude<T, string>)} & {type: NetworkCodes}) 
 	{
 		this.send(data);
-		if(data.type === NetworkCodes.END_GAME && this.user && this.user.account_id) {
+		if(data.type === NetworkCodes.END_GAME && this.user && this.user.account_id)
 			Connection.updateSocialIsPlayingState(this.user.account_id, false);
-		}
 	}
 
 	public sendBuffer(buffer: Float32Array) {
@@ -64,16 +63,22 @@ export class Connection {
 	private static updateSocialRoomData(account_id: string, room_data: RoomCustomData | null) {
 		let social_connections = SocialConnection.getConnections(account_id);
 		if(social_connections) {
-			for(let conn of social_connections)
-				conn.updateRoomData(room_data);
+			let distributed = false;
+			for(let conn of social_connections) {
+				conn.updateRoomData(room_data, distributed);
+				distributed = true;
+			}
 		}
 	}
 	
 	private static updateSocialIsPlayingState(account_id: string, is_playing: boolean) {
 		let social_connections = SocialConnection.getConnections(account_id);
 		if(social_connections) {
-			for(let conn of social_connections)
-				conn.updatePlayingState(is_playing);
+			let distributed = false;
+			for(let conn of social_connections) {
+				conn.updatePlayingState(is_playing, distributed);
+				distributed = true;
+			}
 		}
 	}
 

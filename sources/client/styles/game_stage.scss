@@ -33,18 +33,46 @@ $togglerSize: 30px;
 		overflow: auto;
 
 		padding: 0px 5px;
+		
+		font-size: 13px;
+		@media (max-width: 800px) {//shrink some GUI elements on mobiles to not hover too much of a game map
+			& {
+				font-size: 70%;
+				width: $leftWidth * 0.8;
+				
+				.notifications-container {
+					width: $leftWidth * 0.8;
+				}
+			}
+			
+			& > section {
+				width: 100%;
+				
+				.player-info-grid {
+					& > .player {
+						height: 16px !important; //20*0.8
+						line-height: 16px !important; //20*0.8
+					}
+					& > .kills, & > .deaths {
+						&::after {
+							height: 12px !important;
+							width: 12px !important;
+						}
+					}
+				}
+			}
+		}
 
 		& > section {
 			margin-top: 10px;
 			background-color: rgba( nth($palette, 2), 0.75);
 			border: 1px solid #fff3;
 			border-radius: 4px;
-
-			font-size: 13px;
+			
 			font-weight: bold;
 			text-align: left;
 
-			padding: 5px;
+			padding: 0px;
 
 			&.bars {
 				padding: 0px;

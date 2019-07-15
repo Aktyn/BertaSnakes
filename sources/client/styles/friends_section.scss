@@ -15,10 +15,25 @@
 				
 				display: inline-block;
 				margin-left: 5px;
-				width: $size;
+				/*width: $size;
 				height: $size;
-				border-radius: $size;
+				border-radius: $size;*/
+				font-size: 16px;
 			}
+		}
+	}
+	
+	.legend {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		
+		& > * > span:first-child {
+			font-size: 16px;
+		}
+		
+		@media (max-width: 300px) {
+			grid-template-columns: 1fr 1fr;
+			grid-template-rows: fit-content(100%) fit-content(100%);
 		}
 	}
 	

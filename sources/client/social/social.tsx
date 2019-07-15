@@ -168,6 +168,7 @@ function handleMessage(message: SocialNetworkPackage) {
 			}
 		}   break;
 		case SOCIAL_CODES.ON_FRIEND_REQUEST_ACCEPTED: {//accepted_friend_id: string, online: boolean
+														//room_data: RoomCustomData[] | null, is_playing: boolean
 			let accepted_friend_index = potential_friends
 				.findIndex(f => f.id === message['accepted_friend_id']);
 			if(accepted_friend_index !== -1) {
@@ -177,8 +178,8 @@ function handleMessage(message: SocialNetworkPackage) {
 					friendship_id: message['friendship_id'],
 					is_left: message['is_left'],
 					friend_data: potential_friends[accepted_friend_index],
-					room_data: null,//null and true combination means there is no information of it yet
-					is_playing: true
+					room_data: message['room_data'],
+					is_playing: message['is_playing']
 				});
 				sortFriends();
 				potential_friends.splice(accepted_friend_index, 1);//it is no more potential friend
@@ -198,8 +199,8 @@ function handleMessage(message: SocialNetworkPackage) {
 					friendship_id: message['friendship_id'],
 					is_left: message['is_left'],
 					friend_data: new_friend,
-					room_data: null,//null and true combination means there is no information of it yet
-					is_playing: true
+					room_data: message['room_data'],
+					is_playing: message['is_playing']
 				});
 				sortFriends();
 				requested_friends.splice(requested_friend_index, 1);//it is no more requested friend

@@ -26,8 +26,10 @@ const enum SOCIAL_CODES {
 	ON_FRIEND_REMOVED,//friend_id: string
 	ON_FRIEND_REQUEST_REJECTED,//potential_friend_id: string
 	ON_ACCOUNT_REJECTED_FRIEND_REQUEST,//requested_friend_id: string
-	ON_FRIEND_REQUEST_ACCEPTED,//accepted_friend_id: string, online: boolean, friendship_id: string, is_left: boolean
-	ON_ACCOUNT_ACCEPTED_FRIEND_REQUEST,//requested_friend_id: string, friendship_id: string, is_left: boolean
+	ON_FRIEND_REQUEST_ACCEPTED, //accepted_friend_id: string, online: boolean, friendship_id: string, is_left: boolean,
+								// room_data: RoomCustomData[] | null, is_playing: boolean
+	ON_ACCOUNT_ACCEPTED_FRIEND_REQUEST, //requested_friend_id: string, friendship_id: string, is_left: boolean,
+										//online: boolean, room_data: RoomCustomData[] | null, is_playing: boolean
 	ON_SOCIAL_MESSAGE,//friendship_id: string, //message: SocialMessage
 	SPAM_WARNING,
 	CONVERSATION_DATA,//friendship_id: string, conversation: SocialMessage[]

@@ -4,11 +4,11 @@ import Social, {EVENT_NAMES, FriendSchema} from '../../social/social';
 import ServerApi from '../../utils/server_api';
 import ERROR_CODES from "../../../common/error_codes";
 import UserSidepop from './user_sidepop';
-
-import '../../styles/friends_section.scss';
 import {PublicAccountSchema} from "../../../server/database/core";
 import PotentialFriendsTable from "./potential_friends_table";
 import NotificationsIndicator, {COMMON_LABELS} from "../widgets/notifications_indicator";
+
+import '../../styles/friends_section.scss';
 
 interface FriendsSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -66,15 +66,17 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 	}
 	
 	private renderFriendsList() {
-		return this.state.friends.map(({friend_data, online}) => {
+		return this.state.friends.map(({friend_data, online, room_data, is_playing}) => {
 			return <button onClick={() => {
 				this.setState({selected_player: friend_data.id});
 			}} key={friend_data.id}>
 				<img src={ServerApi.getAvatarPath(friend_data.avatar)} alt={'friend\'s avatar'} />
 				<span>{friend_data.username}</span>
 				<span className={'status-indicator'} style={{
-					backgroundColor: online ? '#8BC34A' : '#e57373'
-				}} />
+					color: online ? '#8BC34A' : '#e57373'
+				}}>{
+					is_playing ? <span>&#11208;</span> : (room_data ? <span>&#9632;</span> : <span>&#9679;</span>)
+				}</span>
 			</button>;
 		});
 	}
@@ -99,6 +101,12 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 				this.state.potential_friends.length > 0 &&
 					<div className={'fader-in'}>{this.renderFriendRequests()}</div>
 			}
+			<div className={'fader-in legend'}>
+				<div><span style={{color: '#8BC34A'}}>&#9679;</span><span>&nbsp;- online</span></div>
+				<div><span style={{color: '#e57373'}}>&#9679;</span><span>&nbsp;- offline</span></div>
+				<div><span style={{color: '#8BC34A'}}>&#9632;</span><span>&nbsp;- in room</span></div>
+				<div><span style={{color: '#8BC34A'}}>&#11208;</span><span>&nbsp;- playing</span></div>
+			</div>
 			<div className={'friends-list fader-in'}>{
 				this.state.friends.length > 0 ? this.renderFriendsList() : <span>No friends yet.</span>
 			}</div>

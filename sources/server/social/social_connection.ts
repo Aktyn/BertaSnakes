@@ -18,6 +18,9 @@ export default class SocialConnection {
 	private potential_friends: PublicAccountSchema[] = [];
 	private requested_friends: PublicAccountSchema[] = [];
 	
+	private room_data: RoomCustomData | null = null;
+	private is_playing = false;
+	
 	private message_timestamps: number[] = [];//for anti-spam system
 	
 	  //----------------------------------//
@@ -88,6 +91,14 @@ export default class SocialConnection {
 		this.socket.send( JSON.stringify(data) );
 	}
 	
+	public getRoomData() {
+		return this.room_data;
+	}
+	
+	public getIsPlaying() {
+		return this.is_playing;
+	}
+	
 	public getFriend(account_id: string) {
 		return this.friends.find(f => f.friend_data.id === account_id);
 	}
@@ -107,9 +118,12 @@ export default class SocialConnection {
 		//add online status for each friend
 		for(let friend_schema of db_res.friends) {
 			let friend_connections = connections.get(friend_schema.friend_data.id);
+			let main_connection = friend_connections ? friend_connections[0] : undefined;
 			this.friends.push({
 				...friend_schema,//friendship_id, friend_data
-				online: friend_connections !== undefined
+				online: friend_connections !== undefined,
+				room_data: main_connection ? main_connection.getRoomData() : null,
+				is_playing: main_connection ? main_connection.getIsPlaying() : false
 			});
 			
 			if( friend_connections ) {
@@ -152,7 +166,12 @@ export default class SocialConnection {
 		this.send({type: SOCIAL_CODES.REQUESTED_FRIENDS_LIST, requested_friends: this.requested_friends});
 	}
 	
-	public updateRoomData(room_data: RoomCustomData | null) {
+	public updateRoomData(room_data: RoomCustomData | null, prevent_distribution = false) {
+		this.room_data = room_data;
+		
+		if(prevent_distribution)
+			return;
+		
 		//distribute to every friend
 		for(let friend of this.friends) {
 			if( !friend.online )//skip offline friend
@@ -165,9 +184,17 @@ export default class SocialConnection {
 					friend_connection.onFriendRoomDataUpdate(this.account.id, room_data);
 			}
 		}
+		
+		if(room_data === null)//additionally make sure the playing flag is false
+			this.updatePlayingState(false);
 	}
 	
-	public updatePlayingState(is_playing: boolean) {
+	public updatePlayingState(is_playing: boolean, prevent_distribution = false) {
+		this.is_playing = is_playing;
+		
+		if(prevent_distribution)
+			return;
+		
 		//distribute to every friend
 		for(let friend of this.friends) {
 			if( !friend.online )//skip offline friend
@@ -269,54 +296,65 @@ export default class SocialConnection {
 	}
 	
 	//account accepted someone's request
-	public onRequestAccepted(accepted_friend_id: string, friendship_id: string, is_left: boolean, is_online: boolean) {
+	public onRequestAccepted(accepted_friend_id: string, friendship_id: string, is_left: boolean,
+	                         accepted_friend_connections: SocialConnection[] | undefined)
+	{
 		let accepted_friend_index = this.potential_friends.findIndex(f => f.id === accepted_friend_id);
 		if(accepted_friend_index === -1)
 			return false;
 		
+		let main_connection = accepted_friend_connections ? accepted_friend_connections[0] : undefined;
+		
+		const common_data = {
+			friendship_id,
+			online: !!accepted_friend_connections,
+			room_data: main_connection ? main_connection.getRoomData() : null,
+			is_playing: main_connection ? main_connection.getIsPlaying() : false,
+			is_left,
+		};
+		
 		//move potential friend to friends array
 		this.friends.push({
-			friendship_id,
 			friend_data: this.potential_friends[accepted_friend_index],
-			is_left,
-			online: is_online,
-			room_data: null,
-			is_playing: false
+			...common_data
 		});
 		this.potential_friends.splice(accepted_friend_index, 1);//it is no more potential friend
 		
 		this.send({
 			type: SOCIAL_CODES.ON_FRIEND_REQUEST_ACCEPTED,
 			accepted_friend_id,
-			online: is_online,
-			friendship_id,
-			is_left
+			...common_data
 		});
 		return true;
 	}
 	
 	//sent request has been accepted
-	public onAccountAcceptedFriendRequest(requested_friend_id: string, friendship_id: string, is_left: boolean) {
+	public onAccountAcceptedFriendRequest(requested_friend_id: string, friendship_id: string, is_left: boolean,
+	                                      requested_friend_connection: SocialConnection)
+	{
 		let requested_friend_index = this.requested_friends.findIndex(f => f.id === requested_friend_id);
 		if(requested_friend_index === -1)
 			return false;
 		
+		const common_data = {
+			friendship_id,
+			online: true,//obviously he is online because he just accepted request
+			room_data: requested_friend_connection.getRoomData(),
+			is_playing: requested_friend_connection.getIsPlaying(),
+			is_left,
+		};
+		
 		//move requested friend to friends array
 		this.friends.push({
-			friendship_id,
 			friend_data: this.requested_friends[requested_friend_index],
-			is_left,
-			online: true,//obviously he is online because he just accepted request
-			room_data: null,
-			is_playing: false
+			...common_data
 		});
 		this.requested_friends.splice(requested_friend_index, 1);//it is no more requested friend
 		
 		this.send({
 			type: SOCIAL_CODES.ON_ACCOUNT_ACCEPTED_FRIEND_REQUEST,
 			requested_friend_id,
-			friendship_id,
-			is_left
+			...common_data
 		});
 		return true;
 	}

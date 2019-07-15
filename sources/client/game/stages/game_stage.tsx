@@ -130,11 +130,13 @@ export default class extends StageBase<BaseProps, GameState> {
 		}
 		
 		this.preserved_oncontextmenu_event = window.oncontextmenu;
-		window.oncontextmenu = function(event) {
-		     event.preventDefault();
-		     event.stopPropagation();
-		     return false;
-		};
+		if(process.env.NODE_ENV !== 'development') {
+			window.oncontextmenu = function (event) {
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			};
+		}
 		
 		Device.on(EVENTS.FULLSCREEN_CHANGE, this.fullscreen_change_listener);
 		

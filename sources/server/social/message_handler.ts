@@ -70,13 +70,12 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 				break;
 			
 			let accepted_friend_connections = SocialConnection.getConnections(message.user_id);
-			
-			connection.onRequestAccepted(message.user_id, friendship.id, friendship.left, !!accepted_friend_connections);
+			connection.onRequestAccepted(message.user_id, friendship.id, friendship.left, accepted_friend_connections);
 			
 			if(accepted_friend_connections) {
 				for(let accepted_friend_connection of accepted_friend_connections) {
 					accepted_friend_connection.onAccountAcceptedFriendRequest(
-						connection.account.id, friendship.id, !friendship.left);
+						connection.account.id, friendship.id, !friendship.left, connection);
 				}
 			}
 		}   break;
