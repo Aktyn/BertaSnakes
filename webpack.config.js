@@ -64,7 +64,7 @@ module.exports = {
 
 			cacheGroups: {
 				styles: {
-					name: 'styles',
+					name: false,//'styles',
 					test: /\.s?css$/,
 					chunks: 'all',
 					// minChunks: 1,

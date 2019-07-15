@@ -5,6 +5,7 @@ const enum ERROR_CODES {
 	INCORRECT_SERVER_RESPONSE,
 	USERNAME_NOT_FOUND,
 	INCORRECT_PASSWORD,
+	INSUFFICIENT_PERMISSIONS,
 
 	DATABASE_ERROR,
 	SERVER_ERROR,
@@ -56,6 +57,8 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.INCORRECT_SERVER_RESPONSE: return 'Incorrect server response';
 		case ERROR_CODES.USERNAME_NOT_FOUND: 	return 'Username not found';
 		case ERROR_CODES.INCORRECT_PASSWORD: 	return 'Incorrect password';
+		case ERROR_CODES.INSUFFICIENT_PERMISSIONS:return 'Insufficient permissions';
+		
 		case ERROR_CODES.DATABASE_ERROR: 		return 'Database error';
 		case ERROR_CODES.SERVER_ERROR:			return 'Server error';
 		case ERROR_CODES.INCORRECT_DATABASE_RESPONSE: return 'Incorrect database response';

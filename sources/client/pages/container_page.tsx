@@ -29,7 +29,7 @@ export default class ContainerPage extends React.Component<ContainerProps, any> 
 	}
 	
 	render() {
-		return <div className={`container ${this.props.className}`}>
+		return <div className={`container ${this.props.className || ''}`}>
 			{this.props.show_navigator && this.renderNavigator()}
 			{this.props.loading && <Loader color='#ef5350' />}
 			{this.props.error && <div className='error'>{this.props.error}</div>}

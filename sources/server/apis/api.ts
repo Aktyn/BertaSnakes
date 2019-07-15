@@ -10,6 +10,7 @@ import CommonApi from './common';
 import AccountApi from './account';
 import GettersApi from './getters';
 import TransactionsApi from './transactions';
+import StatisticsApi from './statistics';
 
 //CREATING EXAMPLE ACCOUNTS
 /*setTimeout(async () => {
@@ -41,6 +42,7 @@ CommonApi.open(app);
 AccountApi.open(app);
 GettersApi.open(app);
 TransactionsApi.open(app);
+StatisticsApi.open(app);
 
 app.listen(Config.SERVER_PORT, () => console.log(`Server listens on: ${Config.SERVER_PORT}!`));
 

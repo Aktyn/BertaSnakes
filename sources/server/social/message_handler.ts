@@ -129,21 +129,21 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 			
 			//save message in database
 			message.content = message.content.substr(0, Config.MAXIMUM_MESSAGE_LENGTH);
-			let timestamp = Date.now();
-			//console.trace('test: ' + friend_data.friendship_id);
+			//let timestamp = Date.now();
+			
 			let res = await Database.insertMessage(
-				friend_data.friendship_id, friend_data.is_left, message.content, timestamp);
-			if(res.error !== ERROR_CODES.SUCCESS || !res.id)
+				friend_data.friendship_id, friend_data.is_left, message.content);
+			if(res.error !== ERROR_CODES.SUCCESS || !res.id || !res.timestamp)
 				break;
 			
 			let msg: SocialMessage = {
 				id: res.id,
 				left: friend_data.is_left,
-				timestamp: timestamp,
+				timestamp: res.timestamp,
 				content: [<string>message.content]
 			};
 			
-			connection.registerLastMessageTimestamp(timestamp);
+			connection.registerLastMessageTimestamp(res.timestamp);
 			
 			await Conversations.store(friend_data.friendship_id, msg);
 			

@@ -36,7 +36,9 @@ export const enum COLLECTIONS {
 	sessions = 'sessions',//account_id, token, expiration
 	games = 'games',//finish_timestamp, name, map, gamemode, duration, results
 	friendships = 'friendships',
-	social_messages = 'social_messages'
+	social_messages = 'social_messages',
+	user_agents = 'user_agents',
+	visits = 'visits'
 }
 
 export function getCollection(name: string) {
@@ -79,8 +81,8 @@ MongoClient.connect(uri, {
 		{name: 'session_token'});
 	
 	//games
-	await db.collection(COLLECTIONS.games).createIndex({finish_timestamp: 1},
-		{name: 'timestamp_index'});
+	//await db.collection(COLLECTIONS.games).createIndex({finish_timestamp: 1},
+	//	{name: 'timestamp_index'});
 	
 	//friends
 	await db.collection(COLLECTIONS.friendships).createIndex({from: 'hashed'},
@@ -91,22 +93,36 @@ MongoClient.connect(uri, {
 	//social messages
 	await db.collection(COLLECTIONS.social_messages).createIndex({friendship_id: 'hashed'},
 		{name: 'friendship_search'});
-	await db.collection(COLLECTIONS.social_messages).createIndex({timestamp: -1},
-		{name: 'message_time_sorting'});
+	
+	//user agents
+	await db.collection(COLLECTIONS.user_agents).createIndex({agent: 'hashed'},
+		{name: 'user_agent_search'});
+	
+	//visits
+	await db.collection(COLLECTIONS.visits).createIndex({account_id: 'hashed'},
+		{name: 'filter_by_account'});
 	
 	await cleanUpAll();
 	
 	//some precalculations
 	setTotalAccounts( await db.collection(COLLECTIONS.accounts).countDocuments() );
 	
+	//check total sizes of collections and show warning if it is getting too big
+	let total_usage = 0;
+	for(let collection_name of [COLLECTIONS.visits, COLLECTIONS.games, COLLECTIONS.social_messages, COLLECTIONS.accounts]) {
+		let size = await db.collection(collection_name).stats().then(s => s.storageSize + s.totalIndexSize);
+		total_usage += size;
+		if(size/1024/1024/1024 > 1) {//more than 1 gibibyte
+			console.warn('WARNING! Collection:', collection_name, 'takes',
+				((size/1024/1024)|0)+'MiB', 'of a disk space');
+		}
+	}
+	console.log('Total database size:', (total_usage/1024/1024).toFixed(2), 'MiB');
+	
 	//tests
-	// db.collection(COLLECTIONS.accounts).find({}).forEach(acc => {
-	// 	if(acc.username === 'Aktyn')
-	// 		return;
-	// 	db.collection(COLLECTIONS.accounts).updateOne({_id: acc._id}, {
-	// 		$set: { creation_time: Date.now() - Math.floor(Math.random()*1000*60*60*24*31) }
-	// 	}).catch(console.error);
-	// }).catch(console.error);
+	/*db.collection(COLLECTIONS.games).updateMany({}, {
+		$unset: {finish_timestamp: undefined}
+	}).catch(console.error);*/
 }).catch(console.error);
 
 export interface GameSchema {
@@ -157,6 +173,7 @@ export interface PublicAccountSchema {
 export interface AccountSchema extends PublicAccountSchema {
 	email: string;
 	verified: boolean;
+	admin: boolean;
 	
 	coins: number;
 

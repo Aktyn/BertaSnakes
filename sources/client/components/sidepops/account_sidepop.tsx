@@ -8,8 +8,6 @@ import Config from '../../../common/config';
 import ERROR_CODES, {errorMsg} from '../../../common/error_codes';
 import {PLAYER_TYPES} from "../../../common/game/objects/player";
 
-import './../../styles/account_sidepop.scss';
-
 //sections
 import RegisterSection from './register_section';
 import LoginSection from './login_section';
@@ -19,6 +17,8 @@ import ShopSection from "./shop_section";
 import {SkillData} from "../../../common/game/common/skills";
 import FriendsSection from "./friends_section";
 import PasswordResetSection from "./password_reset_section";
+
+import '../../styles/account_sidepop.scss';
 
 export const enum VIEWS {//avoid 0 so this enum contains only truthy values
 	GENERAL = 1,

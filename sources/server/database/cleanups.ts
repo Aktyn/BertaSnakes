@@ -55,12 +55,22 @@ async function clearBrokenFriendships() {//removes social messages that does not
 
 async function clearOldMessages() {//removes social messages older than some threshold
 	let res = await getCollection(COLLECTIONS.social_messages).deleteMany({
-		timestamp: {
-			$lt: Date.now() - 1000*60*60*24*7 * 4//4 weeks
+		_id: {
+			$lt: ObjectId.createFromTime((Date.now() - 1000*60*60*24*7 * 4) / 1000)//4 weeks
 		}
 	});
 	if((res.deletedCount||0) > 0)
 		console.log('Old messages removed:', res.deletedCount);
+}
+
+async function clearOldVisits() {
+	let res = await getCollection(COLLECTIONS.visits).deleteMany({
+		_id: {
+			$lt: ObjectId.createFromTime((Date.now() - 1000*60*60*24 * 365) / 1000)//one year
+		}
+	});
+	if((res.deletedCount||0) > 0)
+		console.log('Old visits removed:', res.deletedCount);
 }
 
 async function clearGamesWithoutPlayers() {//remove from database game where no account was participating
@@ -83,5 +93,6 @@ export default async function cleanUpAll() {
 	await clearExpiredSessions();
 	await clearBrokenFriendships();
 	await clearOldMessages();
+	await clearOldVisits();
 	await clearGamesWithoutPlayers();
 }

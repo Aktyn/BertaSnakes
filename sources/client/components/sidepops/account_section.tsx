@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {Link} from 'react-router-dom';
 import AccountSidepop, {VIEWS} from './account_sidepop';
 import Account, {AccountSchema} from '../../account';
 import {offsetTop, removeWhitechars} from './sidepops_common';
@@ -144,6 +145,10 @@ class AccountDataView extends React.Component<{
 				<label>Total games:</label>
 				<div>{account.total_games}</div>
 			</div>
+			{this.props.account.admin && <Link to={'/admin'} className={'fader-in button-style'} style={{
+				display: 'inline-block',
+				...offsetTop
+			}}>ADMIN PANEL</Link>}
 			<hr />
 			<nav key='other_views' className='user-views-selector fader-in' style={{
 				gridTemplateColumns: '1fr 1fr 1fr',

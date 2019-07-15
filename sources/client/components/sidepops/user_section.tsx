@@ -1,10 +1,11 @@
 import * as React from 'react';
+import Loadable from 'react-loadable';
 import {Link} from 'react-router-dom';
 import ERROR_CODES from "../../../common/error_codes";
-import Loader from '../widgets/loader';
 import ServerApi from '../../utils/server_api';
 import Utils from '../../utils/utils';
 import Account from '../../account';
+import Loader from '../widgets/loader';
 import Social, {EVENT_NAMES, FriendSchema} from '../../social/social';
 import Chat from '../../social/chat';
 import {AccountSchema, PublicAccountSchema} from '../../../server/database/core';
@@ -16,6 +17,11 @@ import NotificationsIndicator, {COMMON_LABELS} from '../widgets/notifications_in
 import {RoomCustomData} from "../../../common/room_info";
 
 import '../../styles/user_section.scss';
+
+const AsyncAdminPowers = Loadable({
+	loader: () => import(/* webpackChunkName: "admin_powers", webpackPrefetch: true */ './admin_powers'),
+	loading: Loader,
+});
 
 interface UserSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -34,6 +40,7 @@ interface UserSectionState {
 	requested_friend: PublicAccountSchema | null;
 	friend_id_to_remove?: string;
 	show_games: boolean;
+	show_admin_powers: boolean;
 }
 
 export default class UserSection extends React.Component<UserSectionProps, UserSectionState> {
@@ -54,7 +61,8 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		potential_friend: null,
 		requested_friend: null,
 		
-		show_games: false
+		show_games: false,
+		show_admin_powers: true//for tests
 	};
 	
 	constructor(props: UserSectionProps) {
@@ -119,7 +127,6 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 	private updateFriends() {
 		if( !this.state.account || !this.state.user )
 			return;
-		console.log('test', this.state.user.username + COMMON_LABELS.FRIEND_REMOVED);
 		NotificationsIndicator.close(this.state.user.username + COMMON_LABELS.FRIEND_REMOVED);
 		this.setState({
 			friend: Social.getFriend(this.state.user.id) || null,
@@ -259,6 +266,16 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 				<div className={'fader-in'} style={offsetTop}>
 					<button onClick={() => this.setState({show_games: true})}>GAMES</button>
 				</div>
+				{
+					this.state.account && this.state.account.admin && !this.state.show_admin_powers &&
+					<div className={'fader-in'} style={offsetTop}>
+						<button onClick={() => {
+							this.setState({show_admin_powers: true});
+						}}>UNLEASH ADMIN'S POWERS</button>
+					</div>
+				}
+				{this.state.show_admin_powers && this.state.user &&
+					<AsyncAdminPowers user={this.state.user} onError={this.props.onError} />}
 				{!this.props.container_mode && this.state.user && <>
 					<hr/>
 					<SharePanel link={'/users/' + this.state.user.id} />

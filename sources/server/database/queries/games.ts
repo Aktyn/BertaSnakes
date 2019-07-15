@@ -10,7 +10,7 @@ export default {
 	async saveGameResult(room: RoomInfo, players_results: PlayerResultJSON[]) {
 		try {
 			let insert_res = await getCollection(COLLECTIONS.games).insertOne({
-				finish_timestamp: Date.now(),
+				//finish_timestamp: Date.now(),
 				name: room.name,
 				map: room.map,
 				gamemode: room.gamemode,
@@ -42,11 +42,11 @@ export default {
 						}
 					}
 				}, {
-					$sort: {finish_timestamp: -1}
+					$sort: {_id: -1}
 				}, {
 					$project: {
 						_id: 1,
-						finish_timestamp: 1,
+						//finish_timestamp: 1,
 						name: 1,
 						map: 1,
 						gamemode: 1,
@@ -60,7 +60,10 @@ export default {
                 }
 			]).toArray();
 			
-			games.forEach(g => g._id = (g._id as unknown as ObjectId).toHexString());
+			games.forEach(g => {
+				g.finish_timestamp = (g._id as unknown as ObjectId).getTimestamp().getTime();//NOTE - order is important
+				g._id = (g._id as unknown as ObjectId).toHexString();
+			});
 			
 			return {error: ERROR_CODES.SUCCESS, games};
 		}

@@ -51,7 +51,15 @@ $targetW: 400px;
 	border-radius: 5px;
 	margin: 10px 0px;
 	padding-bottom: 10px;
-	width: $targetW;
+	max-width: 100vw;
+	overflow-x: auto !important;
+	min-width: $targetW;
+	
+	@media (max-width: 400px) {
+		background-color: red;
+		min-width: 100% !important;
+	};
+	
 	//max-height: 100vh;
 	
 	& > nav {

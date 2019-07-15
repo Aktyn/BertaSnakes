@@ -270,18 +270,22 @@ export default {
 		}
 	},
 	
-	async insertMessage(friendship_hex: string, is_left_friend: boolean, content: string, timestamp: number) {
+	async insertMessage(friendship_hex: string, is_left_friend: boolean, content: string) {
 		try {
 			let insert_res = await getCollection(COLLECTIONS.social_messages).insertOne({
 				friendship_id: ObjectId.createFromHexString(friendship_hex),
 				left: is_left_friend,
-				timestamp,
+				//timestamp,
 				content
 			});
 			
 			if( !insert_res.result.ok )
 				return {error: ERROR_CODES.DATABASE_ERROR};
-			return {error: ERROR_CODES.SUCCESS, id: insert_res.insertedId.toHexString()};
+			return {
+				error: ERROR_CODES.SUCCESS,
+				id: insert_res.insertedId.toHexString(),
+				timestamp: insert_res.insertedId.getTimestamp().getTime()
+			};
 		}
 		catch(e) {
 			console.error(e);
@@ -297,7 +301,7 @@ export default {
 						friendship_id: ObjectId.createFromHexString(friendship_hex)
 					}
 				}, {
-					$sort: {timestamp: -1}
+					$sort: {_id: -1}
 				}, {
 					$project: {
 						_id: 1,
@@ -314,7 +318,7 @@ export default {
 				return {
 					id: (msg['_id'] as ObjectId).toHexString(),
 					left: msg['left'],
-					timestamp: msg['timestamp'],
+					timestamp: (msg['_id'] as ObjectId).getTimestamp().getTime(),//msg['timestamp'],
 					content: [ msg['content'] ]
 				}
 			}) as SocialMessage[];

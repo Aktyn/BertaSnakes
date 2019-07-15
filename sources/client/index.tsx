@@ -6,6 +6,8 @@ if(process.env.NODE_ENV !== 'development') {
 	console.log = console.error = console.info = console.trace = console.warn = function(){};
 }
 
+import Loader from './components/widgets/loader';
+
 import * as React from 'react';
 import { render } from 'react-dom';
 import Loadable from 'react-loadable';
@@ -13,8 +15,6 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Config from '../common/config';
 
 import './styles/main.scss';
-
-import Loader from './components/widgets/loader';
 
 import Layout from './components/layout';
 import NotFound from './pages/not_found';

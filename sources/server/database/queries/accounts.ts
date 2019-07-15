@@ -12,6 +12,7 @@ function extractAccountSchema(account: any): AccountSchema {
 		
 		email: account.email || '',
 		verified: account.verification_code === '',
+		admin: !!account.admin,
 		
 		coins: account.coins || 0,
 

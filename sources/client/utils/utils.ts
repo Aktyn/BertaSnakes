@@ -1,5 +1,6 @@
 import ERROR_CODES from '../../common/error_codes';
 import Config from '../../common/config';
+import {ChartOptions} from 'chart.js';
 
 const DEFAULT_LABELS = {
 	hours: '',
@@ -93,5 +94,79 @@ export default {
 
 	getScreenSize() {
 		return {width: window.innerWidth, height: window.innerHeight};
+	},
+	
+	toInputFormat(timestamp: number) {//returns date in format: YYYY-MM-DD
+		let dt = new Date(timestamp);
+		return `${ zeroPad(dt.getFullYear()) }-${ zeroPad(dt.getMonth()+1) }-${ zeroPad(dt.getDate()) }`;
+	},
+
+	inputToTimestamp(date_string: string, clamp_down: boolean) {//date in format: YYYY-MM-DD
+		try {
+			let parts = date_string.split('-');
+			let out_dt = new Date();
+			
+			out_dt.setFullYear( parseInt(parts[0]) );
+			out_dt.setMonth( parseInt(parts[1])-1 );
+			out_dt.setDate( parseInt(parts[2]) );
+			
+			if(clamp_down) {
+				out_dt.setHours(0);
+				out_dt.setMinutes(0);
+				out_dt.setSeconds(0);
+				out_dt.setMilliseconds(0);
+			}
+			else {
+				out_dt.setHours(23);
+				out_dt.setMinutes(59);
+				out_dt.setSeconds(59);
+				out_dt.setMilliseconds(0);
+			}
+			
+			return out_dt.getTime();
+		}
+		catch(e) {
+			console.error(e);
+			return 0;
+		}
+	},
+	
+	LINE_CHART_OPTIONS: <ChartOptions>{
+		// maintainAspectRatio: false,
+		title: {
+			text: 'Pages visit',
+			display: true,
+			fontStyle: 'normal',
+			padding: 10
+		},
+	    scales: {
+	        yAxes: [{
+	            ticks: {
+	                beginAtZero: true
+	            },
+	            gridLines: {
+	                display: true,
+	                color: '#bbb',
+	                lineWidth: 1,
+	                zeroLineWidth: 0,
+	                drawBorder: true
+	            }
+	        }],
+	        xAxes: [{
+	            type: 'time',
+	            time: {
+		            unit: 'day',
+		            displayFormats: { day: 'DD-MM-YYYY' },
+		            //minUnit: 'days'
+	            },
+	            gridLines: {
+	                display: false
+	            }
+	        }]
+	    },
+	    legend: {
+	        display: true
+	    },
+	    // spanGaps
 	}
 };

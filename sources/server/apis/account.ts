@@ -15,7 +15,7 @@ function open(app: express.Express) {
 		try {
 			let result = await Sessions.login(req.body.nick, req.body.password);
 			Database.registerVisit(result.account || null,
-				req.headers['user-agent'] || '', extractIP(req));
+				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
 			res.json(result);
 		}
 		catch(e) {
@@ -28,7 +28,7 @@ function open(app: express.Express) {
 		try {
 			let result = await Sessions.token_login(req.body.token);
 			Database.registerVisit(result.account || null,
-				req.headers['user-agent'] || '', extractIP(req));
+				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
 			res.json(result);
 		}
 		catch(e) {
