@@ -45,11 +45,15 @@ function statsMatchConditions(from: number, to: number, account_hex?: string) {
 	let cond: any = {
 		$and: [{
 			_id: {
-				$gt: ObjectId.createFromTime(from / 1000)
+				$gt: ObjectId.createFromHexString(
+					Math.floor(from / 1000).toString(16) + "0000000000000000")
+				//ObjectId.createFromTime(from / 1000)
 			}
 		}, {
 			_id: {
-				$lt: ObjectId.createFromTime(to / 1000)
+				$lt: ObjectId.createFromHexString(
+					Math.floor(to / 1000).toString(16) + "0000000000000000")
+				//ObjectId.createFromTime(to / 1000)
 			}
 		}]
 	};

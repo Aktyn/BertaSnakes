@@ -19,6 +19,9 @@ export default {
 	WEBSOCKET_PORT: 2674,
 	SOCIAL_WEBSOCKET_PORT: 2675,
 	
+	BACKUPS_INTERVAL: 1000*60*60*12,//every twelve hours
+	MAXIMUM_BACKUPS: 5,
+	
 	PAGE_TITLE: 'BertaSnakes',
 	
 	TOKEN_LIFETIME: 1000 * 60 * 60 * 24 * 7, //one week

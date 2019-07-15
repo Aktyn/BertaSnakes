@@ -1,6 +1,8 @@
 import * as crypto from 'crypto';
 import * as express from 'express';
-import {AccountSchema} from "./database/core";
+import * as fs from 'fs';
+import {spawn} from 'child_process';
+import {AccountSchema} from './database/core';
 import {UserCustomData} from '../common/user_info';
 
 const prompt = require('prompt-sync')();
@@ -38,6 +40,52 @@ export function AccountSchema2UserCustomData(account: AccountSchema): UserCustom
 		nick: account.username,
 		...account
 	};
+}
+
+export function makeSureFolderExists(path: string) {
+	try {
+		if( !fs.existsSync(path) )
+			fs.mkdirSync(path);
+	}
+	catch(e) {
+		console.error(e);
+	}
+}
+
+export function executeCommand(cmd: string): Promise<string> {
+	return new Promise((resolve, reject) => {
+		let stdout = '';
+		let stderr = '';
+		
+		let expired = false;
+		
+		setTimeout(() => {
+			expired = true;
+			reject('Command timeout');
+		}, 1000 * 60);//timeout after 1 minute
+		
+		try {
+			let args = cmd.split(' ');
+			let main_cmd = args.shift() || 'echo';
+			const command = spawn(main_cmd, args, {shell: true});
+			command.stdout.on('data', (data: string) => stdout += data);
+			command.stderr.on('data', (data: string) => stderr += data);
+			command.on('close', (code: number) => {
+				if (expired) return;
+				if (code === 0)
+					resolve(stdout);
+				else
+					reject(stderr);
+			});
+			command.on('error', (err: any) => {
+				if (!expired)
+					reject(err);
+			});
+		} catch (e) {
+			if (!expired)
+				reject(e);
+		}
+	});
 }
 
 export function extractIP(req: express.Request) {

@@ -99,30 +99,22 @@ export default class AdminPage extends React.Component<any, AdminPageState> {
 			to: Utils.inputToTimestamp(this.to_input.value, false)
 		});
 		
-		console.log( res );
+		//console.log( res );
 		if(res['error'] !== ERROR_CODES.SUCCESS) {
 			this.setError(errorMsg(res.error));
 			return;
 		}
 		
-		const arrToDate = (arr: Readonly<[number, number, number]>) => {
-			let dt = new Date();
-			dt.setFullYear( arr[0] );
-			dt.setMonth(arr[1]-1 );
-			dt.setDate( arr[2] );
-			return dt;
-		};
-		
 		if(this.visits_chart && this.visits_chart.chartInstance.data.datasets) {
 			this.visits_chart.chartInstance.data.datasets[0].data = res['data'].map(d => {
 				return {
-					x: arrToDate(d.date),
+					x: Utils.arrToDate(d.date),
 					y: d.total_visits
 				}
 			});
 			this.visits_chart.chartInstance.data.datasets[1].data = res['data'].map(d => {
 				return {
-					x: arrToDate(d.date),
+					x: Utils.arrToDate(d.date),
 					y: d.unique_visits
 				}
 			});

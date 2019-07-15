@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import Config from '../../common/config';
-import UploadReceiver from '../upload_receiver';
+import {UPLOADS_FOLDER} from '../upload_receiver';
 
 import CommonApi from './common';
 import AccountApi from './account';
@@ -63,7 +63,7 @@ export default {
 
 	shareUploads() {
 		try {
-			app.use('/uploads', express.static(UploadReceiver.UPLOADS_PATH));
+			app.use('/uploads', express.static(UPLOADS_FOLDER));
 		}
 		catch(e) {
 			console.error('Cannot share uploaded files through express:', e);

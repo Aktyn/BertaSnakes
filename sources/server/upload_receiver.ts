@@ -2,32 +2,23 @@ import * as path from 'path';
 import * as fs from 'fs';
 import ERROR_CODES from '../common/error_codes';
 import Config from '../common/config';
-const AVATAR_SIZE = Config.CONVERTED_AVATARS_RESOLUTION;
-
+import {makeSureFolderExists} from "./utils";
 import * as Canvas from 'canvas';
+
 const Image = Canvas.Image;
+
+const AVATAR_SIZE = Config.CONVERTED_AVATARS_RESOLUTION;
 
 // const Canvas = require('canvas');
 // const Image = Canvas.Image;
 
-function makeSureFolderExists(path: string) {
-	try {
-		if( !fs.existsSync(path) )
-			fs.mkdirSync(path);
-	}
-	catch(e) {
-		console.error(e);
-	}
-}
-
-const UPLOADS_FOLDER = path.join(__dirname, '..', '..', 'uploads');
+export const UPLOADS_FOLDER = path.join(__dirname, '..', '..', 'uploads');
 const AVATARS_FOLDER = path.join(UPLOADS_FOLDER, 'avatars');
 
 makeSureFolderExists(UPLOADS_FOLDER);
 makeSureFolderExists(AVATARS_FOLDER);
 
 export default {
-	UPLOADS_PATH: UPLOADS_FOLDER,
 	//URL encoded image data
 	saveAvatar(file_name: string, image_data: string): Promise<{error: ERROR_CODES, file_name: string}> {
 		//force file_name extension to .png

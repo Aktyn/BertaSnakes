@@ -62,7 +62,7 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 		requested_friend: null,
 		
 		show_games: false,
-		show_admin_powers: true//for tests
+		show_admin_powers: false//set true for testing
 	};
 	
 	constructor(props: UserSectionProps) {
@@ -275,7 +275,8 @@ export default class UserSection extends React.Component<UserSectionProps, UserS
 					</div>
 				}
 				{this.state.show_admin_powers && this.state.user &&
-					<AsyncAdminPowers user={this.state.user} onError={this.props.onError} />}
+					<AsyncAdminPowers user={this.state.user} onError={this.props.onError}
+					                  container={this.props.container_mode} />}
 				{!this.props.container_mode && this.state.user && <>
 					<hr/>
 					<SharePanel link={'/users/' + this.state.user.id} />

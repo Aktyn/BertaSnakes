@@ -32,6 +32,7 @@ const DEFAULT_DATA = {
 interface AdminPowersProps {
 	onError: (code: ERROR_CODES) => void;
 	user: PublicAccountSchema;
+	container: boolean;
 }
 
 // noinspection JSUnusedGlobalSymbols //this component is part of user_section view, styles are in user_section.scss
@@ -70,24 +71,16 @@ export default class AdminPowers extends React.Component<AdminPowersProps, any> 
 			to: Utils.inputToTimestamp(this.to_input.value, false)
 		});
 		
-		console.log( res );
+		//console.log( res );
 		if(res['error'] !== ERROR_CODES.SUCCESS) {
 			this.props.onError(res.error);
 			return;
 		}
 		
-		const arrToDate = (arr: Readonly<[number, number, number]>) => {
-			let dt = new Date();
-			dt.setFullYear( arr[0] );
-			dt.setMonth(arr[1]-1 );
-			dt.setDate( arr[2] );
-			return dt;
-		};
-		
 		if(this.visits_chart && this.visits_chart.chartInstance.data.datasets) {
 			this.visits_chart.chartInstance.data.datasets[0].data = res['data'].map(d => {
 				return {
-					x: arrToDate(d.date),
+					x: Utils.arrToDate(d.date),
 					y: d.count
 				}
 			});
@@ -112,7 +105,7 @@ export default class AdminPowers extends React.Component<AdminPowersProps, any> 
 				<br/>
 				<button style={offsetTop} onClick={this.refresh.bind(this)}>REFRESH</button>
 			</div>
-			<LineChart width={600} height={400} ref={chart => this.visits_chart = chart}
+			<LineChart width={this.props.container ? 600 : 400} height={400} ref={chart => this.visits_chart = chart}
 			           data={DEFAULT_DATA} options={Utils.LINE_CHART_OPTIONS} />
 		</div>;
 	}

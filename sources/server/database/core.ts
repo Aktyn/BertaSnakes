@@ -23,6 +23,14 @@ const DB_NAME = 'BertaSnakes';
 const mongodb_user = getArgument('MONGO_USER');
 const mongodb_pass = getArgument('MONGO_PASS');
 
+export function getCredentials() {
+	return {
+		DB_NAME,
+		USERNAME: mongodb_user,
+		PASSWORD: mongodb_pass
+	};
+}
+
 let client: MongoClient;
 let db: Db;
 function assert_connection() {

@@ -35,3 +35,6 @@ Core.runAt( Config.WEBSOCKET_PORT );
 
 import SocialCore from './social/core';
 SocialCore.runAt( Config.SOCIAL_WEBSOCKET_PORT );
+
+import AutoBackups from './auto_backups';
+AutoBackups.doRegularly(Config.BACKUPS_INTERVAL);

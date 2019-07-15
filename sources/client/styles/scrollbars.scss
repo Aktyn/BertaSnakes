@@ -1,3 +1,5 @@
+@import 'global.scss';
+
 /* width */
 ::-webkit-scrollbar {
     width: 8px;
@@ -6,16 +8,19 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-    background: #004D40; 
+    //background: #004D40;
+    background-color: nth($palette, 6);
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: #006064; 
+    //background: #006064;
+    background-color: nth($palette, 3);
     border-radius: 8px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    background: #0097A7; 
+    //background: #0097A7;
+    background-color: nth($palette, 2);
 }

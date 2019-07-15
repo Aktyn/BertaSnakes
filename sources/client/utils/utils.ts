@@ -59,7 +59,7 @@ export default {
 		});
 	},
 
-	secondsToTime: (sec: number, delimiter = ':', labels = DEFAULT_LABELS) => {
+	secondsToTime(sec: number, delimiter = ':', labels = DEFAULT_LABELS) {
 		sec |= 0;
 		let min = (sec/60)|0;
 		sec -= min*60;
@@ -74,7 +74,7 @@ export default {
 			return `${zeroPad(sec)}${labels.seconds}`;
 	},
 	
-	formatTime: (timestamp: number) => {
+	formatTime(timestamp: number) {
 		let dt = new Date(timestamp);
 		let now = new Date();
 		let same_day = dt.getDate() === now.getDate() &&
@@ -100,6 +100,15 @@ export default {
 		let dt = new Date(timestamp);
 		return `${ zeroPad(dt.getFullYear()) }-${ zeroPad(dt.getMonth()+1) }-${ zeroPad(dt.getDate()) }`;
 	},
+	
+	arrToDate(arr: Readonly<[number, number, number]>) {
+			let dt = new Date(0);
+			dt.setFullYear( arr[0] );
+			dt.setMonth(arr[1]-1 );
+			dt.setDate( arr[2] );
+			dt.setHours(0);
+			return dt;
+		},
 
 	inputToTimestamp(date_string: string, clamp_down: boolean) {//date in format: YYYY-MM-DD
 		try {
