@@ -68,6 +68,70 @@
 	}
 }
 
+.ripple-transition {
+	$rippleSize: calc(100vw + 100vh);
+	
+	position: fixed;
+	z-index: 98;
+	width: $rippleSize;
+	height: $rippleSize;
+	border-radius: $rippleSize;
+	transform: translate(-50%, -50%) scale(0);
+	background-color: #fff;//default
+	
+	animation: ripple 1s cubic-bezier(.36,.07,.19,.97) forwards;
+	
+	@keyframes ripple {
+		0% {
+			opacity: 0.75;
+			transform: translate(-50%, -50%) scale(0);
+		}
+		100% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1);
+		}
+	}
+	overflow: visible;
+	
+	&::before {
+		transform: translate(50%, 50%) scale(4);
+		content: "";
+		display: block;
+		position: fixed;
+		z-index: 97;
+		left: 0px;
+		top: 0px;
+		width: 100vw;
+		height: 100vh;
+		
+		background-color: inherit;
+		opacity: 0;
+		animation: fade-in 0.5s 0.5s linear forwards;
+	}
+	
+	@keyframes fade-in {
+		0% {opacity: 0}
+		100%{opacity: 1}
+	}
+}
+
+/*.fade-transition {
+	pointer-events: none;
+	position: fixed;
+	z-index: 99;
+	left: 0px;
+	top: 0px;
+	width: 100vw;
+	height: 100vh;
+	
+	animation: fade-out 1s cubic-bezier(.36,.07,.19,.97) forwards;
+	
+	@keyframes fade-out {
+		0% {opacity: 1}
+		100%{opacity: 0}
+	}
+}*/
+
 /****** BUTTONS ******/
 button.glossy, a.glossy {
 	$size: 27px;

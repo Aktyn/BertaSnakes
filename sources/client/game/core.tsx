@@ -16,6 +16,7 @@ interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;
 	indicate_room_deletion: boolean;
 	start_game_countdown: number | null;
+	fading: boolean;
 }
 
 // noinspection JSUnusedGlobalSymbols (it is dynamically imported in index.tsx and IDE does not handle this)
@@ -39,7 +40,9 @@ export default class extends React.Component<any, CoreState> {
 		rooms_list: [],
 
 		indicate_room_deletion: false,
-		start_game_countdown: null
+		start_game_countdown: null,
+		
+		fading: true
 	};
 
 	constructor(props: any) {
@@ -61,10 +64,10 @@ export default class extends React.Component<any, CoreState> {
 		Network.clearListeners();
 		Network.disconnect();
 		this.active = false;
-		if(this.room_refresh_tm)
-			clearTimeout(this.room_refresh_tm);
-		if(this.room_deletion_tm)
-			clearTimeout(this.room_deletion_tm);
+		for(let timeout of [this.room_refresh_tm, this.room_deletion_tm]) {
+			if(timeout)
+				clearTimeout(timeout);
+		}
 	}
 	
 	componentDidUpdate(prevProps: any) {
@@ -330,8 +333,8 @@ export default class extends React.Component<any, CoreState> {
 	/*onServerData(data: Float32Array) {
 		console.log('server data:', data);
 	}*/
-
-	render() {
+	
+	renderStage() {
 		switch(this.state.current_stage) {
 			default: return <div>ERROR</div>;
 			case MenuStage.prototype:
@@ -339,5 +342,14 @@ export default class extends React.Component<any, CoreState> {
 			case GameStage.prototype:
 				return <GameStage ref={el => this.stageHandle=el} {...this.state} />;
 		}
+	}
+
+	render() {
+		return <>
+			{this.renderStage()}
+			{/*this.state.fading && <div className={'fade-transition'} style={{
+				backgroundColor: '#5a9698'
+			}} onAnimationEnd={() => this.setState({fading: false})} />*/}
+		</>;
 	}
 }

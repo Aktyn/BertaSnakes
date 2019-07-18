@@ -71,6 +71,7 @@ $bottomSize: 20px;
 					height: $playBtnSize;
 					
 					font-size: 50px;
+					font-weight: normal;
 
 					padding: 0px 50px;
 					
@@ -78,6 +79,7 @@ $bottomSize: 20px;
 					clip-path: polygon(0% 50%, 25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%);
 
 					background-color: #5a9698;
+					color: #fff;
 		
 					position: relative;
 					z-index: 2;
