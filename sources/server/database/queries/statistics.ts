@@ -2,6 +2,7 @@ import {ObjectId} from 'mongodb';
 import {AccountSchema, COLLECTIONS, getCollection} from "../core";
 import ERROR_CODES from '../../../common/error_codes';
 
+const DAY_MS = 1000*60*60*24;
 const PROJECT_DATE = {
 	/*$reduce: {
 		input: {
@@ -41,19 +42,40 @@ const PROJECT_DATE = {
 	}
 };
 
+function dateCompare(dt1: [number, number, number], dt2: [number, number, number]) {
+	return dt1[0] === dt2[0] && dt1[1] === dt2[1] && dt1[2] === dt2[2];
+}
+
+function dateToValue(date: [number, number, number]) {//[year, month, day]
+	return date[2] + date[1]*100 + date[0]*10000;
+}
+
+function dateSort(a: {date: [number, number, number]}, b: {date: [number, number, number]}) {
+	let value_a = dateToValue(a.date);//eg.: [ 2019, 7, 14 ] =>
+	let value_b = dateToValue(b.date);//=> 2019*10000 + 7*100 + 14 = 20190714
+	return value_a-value_b;
+}
+
+function getDateRangeValues(from: number, to: number) {
+	let from_dt = new Date(from);
+	let to_dt = new Date(to);
+	return {
+		min: dateToValue([from_dt.getFullYear(), from_dt.getMonth()+1, from_dt.getDate()]),
+		max: dateToValue([to_dt.getFullYear(), to_dt.getMonth()+1, to_dt.getDate()])
+	}
+}
+
 function statsMatchConditions(from: number, to: number, account_hex?: string) {
 	let cond: any = {
 		$and: [{
 			_id: {
-				$gt: ObjectId.createFromHexString(
-					Math.floor(from / 1000).toString(16) + "0000000000000000")
-				//ObjectId.createFromTime(from / 1000)
+				$gt: ObjectId.createFromTime((from / 1000)|0)
+					//ObjectId.createFromHexString(Math.floor(from / 1000).toString(16) + "0000000000000000")
 			}
 		}, {
 			_id: {
-				$lt: ObjectId.createFromHexString(
-					Math.floor(to / 1000).toString(16) + "0000000000000000")
-				//ObjectId.createFromTime(to / 1000)
+				$lt: ObjectId.createFromTime((to / 1000)|0)
+				//ObjectId.createFromHexString(Math.floor(to / 1000).toString(16) + "0000000000000000")
 			}
 		}]
 	};
@@ -105,8 +127,13 @@ export default {
 	},
 	
 	async getUserVisitStatistics(from: number, to: number, account_hex_id: string) {//timestamps range
+		interface VisitsResponseItem {
+			count: number;
+			date: [number, number, number];
+		}
+		
 		try {
-			let visits = await getCollection(COLLECTIONS.visits).aggregate([
+			let visits: VisitsResponseItem[] = await getCollection(COLLECTIONS.visits).aggregate([
 				{
 					$match: statsMatchConditions(from, to, account_hex_id)
 				}, {
@@ -127,6 +154,22 @@ export default {
 				}
 			]).toArray();
 			
+			const range = getDateRangeValues(from, to);
+			visits = visits.sort(dateSort).filter(v => {
+				let date_value = dateToValue(v.date);
+				return date_value >= range.min && date_value <= range.max;
+			});
+			
+			//TODO: move gaps filling algorithm to client-side
+			for(let ts = from, i=0; ts < to; ts += DAY_MS, i++) {//fill gaps in database response
+				let dt = new Date(ts);
+				let date_arr: [number, number, number] = [dt.getFullYear(), dt.getMonth()+1, dt.getDate()];
+				if( !visits[i] || !dateCompare(visits[i].date, date_arr) )
+					visits.splice(i, 0, {count: 0, date: date_arr});
+			}
+			
+			//console.log(visits);
+			
 			return {error: ERROR_CODES.SUCCESS, data: visits};
 		}
 		catch(e) {
@@ -136,8 +179,14 @@ export default {
 	},
 	
 	async getVisitsStatistics(from: number, to: number) {//timestamps range
+		interface VisitsResponseItem {
+			total_visits: number;
+			unique_visits: number;
+			date: [number, number, number];
+		}
+		
 		try {
-			let total_visits = await getCollection(COLLECTIONS.visits).aggregate([
+			let visits: VisitsResponseItem[] = await getCollection(COLLECTIONS.visits).aggregate([
 				{
 					$match: statsMatchConditions(from, to)
 				}, {
@@ -170,7 +219,22 @@ export default {
 				}
 			]).toArray();
 			
-			return {error: ERROR_CODES.SUCCESS, data: total_visits};
+			const range = getDateRangeValues(from, to);
+			visits = visits.sort(dateSort).filter(v => {
+				let date_value = dateToValue(v.date);
+				return date_value >= range.min && date_value <= range.max;
+			});
+			
+			for(let ts = from, i=0; ts < to; ts += DAY_MS, i++) {//fill gaps in database response
+				let dt = new Date(ts);
+				let date_arr: [number, number, number] = [dt.getFullYear(), dt.getMonth()+1, dt.getDate()];
+				if( !visits[i] || !dateCompare(visits[i].date, date_arr) )
+					visits.splice(i, 0, {total_visits: 0, unique_visits: 0, date: date_arr});
+			}
+			
+			//console.log(visits);
+			
+			return {error: ERROR_CODES.SUCCESS, data: visits};
 		}
 		catch(e) {
 			console.error(e);
