@@ -8,21 +8,21 @@ export const enum GAME_MODES {
 }
 const GAMEMODES_COUNT = 2;
 
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
 export interface RoomSettings {
 	name: string;
 	map: map_name;
 	gamemode: GAME_MODES;
 	duration: number;
+	max_enemies: number;
 
 	sits_number: number;
 }
 
-export interface RoomCustomData {
+export interface RoomCustomData extends Omit<RoomSettings, 'sits_number'> {
 	id: number;
-	name: string;
-	map: map_name;
-	gamemode: GAME_MODES;
-	duration: number;
+	
 	sits: number[];
 	readys: boolean[];
 }
@@ -35,6 +35,7 @@ export default class RoomInfo {
 
 	public map = Config.DEFAULT_MAP;
 	public duration = Config.DEFAULT_GAME_DURATION;
+	public max_enemies = Config.DEFAULT_MAX_ENEMIES;
 	public sits: number[] = new Array(Config.DEFAULT_SITS).fill(0);//0 means empty sit
 	public readys: boolean[] = new Array(Config.DEFAULT_SITS).fill(false);
 	//public users: UserInfo[] = [];
@@ -91,7 +92,8 @@ export default class RoomInfo {
 			gamemode: this.gamemode,
 			duration: this.duration,
 			sits: this.sits,
-			readys: this.readys
+			readys: this.readys,
+			max_enemies: this.max_enemies
 		};
 	}
 
@@ -108,6 +110,7 @@ export default class RoomInfo {
 		room.map = json_data['map'];
 		room.gamemode = json_data['gamemode'];
 		room.duration = json_data['duration'];
+		room.max_enemies = json_data['max_enemies'];
 		return room;
 	}
 
@@ -177,13 +180,16 @@ export default class RoomInfo {
 			map: this.map,
 			gamemode: this.gamemode,
 			duration: this.duration,
-			sits_number: this.sits.length
+			sits_number: this.sits.length,
+			max_enemies: this.max_enemies
 		};
 	}
 
 	updateSettings(settings: RoomSettings) {
 		this.duration = Math.max(Config.MINIMUM_GAME_DURATION, 
 			Math.min(Config.MAXIMUM_GAME_DURATION, settings.duration));
+		this.max_enemies = Math.max(10,
+			Math.min(Config.MAXIMUM_ENEMIES_LIMIT, settings.max_enemies));
 		this.gamemode = Math.max(0, Math.min(GAMEMODES_COUNT-1, settings.gamemode));
 		this.name = settings.name.substr(0, Config.MAXIMUM_ROOM_NAME_LENGTH);
 
@@ -215,10 +221,11 @@ export default class RoomInfo {
 			this.map = json_data.map;
 			this.gamemode = json_data.gamemode;
 			this.duration = json_data.duration;
+			this.max_enemies = json_data.max_enemies;
 		}
 		else {//update from JSON
 			if(typeof json_data === 'string')//json
-				json_data = <RoomCustomData>JSON.parse(json_data);
+				json_data = JSON.parse(json_data) as RoomCustomData;
 
 			if(this.id !== json_data['id'])
 				throw Error('id mismatch');
@@ -228,6 +235,7 @@ export default class RoomInfo {
 			this.map = json_data['map'];
 			this.gamemode = json_data['gamemode'];
 			this.duration = json_data['duration'];
+			this.max_enemies = json_data['max_enemies'];
 		}
 	}
 

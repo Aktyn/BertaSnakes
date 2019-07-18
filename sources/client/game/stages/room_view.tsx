@@ -9,11 +9,11 @@ import MapsPreview, {updateMapPreview} from './maps_preview';
 
 import NumberInput from '../../components/widgets/number_input';
 import OptionsList from '../../components/widgets/options_list';
+import SlideBar from "../../components/widgets/slidebar";
 
 import Utils from '../../utils/utils';
 
 import '../../styles/room_view.scss';
-import SlideBar from "../../components/widgets/slidebar";
 
 //const ClockWidget: React.SFC<{seconds: number}> = (props) => {
 class ClockWidget extends React.Component<{seconds: number}, any> {
@@ -48,6 +48,7 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 	private sits_input: NumberInput | null = null;
 	// private duration_input: NumberInput | null = null;
 	private duration_input: SlideBar | null = null;
+	private max_enemies_input: SlideBar | null = null;
 	private gamemode_input: OptionsList | null = null;
 	private map_input: MapsPreview | null = null;
 	
@@ -91,10 +92,14 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					max={Config.MAXIMUM_SITS} />
 					
 				<label>Duration:</label>
-				<SlideBar valueSuffix={' min'} ref={el => this.duration_input=el}  precision={0}
+				<SlideBar valueSuffix={' min'} ref={el => this.duration_input=el} precision={0}
 					minValue={Config.MINIMUM_GAME_DURATION/60}
 					maxValue={Config.MAXIMUM_GAME_DURATION/60}
 					defaultValue={(room_settings.duration/60)|0} widgetWidth={100} />
+					
+				<label>Maximum enemies:</label>
+				<SlideBar precision={-1} minValue={10} maxValue={Config.MAXIMUM_ENEMIES_LIMIT} widgetWidth={100}
+					defaultValue={room_settings.max_enemies} ref={el => this.max_enemies_input = el}/>
 			</div>
 			<hr key={'hr1'} />
 			<MapsPreview key='maps-prev' ref={el=>this.map_input=el} defaultValue={room_settings.map} />
@@ -102,14 +107,15 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 			<div key='apply-btn'>
 				<button className='glossy no-icon' style={{marginBottom: '15px'}} onClick={() => {
 					if(this.name_input && this.sits_input && this.duration_input && this.map_input &&
-						this.gamemode_input)
+						this.gamemode_input && this.max_enemies_input)
 					{
 						Network.sendRoomUpdateRequest({
 							name: this.name_input.value, 
 							sits_number: this.sits_input.value, 
 							duration: Math.round(this.duration_input.getValue())*60,
 							map: this.map_input.value, 
-							gamemode: Utils.GAMEMODES_NAMES.indexOf(this.gamemode_input.value)
+							gamemode: Utils.GAMEMODES_NAMES.indexOf(this.gamemode_input.value),
+							max_enemies: Math.round( this.max_enemies_input.getValue()/10 )*10
 						});
 					}
 					this.setState({edit_mode: false});
@@ -145,7 +151,13 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 					<label>{this.props.room.map}</label>
 					<canvas ref={el => el && updateMapPreview(this.props.room.map, el)} width={150} height={150}/>
 				</section>
-				<section className='gamemode'>{Utils.GAMEMODES_NAMES[this.props.room.gamemode]}</section>
+				<section className='others'>
+					<div>{Utils.GAMEMODES_NAMES[this.props.room.gamemode]}</div>
+					<div style={{
+						//fontWeight: 'normal',
+						fontSize: '13px'
+					}}>Maximum enemies: {this.props.room.max_enemies}</div>
+				</section>
 				<section className='duration'>
 					<ClockWidget seconds={this.props.room.duration} />
 				</section>

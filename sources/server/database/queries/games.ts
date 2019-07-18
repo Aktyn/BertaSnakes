@@ -15,6 +15,7 @@ export default {
 				map: room.map,
 				gamemode: room.gamemode,
 				duration: room.duration,
+				max_enemies: room.max_enemies,
 				results: players_results.map(result => {
 					delete result.avatar;//it is redundant and user may change avatar after game
 					delete result.user_id;//irrelevant for database
@@ -51,6 +52,7 @@ export default {
 						map: 1,
 						gamemode: 1,
 						duration: 1,
+						max_enemies: 1,
 						results: 1
 					}
 				}, {

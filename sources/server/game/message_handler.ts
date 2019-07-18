@@ -93,7 +93,7 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 		case NetworkCodes.ROOM_SETTINGS_UPDATE_REQUEST:
 			if(typeof data.name === 'string' && typeof data.map === 'string' && 
 				typeof data.gamemode === 'number' && typeof data.sits_number === 'number' && 
-				typeof data.duration === 'number')
+				typeof data.duration === 'number' && typeof data.max_enemies === 'number')
 			{
 				RoomManager.updateRoomSettings(connection, data as never);
 			}

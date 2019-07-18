@@ -264,7 +264,8 @@ const Network = {
 			'map': settings.map,
 			'gamemode': settings.gamemode,
 			'sits_number': settings.sits_number,
-			'duration': settings.duration
+			'duration': settings.duration,
+			'max_enemies': settings.max_enemies
 		});
 	},
 	kickUser(user_id: number) {

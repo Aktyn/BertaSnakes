@@ -136,6 +136,7 @@ MongoClient.connect(uri, {
 export interface GameSchema {
 	_id: string;
 	duration: number;
+	max_enemies: number;
 	finish_timestamp: number;
 	gamemode: GAME_MODES;
 	map: string;

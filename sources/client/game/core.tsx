@@ -9,7 +9,9 @@ import StageBase, {BaseProps} from './stages/stage_base';
 import MenuStage from './stages/menu_stage';
 import GameStage from './stages/game_stage';
 
-const TDD1 = false;//auto room joining
+let first_load = true;
+
+const TDD1 = true;//auto room joining
 const TDD2 = false;//auto sit and ready
 
 interface CoreState extends BaseProps {
@@ -42,7 +44,7 @@ export default class extends React.Component<any, CoreState> {
 		indicate_room_deletion: false,
 		start_game_countdown: null,
 		
-		fading: true
+		fading: !first_load
 	};
 
 	constructor(props: any) {
@@ -51,6 +53,7 @@ export default class extends React.Component<any, CoreState> {
 
 	componentDidMount() {
 		this.active = true;
+		first_load = false;
 
 		Network.assignListeners({
 			onServerConnected: this.onServerConnected.bind(this),
@@ -347,9 +350,9 @@ export default class extends React.Component<any, CoreState> {
 	render() {
 		return <>
 			{this.renderStage()}
-			{/*this.state.fading && <div className={'fade-transition'} style={{
+			{this.state.fading && <div className={'fade-transition'} style={{
 				backgroundColor: '#5a9698'
-			}} onAnimationEnd={() => this.setState({fading: false})} />*/}
+			}} onAnimationEnd={() => this.setState({fading: false})} />}
 		</>;
 	}
 }

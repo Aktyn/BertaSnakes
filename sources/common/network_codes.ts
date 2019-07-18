@@ -26,7 +26,7 @@ const enum NetworkCodes {
 	ROOM_LIST_REQUEST,
 	JOIN_ROOM_REQUEST,//id: number (target room id)
 	LEAVE_ROOM_REQUEST,//leave current room
-	//name: string, map: string, gamemode: number, sits_number: number, duration: number
+	//name: string, map: string, gamemode: number, sits_number: number, duration: number, max_enemies: number
 	ROOM_SETTINGS_UPDATE_REQUEST,
 	USER_KICK_REQUEST,//user_id: number
 	SIT_REQUEST,

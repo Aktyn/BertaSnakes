@@ -125,7 +125,8 @@ export default class SlideBar extends React.Component<SlideBarProps, SlideBarSta
 	private applyPrecision(value: number) {
 		let multiplier = Math.pow(10, this.props.precision);
 
-		return Math.round(value * multiplier) / multiplier;
+		return Math.max(this.props.minValue,
+			Math.min(this.props.maxValue, Math.round(value * multiplier) / multiplier));
 	}
 	
 	render() {
