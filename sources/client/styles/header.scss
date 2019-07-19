@@ -168,21 +168,25 @@ $bottomSize: 20px;
 		background-color: nth($palette, 8);
 
 		display: grid;
-		grid-template-columns: $bottomSize auto $bottomSize;
+		grid-template-columns: ($bottomSize*1.25) ($bottomSize*1.25) auto ($bottomSize*1.25) ($bottomSize*1.25);
 		align-items: center;
-		justify-content: space-between;
-
-		.home-link {
+		justify-content: stretch;
+		//grid-column-gap: $bottomSize/2;
+		
+		.home-link, .search-link {
 			width: $bottomSize;
 			height: $bottomSize;
-
-			background-image: url('../img/icons/home.svg');
+			margin: auto;
+			
 			opacity: 0.4;
 
 			&:hover {
 				opacity: 1;
 			}
 		}
+
+		.home-link { background-image: url('../img/icons/home.svg');}
+		.search-link { background-image: url('../img/icons/search.svg'); }
 	}
 	
 	&.compact {

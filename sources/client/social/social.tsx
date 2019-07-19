@@ -31,6 +31,7 @@ function sortFriends() {
 }
 
 let socket: WebSocket | null = null;
+let saved_token: string | null = null;
 
 function handleMessage(message: SocialNetworkPackage) {
 	switch (message['type']) {
@@ -232,8 +233,11 @@ function handleMessage(message: SocialNetworkPackage) {
 
 function send(data: SocialNetworkPackage) {
 	try {
-		if(socket === null)
+		if(socket === null) {
+			if(saved_token)//connection was attempted
+				Social.connect(saved_token);//try again
 			throw new Error('socket is null');
+		}
 		socket.send( JSON.stringify(data) );
 		return ERROR_CODES.SUCCESS;
 	}
@@ -245,6 +249,7 @@ function send(data: SocialNetworkPackage) {
 
 const Social = {
 	connect(token: string) {
+		saved_token = token;
 		if(socket !== null) {
 			console.log('Social Websocket connection already established');
 			return;
@@ -326,26 +331,26 @@ const Social = {
 	},
 	
 	requestFriend(friend_id: string) {
-		send({type: SOCIAL_CODES.REQUEST_FRIEND, friend_id});
+		return send({type: SOCIAL_CODES.REQUEST_FRIEND, friend_id});
 	},
 	
 	removeFriend(friend_id: string) {
-		send({type: SOCIAL_CODES.REMOVE_FRIEND, friend_id});
+		return send({type: SOCIAL_CODES.REMOVE_FRIEND, friend_id});
 	},
 	
 	acceptRequest(user_id: string) {
-		send({type: SOCIAL_CODES.ACCEPT_REQUEST, user_id});
+		return send({type: SOCIAL_CODES.ACCEPT_REQUEST, user_id});
 	},
 	rejectRequest(user_id: string) {
-		send({type: SOCIAL_CODES.REJECT_REQUEST, user_id});
+		return send({type: SOCIAL_CODES.REJECT_REQUEST, user_id});
 	},
 	
 	sendChatMessage(recipient_id: string, content: string) {
-		send({type: SOCIAL_CODES.SEND_CHAT_MESSAGE, recipient_id, content});
+		return send({type: SOCIAL_CODES.SEND_CHAT_MESSAGE, recipient_id, content});
 	},
 	
 	requestFriendshipConversationData(friendship_id: string) {
-		send({type: SOCIAL_CODES.REQUEST_CONVERSATION_DATA, friendship_id});
+		return send({type: SOCIAL_CODES.REQUEST_CONVERSATION_DATA, friendship_id});
 	}
 };
 

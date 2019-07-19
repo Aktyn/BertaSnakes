@@ -18,6 +18,8 @@ export default class GameInfoList extends React.Component<{game: GameSchema}, an
 			<span>{this.props.game.map}</span>
 			<label>Duration:</label>
 			<span>{Math.round(this.props.game.duration/60)}&nbsp;min</span>
+			<label>Max enemies:</label>
+			<span>{this.props.game.max_enemies}</span>
 			<label>Mode:</label>
 			<span>{Utils.GAMEMODES_NAMES[this.props.game.gamemode]}</span>
 		</div>;

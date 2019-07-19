@@ -143,7 +143,7 @@ export default class AdminPage extends React.Component<any, AdminPageState> {
 				this.setError(errorMsg(res.error));
 				this.setState({execution_successful: false});
 			} else {
-				console.log(res.response);
+				console.table(res.response);
 				this.setState({execution_successful: true});
 			}
 		}

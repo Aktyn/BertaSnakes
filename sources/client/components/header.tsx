@@ -62,6 +62,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 			</div>
 			<div className='header-bottom'>
 				<Link to='/' className='home-link' aria-label={'homepage-link'}/>
+				<Link to='/search' className='search-link' aria-label={'search-link'}/>
 				<NotificationsIndicator />
 			</div>
 			{this.state.ripple_pos && <div className={'ripple-transition'} style={{

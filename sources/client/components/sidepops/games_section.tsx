@@ -94,12 +94,20 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 					<div>{convertDate(game.finish_timestamp)}</div>
 				</td>
 				<td>
-					<div>
+					<div style={{
+						display: 'inline-grid',
+						gridTemplateColumns: 'auto fit-content(100%) auto',
+						gridTemplateRows: '1fr 1fr',
+						alignItems: 'center'
+					}}>
 						<span>{game.map}</span>
 						<span className={'separator'} style={{backgroundColor: '#B0BEC5'}} />
 						<span>{Math.round(game.duration/60)}&nbsp;min</span>
+						
+						<span>{Utils.GAMEMODES_NAMES[game.gamemode]}</span>
+						<span className={'separator'} style={{backgroundColor: '#B0BEC5'}} />
+						<span>{game.max_enemies}</span>
 					</div>
-					<div>{Utils.GAMEMODES_NAMES[game.gamemode]}</div>
 				</td>
 				<td>
 					<div>Pos:&nbsp;{position+1}/{game.results.length}</div>

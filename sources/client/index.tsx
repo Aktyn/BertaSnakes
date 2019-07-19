@@ -3,6 +3,7 @@ if(process.env.NODE_ENV !== 'development') {
 	console.clear();
 	console.log('%cLogs disabled in production code.\n¯\\_(ツ)_/¯',
 		'color: #f44336; font-weight: bold; font-size: 25px;');
+	//NOTE: table method is not included deliberately
 	console.log = console.error = console.info = console.trace = console.warn = function(){};
 }
 
@@ -20,6 +21,7 @@ import Layout from './components/layout';
 import NotFound from './pages/not_found';
 import Home from './pages/home';
 import Rankings from './pages/rankings';
+import Search from './pages/search';
 import GameDetails from './pages/game_details';
 import UserDetails from './pages/user_details';
 
@@ -57,6 +59,7 @@ class LayoutRoutes extends React.Component<any, {compactHeader: boolean}> {
 				<Route path='/rankings/:type/:page' component={Rankings}/>
 				<Route path='/rankings/:type' component={Rankings}/>
 				<Route path='/rankings' component={Rankings}/>
+				<Route path='/search' component={Search}/>
 				<Route path='/games/:id' component={GameDetails}/>
 				<Route path='/users/:id' component={UserDetails}/>
 				<Route path='/gallery' component={Gallery}/>
