@@ -11,7 +11,7 @@ import GameStage from './stages/game_stage';
 
 let first_load = true;
 
-const TDD1 = true;//auto room joining
+const TDD1 = false;//auto room joining
 const TDD2 = false;//auto sit and ready
 
 interface CoreState extends BaseProps {

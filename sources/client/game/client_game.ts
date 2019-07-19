@@ -86,6 +86,7 @@ let p_h: Player, p_h2: Player, em_i: number,
 export interface ListenersSchema {
 	onInitData: (data: InitDataSchema[]) => void;
 	onTimerUpdate: (remaining_time: number) => void;
+	onEnemiesCountUpdate: (count: number) => void;
 	onNotification: (content: string) => void;
 
 	onPlayerHpChange: (index: number, value: number) => void;
@@ -421,7 +422,6 @@ export default class ClientGame extends GameCore {
 				enemy.setRot( data[index + 5] );
 
 				this.enemies.push( enemy );//add to GameMap objects
-
 				this.enemy_spawners.push( new EnemySpawner(enemy) );
 
 				index += 6;
@@ -1097,6 +1097,7 @@ export default class ClientGame extends GameCore {
 				}
 			}
 		}
+		this.listeners.onEnemiesCountUpdate(this.enemies.length);
 
 		this.renderer.draw(delta);
 

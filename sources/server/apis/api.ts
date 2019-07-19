@@ -4,7 +4,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import Config from '../../common/config';
+import Sessions from '../sessions';
 import {UPLOADS_FOLDER} from '../upload_receiver';
+import ERROR_CODES from '../../common/error_codes';
 
 import CommonApi from './common';
 import AccountApi from './account';
@@ -25,6 +27,13 @@ import StatisticsApi from './statistics';
 			random_nick, hashed_password, random_email, '');
 	}
 }, 5000);*/
+
+export async function checkAdminPermissions(token: string) {
+	let account_res = await Sessions.token_login(token);
+	if(account_res.error !== ERROR_CODES.SUCCESS || !account_res.account)
+		return false;//res.json({error: account_res.error});
+	return account_res.account.admin;
+}
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));

@@ -27,9 +27,7 @@ const SYNC_EVERY_N_FRAMES = 30;//(240)//synchronize roughly each N/60 second
 //game constants
 const ENEMY_WAVES_FREQUENCY = 5;//spawn new enemies each n seconds
 const FIRST_ENEMY_WAVE_DELAY = Config.ROUND_START_DELAY + 3;//seconds to first enemy wave
-const ENEMIES_PER_WAVE = 10, MAXIMUM_ENEMIES = 200, MAXIMUM_COMPETITION_ENEMIES = 100;
-//TODO: make a variable from MAXIMUM_ENEMIES and allow room's owner to change it within room settings
-//200 should be max
+const ENEMIES_PER_WAVE = 10/*, MAXIMUM_ENEMIES = 200, MAXIMUM_COMPETITION_ENEMIES = 100*/;
 
 const ITEM_SPAWN_FREQUENCY = 0.2;//changed from 0.5 (04.09.2018)
 
@@ -137,19 +135,15 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		this.room = room;//contains players data
 
 		this.running = false;
-		//this.duration = 2674;//any value other than 0
 
 		this.maximum_enemies = 0;
 
-		if(room.gamemode === GAME_MODES.COOPERATION)
-			this.maximum_enemies = MAXIMUM_ENEMIES;
-		else if(room.gamemode === GAME_MODES.COMPETITION)
-			this.maximum_enemies = MAXIMUM_COMPETITION_ENEMIES;
+		//if(room.gamemode === GAME_MODES.COOPERATION)
+		this.maximum_enemies = room.max_enemies;//MAXIMUM_ENEMIES;
+		//else if(room.gamemode === GAME_MODES.COMPETITION)
+		//	this.maximum_enemies = MAXIMUM_COMPETITION_ENEMIES;
 
 		this.bounceVec = new Vec2f();//buffer object for storing bounce results
-		// this.respawning_players = [];
-
-		// this.dataForClients = [];
 
 		try {
 			let result = super.loadMap(map);
@@ -641,7 +635,8 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 
 			this.dataForClients.push(NetworkCodes.WAVE_INFO, this.wave_number);
 
-			for(wave_i=0; wave_i < ENEMIES_PER_WAVE*this.players.length; wave_i++) {
+			//for(wave_i=0; wave_i < ENEMIES_PER_WAVE*this.players.length; wave_i++) {
+			for(wave_i=0; wave_i < ENEMIES_PER_WAVE && this.enemies.length < this.maximum_enemies; wave_i++) {
 				let enemy_class_index = GameCore.getRandomEnemyClassIndex();
 				
 				let enemy = super.spawnEnemy( enemy_class_index );

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ContainerPage, {ContainerProps} from "./container_page";
-import { Line as LineChart } from 'react-chartjs-2';
+import {Line as LineChart} from 'react-chartjs-2';
 import {offsetTop} from "../components/sidepops/sidepops_common";
 import ServerApi from '../utils/server_api';
 import Utils from '../utils/utils';
@@ -47,18 +47,22 @@ const DEFAULT_DATA = {
     }]
 };
 
-interface AdminPageState extends ContainerProps {}
+interface AdminPageState extends ContainerProps {
+	execution_successful: boolean;
+}
 
 // noinspection JSUnusedGlobalSymbols
 export default class AdminPage extends React.Component<any, AdminPageState> {
 	private from_input: HTMLInputElement | null = null;
 	private to_input: HTMLInputElement | null = null;
 	private visits_chart: LineChart | null = null;
+	private command_input: HTMLInputElement | null = null;
 	
 	state: AdminPageState = {
 		error: undefined,
 		loading: false,
 		show_navigator: false,
+		execution_successful: false,
 	};
 	
 	constructor(props: any) {
@@ -122,6 +126,33 @@ export default class AdminPage extends React.Component<any, AdminPageState> {
 		}
 	}
 	
+	private async executeCommand() {
+		if( !this.command_input )
+			return;
+		let cmd = this.command_input.value.trim();
+		if(cmd.length < 2)
+			return;
+		this.command_input.value = '';
+		try {
+			let res = await ServerApi.postRequest('/execute_bash_command', {
+				token: Account.getToken(),
+				cmd
+			});
+			
+			if (res['error'] !== ERROR_CODES.SUCCESS) {
+				this.setError(errorMsg(res.error));
+				this.setState({execution_successful: false});
+			} else {
+				console.log(res.response);
+				this.setState({execution_successful: true});
+			}
+		}
+		catch (e) {
+			this.setError(errorMsg(ERROR_CODES.SERVER_UNREACHABLE));
+			this.setState({execution_successful: false});
+		}
+	}
+	
 	render() {
 		return <ContainerPage key={'rankings'} className={'admin-panel'} {...this.state}>
 			<div className={'statistics'}>
@@ -142,6 +173,18 @@ export default class AdminPage extends React.Component<any, AdminPageState> {
 				</div>
 				<LineChart width={600} height={400} ref={chart => this.visits_chart = chart}
 			           data={DEFAULT_DATA} options={Utils.LINE_CHART_OPTIONS} />
+			</div>
+			<hr />
+			<div>
+				{this.state.execution_successful && <div style={{
+					fontWeight: 'bold',
+					color: '#66BB6A'
+				}}>Command executed</div>}
+				<input type={'text'} placeholder={'Bash command'} ref={el => this.command_input = el} onKeyDown={e => {
+					if(e.keyCode === 13)
+						this.executeCommand().catch(console.error);
+				}} />
+				<button style={offsetTop} onClick={this.executeCommand.bind(this)}>EXECUTE</button>
 			</div>
 		</ContainerPage>;
 	}

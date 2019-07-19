@@ -17,9 +17,13 @@ export default {
 				duration: room.duration,
 				max_enemies: room.max_enemies,
 				results: players_results.map(result => {
-					delete result.avatar;//it is redundant and user may change avatar after game
-					delete result.user_id;//irrelevant for database
-					return result;
+					let result_copy = {
+						...result
+					};
+					delete result_copy.avatar;//it is redundant and user may change avatar after game
+					delete result_copy.user_id;//irrelevant for database
+					
+					return result_copy;
 				})
 			});
 			if( !insert_res.result.ok )

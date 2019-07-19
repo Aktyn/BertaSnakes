@@ -291,6 +291,10 @@ export default {
 		//console.log(connection.req.headers.cookie);
 		return connection;
 	},
+	
+	getSize() {
+		return connections.size;
+	},
 
 	remove(connection: Connection) {
 		if(connection.user)

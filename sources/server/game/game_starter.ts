@@ -1,5 +1,4 @@
 /* Starts counter to game start and distributes counter updates to room users per second */
-
 import RoomInfo from '../../common/room_info';
 import GameHandler from './game_handler';
 import RoomsManager from './rooms_manager';
@@ -68,5 +67,9 @@ export default {
 
 	getRunningGame(room_id: number) {
 		return running_games.get(room_id);
+	},
+	
+	getRunningGamesCount() {
+		return running_games.size;
 	}
 }

@@ -20,7 +20,7 @@ catch(e) {
 	app_version = '1.0.0';
 }
 
-global.APP_VERSION = app_version.replace(/\./g, '_') || 'unknown version';
+global.APP_VERSION = app_version/*.replace(/\./g, '_')*/ || 'unknown version';
 
 import './database/core';//initializes database
 

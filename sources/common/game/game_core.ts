@@ -11,7 +11,7 @@ import Item, {ITEM_TYPES} from './objects/item';
 declare var _CLIENT_: boolean;
 
 export interface InitDataSchema {
-	id: number;
+	id: number;//user's id
 	account_id?: string;
 	nick: string;
 	avatar: string | null;

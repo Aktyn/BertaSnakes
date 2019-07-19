@@ -49,7 +49,7 @@
 		height: 350px;
 		overflow: hidden;
 		
-		background: linear-gradient(45deg, rgba(86, 112, 113, 0.66), rgba(55, 102, 104, 0.66));
+		background: linear-gradient(45deg, #715656a8, rgba(55, 102, 104, 0.66));
 		
 		& > * {
 			position: relative;
@@ -99,14 +99,14 @@
 		}
 		
 		height: 256px;
-		//background-color: #fff;
 		
-		$sideCol: nth($palette, 2);
-		background: linear-gradient(90deg, $sideCol, white,	$sideCol);
+		$sideColLeft: #96bcc6;
+		$sideColRight: #d6a6a7;//nth($palette, 2);
+		background: linear-gradient(90deg, $sideColLeft, white,	$sideColRight);
 		
 		@media (max-width: 750px) {
-			background: linear-gradient(90deg, $sideCol calc(50% - 400px), white 50%,
-				$sideCol calc(50% + 400px));
+			background: linear-gradient(90deg, $sideColLeft calc(50% - 400px), white 50%,
+				$sideColRight calc(50% + 400px));
 		}
 		
 		h1 {

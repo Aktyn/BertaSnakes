@@ -16,14 +16,14 @@ async function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 	//updating user's database entries according to game result
 	if(typeof result_json === 'string')
 		result_json = JSON.parse(result_json);
-	
 	//console.log( room );
 	//console.log( result_json );
 	
 	//saving game result as database result
 	await Database.saveGameResult(room, result_json.players_results).catch(console.error);
 
-	result_json.players_results.forEach(async (result) => {
+	//result_json.players_results.forEach(async (result) => {
+	for(let result of result_json.players_results) {
 		if(!result.account_id)//ignore guests
 			return;
 		let account_id = result.account_id;
@@ -48,10 +48,10 @@ async function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 		
 		let user = room.getUserByID(result.user_id);
 		if(user && user.connection && user.account_id === account_id) {
-			user.connection.updateUserData(AccountSchema2UserCustomData(account_schema));
+			user.connection.updateUserData( AccountSchema2UserCustomData(account_schema) );
 			RoomsManager.onRoomUserCustomDataUpdate(room, user);
 		}
-	});
+	}
 }
 
 function onGameFailedToStart(room: RoomInfo) {
@@ -78,16 +78,16 @@ export default class GameHandler {
 	private remaining_confirmations: number[];
 	private game_started = false;
 
-	constructor(_room: RoomInfo, _onExit: (no_error: boolean) => void) {
-		this.onExit = _onExit;
-		this.room = _room;
+	constructor(room: RoomInfo, onExit: (no_error: boolean) => void) {
+		this.onExit = onExit;
+		this.room = room;
 
 		//prepare confirmations system
-		this.remaining_confirmations = [..._room.sits];
+		this.remaining_confirmations = [...room.sits];
 
 		setTimeout(() => {//after 10 seconds check if everyone confirmed game start
 			if( !this.game_started ) {//if not started yet
-				onGameFailedToStart(_room);
+				onGameFailedToStart(room);
 				this.onGameEnd();
 			}
 		}, 10 * 1000);
@@ -121,19 +121,19 @@ export default class GameHandler {
 			});
 
 			//distribute game start message
-			_room.forEachUser(user => {
+			room.forEachUser(user => {
 				if(user.connection)
-					user.connection.sendOnGameStartEvent(_room);
+					user.connection.sendOnGameStartEvent(room);
 			});
 
 			//distribute room remove to every lobby subscriber
-			Connections.forEachLobbyUser(conn => conn.onRoomRemove(_room));
+			Connections.forEachLobbyUser(conn => conn.onRoomRemove(room));
 
 		}
 		catch(e) {
 			console.error(e);
 
-			onGameFailedToStart(_room);
+			onGameFailedToStart(room);
 			this.onGameEnd();
 		}
 	}
@@ -194,9 +194,9 @@ export default class GameHandler {
 				});
 
 				//saving game result to database
-				saveGameResult(this.room, msg.data.result).catch(console.error);
-
-				this.onGameEnd(true);
+				saveGameResult(this.room, msg.data.result).then(() => {
+					this.onGameEnd(true);
+				}).catch(console.error);
 			}	break;
 			case NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32: {//fast data distribution
 				try {

@@ -40,6 +40,10 @@ setInterval(() => {//making sure there are at least few rooms existing
 
 //from_connection - connections that requested to create room
 export default {
+	getRoomsCount() {
+		return rooms.size;
+	},
+	
 	createRoom(from_connection: Connection) {
 		if(!from_connection.user)
 			return;

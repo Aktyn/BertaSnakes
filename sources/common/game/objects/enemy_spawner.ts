@@ -1,5 +1,6 @@
 import Object2D from './object2d';
 import {MOVEMENT_FLAGS} from '../common/movement';
+import Enemy from './enemy';
 import PoisonousEnemy from './poisonous_enemy';
 
 declare var _CLIENT_: boolean;
@@ -24,7 +25,7 @@ export default class EnemySpawner extends Object2D {
 
 	private readonly entity_name?: string;
 
-	constructor(enemy: any) {//@enemy - instance of Enemy
+	constructor(enemy: Enemy) {
 		super();
 
 		super.setScale(0, 0);

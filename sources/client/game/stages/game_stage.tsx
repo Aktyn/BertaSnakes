@@ -68,13 +68,15 @@ export default class extends StageBase<BaseProps, GameState> {
 	private chat_toggler: HTMLButtonElement | null = null;
 	private right_panel_toggler: HTMLButtonElement | null = null;
 	private exit_btn: HTMLButtonElement | null = null;
-	//@ts-ignore
+	
 	private timer: HTMLSpanElement | null = null;
+	private enemies_counter: HTMLSpanElement | null = null;
 
 	private exit_confirmation: NodeJS.Timeout | null = null;
 	private readonly fullscreen_change_listener: (fullscreen: boolean) => void;
 
 	private speed_update_filter = 0;
+	private enemies_count = 0;
 
 	//public ready = false;
 	private mounted = false;
@@ -180,6 +182,12 @@ export default class extends StageBase<BaseProps, GameState> {
 						minutes: 'm', 
 						seconds: 's'
 					});
+				}
+			},
+			onEnemiesCountUpdate: (count) => {
+				if(this.enemies_counter && this.enemies_count !== count && this.props.current_room) {
+					this.enemies_count = count;
+					this.enemies_counter.innerText = `${count}/${this.props.current_room.max_enemies}`;
 				}
 			},
 			onNotification: (content) => {
@@ -372,6 +380,7 @@ export default class extends StageBase<BaseProps, GameState> {
 			</tr>
 			<tr><td>Map:</td><td>{this.props.current_room.map}</td></tr>
 			<tr><td>Mode:</td><td>{Utils.GAMEMODES_NAMES[this.props.current_room.gamemode]}</td></tr>
+			<tr><td>Enemies:</td><td><span ref={el => this.enemies_counter = el}>0</span></td></tr>
 			<tr><td>Time:</td><td><span ref={el => this.timer = el}>---</span></td></tr>
 		</tbody></table>;
 	}

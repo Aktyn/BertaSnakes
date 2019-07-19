@@ -1,15 +1,8 @@
 import * as express from 'express';
 import ERROR_CODES from '../../common/error_codes';
 import Database from '../database/core';
-import Sessions from '../sessions';
 import {extractIP} from "../utils";
-
-async function checkAdminPermissions(token: string) {
-	let account_res = await Sessions.token_login(token);
-	if(account_res.error !== ERROR_CODES.SUCCESS || !account_res.account)
-		return false;//res.json({error: account_res.error});
-	return account_res.account.admin;
-}
+import {checkAdminPermissions} from "./api";
 
 function open(app: express.Express) {
 	app.post('/register_guest_visit', (req, res) => {

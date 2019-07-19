@@ -41,7 +41,7 @@ $togglerSize: 30px;
 				width: $leftWidth * 0.8;
 				
 				.notifications-container {
-					width: $leftWidth * 0.8;
+					width: $leftWidth * 0.8 !important;
 				}
 			}
 			

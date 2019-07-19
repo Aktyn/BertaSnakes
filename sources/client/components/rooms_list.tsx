@@ -29,6 +29,8 @@ export default class RoomsList extends React.Component<RoomsListProps, any> {
 					<td>
 						<div>{Utils.trimString(room.name, 20)}</div>
 						<strong>{room.map}</strong>
+						<span className='separator'/>
+						<span>{room.max_enemies}</span>
 					</td>
 					<td>
 						<div>
