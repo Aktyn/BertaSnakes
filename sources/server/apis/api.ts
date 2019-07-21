@@ -11,6 +11,7 @@ import ERROR_CODES from '../../common/error_codes';
 import CommonApi from './common';
 import AccountApi from './account';
 import GettersApi from './getters';
+import SearchApi from './search';
 import TransactionsApi from './transactions';
 import StatisticsApi from './statistics';
 
@@ -50,6 +51,7 @@ app.use(function(req, res, next) {//ALLOW CROSS-DOMAIN REQUESTS
 CommonApi.open(app);
 AccountApi.open(app);
 GettersApi.open(app);
+SearchApi.open(app);
 TransactionsApi.open(app);
 StatisticsApi.open(app);
 

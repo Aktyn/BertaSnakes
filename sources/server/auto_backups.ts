@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import Config from '../common/config';
 import {UPLOADS_FOLDER} from './upload_receiver';
 import {executeCommand, makeSureFolderExists} from "./utils";
-import {getCredentials} from "./database/core";
+import {getCredentials} from "./database";
 
 const BACKUPS_FOLDER = path.join(__dirname, '..', '..', 'backups');
 

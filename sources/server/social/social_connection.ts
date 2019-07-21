@@ -1,4 +1,4 @@
-import Database, {AccountSchema, PublicAccountSchema, FriendSchema, SocialMessage} from '../database/core';
+import Database, {AccountSchema, PublicAccountSchema, FriendSchema, SocialMessage} from '../database';
 import ERROR_CODES from "../../common/error_codes";
 import SOCIAL_CODES from "../../common/social_codes";
 import {RoomCustomData} from "../../common/room_info";

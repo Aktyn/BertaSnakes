@@ -5,14 +5,13 @@ import PropTypes from 'prop-types'
 import ServerApi from '../../utils/server_api';
 import ERROR_CODES from '../../../common/error_codes';
 import Config from '../../../common/config';
-import {GameSchema, PublicAccountSchema} from "../../../server/database/core";
-import Utils from '../../utils/utils';
-import RewardIndicator from "../widgets/reward_indicator";
+import {GameSchema, PublicAccountSchema} from "../../../server/database";
 import PagesController from "../widgets/pages_controller";
 import ResultsTable from "../results_table";
-import GameInfoList, {convertDate} from "../widgets/game_info_list";
+import GameInfoList from "../widgets/game_info_list";
 import UserSidepop from "./user_sidepop";
 import SharePanel from "./share_panel";
+import GameListItem from "../widgets/game_list_item";
 
 interface GamesSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -78,45 +77,17 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 		this.setState({focused_game: null});
 	}
 	
-	private renderGamesList() {
-		return this.state.games.map(game => {
+	// noinspection JSMethodCanBeStatic
+	private renderGamesList(games: GameSchema[]) {
+		return games.map(game => {
 			let position = game.results.findIndex(result => result.account_id === this.props.account.id);
-			return <tr key={game._id} onClick={() => {
-				if(this.props.container_mode) {
+			return <GameListItem key={game._id} {...{game, position}} onClick={() => {
+				if (this.props.container_mode) {
 					//this.setState({redirect_to: game._id});
 					this.context.router.history.push('/games/' + game._id);
-				}
-				else
+				} else
 					this.setState({focused_game: game});
-			}}>
-				<td style={{textAlign: 'left'}}>
-					<div style={{fontWeight: 'bold'}}>{Utils.trimString(game.name, 20)}</div>
-					<div>{convertDate(game.finish_timestamp)}</div>
-				</td>
-				<td>
-					<div style={{
-						display: 'inline-grid',
-						gridTemplateColumns: 'auto fit-content(100%) auto',
-						gridTemplateRows: '1fr 1fr',
-						alignItems: 'center'
-					}}>
-						<span>{game.map}</span>
-						<span className={'separator'} style={{backgroundColor: '#B0BEC5'}} />
-						<span>{Math.round(game.duration/60)}&nbsp;min</span>
-						
-						<span>{Utils.GAMEMODES_NAMES[game.gamemode]}</span>
-						<span className={'separator'} style={{backgroundColor: '#B0BEC5'}} />
-						<span>{game.max_enemies}</span>
-					</div>
-				</td>
-				<td>
-					<div>Pos:&nbsp;{position+1}/{game.results.length}</div>
-					<div>
-						Rank: {Math.round(game.results[position].rank)}&nbsp;
-						<RewardIndicator reward={game.results[position].rank_reward} />
-					</div>
-				</td>
-			</tr>;
+			}} />
 		});
 	}
 	
@@ -149,7 +120,7 @@ export default class GamesSection extends React.Component<GamesSectionProps, Gam
 		return <section>
 			<h3 className={'fader-in'}>{this.props.account.username}'s games</h3>
 			<table className={'games-list fader-in'}>
-				<tbody>{this.renderGamesList()}</tbody>
+				<tbody>{this.renderGamesList(this.state.games)}</tbody>
 			</table>
 			<div className='fader-in'>{
 				this.props.total_games > Config.ITEMS_PER_GAMES_LIST_PAGE &&

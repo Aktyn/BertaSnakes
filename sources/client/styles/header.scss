@@ -69,6 +69,7 @@ $bottomSize: 20px;
 					display: block;
 					line-height: $playBtnSize;
 					height: $playBtnSize;
+					min-width: $playBtnSize*0.92;
 					
 					font-size: 50px;
 					font-weight: normal;

@@ -1,7 +1,7 @@
 import {ObjectId} from 'mongodb';
 
 import ERROR_CODES from "../../../common/error_codes";
-import {getCollection, COLLECTIONS} from "../core";
+import {getCollection, COLLECTIONS} from "..";
 
 export default {
 	async addSession(_account_id: string, _token: string, _expiration_date: number) {

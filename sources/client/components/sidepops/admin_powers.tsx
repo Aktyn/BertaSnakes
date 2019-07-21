@@ -6,7 +6,7 @@ import Utils from '../../utils/utils';
 import ServerApi from '../../utils/server_api';
 import Account from '../../account';
 import ERROR_CODES from '../../../common/error_codes';
-import {PublicAccountSchema} from '../../../server/database/core';
+import {PublicAccountSchema} from '../../../server/database';
 
 const DEFAULT_DATA = {
     datasets: [{

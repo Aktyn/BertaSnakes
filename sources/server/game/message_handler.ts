@@ -1,7 +1,7 @@
 import Connections, {Connection} from './connections';
 import NetworkCodes, {NetworkPackage} from '../../common/network_codes';
 import ERROR_CODES from '../../common/error_codes';
-import Database from '../database/core';
+import Database from '../database';
 import {AccountSchema2UserCustomData} from '../utils';
 
 import RoomManager from './rooms_manager';

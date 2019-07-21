@@ -7,8 +7,8 @@ import ERROR_CODES from '../common/error_codes';
 import {PLAYER_TYPES} from "../common/game/objects/player";
 import {UserCustomData} from "../common/user_info";
 
-import {AccountSchema} from '../server/database/core';
-export {AccountSchema} from '../server/database/core';
+import {AccountSchema} from '../server/database';
+export {AccountSchema} from '../server/database';
 
 let current_account: AccountSchema | null = null;
 let on_login_listeners: ((account: AccountSchema | null) => void)[] = [];

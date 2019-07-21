@@ -8,7 +8,7 @@ import {
 	getCollection,
 	PublicAccountSchema,
 	SocialMessage
-} from '../core';
+} from '../index';
 import ERROR_CODES from '../../../common/error_codes';
 
 function mapFriendshipData(data: any[], is_left: boolean) {

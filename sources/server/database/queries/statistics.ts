@@ -1,5 +1,5 @@
 import {ObjectId} from 'mongodb';
-import {AccountSchema, COLLECTIONS, getCollection} from "../core";
+import {AccountSchema, COLLECTIONS, getCollection} from "..";
 import ERROR_CODES from '../../../common/error_codes';
 
 const DAY_MS = 1000*60*60*24;
@@ -146,6 +146,8 @@ export default {
 						count: {$sum: 1}
 					}
 				}, {
+					$limit: 365
+				}, {
 					$project: {
 						_id: 0,
 						count: 1,
@@ -209,6 +211,8 @@ export default {
 						total_visits: { $sum: '$count' },
 						unique_visits: {$sum: 1}
 					}
+				}, {
+					$limit: 365
 				}, {
 					$project: {
 						_id: 0,

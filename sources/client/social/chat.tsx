@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {AccountSchema, FriendSchema, SocialMessage} from "../../server/database/core";
+import {AccountSchema, FriendSchema, SocialMessage} from "../../server/database";
 import Config from '../../common/config';
 import Social, {EVENT_NAMES} from './social';
 import {pushSocialMessage} from "../../common/social_utils";
@@ -7,8 +7,17 @@ import Utils from '../utils/utils';
 import ServerApi from '../utils/server_api';
 import NotificationsIndicator, {COMMON_LABELS, NotificationSchema} from '../components/widgets/notifications_indicator';
 import UserSidepop from '../components/sidepops/user_sidepop';
+import TypingEffect from "../components/widgets/typing_effect";
 
 import '../styles/social_chat.scss';
+
+/*const typingParams: TypingEffectProps = {
+	showCursor: true,
+	minSpeed: 16,
+	maxSpeed: 16
+};*/
+const TYPING_DURATION = 500;//1 second to type entire message
+const MIN_TYPING_SPEED = 80;
 
 //key is a friendship id
 let conversations: Map<string, SocialMessage[]> = new Map();
@@ -82,6 +91,7 @@ interface ChatProps {
 interface ChatState {
 	messages: SocialMessage[];
 	spam_warning: boolean;
+	typing_message_timestamp: number;
 }
 
 export default class Chat extends React.Component<ChatProps, ChatState> {
@@ -105,7 +115,8 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 	
 	state: ChatState = {
 		messages: [],
-		spam_warning: false
+		spam_warning: false,
+		typing_message_timestamp: 0
 	};
 	
 	constructor(props: ChatProps) {
@@ -156,18 +167,6 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 		if( !conversation_data || conversation_data.friendship_id !== this.props.recipient.friendship_id )
 			return;
 		
-		/*console.log( conversation_data.conversation.reduce((prev, curr) => {
-			prev.content = prev.content.concat(curr.content);
-			return prev;
-		}).content.length );*/
-		
-		//NOTE: there is assumption here that there are fever current messages that in conversation
-		//so we are pushing current messages into just received conversation
-		/*for(let msg of this.state.messages)
-			pushSocialMessage(conversation_data.conversation, msg);
-		conversations.set(conversation_data.friendship_id, conversation_data.conversation);
-		this.setState({messages: conversation_data.conversation});*///and set updated conversation in chat state
-		
 		let messages = this.state.messages;
 		conversations.set(conversation_data.friendship_id, messages);
 		
@@ -201,7 +200,10 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 		if(last_pushed_message_id !== message.id)
 			pushSocialMessage(current, message);
 		last_pushed_message_id = message.id;
-		this.setState({messages: current});
+		this.setState({
+			messages: current,
+			typing_message_timestamp: current[current.length-1].timestamp
+		});
 		
 		return true;
 	}
@@ -272,7 +274,18 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 						let link_matches = line.match(url_regex);
 						if( link_matches )
 							return Chat.renderLinkMessage(line, line_i, link_matches);
-						return <div key={line_i}>{line}</div>;
+						//console.log(this.state.typing_message_timestamp !== msg.timestamp,
+						//	this.state.typing_message_timestamp, msg.timestamp);
+						let do_typing = line.length < 40 && this.state.typing_message_timestamp === msg.timestamp
+							&& line_i === msg.content.length-1;
+						let speed = 0;
+						if(do_typing) {
+							speed = Math.min(MIN_TYPING_SPEED,
+								Math.max(1, (TYPING_DURATION / line.length) | 0));
+						}
+						return <div key={line_i}>{do_typing ? <TypingEffect
+							showCursor={true} minSpeed={speed} maxSpeed={speed}>{line}</TypingEffect> : line
+						}</div>;
 					})}
 				</div>
 			</div>;

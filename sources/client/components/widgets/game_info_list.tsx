@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {offsetTop} from "../sidepops/sidepops_common";
-import {GameSchema} from "../../../server/database/core";
+import {GameSchema} from "../../../server/database";
 import Utils from '../../utils/utils';
 
 export function convertDate(timestamp: number) {

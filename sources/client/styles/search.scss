@@ -1,3 +1,49 @@
 .search-page {
-	background-color: pink;
+	
+	
+	& > nav {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		height: 38px;
+		border-bottom: 2px solid #B0BEC5;
+		
+		position: relative;
+		
+		& > :not(.indicator) {
+			font-weight: bold;
+			font-size: 16px;
+		}
+		
+		& > .indicator {
+			content: "";
+			position: absolute;
+			left: 0px;
+			bottom: -2px;
+			height: 2px;
+			width: 50%;
+			background-color: #ef9a9a;
+			
+			transition: transform 0.5s cubic-bezier(.87,-.41,.19,1.44);
+		}
+	}
+	
+	.results-table {
+		border-collapse: collapse;
+		
+		tr > td, tr > th {
+			padding: 3px;
+		}
+		
+		img {
+			max-height: 25px;
+			border-radius: 25px;
+		}
+		
+		@media (max-width: 500px) {
+			.hide-on-shrink {
+				display: none;
+			}
+		}
+	}
 }

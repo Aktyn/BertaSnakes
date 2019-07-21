@@ -5,12 +5,12 @@ import SOCIAL_CODES, {SocialNetworkPackage} from '../../common/social_codes';
 import ERROR_CODES from '../../common/error_codes';
 import Events from "../utils/events";
 
-import {FriendSchema, PublicAccountSchema} from "../../server/database/core";
+import {FriendSchema, PublicAccountSchema} from "../../server/database";
 import AccountSidepop, {VIEWS} from "../components/sidepops/account_sidepop";
 import UserSidepop from "../components/sidepops/user_sidepop";
 import Chat from './chat';
 
-export {FriendSchema} from '../../server/database/core';
+export {FriendSchema} from '../../server/database';
 
 let friends: FriendSchema[] = [];
 let potential_friends: PublicAccountSchema[] = [];
@@ -242,7 +242,7 @@ function send(data: SocialNetworkPackage) {
 		return ERROR_CODES.SUCCESS;
 	}
 	catch(e) {
-		console.error('Cannot send message, reason:', e);
+		console.warn('Cannot send message, reason:', e);//just warning because this is not the end of the world
 		return ERROR_CODES.CANNOT_SEND_JSON_MESSAGE;
 	}
 }

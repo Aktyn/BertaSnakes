@@ -1,5 +1,5 @@
 import Config, {RANKING_TYPES} from "../../../common/config";
-import {extractUserPublicData, PublicAccountSchema, COLLECTIONS, getCollection} from "../core";
+import {extractUserPublicData, PublicAccountSchema, COLLECTIONS, getCollection} from "..";
 import {getTotalAccounts} from "../cached";
 import ERROR_CODES from "../../../common/error_codes";
 

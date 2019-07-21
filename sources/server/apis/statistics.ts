@@ -1,6 +1,6 @@
 import * as express from 'express';
 import ERROR_CODES from '../../common/error_codes';
-import Database from '../database/core';
+import Database from '../database';
 import {extractIP} from "../utils";
 import {checkAdminPermissions} from "./api";
 

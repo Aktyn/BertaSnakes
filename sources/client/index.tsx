@@ -56,12 +56,18 @@ class LayoutRoutes extends React.Component<any, {compactHeader: boolean}> {
 		return <Layout compactHeader={this.state.compactHeader}>
 			<Switch>
 				<Route path='/' exact component={Home}/>
+				
 				<Route path='/rankings/:type/:page' component={Rankings}/>
 				<Route path='/rankings/:type' component={Rankings}/>
 				<Route path='/rankings' component={Rankings}/>
+				
+				<Route path='/search/:category/:value' component={Search}/>
+				<Route path='/search/:category' component={Search}/>
 				<Route path='/search' component={Search}/>
+				
 				<Route path='/games/:id' component={GameDetails}/>
 				<Route path='/users/:id' component={UserDetails}/>
+				
 				<Route path='/gallery' component={Gallery}/>
 				<Route path='/admin' component={Admin}/>
 				<Route component={NotFound}/>

@@ -4,7 +4,7 @@ import {withRouter} from "react-router";
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
 import ServerApi from '../utils/server_api';
 import ContainerPage, {ContainerProps} from "./container_page";
-import {GameSchema} from "../../server/database/core";
+import {GameSchema} from "../../server/database";
 import ResultsTable from "../components/results_table";
 import GameInfoList from "../components/widgets/game_info_list";
 

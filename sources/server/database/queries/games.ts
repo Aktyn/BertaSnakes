@@ -2,9 +2,17 @@ import {ObjectId} from 'mongodb';
 import Config from '../../../common/config';
 
 import RoomInfo from "../../../common/room_info";
-import {GameSchema, COLLECTIONS, getCollection} from "../core";
+import {GameSchema, COLLECTIONS, getCollection} from "..";
 import {PlayerResultJSON} from "../../../common/game/game_result";
 import ERROR_CODES from "../../../common/error_codes";
+import {escapeRegExp} from "../../utils";
+
+function fixGameSchemas(games: GameSchema[]) {
+	games.forEach(g => {
+		g.finish_timestamp = (g._id as unknown as ObjectId).getTimestamp().getTime();//NOTE - order is important
+		g._id = (g._id as unknown as ObjectId).toHexString();
+	});
+}
 
 export default {
 	async saveGameResult(room: RoomInfo, players_results: PlayerResultJSON[]) {
@@ -48,10 +56,9 @@ export default {
 					}
 				}, {
 					$sort: {_id: -1}
-				}, {
+				}/*, {
 					$project: {
 						_id: 1,
-						//finish_timestamp: 1,
 						name: 1,
 						map: 1,
 						gamemode: 1,
@@ -59,17 +66,14 @@ export default {
 						max_enemies: 1,
 						results: 1
 					}
-				}, {
+				}*/, {
                     $limit: (page+1)*Config.ITEMS_PER_GAMES_LIST_PAGE
                 }, {
                     $skip: page*Config.ITEMS_PER_GAMES_LIST_PAGE
                 }
 			]).toArray();
 			
-			games.forEach(g => {
-				g.finish_timestamp = (g._id as unknown as ObjectId).getTimestamp().getTime();//NOTE - order is important
-				g._id = (g._id as unknown as ObjectId).toHexString();
-			});
+			fixGameSchemas(games);
 			
 			return {error: ERROR_CODES.SUCCESS, games};
 		}
@@ -90,6 +94,31 @@ export default {
 			return {
 				error: ERROR_CODES.SUCCESS,
 				game: game as GameSchema
+			};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async searchGame(_name: string) {
+		try {
+			let games: GameSchema[] = await getCollection(COLLECTIONS.games).aggregate([
+				{
+					$match: {
+						name: new RegExp(`.*${escapeRegExp(_name)}.*`, 'i')//*name*
+					}
+				}, {
+					$limit: 64
+				}
+			]).toArray();
+			
+			fixGameSchemas(games);
+			
+			return {
+				error: ERROR_CODES.SUCCESS,
+				games: games
 			};
 		}
 		catch(e) {

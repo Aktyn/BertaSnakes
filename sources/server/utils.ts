@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as express from 'express';
 import * as fs from 'fs';
 import {spawn} from 'child_process';
-import {AccountSchema} from './database/core';
+import {AccountSchema} from './database';
 import {UserCustomData} from '../common/user_info';
 
 const prompt = require('prompt-sync')();
@@ -34,6 +34,9 @@ export function md5(input: string) {
 /*export function encodeBase64(input: string) {
 	return Buffer.from(input).toString('base64');;
 }*/
+export function escapeRegExp(str: string) {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 export function AccountSchema2UserCustomData(account: AccountSchema): UserCustomData {
 	return {

@@ -210,6 +210,19 @@ button.glossy, a.glossy {
 	animation: shk-rot 0.82s cubic-bezier(.36,.07,.19,.97) both;
 }
 
+.more-icon {
+	display: block;
+	height: 25px;
+	width: 25px;
+	background-image: url('../img/icons/dots_black.svg');
+	opacity: 0.6;
+	transition: opacity 0.2s ease-in-out;
+	
+	&:hover {
+		opacity: 1;
+	}
+}
+
 @keyframes shake {
 	0%, 10%, 100% {
 		transform: rotate(0deg);

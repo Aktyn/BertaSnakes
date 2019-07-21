@@ -71,8 +71,8 @@ MongoClient.connect(uri, {
 	// INDEXES //
 	
 	//accounts
-	await db.collection(COLLECTIONS.accounts).createIndex({username: 'hashed'}, 
-		{name: 'username_index'});//NOTE - hashed index cannot be unique at the moment
+	await db.collection(COLLECTIONS.accounts).createIndex({username: 1},
+		{name: 'username_search', unique: true});
 	await db.collection(COLLECTIONS.accounts).createIndex({email: 'hashed'}, 
 		{name: 'email_index'});
 	await db.collection(COLLECTIONS.accounts).createIndex({rank: -1},
@@ -89,8 +89,9 @@ MongoClient.connect(uri, {
 		{name: 'session_token'});
 	
 	//games
-	//await db.collection(COLLECTIONS.games).createIndex({finish_timestamp: 1},
-	//	{name: 'timestamp_index'});
+	//not hashed since search is done with use of regexp
+	await db.collection(COLLECTIONS.games).createIndex({name: 1},
+		{name: 'game_search'});
 	
 	//friends
 	await db.collection(COLLECTIONS.friendships).createIndex({from: 'hashed'},

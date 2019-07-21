@@ -3,7 +3,7 @@ import Sessions from '../sessions';
 import Email from '../email';
 import {extractIP, md5, sha256} from '../utils';
 import Config from '../../common/config';
-import Database from '../database/core';
+import Database from '../database';
 import UploadReceiver from '../upload_receiver';
 import ERROR_CODES from '../../common/error_codes';
 
@@ -11,34 +11,43 @@ import ERROR_CODES from '../../common/error_codes';
 let reset_codes: Map<string, string> = new Map();
 
 function open(app: express.Express) {
-	app.post('/login', async (req, res) => {
+	app.post('/login', async (req, res) => {//nick, password
 		try {
+			if( typeof req.body.nick !== 'string' || typeof req.body.password !== 'string' )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			let result = await Sessions.login(req.body.nick, req.body.password);
 			Database.registerVisit(result.account || null,
 				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
-			res.json(result);
+			return res.json(result);
 		}
 		catch(e) {
 			console.error(e);
-			res.json({error: ERROR_CODES.UNKNOWN});
+			return res.json({error: ERROR_CODES.UNKNOWN});
 		}
 	});
 	
-	app.post('/token_login', async (req, res) => {
+	app.post('/token_login', async (req, res) => {//token
 		try {
+			if( typeof req.body.token !== 'string' )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			let result = await Sessions.token_login(req.body.token);
 			Database.registerVisit(result.account || null,
 				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
-			res.json(result);
+			return res.json(result);
 		}
 		catch(e) {
 			console.error(e);
-			res.json({error: ERROR_CODES.UNKNOWN});
+			return res.json({error: ERROR_CODES.UNKNOWN});
 		}
 	});
 	
 	app.post('/register', async (req, res) => {//nick, password, email
 		try {
+			if( typeof req.body.nick !== "string" || typeof req.body.password !== 'string' ||
+				typeof req.body.email !== 'string')
+			{
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			}
 			const nick = req.body.nick.substr(0, Config.MAX_LOGIN_LENGTH);
 			if(nick < Config.MIN_LOGIN_LENGTH || req.body.password < Config.MIN_PASSWORD_LENGTH)
 				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
@@ -77,12 +86,14 @@ function open(app: express.Express) {
 	
 	app.post('/verify', async (req, res) => {//token, code
 		try {
+			if( typeof req.body.token !== "string" || typeof req.body.code !== 'string' )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			let result = await Database.verifyAccount(req.body.token, req.body.code);
-			res.json(result);
+			return res.json(result);
 		}
 		catch(e) {
 			console.error(e);
-			res.json({error: ERROR_CODES.CANNOT_VERIFY_ACCOUNT});
+			return res.json({error: ERROR_CODES.CANNOT_VERIFY_ACCOUNT});
 		}
 	});
 	

@@ -1,5 +1,5 @@
 import {ObjectId} from 'mongodb';
-import {getCollection, COLLECTIONS} from "./core";
+import {getCollection, COLLECTIONS} from ".";
 
 async function clearExpiredSessions() {
 	let res = await getCollection(COLLECTIONS.sessions).deleteMany({

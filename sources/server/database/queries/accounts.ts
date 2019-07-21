@@ -1,10 +1,10 @@
 import {ObjectId} from 'mongodb';
 import Config from '../../../common/config';
-
 import Sessions from './sessions';
-import {COLLECTIONS, extractUserPublicData, getCollection, AccountSchema} from "../core";
+import {COLLECTIONS, extractUserPublicData, getCollection, AccountSchema} from "..";
 import ERROR_CODES from "../../../common/error_codes";
 import {onAccountInserted} from "../cached";
+import {escapeRegExp} from "../../utils";
 
 function extractAccountSchema(account: any): AccountSchema {
 	return {
@@ -25,7 +25,7 @@ export default {
 	async login(_username: string, _password: string) {
 		try {
 			let account = await getCollection(COLLECTIONS.accounts).findOne({
-				username: new RegExp(`^${_username}$`, 'i')
+				username: new RegExp(`^${escapeRegExp(_username)}$`, 'i')
 			});
 
 			if(!account)
@@ -306,5 +306,28 @@ export default {
 			console.error(e);
 			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
-	}
+	},
+	
+	async searchAccount(_username: string) {
+		try {
+			let accounts = await getCollection(COLLECTIONS.accounts).aggregate([
+				{
+					$match: {
+						username: new RegExp(`.*${escapeRegExp(_username)}.*`, 'i')//*username*
+					}
+				}, {
+					$limit: 64
+				}
+			]).toArray();
+			
+			return {
+				error: ERROR_CODES.SUCCESS,
+				accounts: accounts.map(account => extractUserPublicData(account))
+			};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
 }

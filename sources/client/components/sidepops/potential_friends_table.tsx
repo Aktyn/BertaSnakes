@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ServerApi from '../../utils/server_api';
-import {PublicAccountSchema} from "../../../server/database/core";
+import {PublicAccountSchema} from "../../../server/database";
 import Social from '../../social/social';
 import UserSidepop from './user_sidepop';
 
