@@ -55,7 +55,7 @@ export function makeSureFolderExists(path: string) {
 	}
 }
 
-export function executeCommand(cmd: string): Promise<string> {
+export function executeCommand(cmd: string, timeout = 1000 * 60 * 5): Promise<string> {
 	return new Promise((resolve, reject) => {
 		let stdout = '';
 		let stderr = '';
@@ -65,7 +65,7 @@ export function executeCommand(cmd: string): Promise<string> {
 		setTimeout(() => {
 			expired = true;
 			reject('Command timeout');
-		}, 1000 * 60 * 5);//timeout after 5 minutes
+		}, timeout);//timeout after 5 minutes
 		
 		try {
 			let args = cmd.split(' ');

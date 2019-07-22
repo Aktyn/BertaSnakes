@@ -2,7 +2,7 @@ import * as express from 'express';
 import ERROR_CODES from '../../common/error_codes';
 import Database from '../database';
 import {extractIP} from "../utils";
-import {checkAdminPermissions} from "./api";
+import {checkAdminPermissions} from ".";
 
 function open(app: express.Express) {
 	app.post('/register_guest_visit', (req, res) => {

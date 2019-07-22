@@ -30,7 +30,7 @@ export interface RoomCustomData extends Omit<RoomSettings, 'sits_number'> {
 export default class RoomInfo {
 	private static room_id = 0;
 
-	readonly id: number;
+	public readonly id: number;
 	public name: string;
 
 	public map = Config.DEFAULT_MAP;
@@ -47,7 +47,7 @@ export default class RoomInfo {
 	public banned_ips: Set<string> = new Set();//server-side only use (stores Connection's ip addresses)
 
 	//if not null => game is running
-	public game_process: any = null;
+	public game_handler: any | null = null;
 
 	constructor(_id: number, _name: string) {
 		this.id = _id;

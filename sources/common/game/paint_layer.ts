@@ -20,8 +20,8 @@ export interface ChunkSchema {
 	matrix: Matrix2D,
 	canvas: HTMLCanvasElement,
 	ctx: CanvasRenderingContext2D,
-	buff: ImageData | null, //ctx.getImageData(0, 0, CHUNK_RES, CHUNK_RES)
-	//new Uint8Array(CHUNK_RES * CHUNK_RES * 4),
+	buff: ImageData | null, //ctx.getImageData(0, 0, this.CHUNK_RES, this.CHUNK_RES)
+	//new Uint8Array(this.CHUNK_RES * this.CHUNK_RES * 4),
 	webgl_texture: ExtendedTexture | null,//any,//for WebGL rendering
 	need_update: boolean
 }
@@ -31,10 +31,6 @@ export const enum PAINTER_RESOLUTION {
 	MEDIUM = 128,
 	HIGH = 256
 }
-
-//CHUNK_RES / CHUNK_SIZE should be 1024 at highest settings
-let CHUNK_RES = PAINTER_RESOLUTION.MEDIUM;//resolution of single chunk (256)
-//const CHUNK_SIZE = 0.25;//size of a single chunk compared to screen height
 
 const PI_2 = Math.PI * 2.0;
 
@@ -49,6 +45,10 @@ const pow2 = (a: number) => a*a;
 
 export default class PaintLayer {
 	public static readonly CHUNK_SIZE = 0.25;//const
+	//this.CHUNK_RES / CHUNK_SIZE should be 1024 at highest settings
+	private CHUNK_RES = PAINTER_RESOLUTION.LOW;//(MEDIUM) resolution of single chunk (256)
+	//const CHUNK_SIZE = 0.25;//size of a single chunk compared to screen height
+		
 	public walls_color = Colors.gen(255, 255, 255);
 
 	private _color = '#fff';
@@ -76,17 +76,11 @@ export default class PaintLayer {
 		//@ts-ignore
 		this.chunks = null;
 	}
-
-	/*static get CHUNK_RES() {
-		return CHUNK_RES;
-	}*/
-	public static CHUNK_RES = CHUNK_RES;
-	/*static get CHUNK_SIZE() {
-		return CHUNK_SIZE;
-	}*/
+	
+	//public static this.CHUNK_RES = this.CHUNK_RES;
 
 	generateChunks(res: PAINTER_RESOLUTION) {
-		CHUNK_RES = res;
+		this.CHUNK_RES = res;
 		
 		if(!this.size)
 			throw new Error('No size specified for number chunks');
@@ -94,7 +88,7 @@ export default class PaintLayer {
 
 		this.map_size = this.size * PaintLayer.CHUNK_SIZE;
 		
-		let chunks_memory = 2 * (this.size * this.size * CHUNK_RES * CHUNK_RES * 4 / (1024*1024));
+		let chunks_memory = 2 * (this.size * this.size * this.CHUNK_RES * this.CHUNK_RES * 4 / (1024*1024));
 		console.log('map size:', this.map_size, 'number of chunks:', this.size*this.size,
 			'\n\tmemory:', chunks_memory + 'MB');
 
@@ -113,12 +107,12 @@ export default class PaintLayer {
 				let canvas: HTMLCanvasElement;
 				if(_CLIENT_) {
 					canvas = document.createElement('canvas');
-					canvas.width = CHUNK_RES;
-					canvas.height = CHUNK_RES;
+					canvas.width = this.CHUNK_RES;
+					canvas.height = this.CHUNK_RES;
 				}
 				else {
 					//console.log(Canvas, _CLIENT_);
-					canvas = Canvas.createCanvas(CHUNK_RES, CHUNK_RES);
+					canvas = Canvas.createCanvas(this.CHUNK_RES, this.CHUNK_RES);
 				}
 
 				let ctx = <CanvasRenderingContext2D>canvas.getContext('2d', 
@@ -139,8 +133,8 @@ export default class PaintLayer {
 					matrix: mat,
 					canvas: canvas,
 					ctx: ctx,
-					buff: null, //ctx.getImageData(0, 0, CHUNK_RES, CHUNK_RES)
-					//new Uint8Array(CHUNK_RES * CHUNK_RES * 4),
+					buff: null, //ctx.getImageData(0, 0, this.CHUNK_RES, this.CHUNK_RES)
+					//new Uint8Array(this.CHUNK_RES * this.CHUNK_RES * 4),
 					webgl_texture: null,//for WebGL rendering
 					need_update: false
 				});
@@ -186,7 +180,7 @@ export default class PaintLayer {
 		exi = clamp(exi + thick_off, 0, this.size-1) | 0;
 		eyi = clamp(eyi + thick_off, 0, this.size-1) | 0;
 
-		thickness *= CHUNK_RES / PaintLayer.CHUNK_SIZE;
+		thickness *= this.CHUNK_RES / PaintLayer.CHUNK_SIZE;
 
 		for(itY = syi; itY <= eyi; itY++) {
 			for(itX = sxi; itX <= exi; itX++) {
@@ -194,14 +188,14 @@ export default class PaintLayer {
 
 				//calculating relative coords
 				relXs = (sx + this.size * PaintLayer.CHUNK_SIZE - itX*PaintLayer.CHUNK_SIZE*2) / 
-					(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 				relYs = (-sy + this.size * PaintLayer.CHUNK_SIZE - itY*PaintLayer.CHUNK_SIZE*2) / 
-					(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 
 				relXe = (ex + this.size * PaintLayer.CHUNK_SIZE - itX*PaintLayer.CHUNK_SIZE*2) / 
-					(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 				relYe = (-ey + this.size * PaintLayer.CHUNK_SIZE - itY*PaintLayer.CHUNK_SIZE*2) / 
-					(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 
 				chunk_ctx = this.chunks[ch_i].ctx;
 				if( !prevent_chunks_update )
@@ -232,7 +226,7 @@ export default class PaintLayer {
 		exi = clamp(sxi_temp + rad_off, 0, this.size-1) | 0;
 		eyi = clamp(syi_temp + rad_off, 0, this.size-1) | 0;
 
-		radius *= CHUNK_RES / PaintLayer.CHUNK_SIZE;
+		radius *= this.CHUNK_RES / PaintLayer.CHUNK_SIZE;
 
 		for(itY = syi; itY <= eyi; itY++) {
 			for(itX = sxi; itX <= exi; itX++) {
@@ -240,9 +234,9 @@ export default class PaintLayer {
 
 				//calculating relative coords
 				relXs = (sx + this.size * PaintLayer.CHUNK_SIZE - itX*PaintLayer.CHUNK_SIZE*2) / 
-					(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 				relYs = (-sy + this.size * PaintLayer.CHUNK_SIZE - itY*PaintLayer.CHUNK_SIZE*2) / 
-					(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+					(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 				
 				chunk_ctx = this.chunks[ch_i].ctx;
 				if( !prevent_chunks_update )
@@ -268,11 +262,11 @@ export default class PaintLayer {
 		let map_canvas: HTMLCanvasElement;
 		if(_CLIENT_) {
 			map_canvas = document.createElement('canvas');
-			map_canvas.width = CHUNK_RES * this.size;//image.naturalWidth;
-			map_canvas.height = CHUNK_RES * this.size;//image.naturalHeight;
+			map_canvas.width = this.CHUNK_RES * this.size;//image.naturalWidth;
+			map_canvas.height = this.CHUNK_RES * this.size;//image.naturalHeight;
 		}
 		else
-			map_canvas = Canvas.createCanvas(CHUNK_RES * this.size, CHUNK_RES * this.size);
+			map_canvas = Canvas.createCanvas(this.CHUNK_RES * this.size, this.CHUNK_RES * this.size);
 
 		let map_ctx = <CanvasRenderingContext2D>map_canvas.getContext('2d', 
 			{antialias: true, alpha: true});
@@ -334,8 +328,8 @@ export default class PaintLayer {
 				this.chunks[ch_i].need_update = true;
 
 				// chunk_ctx['imageSmoothingEnabled'] = true;
-				chunk_ctx.putImageData(canvasData, -CHUNK_RES*itX, -CHUNK_RES*itY, 
-					CHUNK_RES*itX, CHUNK_RES*itY, CHUNK_RES, CHUNK_RES);
+				chunk_ctx.putImageData(canvasData, -this.CHUNK_RES*itX, -this.CHUNK_RES*itY, 
+					this.CHUNK_RES*itX, this.CHUNK_RES*itY, this.CHUNK_RES, this.CHUNK_RES);
 			}
 		}
 
@@ -450,11 +444,11 @@ export default class PaintLayer {
 		//safety for incorrect coords issues
 		if(this.chunks[ch_i]/* && this.chunks[ch_i].buff != null*/) {
 			relXs = (x + this.size * PaintLayer.CHUNK_SIZE - sxi*PaintLayer.CHUNK_SIZE*2) / 
-				(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+				(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 			relYs = (-y + this.size * PaintLayer.CHUNK_SIZE - syi*PaintLayer.CHUNK_SIZE*2) / 
-				(PaintLayer.CHUNK_SIZE*2.0) * CHUNK_RES;
+				(PaintLayer.CHUNK_SIZE*2.0) * this.CHUNK_RES;
 			
-			pixel_i = ((relXs|0) + (relYs|0) * CHUNK_RES) * 4;
+			pixel_i = ((relXs|0) + (relYs|0) * this.CHUNK_RES) * 4;
 
 			for(ii=0; ii<4; ii++) {
 				// @ts-ignore

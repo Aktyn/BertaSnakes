@@ -1,5 +1,6 @@
 declare global {
 	namespace NodeJS {
+		// noinspection JSUnusedGlobalSymbols
 		export interface Global {
 			_CLIENT_: boolean;
 			_SERVER_: boolean;
@@ -24,7 +25,7 @@ global.APP_VERSION = app_version/*.replace(/\./g, '_')*/ || 'unknown version';
 
 import './database';//initializes database
 
-import HTTP_API from './apis/api';
+import HTTP_API from './apis';
 HTTP_API.shareUploads();
 HTTP_API.shareClientFiles();//must be last sharing function
 

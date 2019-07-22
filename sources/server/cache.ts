@@ -1,6 +1,5 @@
-
 class Cache {
-	readonly data: any;
+	public readonly data: any;
 	private readonly expiration_date: number;
 
 	constructor(lifetime: number, data: any) {
@@ -21,7 +20,7 @@ export default {
 
 		if( cache && cache.expired() ) {
 			cache_store.delete(name);
-			console.log('Expired cache:', name);
+			//console.log('Expired cache:', name);
 			return undefined;
 		}
 
@@ -33,8 +32,7 @@ export default {
 			console.warn('Cache with given name already exists:', name);
 			return;
 		}
-		console.log('New cache object created:', name);
-		//cache_store[name] = new Cache(lifetime, data);
+		//console.log('New cache object created:', name);
 		cache_store.set(name, new Cache(lifetime, data));
 	}
 };

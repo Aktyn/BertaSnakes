@@ -1,5 +1,6 @@
 declare global {
 	namespace NodeJS {
+		// noinspection JSUnusedGlobalSymbols
 		export interface Global {
 			_CLIENT_: boolean;
 			_SERVER_: boolean;
@@ -9,92 +10,127 @@ declare global {
 global._CLIENT_ = false;
 global._SERVER_ = true;
 
-import ServerGame from './server_game';
-
-import RoomInfo from '../../common/room_info';
-import UserInfo, {UserFullData} from '../../common/user_info';
-import Maps, {onMapsLoaded} from '../../common/game/maps';
-
 console.log = (function(MSG_PREFIX) {
 	const log = console.log;//preserve
 	return function() { log.apply(console, [MSG_PREFIX, ...arguments]); };
-})( '[Game#'+process.pid+'] =>' );
+})( `[Process:${process.pid}] =>` );
 
 console.log('Child process initialized');
 
-let game: ServerGame | null = null;
+//---------------------------------------------------------------------------------------//
+
+import ServerGame from './server_game';
+
+import RoomInfo, {RoomCustomData} from '../../common/room_info';
+import UserInfo, {UserFullData} from '../../common/user_info';
+import Maps, {onMapsLoaded} from '../../common/game/maps';
+import NetworkCodes from '../../common/network_codes';
+
+let games = new Map<number, ServerGame>();
 
 //invokes callback when game is running
-let waitForGameInitialize = (callback: (game: ServerGame) => void) => {
-	if(game)
-		console.log(game.initialized);
-	if(game !== null && game.initialized)
-		callback(game);
+let waitForGameInitialize = (game: ServerGame, callback: () => void) => {
+	if(game.initialized)
+		callback();
 	else
-		setTimeout(waitForGameInitialize, 100, callback);
+		setTimeout(() => waitForGameInitialize(game, callback), 100);
 };
 
 export const enum PROCESS_ACTIONS {
 	INIT_GAME = 0,
-	RUN_GAME
+	START_GAME,
+	ON_GAME_END
 }
 
-interface MessageSchema {
+export interface MessageFromClient {
 	user_id: number;
-	action: PROCESS_ACTIONS;
 	data: any;
-	room_info: string;
-	playing_users: UserFullData[]
+	room_id: number;
 }
 
-process.on('message', function(msg: MessageSchema) {
+interface InitGameMessage {
+	action: PROCESS_ACTIONS.INIT_GAME;
+	room_info: RoomCustomData;
+	playing_users: UserFullData[];
+}
+
+interface RunGameMessage {
+	action: PROCESS_ACTIONS.START_GAME;
+	room_id: number;
+}
+
+interface GameEndMessage {
+	action: PROCESS_ACTIONS.ON_GAME_END;
+	room_id: number;
+}
+
+type ActionMessages = InitGameMessage | RunGameMessage | GameEndMessage;
+
+process.on('message', function(msg: MessageFromClient & ActionMessages) {
 	//console.log(msg);
 	if(msg.user_id) {//message from client
 		try {
+			//game.onClientMessage(msg.user_id, msg.data.data);
 			//@ts-ignore
-			game.onClientMessage(msg.user_id, msg.data.data);
+			(games.get(msg.room_id)).onClientMessage(msg.user_id, msg.data.data);
 		}
 		catch(e) {
-			console.error('cannot process byte data from client:');
-			console.error(e);
+			console.error('Cannot process byte data from client:', e);
 		}
 	}
 	else {
-		//@msg - {action, ...} where @action - string representing given action
 		switch(msg.action) {
-			case PROCESS_ACTIONS.INIT_GAME:
+			case PROCESS_ACTIONS.INIT_GAME: {
 				console.log('Initializing server-side game');
-
-				let room = RoomInfo.fromJSON( msg.room_info );
-				msg.playing_users.forEach((user) => room.addUser( UserInfo.fromFullJSON(user) ));
-
+				
+				const room = RoomInfo.fromJSON(msg.room_info);
+				msg.playing_users.forEach((user) => room.addUser(UserInfo.fromFullJSON(user)));
+				
 				onMapsLoaded(() => {//make sure maps data is loaded
 					try {
-						if( !(room.map in Maps) ) {
+						if ( !(room.map in Maps) ) {
 							console.error('Given map is not available:', room.map);
-							process.exit();
+							//process.exit();
 							return;
 						}
-						game = new ServerGame(Maps[room.map], room);
-
-						setTimeout(function() {
-							console.log('Game lifetime expired. Canceling process');
-							process.exit();
-						}, 1000 * 60 * 40);//40 minutes (maximum game lifetime)
-					}
-					catch(e) {
+						
+						if( games.has(room.id) ) {
+							console.error('Game with given id is already initialized: ' + room.id);
+							return;
+						}
+						let new_game = new ServerGame(Maps[room.map], room);
+						games.set(room.id, new_game);
+						
+					} catch (e) {
 						console.error('Initializing game error:', e);
-						process.exit();
-						//process.send( {action: NetworkCodes.START_GAME_FAIL_ACTION} );
+						//process.exit();
+						// @ts-ignore
+						process.send({action: NetworkCodes.START_GAME_FAIL_ACTION});
 					}
 				});
-
+				
 				//console.log(room);
-				break;
-			case PROCESS_ACTIONS.RUN_GAME:
+			}   break;
+			case PROCESS_ACTIONS.START_GAME: {
+				let game_to_start = games.get(msg.room_id);
+				if(!game_to_start) {
+					console.error('Cannot find game with given id to run: ' + msg.room_id);
+					// @ts-ignore
+					process.send({action: NetworkCodes.START_GAME_FAIL_ACTION});
+					return;
+				}
 				console.log('Running game');
-				waitForGameInitialize( game => game.start() );
-				break;
+				waitForGameInitialize(game_to_start, () => {
+					if(game_to_start)
+						game_to_start.start();
+					else
+						throw new Error('Impossible error');
+				});
+			}   break;
+			case PROCESS_ACTIONS.ON_GAME_END: {
+				console.log('game ended:', msg.room_id);
+				games.delete(msg.room_id);
+			}   break;
 		}
 	}
 });

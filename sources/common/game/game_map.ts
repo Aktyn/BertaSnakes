@@ -86,7 +86,7 @@ export default class Map extends PaintLayer {
 		}
 	}
 
-	loadMap(map: MapJSON_I, res = PAINTER_RESOLUTION.MEDIUM) {//synchronous
+	loadMap(map: MapJSON_I, res = PAINTER_RESOLUTION.LOW) {//synchronous
 		try {
 			// console.log('(' + map['name'] + ') map data:', map);
 			console.log('map data:', map);

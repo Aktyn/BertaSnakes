@@ -124,8 +124,8 @@ export async function handleJSON(connection: Connection, data: NetworkPackage) {
 
 export function handleByteBuffer(connection: Connection, message: any) {
 	let room = connection.getRoom();
-	if(connection.user && room && room.game_process)
-		room.game_process.send({user_id: connection.user.id, data: message});
+	if(connection.user && room && room.game_handler)
+		room.game_handler.send({user_id: connection.user.id, data: message});
 }
 
 export function onDisconnect(connection: Connection) {

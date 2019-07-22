@@ -1,8 +1,24 @@
 .admin-panel {
-	width: 800px;
+	//width: 800px;
+	padding-top: 10px;
 	
-	.statistics {
+	display: inline-flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+    justify-items: center;
+	
+	@media (min-width: 1200px) {
+		& > *:not(.error):nth-child(1) {//left column
+			min-width: 600px;
+		}
+		& > *:nth-child(2) {//right column
+			min-width: 370px !important;
+		}
+	}
+	
+	canvas {
+		max-width: 100vw;
 		margin: auto;
-		width: 600px;
 	}
 }

@@ -1,3 +1,4 @@
+import GameStarter from './game_starter';
 import RoomInfo from '../../common/room_info';
 import {UserFullData} from '../../common/user_info';
 import NetworkCodes from '../../common/network_codes';
@@ -5,19 +6,23 @@ import Connections, {Connection} from './connections';
 import {GameResultJSON} from '../../common/game/game_result';
 import Database from '../database';
 import {AccountSchema2UserCustomData} from '../utils';
+import Config from '../../common/config';
+import {executeCommand} from '../utils';
 import RoomsManager from './rooms_manager';
 import * as child_process from 'child_process';
 import * as path from 'path';
-import {PROCESS_ACTIONS} from './game_process';
+import {PROCESS_ACTIONS, MessageFromClient} from "./game_process";
+import {ChildProcess} from "child_process";
 
-const MAX_LEVEL = 99;
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+
+const numCPUs = require('os').cpus().length;
+console.info('Number of cpus:', numCPUs);
 
 async function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 	//updating user's database entries according to game result
 	if(typeof result_json === 'string')
 		result_json = JSON.parse(result_json);
-	//console.log( room );
-	//console.log( result_json );
 	
 	//saving game result as database result
 	await Database.saveGameResult(room, result_json.players_results).catch(console.error);
@@ -39,7 +44,7 @@ async function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 		account_schema.exp += result.exp;
 		account_schema.total_games += 1;
 		if(account_schema.exp >= 1) { //level up
-			account_schema.level = Math.min(MAX_LEVEL, account_schema.level + 1);
+			account_schema.level = Math.min(Config.MAX_LEVEL, account_schema.level + 1);
 			account_schema.exp -= 1;
 			account_schema.exp /= (account_schema.level / Math.max(1, account_schema.level-1));
 		}
@@ -67,16 +72,72 @@ function onGameFailedToStart(room: RoomInfo) {
 	Connections.forEachLobbyUser(conn => conn.onRoomCreated(room));
 }
 
-interface GameProcessMessage {
+interface MessageFromGameProcess {
+	room_id: number;
 	action: NetworkCodes;
 	data: any;
 }
+
+interface GameProcessInfo {
+	proc: ChildProcess;
+	running_games: number;
+}
+
+let processes: GameProcessInfo[] = [];
+
+function forkProcess() {
+	let proc = child_process.fork( path.join(__dirname, 'game_process') );
+	let proc_info: GameProcessInfo = {
+		proc,
+		running_games: 0
+	};
+	
+	proc.on('exit', onProcessExit);
+	proc.on('message', onProcessMessage);
+	
+	processes.push( proc_info );
+	console.log('Forked processes:', processes.length);
+	return proc_info;
+}
+
+function onProcessExit(code: number | null, signal: string) {
+	if(code !== null)
+		console.error('Process exited with code:', code, signal);
+}
+
+function onProcessMessage(msg: MessageFromGameProcess) {
+	let game_handler = GameStarter.getRunningGame(msg.room_id);
+	if(game_handler)
+		game_handler.handleGameProcessMessage(msg);
+}
+
+export async function getMemUsages() {
+	let usages: {games: number, memory: number}[] = [];
+	for(let proc_info of processes) {
+		try {
+			let usage_kb = await executeCommand(`ps -p ${proc_info.proc.pid} -o rss=`);
+			usages.push({
+				games: proc_info.running_games,
+				memory: parseInt(usage_kb)
+			});
+		}
+		catch(e) {
+			usages.push({games: 0, memory: 0});
+		}
+	}
+	return usages;
+}
+
+/*setInterval(async () => {//Math.round(process.memoryUsage().rss/1024/1024) + 'MB'
+	console.log('memory usages:', await getMemUsages());
+},1000*10);*/
 
 export default class GameHandler {
 	private readonly onExit: (no_error: boolean) => void;
 	private readonly room: RoomInfo;
 	private remaining_confirmations: number[];
 	private game_started = false;
+	private readonly process_info: GameProcessInfo | undefined;
 
 	constructor(room: RoomInfo, onExit: (no_error: boolean) => void) {
 		this.onExit = onExit;
@@ -96,28 +157,33 @@ export default class GameHandler {
 
 		try {
 			//spawn process for game
-			this.room.game_process = child_process.fork( path.join(__dirname, 'game_process') );
-			//deprecated: child_process.fork(__dirname + '/game_process');
+			//this.room.game_handler = child_process.fork( path.join(__dirname, 'game_handler') );
+			//deprecated: child_process.fork(__dirname + '/game_handler');
+			
+			if(processes.length === 0)
+				this.process_info = forkProcess();
+			else {
+				processes.sort((p1, p2) => p1.running_games - p2.running_games);//ASC
+				if(processes[0].running_games === 0 || processes.length >= numCPUs)
+					this.process_info = processes[0];//first element has least running_games
+				else
+					this.process_info = forkProcess();
+			}
+			this.process_info.running_games++;
+			
+			this.room.game_handler = this;
 
 			let playing_users_data: UserFullData[] = [];
 			this.room.forEachUser(user => {
 				if( this.room.isUserSitting(user.id) )
 					playing_users_data.push( user.toFullJSON() )
 			});
-
-			this.room.game_process.send({
+			
+			this.process_info.proc.send({
 				action: PROCESS_ACTIONS.INIT_GAME,
 				//sends array of only sitting users (actual players in game)
 				playing_users: playing_users_data,
-				room_info: this.room.toJSON()
-			});
-
-			(<child_process.ChildProcess>this.room.game_process).on('message', 
-				this.handleGameProcessMessage.bind(this));
-
-			(<child_process.ChildProcess>this.room.game_process).on('exit', (code, signal) => {
-				if(code !== null)
-					console.error('Process exited with code:', code, signal);
+				room_info: this.room.toJSON(),
 			});
 
 			//distribute game start message
@@ -132,16 +198,22 @@ export default class GameHandler {
 		}
 		catch(e) {
 			console.error(e);
-
+			
 			onGameFailedToStart(room);
 			this.onGameEnd();
 		}
 	}
 
 	private onGameEnd(no_error = false) {
-		if(this.room.game_process !== null)//kill process before nulling it
-			this.room.game_process.kill('SIGINT');
-		this.room.game_process = null;
+		if(this.process_info) {//kill process before nulling it
+			this.process_info.running_games = Math.max(0, this.process_info.running_games-1);
+			this.process_info.proc.send({
+				action: PROCESS_ACTIONS.ON_GAME_END,
+				room_id: this.room.id
+			});
+			//this.process_info.proc.kill('SIGINT');
+		}
+		this.room.game_handler = null;
 		this.room.unreadyAll();
 		this.onExit(no_error);
 	}
@@ -150,12 +222,17 @@ export default class GameHandler {
 		this.game_started = true;
 
 		try {//running game server-side
-			this.room.game_process.send({
-				action: PROCESS_ACTIONS.RUN_GAME
+			if( !this.process_info ) {
+				console.error('process_info is not defined');
+				return;
+			}
+			this.process_info.proc.send({
+				action: PROCESS_ACTIONS.START_GAME,
+				room_id: this.room.id
 			});
 		}
 		catch(e) {
-			console.error(e);
+			console.error('Cannot start game: ' + e);
 		}
 	}
 
@@ -167,8 +244,15 @@ export default class GameHandler {
 			room_user.connection.sendCustom(data);
 		});
 	}
+	
+	public send(msg: Omit<MessageFromClient, 'room_id'>) {
+		if(this.process_info)
+			this.process_info.proc.send({...msg, room_id: this.room.id});
+	}
 
-	private handleGameProcessMessage(msg: GameProcessMessage) {
+	public handleGameProcessMessage(msg: MessageFromGameProcess) {
+		//if(msg.room_id !== this.room.id)
+		//	throw new Error('room_ids mismatch');//return;
 		switch(msg.action) {
 			case NetworkCodes.START_ROUND_ACTION: {//@msg.data - game duration in seconds
 				if(typeof msg.data.game_duration !== 'number' ||
@@ -196,7 +280,10 @@ export default class GameHandler {
 				//saving game result to database
 				saveGameResult(this.room, msg.data.result).then(() => {
 					this.onGameEnd(true);
-				}).catch(console.error);
+				}).catch((error) => {
+					console.error(error);
+					this.onGameEnd();
+				});
 			}	break;
 			case NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32: {//fast data distribution
 				try {

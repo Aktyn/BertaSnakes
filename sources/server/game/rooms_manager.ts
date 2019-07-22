@@ -77,7 +77,7 @@ export default {
 		if(from_connection.isInLobby()) {
 			let available_rooms = Array.from(rooms.values()).filter(room => {
 				//rooms that are not games and user in not banned from joining this room
-				return !room.game_process && from_connection.user && !room.banned_ips.has(from_connection.client_ip);
+				return !room.game_handler && from_connection.user && !room.banned_ips.has(from_connection.client_ip);
 			});
 			from_connection.sendRoomsList( available_rooms );
 		}
@@ -93,7 +93,7 @@ export default {
 		from_connection.onRoomLeft(room.id);
 
 		//REMOVE ROOM WHEN IT GETS EMPTY AND NOT DURING GAME
-		if( room.isEmpty() && !room.game_process ) {
+		if( room.isEmpty() && !room.game_handler ) {
 			distributeRoomRemoveEvent(room);
 			rooms.delete(room.id);
 		}
@@ -117,7 +117,7 @@ export default {
 			from_connection.sendNotification(NotificationCodes.ROOM_DOES_NOT_EXISTS);
 			return;
 		}
-		if( room.game_process ) {
+		if( room.game_handler ) {
 			from_connection.sendNotification(NotificationCodes.CANNOT_JOIN_AFTER_GAME_START);
 			return;
 		}
@@ -151,7 +151,7 @@ export default {
 		if( !room || !from_user || from_user.id === user_id)//user cannot kick himself
 			return;
 		
-		if( room.game_process && room.isUserSitting(user_id) )//cannot kick player during game
+		if( room.game_handler && room.isUserSitting(user_id) )//cannot kick player during game
 			return;
 
 		let room_owner = room.getOwner();

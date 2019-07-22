@@ -1,11 +1,13 @@
 import * as express from 'express';
 import ERROR_CODES from '../../common/error_codes';
-import {checkAdminPermissions} from "./api";
+import {checkAdminPermissions} from ".";
 import {executeCommand} from "../utils";
+import Cache from '../cache';
 import SocialConnection from "../social/social_connection";
 import Connections from '../game/connections';
 import RoomsManager from '../game/rooms_manager';
 import GameStarter from '../game/game_starter';
+import {getMemUsages} from "../game/game_handler";
 
 async function execBashCmd(req: express.Request, res: express.Response) {//token, cmd
 	try {//works with both: GET and POST request with query strings or JSON body
@@ -21,7 +23,7 @@ async function execBashCmd(req: express.Request, res: express.Response) {//token
 		
 		let response;
 		try {
-			response = await executeCommand(cmd);
+			response = await executeCommand(cmd, 1000*60);
 		} catch (e) {
 			response = e;
 		}
@@ -34,15 +36,32 @@ async function execBashCmd(req: express.Request, res: express.Response) {//token
 }
 
 function open(app: express.Express) {
-	app.get('/status', (req, res) => {
-		let status = [
-			`Server version: ${global.APP_VERSION}`,
-			`Social connections: ${SocialConnection.getConnectionsSize()}`,
-			`Game connections: ${Connections.getSize()}`,
-			`Rooms: ${RoomsManager.getRoomsCount()}`,
-			`Games: ${GameStarter.getRunningGamesCount()}`
-		];
-		res.send(`<pre>${status.join('\n')}</pre>`);
+	app.get('/status', async (req, res) => {
+		let cached_status = Cache.getCache( 'status_cache' );
+		if(cached_status) {
+			res.send(cached_status.data);
+			return;
+		}
+		
+		let usages = (await getMemUsages()).map((usage_info, i) => {
+			// noinspection SpellCheckingInspection
+			return `${i + 1}. games: ${usage_info.games}\tmemory: ${Math.round(usage_info.memory / 1024)}MB`;
+		}).join('\n');
+		
+		let status = `<pre>${
+			[
+				`Server version: ${global.APP_VERSION}`,
+				`Social connections: ${SocialConnection.getConnectionsMap().size}`,
+				`Game connections: ${Connections.getSize()}`,
+				`Rooms: ${RoomsManager.getRoomsCount()}`,
+				`Games: ${GameStarter.getRunningGamesCount()}`,
+				`\n--- Processes ---\n${usages}`
+			].join('\n')
+		}</pre>`;
+		res.send(status);
+		
+		//just 10 seconds to prevent request spam
+		Cache.createCache( 'status_cache', 1000*10, status );
 	});
 	
 	app.post('/ping', (req, res) => {

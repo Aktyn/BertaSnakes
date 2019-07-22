@@ -1,7 +1,10 @@
 import * as express from 'express';
 import ERROR_CODES from '../../common/error_codes';
-import Database from '../database';
+import Database, {AccountSchema} from '../database';
 import Cache from '../cache';
+import {checkAdminPermissions} from "./index";
+import SocialConnection from "../social/social_connection";
+import {RoomCustomData} from "../../common/room_info";
 
 const ranking_cache_name = (page: number, type: number) => `ranking_page_${page}_${type}`;
 
@@ -82,28 +85,39 @@ function open(app: express.Express) {
 		}
 	});
 	
-	/*app.post('/get_friends_list', async (req, res) => {//token
+	app.post('/get_online_accounts_data', async (req, res) => {//token
 		try {
-			if( !req.body.token )
+			if( typeof req.body.token !== 'string' )
 				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			
-			let account_res = await Database.getAccountFromToken(req.body.token);
-			let account = account_res.account;
-			if( account_res.error !== ERROR_CODES.SUCCESS || !account )
-				return res.json({error: account_res.error});
+			if( false === await checkAdminPermissions(req.body.token) )
+				return res.json({error: ERROR_CODES.INSUFFICIENT_PERMISSIONS});
 			
-			let db_res = await Database.getAccountFriends( account.id );
+			//NOTE - this array stores private accounts data only available for account's owner and admins
+			let data: {
+				account: AccountSchema;
+				room_data: RoomCustomData | null;
+				is_playing: boolean;
+			}[] = [];
 			
-			if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.friends)
-				return res.json(db_res);
+			let connections_map = SocialConnection.getConnectionsMap();
+			for(let connections of connections_map.values()) {
+				if(connections.length < 1)
+					continue;
+				data.push({
+					account: connections[0].account,
+					room_data: connections[0].getRoomData(),
+					is_playing: connections[0].getIsPlaying()
+				});
+			}
 			
-			return res.json({error: ERROR_CODES.SUCCESS, friends: db_res.friends});
+			return res.json({error: ERROR_CODES.SUCCESS, data});
 		}
 		catch(e) {
 			console.error(e);
 			return res.json({error: ERROR_CODES.UNKNOWN});
 		}
-	});*/
+	});
 }
 
 export default {open}

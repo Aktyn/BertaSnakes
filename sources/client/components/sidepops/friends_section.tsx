@@ -9,6 +9,7 @@ import PotentialFriendsTable from "./potential_friends_table";
 import NotificationsIndicator, {COMMON_LABELS} from "../widgets/notifications_indicator";
 
 import '../../styles/friends_section.scss';
+import StatusIndicator from "../widgets/status_indicator";
 
 interface FriendsSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -72,11 +73,7 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 			}} key={friend_data.id}>
 				<img src={ServerApi.getAvatarPath(friend_data.avatar)} alt={'friend\'s avatar'} />
 				<span>{friend_data.username}</span>
-				<span className={'status-indicator'} style={{
-					color: online ? '#8BC34A' : '#e57373'
-				}}>{
-					is_playing ? <span>&#11208;</span> : (room_data ? <span>&#9632;</span> : <span>&#9679;</span>)
-				}</span>
+				<StatusIndicator {...{online, is_playing, is_in_room: !!room_data}} />
 			</button>;
 		});
 	}

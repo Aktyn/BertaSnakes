@@ -3,7 +3,7 @@ import GameCore, {InitDataSchema} from '../../common/game/game_core';
 import Colors from '../../common/game/common/colors';
 import Vector, {Vec2f} from '../../common/utils/vector';
 import Item, {ITEM_TYPES} from '../../common/game/objects/item';
-import PoisonousEnemy  from '../../common/game/objects/poisonous_enemy';
+import PoisonousEnemy from '../../common/game/objects/poisonous_enemy';
 import Bullet, {BULLET_TYPE} from '../../common/game/objects/bullet';
 import Bomb from '../../common/game/objects/bomb';
 import Skills, {SkillObject} from '../../common/game/common/skills';
@@ -17,6 +17,7 @@ import EnemySpawner from '../../common/game/objects/enemy_spawner';
 
 import {MapJSON_I} from '../../common/game/maps';
 import Config from '../../common/config';
+import {PAINTER_RESOLUTION} from "../../common/game/paint_layer";
 
 const H_PI = Math.PI/2;
 const fixAngle = (a: number) => -a + H_PI;
@@ -40,16 +41,6 @@ let wave_i: number, chunk_it: number, chunk_ref, ss_i: number, obj_i: number,
 	async_p_it: Player, async_s, 
 	r_p_i: number,//e_h, e_h2
 	hit_x: number, hit_y: number, sin: number, cos: number, synch_array;
-
-let emitAction = (action: number, data?: any) => {
-	try {
-		//@ts-ignore
-		process.send( {action: action, data: data} );
-	}
-	catch(e) {
-		console.error('cannot send message from child process');
-	}
-};
 
 const runLoop = (function() {
 	const TIME_PRECISION = 1e9;
@@ -131,7 +122,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 
 	constructor(map: MapJSON_I, room: RoomInfo) {
 		super();
-
+		
 		this.room = room;//contains players data
 
 		this.running = false;
@@ -146,16 +137,26 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		this.bounceVec = new Vec2f();//buffer object for storing bounce results
 
 		try {
-			let result = super.loadMap(map);
+			let result = super.loadMap(map, PAINTER_RESOLUTION.LOW);
 			if(!result)
 				throw new Error('Cannot load map');
 		}
 		catch(e) {
 			console.error(e);
-			emitAction( NetworkCodes.START_GAME_FAIL_ACTION );
+			this.emitAction( NetworkCodes.START_GAME_FAIL_ACTION );
 		}
 
 		this.initialized = true;
+	}
+	
+	emitAction(action: NetworkCodes, data?: any) {
+		try {
+			//@ts-ignore
+			process.send( {room_id: this.room.id, action, data} );
+		}
+		catch(e) {
+			console.error('cannot send message from child process');
+		}
 	}
 
 	start() {
@@ -198,7 +199,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		this.remaining_time = this.room.duration || 180;
 		this.end_timestamp = Date.now() + (this.remaining_time * 1000);
 		
-		emitAction(NetworkCodes.START_ROUND_ACTION, {
+		this.emitAction(NetworkCodes.START_ROUND_ACTION, {
 			game_duration: this.remaining_time, 
 			round_delay: Config.ROUND_START_DELAY,
 			init_data
@@ -216,12 +217,14 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		let result = new GameResult(this);
 
 		console.log('Server game finished');
-		setTimeout(() => { throw new Error('Game process still exists'); }, 2000);
+		//setTimeout(() => { throw new Error('Game process still exists'); }, 2000);
 
 		//sending results to room users
-		emitAction( NetworkCodes.END_GAME_ACTION, {
+		this.emitAction( NetworkCodes.END_GAME_ACTION, {
 			result: result.toJSON()
 		});
+		
+		super.destroy();
 	}
 
 	getPlayerByUserId(id: number) {
@@ -247,7 +250,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 				
 				//NOTE - this way the action is send immediately
 				//no need to wait for next frame of animation
-				emitAction( NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, 
+				this.emitAction( NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, 
 					[NetworkCodes.PLAYER_MOVEMENT_UPDATE, async_p_i, 
 						async_p_it.rot, data[1], async_p_it.movement.speed] );
 				
@@ -264,7 +267,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 				async_s = async_p_it.skills[ data[1] ];
 				if(async_s) {
 					async_s.stopUsing();
-					emitAction(NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, 
+					this.emitAction(NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, 
 						[NetworkCodes.ON_PLAYER_SKILL_CANCEL, async_p_i, data[1]]);
 				}
 				break;
@@ -775,7 +778,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 			skill.stopUsing();
 
 		if(immediately_response) {
-			emitAction(NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, 
+			this.emitAction(NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, 
 				[NetworkCodes.ON_PLAYER_SKILL_USE, player_i, 
 					skill_i, player.energy]);
 		}
@@ -842,6 +845,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		if(this.remaining_time < 0) {
 			this.remaining_time = 0;
 			this.end();
+			return;
 		}
 
 		//updating timers
@@ -927,7 +931,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 
 		//console.log( Float32Array.from(paintersDataToSend) );
 		if(this.dataForClients.length > 0) {//if something was added to array
-			emitAction( NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, this.dataForClients );
+			this.emitAction( NetworkCodes.SEND_DATA_TO_CLIENT_ACTION_FLOAT32, this.dataForClients );
 			this.dataForClients.length = 0;
 		}
 	}

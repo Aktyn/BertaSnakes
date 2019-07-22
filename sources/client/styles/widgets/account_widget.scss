@@ -31,7 +31,7 @@ $size: 123px;
 				font-family: LuckiestGuy, Roboto-Regular, Arial, serif;
 			}
 			&:not(.no-account) {
-				$avatarSize: round($size * 0.55589297025);
+				$avatarSize: 50px;//round($size * 0.55589297025);
 				
 				width: $avatarSize;
 				height: $avatarSize;

@@ -197,7 +197,8 @@ export default {
 							year: {$year: '$_id'},
 							month: {$month: '$_id'},
 							day: {$dayOfMonth: '$_id'},
-							account: '$account_id'
+							ip: '$ip'
+							//account: '$account_id'
 						},
 						count: {$sum: 1}
 					}

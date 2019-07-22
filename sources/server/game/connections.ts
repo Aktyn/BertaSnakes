@@ -9,7 +9,7 @@ let connections: Map<number, Connection> = new Map();
 export class Connection {
 	private static counter = 0;
 	readonly id: number;
-	private socket: any;
+	readonly socket: any;
 	private req: any;
 	public user: UserInfo | null = null;
 
@@ -57,7 +57,7 @@ export class Connection {
 	}
 
 	public isInLobby() {
-		return this.user && (!this.user.room || !this.user.room.game_process);
+		return this.user && (!this.user.room || !this.user.room.game_handler);
 	}
 	
 	private static updateSocialRoomData(account_id: string, room_data: RoomCustomData | null) {

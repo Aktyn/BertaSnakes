@@ -29,8 +29,8 @@ export default class SocialConnection {
 	public static getConnections(id: string) {
 		return connections.get(id);
 	}
-	public static getConnectionsSize() {
-		return connections.size;
+	public static getConnectionsMap() {
+		return connections;
 	}
 	//----------------------------------//
 	

@@ -50,7 +50,7 @@ function tick(room: RoomInfo, remaining_time: number) {
 		let tm = setTimeout(function() {
 			tick(room, remaining_time-1);
 		}, 1000);
-		currentCountdowns.set(room.id, tm);//update countdown function
+		currentCountdowns.set(room.id, tm as never);//update countdown function
 	}
 }
 
