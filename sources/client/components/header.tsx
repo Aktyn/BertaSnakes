@@ -55,7 +55,10 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 						<Link to={'/gallery'}>GALLERY</Link>
 					</nav>
 					<div className='play-btn-wrapper'>
-						<button onClick={this.play.bind(this)}><span>PLAY</span></button>
+						<button onClick={this.play.bind(this)} onMouseDown={e => {
+							if(e.button === 1)
+								window.open('/play', '_blank');
+						}}><span>PLAY</span></button>
 					</div>
 				</div>
 				<AccountWidget />

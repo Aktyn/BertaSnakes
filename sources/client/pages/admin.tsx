@@ -3,9 +3,9 @@ import ContainerPage, {ContainerProps} from "./container_page";
 import BashCommandsSection from "./sections/bash_commands";
 import VisitsStatisticsSection from "./sections/visit_statistics";
 import OnlineAccountsSection from "./sections/online_users";
-
-import '../styles/admin_panel.scss';
 import RoomsSection from "./sections/rooms";
+
+import '../styles/pages/admin_panel.scss';
 
 interface AdminPageState extends ContainerProps {}
 

@@ -53,7 +53,7 @@ function open(app: express.Express) {
 				`Server version: ${global.APP_VERSION}`,
 				`Social connections: ${SocialConnection.getConnectionsMap().size}`,
 				`Game connections: ${Connections.getSize()}`,
-				`Rooms: ${RoomsManager.getRoomsCount()}`,
+				`Rooms: ${RoomsManager.getRooms().size}`,
 				`Games: ${GameStarter.getRunningGamesCount()}`,
 				`\n--- Processes ---\n${usages}`
 			].join('\n')

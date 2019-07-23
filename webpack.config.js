@@ -39,7 +39,9 @@ module.exports = {
 		fs: "empty"
 	},
 
-	optimization: isDevelopment ? undefined : {
+	optimization: isDevelopment ? {
+		minimize: false
+	} : {
 		minimize: true,
 		minimizer: [
 			new UglifyJsPlugin({

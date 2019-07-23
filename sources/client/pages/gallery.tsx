@@ -2,7 +2,7 @@ import * as React from 'react';
 import ImageGallery from 'react-image-gallery';
 
 import 'react-image-gallery/styles/css/image-gallery.css';
-import '../styles/gallery.scss';
+import '../styles/pages/gallery.scss';
 
 const importAll = (r: any): string[] => r.keys().map((item: any) => r(item));
 

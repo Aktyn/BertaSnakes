@@ -1,4 +1,4 @@
-@import 'global.scss';
+@import '../global';
 
 .homepage {
 	overflow: hidden;
@@ -90,7 +90,7 @@
 			//margin: auto;
 			
 			z-index: -1;
-			background-image: url('../img/graphics4.png');
+			background-image: url('../../img/graphics4.png');
 			background-size: cover;
 			background-position: center;
 			

@@ -8,7 +8,7 @@ import Utils from '../utils/utils';
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
 import {PublicAccountSchema, GameSchema} from "../../server/database";
 
-import '../styles/search.scss';
+import '../styles/pages/search.scss';
 import GameListItem from '../components/widgets/game_list_item';
 
 const enum CATEGORIES {

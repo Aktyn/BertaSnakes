@@ -1,7 +1,7 @@
-const SERVER_PORT = 5348;
-
 import {GAME_MODES} from './room_info';
 import {map_name} from './game/maps';
+
+const SERVER_PORT = 5348;
 
 export const enum RANKING_TYPES {
 	TOP_RANK = 0,
@@ -39,13 +39,13 @@ export default {
 
 	//room settings
 	MINIMUM_GAME_DURATION: 60,//seconds
-	DEFAULT_GAME_DURATION: 60 * 2,
+	DEFAULT_GAME_DURATION: 60 * 10,
 	MAXIMUM_GAME_DURATION: 1800,//seconds
 	DEFAULT_MAX_ENEMIES: 100,
 	MAXIMUM_ENEMIES_LIMIT: 200,
 	MAXIMUM_ROOM_NAME_LENGTH: 64,
 	DEFAULT_GAME_MODE: GAME_MODES.COOPERATION,
-	DEFAULT_SITS: 1,
+	DEFAULT_SITS: 3,
 	MAXIMUM_SITS: 8,
 	DEFAULT_MAP: 'Simple Maze' as map_name,
 	MAXIMUM_MESSAGE_LENGTH: 2048,

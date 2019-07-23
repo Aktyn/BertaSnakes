@@ -8,7 +8,7 @@ import Config, {RANKING_TYPES} from '../../common/config';
 import ERROR_CODES, {errorMsg} from '../../common/error_codes';
 import {PublicAccountSchema} from "../../server/database";
 
-import '../styles/rankings.scss';
+import '../styles/pages/rankings.scss';
 
 const default_type = RANKING_TYPES.TOP_RANK;
 

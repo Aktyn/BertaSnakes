@@ -214,9 +214,11 @@ button.glossy, a.glossy {
 	display: block;
 	height: 25px;
 	width: 25px;
+	padding: 0px;
 	background-image: url('../img/icons/dots_black.svg');
 	opacity: 0.6;
 	transition: opacity 0.2s ease-in-out;
+	box-shadow: none !important;
 	
 	&:hover {
 		opacity: 1;

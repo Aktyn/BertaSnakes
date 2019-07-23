@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import '../styles/homepage.scss';
+import '../styles/pages/homepage.scss';
 import Account, {AccountSchema} from '../account';
 import {offsetTop} from "../components/sidepops/sidepops_common";
 import AccountSidepop from "../components/sidepops/account_sidepop";

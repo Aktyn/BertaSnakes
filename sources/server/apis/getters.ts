@@ -4,6 +4,7 @@ import Database, {AccountSchema} from '../database';
 import Cache from '../cache';
 import {checkAdminPermissions} from "./index";
 import SocialConnection from "../social/social_connection";
+import RoomsManager from '../game/rooms_manager';
 import {RoomCustomData} from "../../common/room_info";
 
 const ranking_cache_name = (page: number, type: number) => `ranking_page_${page}_${type}`;
@@ -112,6 +113,24 @@ function open(app: express.Express) {
 			}
 			
 			return res.json({error: ERROR_CODES.SUCCESS, data});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
+	
+	app.post('/get_rooms_data', async (req, res) => {//token
+		try {
+			if( typeof req.body.token !== 'string' )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			
+			if( false === await checkAdminPermissions(req.body.token) )
+				return res.json({error: ERROR_CODES.INSUFFICIENT_PERMISSIONS});
+			
+			let rooms_data = Array.from( RoomsManager.getRooms().values() ).map(room => room.toJSON());
+			
+			return res.json({error: ERROR_CODES.SUCCESS, rooms: rooms_data});
 		}
 		catch(e) {
 			console.error(e);
