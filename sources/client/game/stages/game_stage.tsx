@@ -214,31 +214,11 @@ export default class extends StageBase<BaseProps, GameState> {
 
 			onPlayerHpChange: (index, value) => {
 				this.state.players_infos[index].health = value;
-
-				if( this.props.current_user && this.props.current_user.id === 
-					this.state.players_infos[index].id )
-				{
-					this.setState({
-						players_infos: this.state.players_infos,
-						hp_value: value
-					});
-				}
-				else
-					this.setState({players_infos: this.state.players_infos});
+				this.updatePlayerInfo(index, value, this.state.energy_value);
 			},
 			onPlayerEnergyChange: (index, value) => {
 				this.state.players_infos[index].energy = value;
-
-				if( this.props.current_user && this.props.current_user.id === 
-					this.state.players_infos[index].id )
-				{
-					this.setState({
-						players_infos: this.state.players_infos,
-						energy_value: value
-					});
-				}
-				else
-					this.setState({players_infos: this.state.players_infos});
+				this.updatePlayerInfo(index, this.state.hp_value, value);
 			},
 			onPlayerPointsChange: (index, value) => {
 				this.state.players_infos[index].points = value;
@@ -272,6 +252,19 @@ export default class extends StageBase<BaseProps, GameState> {
 					this.skillsbar.stopSkill(index);
 			}
 		}
+	}
+	
+	private updatePlayerInfo(index: number, hp_value: number, energy_value: number) {
+		if( this.props.current_user && this.props.current_user.id ===
+			this.state.players_infos[index].id)
+		{
+			this.setState({
+				players_infos: this.state.players_infos,
+				hp_value,
+				energy_value
+			});
+		} else
+			this.setState({players_infos: this.state.players_infos});
 	}
 
 	private setPlayersData(init_data: InitDataSchema[]) {
@@ -439,12 +432,13 @@ export default class extends StageBase<BaseProps, GameState> {
 					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.DOWN, true)}
 					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.DOWN, false)}
 					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.DOWN, false)}/>
-				<button className={'controls-btn'} style={{//turn left
-					backgroundImage: `url(${arrow_left})`
-				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, true)}
-					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, true)}
-					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, false)}
-					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, false)} />
+				<button className={'controls-btn'} style={{//speed up
+					backgroundImage: `url(${arrow_down})`,
+					transform: 'scaleY(-1)'
+				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.UP, true)}
+					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.UP, true)}
+					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.UP, false)}
+					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.UP, false)} />
 				
 				<SkillsBar ref={el => this.skillsbar = el} onEmoticonUse={index => {
 					if(this.game)
@@ -457,6 +451,12 @@ export default class extends StageBase<BaseProps, GameState> {
 						this.game.trySkillStop(index);
 				}} />
 				
+				<button className={'controls-btn'} style={{//turn left
+					backgroundImage: `url(${arrow_left})`
+				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, true)}
+					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, true)}
+					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, false)}
+					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.LEFT, false)} />
 				<button className={'controls-btn'} style={{//turn right
 					backgroundImage: `url(${arrow_left})`,
 					transform: 'scaleX(-1)'
@@ -464,13 +464,6 @@ export default class extends StageBase<BaseProps, GameState> {
 					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.RIGHT, true)}
 					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.RIGHT, false)}
 					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.RIGHT, false)} />
-				<button className={'controls-btn'} style={{//speed up
-					backgroundImage: `url(${arrow_down})`,
-					transform: 'scaleY(-1)'
-				}}  onTouchStart={() => this.onControlBtn(MOVEMENT_FLAGS.UP, true)}
-					onMouseDown={() => this.onControlBtn(MOVEMENT_FLAGS.UP, true)}
-					onTouchEnd={() => this.onControlBtn(MOVEMENT_FLAGS.UP, false)}
-					onMouseUp={() => this.onControlBtn(MOVEMENT_FLAGS.UP, false)} />
 			</div>
 			<div className={`right-panel${this.state.hide_rightside ? ' hidden' : ''}`}>
 				<nav>

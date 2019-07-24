@@ -275,27 +275,4 @@ export default class RoomInfo {
 
 		return false;
 	}
-	/*
-	get taken_sits() {//returns number (deprecated)
-		return this.sits.filter(sit => sit !== 0).length;
-	}
-
-	removeUser(user: number | UserInfo): boolean {
-		if(typeof user === 'number') {//user id
-			for(let u of this.users) {
-				if(u.id === user)
-					return this.removeUser(u);
-			}
-			return false;
-		}
-		let i = this.users.indexOf(user);
-		if(i > -1) {
-			if(this.sits.indexOf(user.id) !== -1)//user is sitting
-				this.standUpUser(user.id);//releasing this sit
-			user.room = null;
-			this.users.splice(i, 1);
-			return true;
-		}
-		return false;
-	}*/
 }

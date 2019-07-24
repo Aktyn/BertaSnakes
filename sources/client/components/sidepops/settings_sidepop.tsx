@@ -21,8 +21,10 @@ const resolution_labels = extendType({
 
 interface SettingsSidepopState {
 	painter_resolution: PAINTER_RESOLUTION;
+	advanced_shaders: boolean;
 	shadows_type: string;
 	weather_particles: boolean;
+	particles: boolean;
 	auto_hide_right_panel: boolean;
 	auto_hide_chat: boolean;
 	sound_volume: number;
@@ -33,8 +35,10 @@ export default class SettingsSidepop extends React.Component<any, any> {
 	private static getDefaults(): SettingsSidepopState {
 		return {
 			painter_resolution: Settings.getValue('painter_resolution') as number,
+			advanced_shaders: !!Settings.getValue('advanced_shaders'),
 			shadows_type: Settings.getValue('shadows_type') as string,
 			weather_particles: !!Settings.getValue('weather_particles'),
+			particles: !!Settings.getValue('particles'),
 			auto_hide_right_panel: !!Settings.getValue('auto_hide_right_panel'),
 			auto_hide_chat: !!Settings.getValue('auto_hide_chat'),
 			sound_volume: Settings.getValue('sound_volume') as number
@@ -75,18 +79,34 @@ export default class SettingsSidepop extends React.Component<any, any> {
 					             	Settings.setValue('painter_resolution', res);
 					             	this.setState({painter_resolution: res});
 					             }}/>
-					
-					<label>Shadows type*</label>
-					<OptionsList options={['FLAT', 'LONG']} defaultValue={this.state.shadows_type} onChange={type => {
-						Settings.setValue('shadows_type', type);
-						this.setState({shadows_type: type});
-					}} />
-					
-					<label>Weather particles</label>
+					             
+					<label>Advanced shaders*</label>
 					<Switcher onSwitch={enabled => {
-						Settings.setValue('weather_particles', enabled);
-						this.setState({weather_particles: enabled});
-					}} defaultValue={ this.state.weather_particles } />
+						Settings.setValue('advanced_shaders', enabled);
+						this.setState({advanced_shaders: enabled});
+					}} defaultValue={ this.state.advanced_shaders } />
+					
+					{this.state.advanced_shaders && <>
+						<label>Shadows type**</label>
+						<OptionsList options={['FLAT', 'LONG']} onChange={type => {
+							Settings.setValue('shadows_type', type);
+							this.setState({shadows_type: type});
+						}} defaultValue={this.state.shadows_type} />
+					</>}
+					
+					<label>Enable particles***</label>
+					<Switcher onSwitch={enabled => {
+						Settings.setValue('particles', enabled);
+						this.setState({particles: enabled});
+					}} defaultValue={ this.state.particles } />
+					
+					{this.state.particles && <>
+						<label>Weather particles</label>
+						<Switcher onSwitch={enabled => {
+							Settings.setValue('weather_particles', enabled);
+							this.setState({weather_particles: enabled});
+						}} defaultValue={ this.state.weather_particles } />
+					</>}
 				</div>
 			</section>
 			
@@ -124,7 +144,9 @@ export default class SettingsSidepop extends React.Component<any, any> {
 				padding: '0px 10px',
 				color: '#78909C'
 			}}>
-				<div>* changes will take effect after page reload</div>
+				<div>* disabling this option will strip graphics from some fancy and resources consuming effects</div>
+				<div>** changes will take effect after page reload</div>
+				<div>*** some skill effects will be no longer visible</div>
 			</div>
 			
 			<hr/>

@@ -429,14 +429,14 @@ $togglerSize: 30px;
 		right: 0px;
 		height: auto;
 		
-		$btnSize: 30px;
+		$btnSize: 40px;
 		
 		&.mobile {
 			display: grid;
 			grid-template-columns: $btnSize $btnSize auto $btnSize $btnSize;
 			align-items: center;
 			justify-content: center;
-			grid-column-gap: 10px;
+			grid-column-gap: 0px;
 		}
 		
 		& > .controls-btn {

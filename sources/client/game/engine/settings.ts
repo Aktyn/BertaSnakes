@@ -3,7 +3,9 @@ import {PAINTER_RESOLUTION} from '../../../common/game/paint_layer';
 
 const DEFAULTS = {
 	'shadows_type': 'LONG',//'LONG', 'FLAT;
+	'advanced_shaders': true,
 	'painter_resolution': Device.isMobile() ? PAINTER_RESOLUTION.MEDIUM : PAINTER_RESOLUTION.HIGH,
+	'particles': true,
 	'weather_particles': true,
 	'auto_hide_right_panel': Device.isMobile(),
 	'auto_hide_chat': true,

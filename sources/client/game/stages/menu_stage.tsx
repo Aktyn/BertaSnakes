@@ -188,7 +188,7 @@ export default class extends StageBase<MenuProps, MenuState> {
 					<Link className='closer shaky-icon' to='/' onClick={Network.disconnect}/>
 				</div>
 			</header>
-			<section>
+			<section className={this.props.current_room && this.props.current_user ? 'opaque' : ''}>
 				<aside className={`${this.state.hide_rooms_list ? 'hidden ' : ''}left-aside`}>
 					<h1 className='info-header'>Available rooms</h1>
 					<div style={{textAlign: 'right'}}>

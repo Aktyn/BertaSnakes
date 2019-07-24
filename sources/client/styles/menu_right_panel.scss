@@ -3,11 +3,12 @@
 $width: 250px;
 
 .room-chat-container {
+	z-index: 1;
 	width: $width;
 	height: -webkit-fill-available;
 	max-height: 100%;
 	// overflow: hidden;
-	background-color: nth($palette, 8);
+	//background-color: nth($palette, 8);
 
 	position: relative;
 

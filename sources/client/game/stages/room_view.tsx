@@ -13,7 +13,7 @@ import SlideBar from "../../components/widgets/slidebar";
 
 import Utils from '../../utils/utils';
 
-import '../../styles/room_view.scss';
+import '../../styles/room_view.scss'; 
 
 //const ClockWidget: React.SFC<{seconds: number}> = (props) => {
 class ClockWidget extends React.Component<{seconds: number}, any> {

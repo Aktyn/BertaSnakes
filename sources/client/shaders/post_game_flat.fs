@@ -19,60 +19,60 @@ uniform vec2 offset;//normalized flipped resolution
 #define PARALAX_VALUE 1.5
 
 vec4 combined(in vec2 uv) {
-    vec4 foreground = texture2D(scene_pass, uv);
-    return mix(texture2D(curves_pass, uv), foreground, foreground.a);
+	vec4 foreground = texture2D(scene_pass, uv);
+	return mix(texture2D(curves_pass, uv), foreground, foreground.a);
 }
 
 void main() {
-    vec4 scene = combined(vUV);//texture2D(scene_pass, vUV);
-
-    if(scene.a == 1.0) {//optimization
-        gl_FragColor = scene;
-        return;
-    }
-
-    vec2 paralax = 0.01 * camera.z * offset * //0.01 - as 0.1*0.1
-        vec2(-(vUV.x * 2.0 - 1.0), vUV.y * 2.0 - 1.0) * PARALAX_VALUE;
-
-    float STEP = 1.0 / SAMPLESf;
-    float ll = STEP;
-    float darkness_factor = 1.0;
-    float sh = scene.a;
-    for(int i=1; i<=SAMPLES; i++) {
-        vec4 curve = texture2D(curves_pass, vUV+paralax*ll);
-        if( curve.a  > 0.0 ) {
-            if(curve.a > sh) {
-                sh = curve.a;
-                scene.rgb = curve.rgb;
-
-                if(i == 1)
-                    darkness_factor = 0.9;
-                else if(i == 2)
-                    darkness_factor = 0.9;
-                else if(i == 3)
-                    darkness_factor = 0.9;
-                else if(i == 4)
-                    darkness_factor = 0.866666;
-                else if(i == 5)
-                    darkness_factor = 0.833333;
-                else
-                    darkness_factor = 0.8;
-            }
-        }
-
-        ll += STEP;
-    }
-    scene.rgb *= darkness_factor;
-    scene.a = sh;
-
-    float shadow = combined(vUV + paralax+offset*camera.z*0.01).a * SHADOW_TRANSPARENCY - scene.a;
-    
-    vec2 tile_coord = vec2(
-        ((vUV.x-0.5)*aspect / camera.z + (camera.x+map_scale)/2.0)/map_scale, 
-        ((vUV.y-0.5) / camera.z + (camera.y+map_scale)/2.0)/map_scale
-    );
-
-    vec3 background_tex = texture2D(background_texture, tile_coord, -5.0).rgb;
-
-    gl_FragColor = vec4(mix(background_tex * (1.-shadow), scene.rgb, scene.a), 1.);
+	vec4 scene = combined(vUV);//texture2D(scene_pass, vUV);
+	
+	if(scene.a == 1.0) {//optimization
+		gl_FragColor = scene;
+		return;
+	}
+	
+	vec2 paralax = 0.01 * camera.z * offset * //0.01 - as 0.1*0.1
+	vec2(-(vUV.x * 2.0 - 1.0), vUV.y * 2.0 - 1.0) * PARALAX_VALUE;
+	
+	float STEP = 1.0 / SAMPLESf;
+	float ll = STEP;
+	float darkness_factor = 1.0;
+	float sh = scene.a;
+	for(int i=1; i<=SAMPLES; i++) {
+		vec4 curve = texture2D(curves_pass, vUV+paralax*ll);
+		if( curve.a  > 0.0 ) {
+			if(curve.a > sh) {
+				sh = curve.a;
+				scene.rgb = curve.rgb;
+				
+				if(i == 1)
+				darkness_factor = 0.9;
+				else if(i == 2)
+				darkness_factor = 0.9;
+				else if(i == 3)
+				darkness_factor = 0.9;
+				else if(i == 4)
+				darkness_factor = 0.866666;
+				else if(i == 5)
+				darkness_factor = 0.833333;
+				else
+				darkness_factor = 0.8;
+			}
+		}
+		
+		ll += STEP;
+	}
+	scene.rgb *= darkness_factor;
+	scene.a = sh;
+	
+	float shadow = combined(vUV + paralax+offset*camera.z*0.01).a * SHADOW_TRANSPARENCY - scene.a;
+	
+	vec2 tile_coord = vec2(
+		((vUV.x-0.5)*aspect / camera.z + (camera.x+map_scale)/2.0)/map_scale,
+		((vUV.y-0.5) / camera.z + (camera.y+map_scale)/2.0)/map_scale
+	);
+	
+	vec3 background_tex = texture2D(background_texture, tile_coord, -5.0).rgb;
+	
+	gl_FragColor = vec4(mix(background_tex * (1.-shadow), scene.rgb, scene.a), 1.);
 }

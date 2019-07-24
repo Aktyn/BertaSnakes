@@ -12,7 +12,7 @@ global._CLIENT_ = false;
 global._SERVER_ = true;
 
 import * as fs from 'fs';
-let app_version;
+let app_version: string;
 try {
 	let package_json = fs.readFileSync(__dirname + '/../../package.json', 'utf8');
 	app_version = JSON.parse(package_json).version;
@@ -21,7 +21,7 @@ catch(e) {
 	app_version = '1.0.0';
 }
 
-global.APP_VERSION = app_version/*.replace(/\./g, '_')*/ || 'unknown version';
+global.APP_VERSION = app_version || 'unknown version';
 
 import './database';//initializes database
 

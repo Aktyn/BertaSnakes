@@ -71,10 +71,12 @@ function loadAssets() {
 
 	// SHADERS //
 	loadShaderSource('main_shader', 'main.vs', 'main.fs');
-	if(Settings.getValue('shadows_type') === 'FLAT')
-		loadShaderSource('post_shader', 'post_gui.vs', 'post_game_flat.fs');
+	if( !Settings.getValue('advanced_shaders') )
+		loadShaderSource('post_shader', 'post_game.vs', 'post_game_simple.fs');
+	else if(Settings.getValue('shadows_type') === 'FLAT')
+		loadShaderSource('post_shader', 'post_game.vs', 'post_game_flat.fs');
 	else
-		loadShaderSource('post_shader', 'post_gui.vs', 'post_game_long.fs');
+		loadShaderSource('post_shader', 'post_game.vs', 'post_game_long.fs');
 	loadShaderSource('particles_shader', 'particles.vs', 'particles.fs');
 }
 

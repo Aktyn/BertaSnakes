@@ -20,6 +20,7 @@ const rect_data = {
 };
 
 let screen_size = Utils.getScreenSize();
+let enable_particles = true;
 
 let shadow_vector = new Vec2f();
 shadow_vector.set( -screen_size.height, screen_size.width ).normalize();
@@ -40,13 +41,13 @@ let chunk_it, chunk_ref, e_i;//chunk iterator
 
 export default class WebGLRenderer extends RendererBase {
 	private entities: WebGLEntities;
-	private VBO_RECT: Graphics.VBO_I;
+	private readonly VBO_RECT: Graphics.VBO_I;
 
-	private main_fb: Graphics.ExtendedFramebuffer;
-	private paint_fb: Graphics.ExtendedFramebuffer;
-	private main_shader: Graphics.ExtendedShader;
-	private post_shader: Graphics.ExtendedShader;
-	private particles_shader: Graphics.ExtendedShader;
+	private readonly main_fb: Graphics.ExtendedFramebuffer;
+	private readonly paint_fb: Graphics.ExtendedFramebuffer;
+	private readonly main_shader: Graphics.ExtendedShader;
+	private readonly post_shader: Graphics.ExtendedShader;
+	private readonly particles_shader?: Graphics.ExtendedShader;
 	private readonly emitters: Graphics.Emitter[];//GraphicsScope.Modules.Emitter[];
 	private readonly paint_emitters: Graphics.Emitter[];//GraphicsScope.Modules.Emitter[];
 	private readonly weather_emitter: Graphics.Emitter | null;//Emitters.Dust;
@@ -57,9 +58,9 @@ export default class WebGLRenderer extends RendererBase {
 
 	constructor(map: GameMap, map_data: MapJSON_I) {
 		const game_canvas = Graphics.init();
-
 		super(map);
 
+		enable_particles = !!Settings.getValue('particles');
 		let rect = Graphics.VBO.create(rect_data);
 		this.entities = new WebGLEntities(rect);
 		
@@ -68,8 +69,7 @@ export default class WebGLRenderer extends RendererBase {
 		);
 
 		this.VBO_RECT = rect;
-
-		//$$(window).on('resize', onResize);
+		
 		window.addEventListener('resize', onResize, true);
 		
 		//@ts-ignore
@@ -103,13 +103,13 @@ export default class WebGLRenderer extends RendererBase {
 		
 		this.main_shader = Graphics.SHADERS.create( Assets.getShaderSources('main_shader') );
 		this.post_shader = Graphics.SHADERS.create( Assets.getShaderSources('post_shader') );
-		this.particles_shader = 
-			Graphics.SHADERS.create( Assets.getShaderSources('particles_shader') );
+		if( enable_particles )
+			this.particles_shader = Graphics.SHADERS.create( Assets.getShaderSources('particles_shader') );
 
 		this.emitters = [];
 		this.paint_emitters = [];
 
-		if( Settings.getValue('weather_particles') === true) {
+		if( Settings.getValue('weather_particles') === true && enable_particles ) {
 			switch(map_data['weather']) {
 				default:
 				case WEATHER_TYPE.DUST:
@@ -178,6 +178,8 @@ export default class WebGLRenderer extends RendererBase {
 	}
 
 	drawParticles(list: Graphics.Emitter[]) {
+		if( !this.particles_shader )
+			return;
 		this.particles_shader.bind();
 
 		Graphics.SHADERS.uniform_float('screen_height', windowHeight);
@@ -225,11 +227,12 @@ export default class WebGLRenderer extends RendererBase {
 				chunk_ref = this.map.chunks[chunk_it];
 
 				//skipping chunks invisible to camera
-				if(chunk_ref.matrix.x+chunk_ref.matrix.width < this.camera.x-cam_w 	||
-				chunk_ref.matrix.x-chunk_ref.matrix.width > this.camera.x+cam_w 	||
-				chunk_ref.matrix.y+chunk_ref.matrix.height < this.camera.y-cam_h 	||
-				chunk_ref.matrix.y-chunk_ref.matrix.height > this.camera.y+cam_h) {
-					if(chunk_ref.webgl_texture != null)
+				if(chunk_ref.matrix.x+chunk_ref.matrix.width < this.camera.x-cam_w 	    ||
+					chunk_ref.matrix.x-chunk_ref.matrix.width > this.camera.x+cam_w 	||
+					chunk_ref.matrix.y+chunk_ref.matrix.height < this.camera.y-cam_h 	||
+					chunk_ref.matrix.y-chunk_ref.matrix.height > this.camera.y+cam_h)
+				{
+					if(chunk_ref.webgl_texture !== null)//unless chunk texture is not yet generated
 						continue;
 				}
 
@@ -303,6 +306,8 @@ export default class WebGLRenderer extends RendererBase {
 	}
 
 	public static addEmitter(emitter: Graphics.Emitter, paint_layer = false) {
+		if( !enable_particles )
+			return emitter;
 		let current_instance = <WebGLRenderer>RendererBase.getCurrentInstance();
 			
 		if(paint_layer === true)
