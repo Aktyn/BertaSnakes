@@ -80,7 +80,6 @@ export default {
 	updateCustomData(data: Partial<UserCustomData>) {
 		if( !current_account )
 			return;
-		
 		current_account.level           = override(data.level, current_account.level);
 		current_account.rank            = override(data.rank, current_account.rank);
 		current_account.skills          = override(data.skills, current_account.skills);

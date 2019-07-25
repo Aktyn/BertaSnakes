@@ -18,7 +18,8 @@ let requested_friends: PublicAccountSchema[] = [];
 let events = new Events();
 
 export const enum EVENT_NAMES {
-	ON_DISCONNECT = 0,
+	ON_CONNECT = 0,
+	ON_DISCONNECT,
 	ON_FRIENDS_LIST_UPDATE,
 	ON_FRIENDS_REQUEST_UPDATE,
 	ON_CHAT_MESSAGE,
@@ -260,6 +261,7 @@ const Social = {
 		
 		socket.onopen = async function() {
 			send({type: SOCIAL_CODES.REGISTER_CONNECTION, token});
+			events.emit(EVENT_NAMES.ON_CONNECT, undefined);
 		};
 
 		socket.onmessage = function(msg) {
@@ -278,6 +280,7 @@ const Social = {
 		socket.onclose = function() {
 			console.log('Social connection closed');
 			socket = null;
+			events.emit(EVENT_NAMES.ON_DISCONNECT, undefined);
 		};
 		socket.onerror = function(error) {
 			console.log('Socket error:', error);

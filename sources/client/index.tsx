@@ -7,6 +7,7 @@ if(process.env.NODE_ENV !== 'development') {
 	console.log = console.error = console.info = console.trace = console.warn = function(){};
 }
 
+const runtime = require('serviceworker-webpack-plugin/lib/runtime');//no types for this package
 import Loader from './components/widgets/loader';
 
 import * as React from 'react';
@@ -14,6 +15,7 @@ import { render } from 'react-dom';
 import Loadable from 'react-loadable';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Config from '../common/config';
+import ServerApi from './utils/server_api';
 
 import './styles/main.scss';
 
@@ -36,24 +38,39 @@ const Game = __async(() => import(/* webpackChunkName: "game", webpackPrefetch: 
 const Gallery = __async(() => import(/* webpackChunkName: "gallery", webpackPrefetch: true */ './pages/gallery'));
 const Admin = __async(() => import(/* webpackChunkName: "admin", webpackPrefetch: true */ './pages/admin'));
 
-class LayoutRoutes extends React.Component<any, {compactHeader: boolean}> {
+class LayoutRoutes extends React.Component<any, {compactHeader: boolean, online: boolean}> {
 	state = {
-		compactHeader: false
+		compactHeader: false,
+		online: true
 	};
 	
-	componentDidMount() {
+	async componentDidMount() {
 		if(this.props.location.pathname.length > 1)
 			this.setState({compactHeader: true});
+		
+		if(process.env.NODE_ENV !== 'development' && 'serviceWorker' in navigator &&
+			(window.location.protocol === 'https:' || window.location.hostname === 'localhost'))
+		{
+			runtime.register();
+		}
+		
+		this.checkServerOnline();
 	}
 	
-	componentDidUpdate(prevProps: any) {
+	async componentDidUpdate(prevProps: any) {
 		//routed
-		if(this.props.location.pathname !== prevProps.location.pathname)
+		if(this.props.location.pathname !== prevProps.location.pathname) {
 			this.setState({compactHeader: true});
+			this.checkServerOnline();
+		}
+	}
+	
+	private async checkServerOnline() {
+		this.setState({online: await ServerApi.pingServer()});
 	}
 	
 	render() {
-		return <Layout compactHeader={this.state.compactHeader}>
+		return <Layout compactHeader={this.state.compactHeader} online={this.state.online}>
 			<Switch>
 				<Route path='/' exact component={Home}/>
 				

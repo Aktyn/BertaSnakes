@@ -38,7 +38,7 @@ function postRequest(to: string, data: string | {[index: string]: any}) {
 export default {
 	postRequest,
 	
-	async pingServer() {
+	async pingServer(): Promise<boolean> {
 		try {
 			let res = await postRequest('/ping', {});
 			return res.error === 0;//code_send_success

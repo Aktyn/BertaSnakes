@@ -65,7 +65,7 @@ export default class Rankings extends React.Component<any, RankingsState> {
 	async loadRanking() {
 		this.setState({loading: true, open_selector: false});
 		try {
-			if( false === await ServerApi.pingServer() )
+			if( !await ServerApi.pingServer() )
 				return this.setError(errorMsg(ERROR_CODES.SERVER_UNREACHABLE));
 			let res = await ServerApi.postRequest('/get_ranking', {
 				page: this.page,

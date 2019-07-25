@@ -6,6 +6,8 @@ const {BaseHrefWebpackPlugin} = require('base-href-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const RobotstxtPlugin = require('robotstxt-webpack-plugin');
+const AppManifestWebpackPlugin = require('app-manifest-webpack-plugin');
+const ServiceWorkerWebpackPlugin = require('serviceworker-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -39,12 +41,11 @@ module.exports = {
 		fs: "empty"
 	},
 
-	optimization: isDevelopment ? {
-		minimize: false
-	} : {
+	optimization: isDevelopment ? undefined : {
 		minimize: true,
 		minimizer: [
 			new UglifyJsPlugin({
+				exclude: 'sw.js',
 				uglifyOptions: {
 					output: {
 						comments: false
@@ -114,11 +115,13 @@ module.exports = {
 					},
 					{
 						loader: 'fast-sass-loader',
-						options: {}
+						options: {
+							sourceMap: isDevelopment
+						}
 					}
 				]
 			}, {
-				test: /\.(jpe?g|png|gif|svg|ttf|ogg)$/,
+				test: /\.(jpe?g|png|gif|svg|ttf|ogg|webp)$/,
 				use: [
 					{
 						loader: "file-loader",
@@ -145,9 +148,9 @@ module.exports = {
 							gifsicle: {
 								interlaced: false,
 							},
-							/*webp: {
-								quality: 75
-							}*/
+							webp: {
+								quality: 95
+							}
 						}
 					}
 				]
@@ -171,14 +174,59 @@ module.exports = {
 
 		new HtmlWebpackPlugin({
 			hash: isDevelopment,
-			favicon: './sources/client/img/icons/icon.png',
+			favicon: './sources/client/img/icons/favicon.png',
 			title: 'BertaSnakes',
 			minify: !isDevelopment,
 			template: './sources/client/index.html',
 			filename: 'index.html'
 		}),
 
+		new AppManifestWebpackPlugin({
+			logo: './sources/client/img/icons/icon.png',
+			output: '/mobile/',
+			inject: !isDevelopment,
+			persistentCache: false,
+			emitStats: false,
+			config: {
+				appName: 'Berta Snakes', // Your application's name. `string`
+				appDescription:
+					'Multiplayer browser game created by Aktyn',
+				lang: 'en',
+				developerName: 'Aktyn', // Your (or your developer's) name. `string`
+				developerURL: 'https://github.com/Aktyn', // Your (or your developer's) URL. `string`
+				background: '#546e7a', // Background colour for flattened icons. `string`
+				theme_color: '#32494e', // Theme color for browser chrome. `string`
+				display: 'standalone', // Android display: "browser" or "standalone". `string`
+				orientation: 'landscape', // Android orientation: "portrait" or "landscape". `string`
+				start_url: '/', // Android start application's URL. `string`
+				version: '1.0', // Your application's version number. `number`
+				logging: false, // Print logs to console? `boolean`
+				icons: {
+					// Platform Options:
+					// - offset - offset in percentage
+					// - shadow - drop shadow for Android icons, available online only
+					// - background:
+					//   * false - use default
+					//   * true - force use default, e.g. set background for Android icons
+					//   * color - set background for the specified icons
+					//
+					android: true,
+					appleIcon: true,
+					appleStartup: true,
+					coast: { offset: 25 },
+					favicons: true,
+					firefox: true,
+					windows: true,
+					yandex: false,
+				},
+			}
+		}),
+
 		new BaseHrefWebpackPlugin({ baseHref: '/' }),
+
+		new ServiceWorkerWebpackPlugin({
+			entry: path.join(__dirname, 'sources', 'client', 'sw.js'),
+		}),
 
         new RobotstxtPlugin({
 			policy: [{

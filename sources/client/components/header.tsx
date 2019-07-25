@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import {Link, Redirect} from 'react-router-dom';
 import AccountWidget from './account_widget';
 import AccountSidepop from './sidepops/account_sidepop';
 import {RANKING_TYPES} from '../../common/config';
@@ -9,6 +9,7 @@ import '../styles/header.scss';
 
 interface HeaderProps {
 	compact: boolean;
+	online: boolean;
 }
 
 interface HeaderState {
@@ -28,7 +29,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 		super(props);
 	}
 	
-	play(e: React.MouseEvent<HTMLButtonElement>) {
+	private play(e: React.MouseEvent<HTMLButtonElement>) {
 		let layout = document.getElementById('layout');
 		if(!layout)
 			throw new Error('No layout element found');
@@ -66,7 +67,15 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 			<div className='header-bottom'>
 				<Link to='/' className='home-link' aria-label={'homepage-link'}/>
 				<Link to='/search' className='search-link' aria-label={'search-link'}/>
-				<NotificationsIndicator />
+				{this.props.online ?
+					<NotificationsIndicator />
+					:
+					<div style={{
+						fontWeight: 'bold',
+						fontSize: '12px',
+						color: '#ef9a9a'
+					}}>No server connection</div>
+				}
 			</div>
 			{this.state.ripple_pos && <div className={'ripple-transition'} style={{
 				left:   `${this.state.ripple_pos.x}px`,
@@ -76,7 +85,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
 			{this.state.show_sidepop && <AccountSidepop onClose={() => {
 				this.setState({show_sidepop: false});
 			}} />}
-			{this.state.play && <Redirect to='/play' />}
+			{this.state.play && <Redirect push to='/play' />}
 		</div>;
 	}
 }

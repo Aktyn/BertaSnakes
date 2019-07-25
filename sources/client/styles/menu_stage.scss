@@ -132,7 +132,7 @@ $foregroundColor: rgba( mix(nth($palette, 8), nth($palette, 9), 50%), 0.8);
 			width: 100%;
 			height: 100%;
 			
-			background-image: url('../img/graphics5.png');
+			background-image: url('../img/graphics5.webp');
 			background-position: center;//top;
 			background-size: 100% auto;
 			background-repeat: no-repeat;
@@ -252,6 +252,8 @@ $foregroundColor: rgba( mix(nth($palette, 8), nth($palette, 9), 50%), 0.8);
 			.left-aside {
 				position: absolute;
 				top: 0px;
+				
+				background-color: #34494e;
 
 				left: 0px;
 				right: auto;
@@ -303,6 +305,10 @@ $foregroundColor: rgba( mix(nth($palette, 8), nth($palette, 9), 50%), 0.8);
 						}
 					}
 				}
+			}
+			
+			.room-chat-container {
+				background-color: #34494e;
 			}
 
 			/*.side-chat-container {

@@ -6,11 +6,13 @@ import '../styles/layout-main.scss';
 
 interface LayoutProps {
 	compactHeader: boolean;
+	online: boolean;
 }
 
 export default class Layout extends React.Component<LayoutProps, any> {
 	static defaultProps: Partial<LayoutProps> = {
-		compactHeader: false
+		compactHeader: false,
+		online: false
 	};
 	
 	constructor(props: LayoutProps) {
@@ -19,7 +21,7 @@ export default class Layout extends React.Component<LayoutProps, any> {
 
 	render() {
 		return <div className='layout-main' id={'layout'}>
-			<Header compact={this.props.compactHeader}/>
+			<Header compact={this.props.compactHeader} online={this.props.online}/>
 			<div className='layout-content'>{this.props.children}</div>
 			<Footer/>
 		</div>;
