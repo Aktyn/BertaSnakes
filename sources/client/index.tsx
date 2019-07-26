@@ -1,13 +1,12 @@
-//disable logs and errors in production
-if(process.env.NODE_ENV !== 'development') {
+//disable logs and errors in production (deprecated since adding 'drop_console' option in webpack's uglify plugin)
+/*if(process.env.NODE_ENV !== 'development') {
 	console.clear();
 	console.log('%cLogs disabled in production code.\n¯\\_(ツ)_/¯',
 		'color: #f44336; font-weight: bold; font-size: 25px;');
 	//NOTE: table method is not included deliberately
 	console.log = console.error = console.info = console.trace = console.warn = function(){};
-}
+}*/
 
-const runtime = require('serviceworker-webpack-plugin/lib/runtime');//no types for this package
 import Loader from './components/widgets/loader';
 
 import * as React from 'react';
@@ -16,6 +15,7 @@ import Loadable from 'react-loadable';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Config from '../common/config';
 import ServerApi from './utils/server_api';
+import SwManager from './sw_manager';
 
 import './styles/main.scss';
 
@@ -48,13 +48,9 @@ class LayoutRoutes extends React.Component<any, {compactHeader: boolean, online:
 		if(this.props.location.pathname.length > 1)
 			this.setState({compactHeader: true});
 		
-		if(process.env.NODE_ENV !== 'development' && 'serviceWorker' in navigator &&
-			(window.location.protocol === 'https:' || window.location.hostname === 'localhost'))
-		{
-			runtime.register();
-		}
-		
 		this.checkServerOnline();
+		
+		SwManager.init().catch(console.error);
 	}
 	
 	async componentDidUpdate(prevProps: any) {

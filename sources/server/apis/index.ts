@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import Config from '../../common/config';
-import Sessions from '../sessions';
+import Database from '../database';
 import {UPLOADS_FOLDER} from '../upload_receiver';
 import ERROR_CODES from '../../common/error_codes';
 
@@ -30,7 +30,7 @@ import StatisticsApi from './statistics';
 }, 5000);*/
 
 export async function checkAdminPermissions(token: string) {
-	let account_res = await Sessions.token_login(token);
+	let account_res = await Database.getAccountFromToken(token);
 	if(account_res.error !== ERROR_CODES.SUCCESS || !account_res.account)
 		return false;//res.json({error: account_res.error});
 	return account_res.account.admin;

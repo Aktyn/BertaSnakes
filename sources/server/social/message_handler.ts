@@ -4,6 +4,8 @@ import SocialConnection from './social_connection';
 import Conversations from './conversations_store';
 import Database, {SocialMessage} from '../database';
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
+import {sendPushNotification} from "./notifications_sender";
+import {trimString} from "../utils";
 
 export async function handleMessage(connection: SocialConnection, message: SocialNetworkPackage) {
 	switch (message.type) {
@@ -120,10 +122,21 @@ export async function handleMessage(connection: SocialConnection, message: Socia
 				break;
 			
 			let recipient_connections = SocialConnection.getConnections(message.recipient_id);
-			if( !recipient_connections ) {//making sure this user exists
-				let db_res = await Database.getUserPublicData(message.recipient_id);
-				if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data)
+			if( !recipient_connections ) {//making sure this user exists and fetch subscription data at the same time
+				//let db_res = await Database.getUserPublicData(message.recipient_id);
+				//if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data)
+				//	break;
+				let db_res = await Database.getAccountSubscription(message.recipient_id);
+				if(db_res.error !== ERROR_CODES.SUCCESS)
 					break;
+				if( db_res.subscription ) {
+					sendPushNotification(db_res.subscription, {
+						title: `Message from ${trimString(connection.account.username, 15)}`,
+						author_id: connection.account.id,
+						content: trimString(message.content, 30),
+						icon: connection.account.avatar
+					});
+				}
 			}
 			
 			//save message in database

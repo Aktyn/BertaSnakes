@@ -1,4 +1,5 @@
 import * as React from 'react';
+import SwManager from '../sw_manager';
 import Network from './engine/network';
 import NetworkCodes, {NetworkPackage, notificationMsg} from '../../common/network_codes';
 import {UserCustomData} from '../../common/user_info';
@@ -54,6 +55,8 @@ export default class extends React.Component<any, CoreState> {
 	componentDidMount() {
 		this.active = true;
 		first_load = false;
+		
+		SwManager.init().catch(console.error);
 
 		Network.assignListeners({
 			onServerConnected: this.onServerConnected.bind(this),

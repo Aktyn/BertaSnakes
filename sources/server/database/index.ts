@@ -184,6 +184,7 @@ export interface AccountSchema extends PublicAccountSchema {
 	email: string;
 	verified: boolean;
 	admin: boolean;
+	subscription?: string;//for push notifications
 	
 	coins: number;
 

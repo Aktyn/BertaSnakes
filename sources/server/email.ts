@@ -37,6 +37,10 @@ function sendEmail(text_content: string, html_content: string, subject: string, 
 }
 
 export default {
+	getAddress() {
+		return email_address;
+	},
+	
 	sendVerificationCode(code: string, target_email: string) {
 		let msg = 'Congratulations! Your account has been successfully registered. ' +
 			'Before you can enjoy full possibilities of BertaSnakes game you must verify your account with this code: ' + code;

@@ -11,11 +11,6 @@ import TypingEffect from "../components/widgets/typing_effect";
 
 import '../styles/social_chat.scss';
 
-/*const typingParams: TypingEffectProps = {
-	showCursor: true,
-	minSpeed: 16,
-	maxSpeed: 16
-};*/
 const TYPING_DURATION = 500;//1 second to type entire message
 const MIN_TYPING_SPEED = 80;
 
@@ -61,8 +56,10 @@ function waitForSocialToLoad() {
 		}
 		else if( document.visibilityState !== 'visible' ) {//force title notification even if chat is open
 			let friendship = Social.getFriendByFriendshipID(friendship_id);
-			if(friendship)
+			if(friendship) {
 				document.title = Chat.getNotificationText(friendship.friend_data.username);
+				NotificationsIndicator.playNotification();
+			}
 		}
 	});
 }

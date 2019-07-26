@@ -23,7 +23,7 @@ function open(app: express.Express) {
 			
 			let db_res = await Database.getRankingPage(req.body.page, req.body.type);
 			if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data || !db_res.total_accounts)
-				return res.json(db_res);
+				return res.json({error: db_res.error});
 			
 			let cached_response = {error: ERROR_CODES.SUCCESS, data: db_res.data, total_users: db_res.total_accounts};
 			if( req.body.page === 0 )
@@ -42,7 +42,7 @@ function open(app: express.Express) {
 				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			let db_res = await Database.getAccountGames(req.body.account_id, req.body.page);
 			if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.games)
-				return res.json(db_res);
+				return res.json({error: db_res.error});
 			
 			return res.json({error: ERROR_CODES.SUCCESS, games: db_res.games});
 		}
@@ -59,7 +59,7 @@ function open(app: express.Express) {
 			let db_res = await Database.getGame(req.body.game_id);
 			
 			if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.game)
-				return res.json(db_res);
+				return res.json({error: db_res.error});
 			
 			return res.json({error: ERROR_CODES.SUCCESS, game: db_res.game});
 		}
@@ -76,7 +76,7 @@ function open(app: express.Express) {
 			let db_res = await Database.getUserPublicData(req.body.account_id);
 			
 			if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data)
-				return res.json(db_res);
+				return res.json({error: db_res.error});
 			
 			return res.json({error: ERROR_CODES.SUCCESS, data: db_res.data});
 		}

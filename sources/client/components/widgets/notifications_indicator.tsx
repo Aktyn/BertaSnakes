@@ -30,7 +30,7 @@ let notifications: GenericNotificationSchema[] = [];
 let notification_indicators: Set<NotificationsIndicator> = new Set();
 
 const sound_path = require('../../sounds/notification.ogg');
-let playNotification = (() => {
+const playNotification = (() => {
 	let audio = document.createElement('audio');
 	//audio.setAttribute('preload', 'auto');
 	audio.setAttribute('controls', 'none');
@@ -80,6 +80,8 @@ interface NotificationsState {
 }
 
 export default class NotificationsIndicator extends React.Component<any, NotificationsState> {
+	
+	public static playNotification = playNotification;
 	
 	public static push(notification: Omit<GenericNotificationSchema, 'unique_id'>) {
 		let unique_notification: GenericNotificationSchema = {

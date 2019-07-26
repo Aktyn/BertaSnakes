@@ -15,7 +15,11 @@ function open(app: express.Express) {
 		try {
 			if( typeof req.body.nick !== 'string' || typeof req.body.password !== 'string' )
 				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			
 			let result = await Sessions.login(req.body.nick, req.body.password);
+			if(result.error !== ERROR_CODES.SUCCESS || !result.account)
+				return res.json({error: result.error});
+			
 			Database.registerVisit(result.account || null,
 				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
 			return res.json(result);
@@ -30,7 +34,11 @@ function open(app: express.Express) {
 		try {
 			if( typeof req.body.token !== 'string' )
 				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			
 			let result = await Sessions.token_login(req.body.token);
+			if(result.error !== ERROR_CODES.SUCCESS || !result.account)
+				return res.json({error: result.error});
+			
 			Database.registerVisit(result.account || null,
 				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
 			return res.json(result);
@@ -218,6 +226,30 @@ function open(app: express.Express) {
 				return res.json({error: db_result.error});
 	
 			return res.json({error: ERROR_CODES.SUCCESS, avatar});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
+	
+	app.post('/update_account_subscription', async (req, res) => {//token, subscription (string | null)
+		try {
+			if( typeof req.body.token !== 'string' ||
+				!(typeof req.body.subscription === 'string' || req.body.subscription === null) )
+			{
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			}
+			
+			let result = await Database.getAccountFromToken(req.body.token);
+			if(result.error !== ERROR_CODES.SUCCESS || !result.account)
+				return res.json({error: result.error});
+			
+			let db_res = await Database.updateAccountSubscription(result.account.id, req.body.subscription);
+			if( db_res.error !== ERROR_CODES.SUCCESS )
+				return res.json({error: db_res.error});
+			
+			return res.json({error: ERROR_CODES.SUCCESS});
 		}
 		catch(e) {
 			console.error(e);

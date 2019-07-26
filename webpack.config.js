@@ -48,11 +48,15 @@ module.exports = {
 				exclude: 'sw.js',
 				uglifyOptions: {
 					output: {
-						comments: false
+						comments: false,
+					},
+					compress: {
+						warnings: false,
+						drop_console: true
 					},
 					ie8: false,
 					toplevel: true
-				}
+				},
 			})
 		],
 		usedExports: true,

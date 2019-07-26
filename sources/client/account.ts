@@ -2,6 +2,7 @@ import ServerApi from './utils/server_api';
 import Cookies from './utils/cookies';
 
 import Social from './social/social';
+import PushNotifications from './social/push_notifications';
 
 import ERROR_CODES from '../common/error_codes';
 import {PLAYER_TYPES} from "../common/game/objects/player";
@@ -31,6 +32,8 @@ async function loginFromToken() {
 		{
 			onAccountData(res.account);
 			Social.connect(token as string);
+			if(current_account)
+				PushNotifications.subscribe(current_account, token as string);
 			console.log('Logged in via token', current_account);
 			return {error: ERROR_CODES.SUCCESS};
 		}
@@ -96,13 +99,15 @@ export default {
 			let res = await ServerApi.postRequest('/login', {nick, password});
 			if(res.error !== ERROR_CODES.SUCCESS)
 				return res;
-			console.log(res);
+			//console.log(res);
 			if(!res.token || !res.expiration_time || !res.account)
 				return {error: ERROR_CODES.INCORRECT_SERVER_RESPONSE};
 
 			onAccountData(res.account);
 			setToken(res.token, res.expiration_time);
 			Social.connect(res.token);
+			if(current_account)
+				PushNotifications.subscribe(current_account, token as string);
 
 			return res;
 		}
@@ -229,6 +234,10 @@ export default {
 	},
 
 	logout() {
+		if( token )
+			PushNotifications.unsubscribe(token).catch(console.error);
+		else
+			console.error('there is not token value hence push notifications cannot be unsubscribed');
 		Cookies.removeCookie('token');
 		token = null;
 		onAccountData(null);

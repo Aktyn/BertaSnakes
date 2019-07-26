@@ -24,6 +24,12 @@ export function getArgument(name: string) {
 	}
 }
 
+export function trimString(str: string, max_len: number, suffix = '...') {
+	if (str.length > max_len)
+		return str.substr(0, max_len - suffix.length) + suffix;
+	return str;
+}
+
 export function sha256(input: string) {
 	return crypto.createHash('sha256').update( input ).digest('base64');
 }

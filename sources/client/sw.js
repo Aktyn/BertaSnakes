@@ -1,3 +1,4 @@
+'use strict';
 const DEBUG = false;
 
 // When the user navigates to your site,
@@ -23,16 +24,22 @@ self.addEventListener('install', event => {
 
 	// Add core website files to cache during serviceworker installation.
 	event.waitUntil(
-		global.caches.open(CACHE_NAME).then(cache => {
-			return cache.addAll(assetsToCache);
+		global.caches.open(CACHE_NAME).then(async (cache) => {
+			for(let asset of assetsToCache) {
+				await cache.add(asset).catch(e => {
+					if(DEBUG)
+						console.log('Cannot add asset to cache:', asset);
+				});
+			}
+			//return cache.addAll(assetsToCache);
 		}).then(() => {
 			if(DEBUG)
 				console.log('Cached assets: main', assetsToCache)
 		}).catch(error => {
-			console.error(error);
-			throw error;
+			if(DEBUG)
+				console.error(e);
 		})
-	)
+	);
 });
 
 // After the install event.
@@ -116,7 +123,10 @@ self.addEventListener('fetch', event => {
 
 			global.caches.open(CACHE_NAME).then(cache => {
 				return cache.put(request, responseCache);
-			}).catch(console.error);
+			}).catch(e => {
+				if(DEBUG)
+					console.error(e);
+			});
 			return responseNetwork;
 		}).catch(() => {
 			// User is landing on our page.
@@ -128,4 +138,89 @@ self.addEventListener('fetch', event => {
 	});
 
 	event.respondWith(resource);
+});
+
+//PUSH NOTIFICATIONS
+self.addEventListener('push', function(event) {
+	try {
+		if(DEBUG)
+			console.log(`[SW] Push notification received: "${event.data.text()}"`);
+		
+		let payload = event.data.text();
+		/** @type {{title: string, body: string, icon: string, author_id: string}} */
+		let final_data;
+		
+		try {
+			/** @type {{title: string, author_id: string, content: string, icon: string}} */
+			let data = JSON.parse(payload);
+			final_data = {
+				title: data.title || 'Uknown notification title',
+				body: data.content || 'Unknown message',
+				icon: self.location.host === 'localhost:3000' ?
+					`http://localhost:5348/uploads/avatars/${data.icon}` :
+					`${self.location.origin}/uploads/avatars/${data.icon}`,
+				author_id: data.author_id
+			};
+		}
+		catch(e) {
+			//fallback to handle unsuported push message
+			final_data = {
+				title: 'Unknown notification',
+				body: typeof payload === 'string' ? payload.substr(0, 64) : 'unknown message',
+				icon: '',
+				author_id: undefined
+			};
+		}
+		
+		const title = final_data.title;
+		const options = {
+			body: final_data.body,
+			icon: final_data.icon,
+			badge: final_data.icon,
+			data: final_data.author_id
+		};
+		
+		event.waitUntil( self.registration.showNotification(title, options) );
+	}
+	catch(e) {
+		if(DEBUG)
+			console.error(e);
+	}
+});
+
+self.addEventListener('notificationclick', function(event) {
+	if(DEBUG)
+		console.log('[SW] Notification click Received.', self.location, clients);
+	
+	const account_id = event.notification.data;
+	
+	event.notification.close();
+	//return;
+	
+	event.waitUntil((async () => {
+		try {
+			const allClients = await clients.matchAll({
+				includeUncontrolled: true
+			});
+			
+			let target_url = '/';
+			if( account_id )
+				target_url = `/users/${account_id}`;
+			
+			if (allClients.length === 0)//open new client if there is none
+				await clients.openWindow(target_url);
+			else {
+				for (let client of allClients) {
+					if (!client.focused) {//find first unfocused client
+						client.navigate( target_url );//redirect it
+						client.focus();//and focus
+						return;
+					}
+				}
+			}
+		} catch (e) {
+			if (DEBUG)
+				console.error(e);
+		}
+	})());
 });

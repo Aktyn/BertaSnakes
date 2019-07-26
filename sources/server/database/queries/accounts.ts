@@ -13,6 +13,7 @@ function extractAccountSchema(account: any): AccountSchema {
 		email: account.email || '',
 		verified: account.verification_code === '',
 		admin: !!account.admin,//NOTE: it is important to make sure it is a boolean
+		subscription: account.subscription,
 		
 		coins: account.coins || 0,
 
@@ -143,25 +144,6 @@ export default {
 		}
 	},
 	
-	async updateAccountPassword(account_hex_id: string, new_password: string) {
-		try {
-			let update_res = await getCollection(COLLECTIONS.accounts).updateOne({
-				_id: ObjectId.createFromHexString(account_hex_id)
-			}, {
-				$set: {
-					password: new_password
-				}
-			});
-			if( !update_res.result.ok )
-				return {error: ERROR_CODES.DATABASE_ERROR};
-			return {error: ERROR_CODES.SUCCESS};
-		}
-		catch(e) {
-			console.error(e);
-			return {error: ERROR_CODES.DATABASE_ERROR};
-		}
-	},
-
 	async insertAccount(_nick: string, _hashed_password: string, _email: string, _verification_code: string) {
 		let accounts = getCollection(COLLECTIONS.accounts);
 		try {
@@ -207,6 +189,62 @@ export default {
 			
 			onAccountInserted();
 			return {error: ERROR_CODES.SUCCESS, inserted_id: insert_res.insertedId.toHexString()};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async updateAccountPassword(account_hex_id: string, new_password: string) {
+		try {
+			let update_res = await getCollection(COLLECTIONS.accounts).updateOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			}, {
+				$set: {
+					password: new_password
+				}
+			});
+			if( !update_res.result.ok )
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async updateAccountSubscription(account_hex_id: string, subscription: string | null) {
+		try {
+			let res = await getCollection(COLLECTIONS.accounts).updateOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			}, {
+				$set: {subscription: subscription}
+			});
+
+			if(!res.result.ok)
+				return {error: ERROR_CODES.DATABASE_ERROR};
+			return {error: ERROR_CODES.SUCCESS};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async getAccountSubscription(account_hex_id: string) {
+		try {
+			let account = await getCollection(COLLECTIONS.accounts).findOne({
+				_id: ObjectId.createFromHexString(account_hex_id)
+			}, {projection: {
+				subscription: true
+			}});
+			
+			if( !account )
+				return {error: ERROR_CODES.ACCOUNT_DOES_NOT_EXIST};
+			
+			return {error: ERROR_CODES.SUCCESS, subscription: account.subscription as (string | undefined | null)};
 		}
 		catch(e) {
 			console.error(e);
