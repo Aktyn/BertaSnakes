@@ -295,7 +295,8 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 		}}>
 			<div className={'messages'} onClick={() => {
 				if(this.messages_container) {
-					if( window.getSelection().toString().length > 0 )
+					let selection = window.getSelection();
+					if( selection && selection.toString().length > 0 )
 						return;
 				}
 				if(this.chat_input)

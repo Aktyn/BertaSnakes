@@ -104,7 +104,8 @@ export default class extends StageBase<MenuProps, MenuState> {
 		};
 		
 		return <div style={{
-			marginTop: '50px'
+			marginTop: '50px',
+			zIndex: 1
 		}}>
 			<div style={info_style}>
 				Choose suitable room from list on the left or create new one and invite friends to join.

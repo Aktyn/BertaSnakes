@@ -35,19 +35,21 @@ const playNotification = (() => {
 	//audio.setAttribute('preload', 'auto');
 	audio.setAttribute('controls', 'none');
 	audio.setAttribute('muted', 'muted');
+	audio.setAttribute('src', sound_path);
 	audio.volume = 0.3;
 	
-	let loaded = false;
+	//let loaded = false;
 	
 	return function() {
-		if(loaded)
+		audio.play().catch(void 0);
+		/*if(loaded)
 			audio.play().catch(() => audio.play().catch(() => {}));
 		else {
 			audio.setAttribute('src', sound_path);
 			//audio.load();
 			loaded = true;
 			audio.oncanplaythrough = playNotification;
-		}
+		}*/
 	}
 })();
 

@@ -46,6 +46,7 @@ class AccountDataView extends React.Component<{
 	updateSetup: (ship_type: PLAYER_TYPES, skillsbar: (number | null)[]) => Promise<void>;
 }, any>
 {
+	
 	private renderAvailableShips(account: AccountSchema) {
 		return account.available_ships.map((ship) => {
 			let selected = ship === account.ship_type;
@@ -192,11 +193,6 @@ export default class AccountSection extends React.Component<{
 	render() {
 		let account = this.props.account;
 		let self = this.props.self;
-		/*const no_avatar_style = account.avatar ? {
-			backgroundSize: 'contain'
-		} : {
-			backgroundSize: '61%',
-		};*/
 		
 		return <section>
 			<h1 key='welcome-key' className='fader-in welcomer'>

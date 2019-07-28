@@ -125,7 +125,8 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 					this.messages_container.scrollTop+32 >= this.messages_container.scrollHeight;
 			}} onClick={() => {
 				if(this.messages_container) {
-					if( window.getSelection().toString().length > 0 )
+					let selection = window.getSelection();
+					if( selection && selection.toString().length > 0 )
 						return;
 				}
 				if(this.chat_input)

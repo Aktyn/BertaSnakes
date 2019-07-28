@@ -12,8 +12,15 @@ const enum STATUS {
 const service_worker_support = 'serviceWorker' in navigator &&
 	(window.location.protocol === 'https:' || window.location.hostname === 'localhost');
 
+export interface BeforeInstallPromptEvent extends Event {
+	prompt: () => void;
+	userChoice: Promise<{outcome: string; platform: string}>;
+}
+
 let sw_status = STATUS.NOT_INITIALIZED;
+let ready_to_install_event: BeforeInstallPromptEvent | null = null;
 let initialization_listeners: (() => void)[] = [];
+let ready_to_install_listeners: ((e: BeforeInstallPromptEvent) => void)[] = [];
 let push_subscription: PushSubscription | null = null;
 
 let sw_handle: ServiceWorkerRegistration | null = null;
@@ -34,6 +41,16 @@ function urlBase64ToUint8Array(base64String: string) {
 	return outputArray;
 }
 
+if(service_worker_support) {
+	window.addEventListener('beforeinstallprompt', (e) => {
+		//console.log(e);
+		e.preventDefault();
+		
+		ready_to_install_event = <BeforeInstallPromptEvent>e;
+		ready_to_install_listeners.forEach(listener => listener(<BeforeInstallPromptEvent>e));
+	});
+}
+
 export default {
 	async init() {
 		if(sw_status !== STATUS.NOT_INITIALIZED)
@@ -50,8 +67,6 @@ export default {
 				
 				sw_status = STATUS.INITIALIZED;
 				initialization_listeners.forEach(callback => callback());
-				//if(!push_notification_subscribed)
-				//	await this.subscribeNotifications();
 			}
 			catch(e) {
 				sw_status = STATUS.ERROR;
@@ -65,6 +80,20 @@ export default {
 			initialization_listeners.push( callback );
 		else
 			callback();
+	},
+	
+	onReadyToInstall(callback: (e: BeforeInstallPromptEvent) => void) {
+		ready_to_install_listeners.push(callback);
+		if( ready_to_install_event )
+			callback(ready_to_install_event);
+	},
+	
+	offReadyToInstall(callback: (e: BeforeInstallPromptEvent) => void) {
+		let index = ready_to_install_listeners.indexOf(callback);
+		if(index === -1)
+			console.warn('Cannot remove readyToInstall listener.');
+		else
+			ready_to_install_listeners.splice(index, 1);
 	},
 	
 	getPushSubscription() {
@@ -86,8 +115,8 @@ export default {
 			push_subscription = subscription;
 			return {error: ERROR_CODES.SUCCESS, subscription};
 		}
-		catch(e) {
-			console.error('Failed to subscribe push notifications: ' + e);
+		catch(e) {//permission denied
+			//console.error('Failed to subscribe push notifications: ' + e);
 			push_subscription = null;
 			return {error: ERROR_CODES.CANNOT_SUBSCRIBE_PUSH_NOTIFICATIONS};
 		}

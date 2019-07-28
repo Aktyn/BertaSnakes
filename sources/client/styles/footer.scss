@@ -1,37 +1,60 @@
 @import './global.scss';
 
 .footer {
-	display: grid;
-	align-items: center;
-	justify-content: space-between;
-
-	padding: 5px 0px;
-	height: auto;
-
 	font-size: 10px;
 	background-color: nth($palette, 8);
 	color: nth($palette, 5);
-	grid-template-columns: fit-content(100%) auto fit-content(100%);
-	grid-template-rows: auto;
-	
-	@media (max-width: 600px) {
-		grid-template-columns: auto auto;
-		grid-template-rows: auto auto;
-	}
-
-	@media (max-width: 450px) {
-		grid-template-columns: 100%;
-		grid-template-rows: auto auto auto;
-	}
+	padding: 0px;
 	
 	& > * {
-		padding: 3px 5px;
+		margin: 6px 5px;
 	}
-
-	img {
-		margin: -3px 0px;
-		padding: 0px;
-		height: 16px;
-		width: auto;
+	
+	.top {
+		text-align: left;
+		
+		button {
+			background-color: #fff0;
+			color: nth($palette, 1);//nth($palette, 1);
+			border: 1px solid nth($palette, 1);
+			box-shadow: none !important;
+			
+			$animFunc: 0.2s ease-in-out;
+			transition: background-color $animFunc, color $animFunc, border-color $animFunc;
+			
+			&:hover {
+				background-color: nth($palette, 9);
+				color: #80CBC4;//nth($palette, 8);
+				border-color: #80CBC4;
+			}
+		}
+	}
+	
+	.bottom {
+		display: grid;
+		align-items: center;
+		justify-content: space-between;
+		
+		height: auto;
+		
+		grid-template-columns: fit-content(100%) auto fit-content(100%);
+		grid-template-rows: auto;
+		
+		@media (max-width: 600px) {
+			grid-template-columns: auto auto;
+			grid-template-rows: auto auto;
+		}
+		
+		@media (max-width: 450px) {
+			grid-template-columns: 100%;
+			grid-template-rows: auto auto auto;
+		}
+		
+		img {
+			margin: -3px 0px;
+			padding: 0px;
+			height: 16px;
+			width: auto;
+		}
 	}
 }

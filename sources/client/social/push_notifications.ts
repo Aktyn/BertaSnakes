@@ -28,7 +28,7 @@ export default {
 		});
 	},
 	
-	async unsubscribe(token: string) {//TODO: make use of it within account sidepop
+	async unsubscribe(token: string) {
 		await SwManager.unsubscribeNotifications();
 		updateAccountSubscription(null, token).catch(console.error);
 	}

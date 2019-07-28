@@ -50,8 +50,8 @@ module.exports = {
 					output: {
 						comments: false,
 					},
+					warnings: false,
 					compress: {
-						warnings: false,
 						drop_console: true
 					},
 					ie8: false,
@@ -101,8 +101,7 @@ module.exports = {
 					{
 						loader: "css-loader",
 						options: {
-							sourceMap: isDevelopment,
-							//minimize: !isDevelopment
+							sourceMap: isDevelopment
 						}
 					},
 					{
@@ -187,11 +186,12 @@ module.exports = {
 
 		new AppManifestWebpackPlugin({
 			logo: './sources/client/img/icons/icon.png',
-			output: '/mobile/',
-			inject: !isDevelopment,
-			persistentCache: false,
+			output: isDevelopment ? './' : '/mobile/',
+			inject: true,//!isDevelopment,
+			persistentCache: isDevelopment,
 			emitStats: false,
 			config: {
+				path: '/mobile/',
 				appName: 'Berta Snakes', // Your application's name. `string`
 				appDescription:
 					'Multiplayer browser game created by Aktyn',
