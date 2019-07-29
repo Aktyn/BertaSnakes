@@ -31,9 +31,9 @@ function sortFriends() {
 	friends.sort((a) => a.online ? -1 : 1);
 }
 
-const server_address = `${location.protocol === 'http:' ? 'ws' : 'wss'}://${
-	//@ts-ignore
-	window.SERVER_IP || location.hostname}:${Config.SOCIAL_WEBSOCKET_PORT}`;
+//@ts-ignore
+const server_address = window.SOCIAL_SOCKET_PROXY ||
+	`${location.protocol === 'http:' ? 'ws' : 'wss'}://${location.hostname}:${Config.SOCIAL_WEBSOCKET_PORT}`;
 
 let socket: WebSocket | null = null;
 let saved_token: string | null = null;
@@ -263,7 +263,7 @@ const Social = {
 		console.log('Connecting to websocket server:', server_address, '(social)');
 		socket = new WebSocket(server_address);
 		
-		socket.onopen = async function() {
+		socket.onopen = function() {
 			send({type: SOCIAL_CODES.REGISTER_CONNECTION, token});
 			events.emit(EVENT_NAMES.ON_CONNECT, undefined);
 		};

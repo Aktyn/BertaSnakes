@@ -8,8 +8,9 @@
         <meta name="Description" content="Multi-player browser game created by Aktyn">
         <title><%= htmlWebpackPlugin.options.title %></title>
         <script>
-            //in some cases WebSockets may not work with location.hostname so you can force direct ip address
-            //window.SERVER_IP = '127.0.0.1';
+            //in some cases WebSockets may not work with location.hostname so you must connect through proxy
+            //window.SOCKET_PROXY = `${location.protocol === 'http:' ? 'ws' : 'wss'}://dronidev.pl/ws`;
+            //window.SOCIAL_SOCKET_PROXY = `${location.protocol === 'http:' ? 'ws' : 'wss'}://dronidev.pl/ws_social`;
         </script>
     </head>
     <body>
