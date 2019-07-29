@@ -26,6 +26,9 @@ let restore_timeout: number | null = null;
 
 let connection_attempts = 0;
 
+const server_address =
+	`${location.protocol === 'http:' ? 'ws' : 'wss'}://${location.hostname}:${Config.WEBSOCKET_PORT}`;
+
 const HANDLERS = {
 	handleJSON: function(json_data: NetworkPackage) {//handles json type message from server
 		switch(json_data['type']) {
@@ -168,7 +171,7 @@ const Network = {
 			console.log('Websocket connection already established');
 			return;
 		}
-		const server_address = 'ws://' + window.location.hostname + ':' + Config.WEBSOCKET_PORT;
+		
 		console.log('Connecting to websocket server:', server_address);
 		socket = new WebSocket(server_address);
 

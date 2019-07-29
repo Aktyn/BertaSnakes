@@ -31,6 +31,9 @@ function sortFriends() {
 	friends.sort((a) => a.online ? -1 : 1);
 }
 
+const server_address =
+	`${location.protocol === 'http:' ? 'ws' : 'wss'}://${location.hostname}:${Config.SOCIAL_WEBSOCKET_PORT}`;
+
 let socket: WebSocket | null = null;
 let saved_token: string | null = null;
 
@@ -255,7 +258,7 @@ const Social = {
 			console.log('Social Websocket connection already established');
 			return;
 		}
-		const server_address = 'ws://' + window.location.hostname + ':' + Config.SOCIAL_WEBSOCKET_PORT;
+		
 		console.log('Connecting to websocket server:', server_address, '(social)');
 		socket = new WebSocket(server_address);
 		
@@ -284,6 +287,7 @@ const Social = {
 		};
 		socket.onerror = function(error) {
 			console.log('Socket error:', error);
+			socket = null;
 		};
 	},
 	
@@ -299,6 +303,10 @@ const Social = {
 		events.emit(EVENT_NAMES.ON_FRIENDS_REQUEST_UPDATE, {potential_friends, requested_friends});
 		events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
 		events.emit(EVENT_NAMES.ON_DISCONNECT, undefined);
+	},
+	
+	isConnected() {
+		return socket !== null;
 	},
 	
 	on(name: EVENT_NAMES, func: (data: any) => void) {

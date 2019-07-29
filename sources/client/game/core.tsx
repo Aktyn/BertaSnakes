@@ -90,7 +90,7 @@ export default class extends React.Component<any, CoreState> {
 			Network.joinRoom( this.room_id_to_join );
 			this.room_id_to_join = undefined;
 			//console.log(this.props.history);
-			this.props.history.replace('/play');
+			setTimeout(() => this.props.history.replace('/play'), 1000/60);//one frame delay
 		}
 	}
 	

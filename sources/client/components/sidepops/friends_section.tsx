@@ -7,9 +7,9 @@ import UserSidepop from './user_sidepop';
 import {PublicAccountSchema} from "../../../server/database";
 import PotentialFriendsTable from "./potential_friends_table";
 import NotificationsIndicator, {COMMON_LABELS} from "../widgets/notifications_indicator";
+import StatusIndicator from "../widgets/status_indicator";
 
 import '../../styles/friends_section.scss';
-import StatusIndicator from "../widgets/status_indicator";
 
 interface FriendsSectionProps {
 	onError: (code: ERROR_CODES) => void;
@@ -105,7 +105,9 @@ export default class FriendsSection extends React.Component<FriendsSectionProps,
 				<div><span style={{color: '#8BC34A'}}>&#11208;</span><span>&nbsp;- playing</span></div>
 			</div>
 			<div className={'friends-list fader-in'}>{
-				this.state.friends.length > 0 ? this.renderFriendsList() : <span>No friends yet.</span>
+				this.state.friends.length > 0 ? this.renderFriendsList() : (Social.isConnected() ?
+					<span>No friends yet</span> :
+					<span style={{color: '#e57373', fontWeight: 'bold'}}>Websocket connection error</span>)
 			}</div>
 			{this.state.selected_player &&
 				<UserSidepop account_id={this.state.selected_player} onClose={() => {
