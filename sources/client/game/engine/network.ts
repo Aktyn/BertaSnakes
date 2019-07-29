@@ -26,8 +26,9 @@ let restore_timeout: number | null = null;
 
 let connection_attempts = 0;
 
-const server_address =
-	`${location.protocol === 'http:' ? 'ws' : 'wss'}://${location.hostname}:${Config.WEBSOCKET_PORT}`;
+const server_address = `${location.protocol === 'http:' ? 'ws' : 'wss'}://${
+	//@ts-ignore
+	window.SERVER_IP || location.hostname}:${Config.WEBSOCKET_PORT}`;
 
 const HANDLERS = {
 	handleJSON: function(json_data: NetworkPackage) {//handles json type message from server

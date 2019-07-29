@@ -31,8 +31,9 @@ function sortFriends() {
 	friends.sort((a) => a.online ? -1 : 1);
 }
 
-const server_address =
-	`${location.protocol === 'http:' ? 'ws' : 'wss'}://${location.hostname}:${Config.SOCIAL_WEBSOCKET_PORT}`;
+const server_address = `${location.protocol === 'http:' ? 'ws' : 'wss'}://${
+	//@ts-ignore
+	window.SERVER_IP || location.hostname}:${Config.SOCIAL_WEBSOCKET_PORT}`;
 
 let socket: WebSocket | null = null;
 let saved_token: string | null = null;

@@ -7,6 +7,10 @@
         <meta name='author' content='Aktyn'>
         <meta name="Description" content="Multi-player browser game created by Aktyn">
         <title><%= htmlWebpackPlugin.options.title %></title>
+        <script>
+            //in some cases WebSockets may not work with location.hostname so you can force direct ip address
+            //window.SERVER_IP = '127.0.0.1';
+        </script>
     </head>
     <body>
         <div id='page'>
