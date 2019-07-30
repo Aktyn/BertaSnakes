@@ -88,6 +88,8 @@ function handleMessage(message: SocialNetworkPackage) {
 			let friend = friends.find(f => f.friend_data.id === message['friend_id']);
 			if(friend) {
 				friend.online = true;
+				friend.is_playing = false;
+				friend.room_data = null;
 				sortFriends();
 				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
 			}
@@ -96,6 +98,8 @@ function handleMessage(message: SocialNetworkPackage) {
 			let friend = friends.find(f => f.friend_data.id === message['friend_id']);
 			if(friend) {
 				friend.online = false;
+				friend.is_playing = false;
+				friend.room_data = null;
 				sortFriends();
 				events.emit(EVENT_NAMES.ON_FRIENDS_LIST_UPDATE, friends);
 			}

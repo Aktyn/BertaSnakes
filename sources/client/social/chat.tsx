@@ -309,7 +309,7 @@ export default class Chat extends React.Component<ChatProps, ChatState> {
 			}} ref={el => this.messages_container = el}>
 				{this.renderMessages()}
 				{this.state.spam_warning &&
-					<div className={'spam-warning'}>You are sending messages to fast. Calm down.</div>}
+					<div className={'spam-warning'}>You are sending messages too fast. Calm down.</div>}
 			</div>
 			<div className={'bottom'}>
 				<input type={'text'} placeholder={'Type your message here'} onKeyDown={e => {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import ERROR_CODES, {errorMsg} from '../../../common/error_codes';
 import Account from '../../account';
 import ServerApi from '../../utils/server_api';
-import {offsetTop} from '../../components/sidepops/sidepops_common';
+// import {offsetTop} from '../../components/sidepops/sidepops_common';
 
 interface BashCommandsProps {
 	setError: (msg: string) => void;
@@ -10,13 +10,15 @@ interface BashCommandsProps {
 
 interface BashCommandsState {
 	execution_successful: boolean;
+	command_output: string;
 }
 
 export default class BashCommandsSection extends React.Component<BashCommandsProps, BashCommandsState> {
 	private command_input: HTMLInputElement | null = null;
 	
 	state: BashCommandsState = {
-		execution_successful: false
+		execution_successful: false,
+		command_output: ''
 	};
 	
 	private async executeCommand() {
@@ -36,8 +38,13 @@ export default class BashCommandsSection extends React.Component<BashCommandsPro
 				this.props.setError(errorMsg(res.error));
 				this.setState({execution_successful: false});
 			} else {
-				console.table(res.response);
-				this.setState({execution_successful: true});
+				console.log(res.response);
+				this.setState({
+					execution_successful: true,
+					command_output: escape(res.response).replace(/%20/g, '&nbsp;')
+						.replace(/%09/g, '&#09;')
+						.replace(/%0A/g, '<br />')
+				});
 			}
 		}
 		catch (e) {
@@ -55,8 +62,13 @@ export default class BashCommandsSection extends React.Component<BashCommandsPro
 			<input type={'text'} placeholder={'Bash command'} ref={el => this.command_input = el} onKeyDown={e => {
 				if (e.keyCode === 13)
 					this.executeCommand().catch(console.error);
-			}}/>
-			<button style={offsetTop} onClick={this.executeCommand.bind(this)}>EXECUTE</button>
+			}} style={{display: 'inline-block'}}/>
+			<button onClick={this.executeCommand.bind(this)} style={{marginLeft: '5px'}}>EXECUTE</button>
+			<pre style={{
+				textAlign: 'left',
+				padding: '5px',
+				fontFamily: 'monospace'
+			}} dangerouslySetInnerHTML={{__html: this.state.command_output}}/>
 		</section>;
 	}
 }

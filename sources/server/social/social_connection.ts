@@ -252,6 +252,8 @@ export default class SocialConnection {
 		}
 		
 		friend.online = true;
+		friend.is_playing = false;
+		friend.room_data = null;
 		
 		this.send({type: SOCIAL_CODES.ON_FRIEND_WENT_ONLINE, friend_id: friend.friend_data.id});
 	}
@@ -264,6 +266,8 @@ export default class SocialConnection {
 		}
 		
 		friend.online = false;
+		friend.is_playing = false;
+		friend.room_data = null;
 		
 		this.send({type: SOCIAL_CODES.ON_FRIEND_WENT_OFFLINE, friend_id: friend.friend_data.id});
 	}

@@ -134,7 +134,7 @@ export default class RoomChat extends React.Component<RoomChatProps, RoomChatSta
 			}} ref={el => this.messages_container = el}>
 				{this.state.messages.map(RoomChat.renderMessage.bind(this))}
 				{this.state.spam_warning &&
-					<div className={'spam-warning'}>You are sending messages to fast.<br/>Calm down.</div>}
+					<div className={'spam-warning'}>You are sending messages too fast.<br/>Calm down.</div>}
 			</div>
 			<div className='bottom'>
 				<input type='text' placeholder='Type message' ref={el => this.chat_input = el}
