@@ -4,9 +4,10 @@ import ServerApi from '../../utils/server_api';
 
 import Utils from '../../utils/utils';
 import Account, {AccountSchema} from '../../account';
-import Config from '../../../common/config';
+import Config, { CoinPackSchema } from '../../../common/config';
 import ERROR_CODES, {errorMsg} from '../../../common/error_codes';
 import {PLAYER_TYPES} from "../../../common/game/objects/player";
+import {SkillData} from "../../../common/game/common/skills";
 
 //sections
 import RegisterSection from './register_section';
@@ -14,7 +15,6 @@ import LoginSection from './login_section';
 import AccountSection from "./account_section";
 import GamesSection from "./games_section";
 import ShopSection from "./shop_section";
-import {SkillData} from "../../../common/game/common/skills";
 import FriendsSection from "./friends_section";
 import PasswordResetSection from "./password_reset_section";
 
@@ -66,7 +66,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	state: AccountSidepopState = {
 		loading: false,
-		view: VIEWS.GENERAL,//GENERAL
+		view: VIEWS.SHOP,//GENERAL
 		account: null,
 		verify_info: false,
 		verification_resend: false,
@@ -99,7 +99,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 		}
 
 		(async () => {
-			if(false === await ServerApi.pingServer() )
+			if( !await ServerApi.pingServer() )
 				this.setError('Server is not available');
 		})();
 	}
@@ -272,6 +272,11 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	private async buySkill(skill: SkillData) {
 		return this.buyMerchandise({type: MERCHANDISE_TYPE.SKILL, skill: skill});
 	}
+	
+	private async buyCoins(pack: CoinPackSchema) {
+		console.log('Buying coins pack:', pack);
+		//TODO: continue from here
+	}
 
 	private async uploadAvatar(clear = false) {
 		try {
@@ -377,7 +382,8 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 			case VIEWS.SHOP:
 				if(this.state.account) {
 					return <ShopSection ref={el => this.shop_section = el} account={this.state.account}
-					                    buyShip={this.buyShip.bind(this)} buySkill={this.buySkill.bind(this)}/>;
+					    buyShip={this.buyShip.bind(this)} buySkill={this.buySkill.bind(this)}
+					    buyCoins={this.buyCoins.bind(this)} onError={msg => this.setError(msg)}/>;
 				}
 				break;
 			case VIEWS.GAMES: {

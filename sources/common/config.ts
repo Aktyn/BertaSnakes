@@ -3,6 +3,11 @@ import {map_name} from './game/maps';
 
 const SERVER_PORT = 5348;
 
+export interface CoinPackSchema {
+	coins: number;
+	price: number;//USD
+}
+
 export const enum RANKING_TYPES {
 	TOP_RANK = 0,
 	HIGHEST_LEVEL,
@@ -59,5 +64,11 @@ export default {
 	//lists settings
 	ITEMS_PER_GAMES_LIST_PAGE: 10,
 	ITEMS_PER_RANKING_PAGE: 16,
-	MAXIMUM_LENGTH_OF_MESSAGES_CHUNK: 128
+	MAXIMUM_LENGTH_OF_MESSAGES_CHUNK: 128,
+	
+	COIN_PACKS: {
+		small:  <CoinPackSchema>{   coins: 5000,   price: 3},
+		medium: <CoinPackSchema>{   coins: 30000,  price: 15},
+		large:  <CoinPackSchema>{   coins: 70000,  price: 30}
+	}
 }

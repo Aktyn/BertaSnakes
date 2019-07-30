@@ -10,6 +10,7 @@ const DEFAULTS = {
 	'auto_hide_right_panel': Device.isMobile(),
 	'auto_hide_chat': true,
 	'sound_volume': Device.isMobile() ? 1.0 : 0.5,
+	'currency': 'PLN'
 };
 
 type setting_name = keyof typeof DEFAULTS;

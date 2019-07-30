@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Link, Redirect} from 'react-router-dom';
-import AccountWidget from './account_widget';
+import AccountWidget from './widgets/account_widget';
 import AccountSidepop from './sidepops/account_sidepop';
 import {RANKING_TYPES} from '../../common/config';
 import NotificationsIndicator from "./widgets/notifications_indicator";

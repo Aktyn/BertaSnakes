@@ -1,42 +1,105 @@
 import * as React from 'react';
-
-import '../../styles/shop_section.scss';
-import {AccountSchema} from '../../account';
+import Account, {AccountSchema} from '../../account';
 import {PLAYER_TYPES, SHIP_LVL_REQUIREMENTS, SHIP_COSTS} from '../../../common/game/objects/player';
 import Skills, {SkillData} from "../../../common/game/common/skills";
 import ShipWidget from "../widgets/ship_widget";
-import {offsetTop} from "./sidepops_common";
+import {offsetTop, offsetVert} from "./sidepops_common";
 import SkillWidget from "../widgets/skill_widget";
+import ServerApi from '../../utils/server_api';
+import Settings from "../../game/engine/settings";
+import Config, { CoinPackSchema } from '../../../common/config';
+import ERROR_CODES, {errorMsg} from "../../../common/error_codes";
+
+import '../../styles/shop_section.scss';
+
+const CONFIRMATION_TIMEOUT = 8000;//ms
+
+const packs = [
+	{name: 'Small', pack: Config.COIN_PACKS.small},
+	{name: 'Medium', pack: Config.COIN_PACKS.medium},
+	{name: 'Large', pack: Config.COIN_PACKS.large}
+];
+
+interface CurrencyRatesSchema {
+	[index: string]: number;
+}
 
 interface ShopSectionProps {
 	account: AccountSchema;
+	onError: (msg: string) => void;
 	buyShip: (type: number) => Promise<void>;
 	buySkill: (skill: SkillData) => Promise<void>;
+	buyCoins: (pack: CoinPackSchema) => Promise<void>;
 }
 
 interface ShopSectionState {
 	confirm_ship_buy?: number;
 	confirm_skill_buy?: SkillData;
+	confirm_coin_pack_buy?: CoinPackSchema
 	transaction_success: boolean;
+	currency_base?: string;
+	currency?: string;
+	currency_rates?: CurrencyRatesSchema;
 }
 
 export default class ShopSection extends React.Component<ShopSectionProps, ShopSectionState> {
 	private ship_transaction_tm: NodeJS.Timeout | null = null;
 	private skill_transaction_tm: NodeJS.Timeout | null = null;
+	private coin_pack_transaction_tm: NodeJS.Timeout | null = null;
 	
 	state: ShopSectionState = {
-		transaction_success: false//false doesn't mean that it is an error
+		transaction_success: false,//false doesn't mean that it is an error
 	};
 	
 	constructor(props: ShopSectionProps) {
 		super(props);
 	}
 	
+	async componentDidMount() {
+		interface CurrenciesResponse {
+			error: ERROR_CODES;
+			base: string;
+			rates: CurrencyRatesSchema;
+		}
+		
+		//load currency rates
+		let currencies_res: CurrenciesResponse = await ServerApi.postRequest('/get_currencies', {
+			token: Account.getToken()
+		});
+		console.log('currencies:', currencies_res);
+		if(currencies_res.error !== ERROR_CODES.SUCCESS || !currencies_res.base || !currencies_res.rates)
+			return this.props.onError(errorMsg(currencies_res.error));
+		
+		let currency = (Settings.getValue('currency') as string) || currencies_res.base;
+		
+		if( !(currency in currencies_res.rates) )
+			return this.props.onError('Currency settings error');
+		
+		this.setState({
+			currency_base: currencies_res.base,
+			currency_rates: currencies_res.rates,
+			currency
+		});
+	}
+	
 	componentWillUnmount() {
-		if(this.ship_transaction_tm)
-			clearTimeout(this.ship_transaction_tm);
-		if(this.skill_transaction_tm)
-			clearTimeout(this.skill_transaction_tm);
+		for(let tm of [this.ship_transaction_tm, this.skill_transaction_tm, this.coin_pack_transaction_tm]) {
+			if(tm)
+				clearTimeout(tm);
+		}
+	}
+	
+	private areCurrencyDataLoaded() {
+		return this.state.currency && this.state.currency_rates && this.state.currency_base;
+	}
+	
+	private convertPrice(usd_price: number) {
+		if( this.state.currency && this.state.currency_rates && this.state.currency in this.state.currency_rates ) {
+			let price = this.state.currency_rates[this.state.currency] * usd_price;
+			return price.toFixed(2);
+		}
+		this.props.onError('Cannot convert price for given currency: ' + this.state.currency);
+		return 'error';
 	}
 	
 	public onTransactionSuccess() {
@@ -51,7 +114,7 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 		this.ship_transaction_tm = setTimeout(() => {
 			this.setState({confirm_ship_buy: undefined});
 			this.ship_transaction_tm = null;
-		}, 8000) as never;
+		}, CONFIRMATION_TIMEOUT) as never;
 	}
 	
 	private tryBuySkill(skill: SkillData) {
@@ -62,7 +125,18 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 		this.skill_transaction_tm = setTimeout(() => {
 			this.setState({confirm_skill_buy: undefined});
 			this.skill_transaction_tm = null;
-		}, 8000) as never;
+		}, CONFIRMATION_TIMEOUT) as never;
+	}
+	
+	private tryBuyCoinPack(pack: CoinPackSchema) {
+		if( this.state.confirm_coin_pack_buy !== undefined )
+			return;
+		
+		this.setState({confirm_coin_pack_buy: pack, transaction_success: false});
+		this.coin_pack_transaction_tm = setTimeout(() => {
+			this.setState({confirm_coin_pack_buy: undefined});
+			this.coin_pack_transaction_tm = null;
+		}, CONFIRMATION_TIMEOUT) as never;
 	}
 	
 	private cancelShipBuyConfirm() {
@@ -77,6 +151,13 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 		if(this.skill_transaction_tm)
 			clearTimeout(this.skill_transaction_tm);
 		this.skill_transaction_tm = null;
+	}
+	
+	private cancelCoinPackBuyConfirm() {
+		this.setState({confirm_coin_pack_buy: undefined, transaction_success: false});
+		if(this.coin_pack_transaction_tm)
+			clearTimeout(this.coin_pack_transaction_tm);
+		this.coin_pack_transaction_tm = null;
 	}
 	
 	private renderShipsList(account: AccountSchema) {
@@ -133,6 +214,20 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 		});
 	}
 	
+	private renderCoinPacks() {
+		return <div className={'coin-offers'}>{packs.map((pack_data, index) => {
+			return <button key={index} onClick={() => this.tryBuyCoinPack(pack_data.pack)}>
+				<label>
+					{pack_data.name}&nbsp;pack<br/>
+					{pack_data.pack.coins.toLocaleString()}&nbsp;coins
+				</label>
+				<div className={'icon'}/>
+				<span>{this.convertPrice(pack_data.pack.price)}&nbsp;{this.state.currency}</span>
+			</button>;
+		})}
+		</div>;
+	}
+	
 	private renderShipBuyConfirmPrompt(type: number) {
 		return <>
 			<h4 className={'fader-in'}>You sure you want to buy this ship for {SHIP_COSTS[type]} coins?</h4>
@@ -163,8 +258,37 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 			</button>
 			<br/>
 			<button className={'fader-in'} onClick={() => this.cancelSkillBuyConfirm()}
-			        style={{color: '#e57373', ...offsetTop}}>NOPE</button>
+				style={{color: '#e57373', ...offsetTop}}>NOPE</button>
 		</>;
+	}
+	
+	private renderCoinPackConfirmPrompt(pack: CoinPackSchema) {
+		return <>
+			<h4 className={'fader-in'}>You sure you want to buy {pack.coins.toLocaleString()} coins fo {
+				this.convertPrice(pack.price)}&nbsp;{this.state.currency}?</h4>
+			<button className={'fader-in'} onClick={() => {
+				this.cancelCoinPackBuyConfirm();
+				this.props.buyCoins(pack).catch(console.error);
+			}} style={{...offsetTop}}>
+				BUY WITH PAYPAL
+			</button>
+			<br/>
+			<button className={'fader-in'} onClick={() => this.cancelCoinPackBuyConfirm()}
+				style={{color: '#e57373', ...offsetTop}}>NOPE</button>
+		</>;
+	}
+	
+	private renderCurrencySelector() {
+		return <select defaultValue={this.state.currency} onChange={e => {
+			if(this.state.currency_rates && e.target.value in this.state.currency_rates) {
+				this.setState({currency: e.target.value});
+				Settings.setValue('currency', e.target.value);
+			}
+		}}>{
+			this.state.currency_rates && Object.entries(this.state.currency_rates).map(([symbol]) => {
+				return <option key={symbol} value={symbol}>{symbol}</option>
+			})
+		}</select>;
 	}
 	
 	render() {
@@ -186,22 +310,38 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 				<label>Coins:</label>
 				<span>{this.props.account.coins}</span>
 			</div>
-			<div className={'fader-in'} style={{...offsetTop}}>{
-				this.state.confirm_ship_buy !== undefined ? this.renderShipBuyConfirmPrompt(this.state.confirm_ship_buy)
-				:
-				this.renderShipsList(this.props.account)
+			
+			<label className={'separating-label'} style={{...offsetVert}}>SHIPS</label>
+			<div className={'fader-in'}>{
+				this.state.confirm_ship_buy === undefined ? this.renderShipsList(this.props.account)
+					:
+					this.renderShipBuyConfirmPrompt(this.state.confirm_ship_buy)
 			}</div>
-			<hr/>
+			
+			<label className={'separating-label'} style={{...offsetVert}}>SKILLS</label>
 			<div className={'fader-in'} style={this.state.confirm_skill_buy !== undefined ? {} : {
 				display: 'grid',
 				gridTemplateColumns: 'auto auto auto',
 				justifyContent: 'center',
 				gridRowGap: '10px'
 			}}>{
-				this.state.confirm_skill_buy !== undefined ? this.renderSkillBuyConfirmPrompt(this.state.confirm_skill_buy)
-				:
-				this.renderSkillsList(this.props.account)
+				this.state.confirm_skill_buy === undefined ? this.renderSkillsList(this.props.account)
+					:
+					this.renderSkillBuyConfirmPrompt(this.state.confirm_skill_buy)
 			}</div>
+			
+			{this.areCurrencyDataLoaded() && <>
+				<label className={'separating-label'} style={{...offsetVert}}>COINS (real money)</label>
+				<div className={'fader-in currency-selection-container'}>
+					<label>Currency:&nbsp;</label>
+					{this.renderCurrencySelector()}
+				</div>
+				<div className={'fader-in'} style={offsetTop}>{
+					this.state.confirm_coin_pack_buy === undefined ? this.renderCoinPacks()
+						:
+						this.renderCoinPackConfirmPrompt(this.state.confirm_coin_pack_buy)
+				}</div>
+			</>}
 		</section>;
 	}
 }

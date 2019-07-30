@@ -25,4 +25,72 @@
 	.ship-element {
 		min-width: 70px;
 	}
+	
+	.coin-offers {
+		$iconSize: 60px;
+		
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-evenly;
+		
+		& > * {
+			//background-color: #0002;
+			cursor: pointer;
+			flex: 1;
+			margin: 0px 6px;
+			//padding: 4px 0px;
+			white-space: nowrap;
+			
+			display: grid;
+			grid-template-columns: auto;
+			grid-template-rows: fit-content(100%) auto fit-content(100%);
+			grid-template-areas: "title" "icon" "details";
+			
+			& > label {
+				grid-area: title;
+				cursor: pointer;
+			}
+			
+			& > span {
+				grid-area: details;
+				font-weight: normal;
+				//font-size: 12px;
+			}
+			
+			& > .icon {
+				grid-area: icon;
+				content: "";
+				display: block;
+				width: $iconSize;
+				height: $iconSize;
+				
+				background: url('../img/icons/money_bag.webp') center no-repeat;
+				background-size: contain;
+				margin: 5px auto;
+			}
+			
+			@function sqrt($r) {
+				$x0: 1;
+				$x1: $x0;
+				
+				@for $i from 1 through 10 {
+					$x1: $x0 - ($x0 * $x0 - abs($r)) / (2 * $x0);
+					$x0: $x1;
+				}
+				
+				@return $x1;
+			}
+			
+			@for $i from 1 through 3 {
+				&:nth-child(#{$i}) > .icon {
+					transform: scale( sqrt(sqrt($i / 3)) );
+				}
+			}
+		}
+	}
+	
+	.currency-selection-container {
+	
+	}
 }

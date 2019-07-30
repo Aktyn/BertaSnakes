@@ -1,10 +1,10 @@
 import * as React from 'react';
-import Account from '../account';
-import ServerAPi from '../utils/server_api';
+import Account from '../../account';
+import ServerAPi from '../../utils/server_api';
 
-import AccountSidepop from './sidepops/account_sidepop';
+import AccountSidepop from '../sidepops/account_sidepop';
 
-import '../styles/widgets/account_widget.scss';
+import '../../styles/widgets/account_widget.scss';
 
 interface AccountWidgetState {
 	show_sidepop: boolean;
@@ -13,7 +13,7 @@ interface AccountWidgetState {
 export default class AccountWidget extends React.Component<any, AccountWidgetState> {
 
 	state: AccountWidgetState = {
-		show_sidepop: false//false
+		show_sidepop: true//false
 	};
 
 	private readonly onLogIn: () => void;

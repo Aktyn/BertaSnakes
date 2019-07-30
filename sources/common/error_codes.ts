@@ -37,6 +37,7 @@ const enum ERROR_CODES {
 	USER_IS_NOT_IN_ROOM,
 	
 	INCORRECT_DATA_SENT,
+	INCORRECT_API_RESPONSE,
 	
 	//game
 	GAME_DOES_NOT_EXIST,
@@ -94,6 +95,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.USER_IS_NOT_IN_ROOM:	    return 'User is not in room';
 		
 		case ERROR_CODES.INCORRECT_DATA_SENT:       return 'Incorrect data sent';
+		case ERROR_CODES.INCORRECT_API_RESPONSE:    return 'Incorrect api response';
 		
 		//game
 		case ERROR_CODES.GAME_DOES_NOT_EXIST:   return 'Game does not exist';

@@ -6,8 +6,12 @@ import {checkAdminPermissions} from "./index";
 import SocialConnection from "../social/social_connection";
 import RoomsManager from '../game/rooms_manager';
 import {RoomCustomData} from "../../common/room_info";
+import {getArgument} from "../utils";
+const fetch = require('node-fetch');
 
 const ranking_cache_name = (page: number, type: number) => `ranking_page_${page}_${type}`;
+
+const OPENEXCHANGE_APP_ID = getArgument('OPENEXCHANGE_APP_ID');
 
 function open(app: express.Express) {
 	app.post('/get_ranking', async (req, res) => {//page, type
@@ -131,6 +135,35 @@ function open(app: express.Express) {
 			let rooms_data = Array.from( RoomsManager.getRooms().values() ).map(room => room.toJSON());
 			
 			return res.json({error: ERROR_CODES.SUCCESS, rooms: rooms_data});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
+	
+	app.post('/get_currencies', async (req, res) => {//token
+		try {
+			if( typeof req.body.token !== 'string' )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			
+			let cached_currencies = Cache.getCache( 'currencies_cache' );
+			if(cached_currencies)
+				return res.json(cached_currencies.data);
+			
+			//load from openexchangerates.org api
+			//https://openexchangerates.org/account/usage
+			
+			let api_res: {base: string, rates: {[index: string]: number}} = await fetch(
+				`https://openexchangerates.org/api/latest.json?app_id=${OPENEXCHANGE_APP_ID}`).then(
+					(res: any) => res.json());
+			
+			if( typeof api_res.base !== 'string' || typeof api_res.rates !== 'object' )
+				return res.json({error: ERROR_CODES.INCORRECT_API_RESPONSE});
+			
+			let cached_response = {error: ERROR_CODES.SUCCESS, base: api_res.base, rates: api_res.rates};
+			Cache.createCache('currencies_cache', 1000*60*60*24, cached_response);
+			return res.json(cached_response);
 		}
 		catch(e) {
 			console.error(e);
