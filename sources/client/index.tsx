@@ -34,9 +34,14 @@ function __async(_loader: () => any) {
 	});
 }
 
-const Game = __async(() => import(/* webpackChunkName: "game", webpackPrefetch: true */ './game/core'));
-const Gallery = __async(() => import(/* webpackChunkName: "gallery", webpackPrefetch: true */ './pages/gallery'));
-const Admin = __async(() => import(/* webpackChunkName: "admin", webpackPrefetch: true */ './pages/admin'));
+const Game = __async(
+	() => import(/* webpackChunkName: "game", webpackPrefetch: true */ './game/core'));
+const Gallery = __async(
+	() => import(/* webpackChunkName: "gallery", webpackPrefetch: true */ './pages/gallery'));
+const Admin = __async(
+	() => import(/* webpackChunkName: "admin", webpackPrefetch: true */ './pages/admin'));
+const PaymentResult = __async(
+	() => import(/* webpackChunkName: "admin", webpackPrefetch: true */ './pages/payment_result'));
 
 class LayoutRoutes extends React.Component<any, {compactHeader: boolean, online: boolean}> {
 	state = {
@@ -80,6 +85,9 @@ class LayoutRoutes extends React.Component<any, {compactHeader: boolean, online:
 				
 				<Route path='/games/:id' component={GameDetails}/>
 				<Route path='/users/:id' component={UserDetails}/>
+				
+				<Route path={'/payment_result/:result'} component={PaymentResult}/>
+				<Route path={'/payment_result'} component={PaymentResult}/>
 				
 				<Route path='/gallery' component={Gallery}/>
 				<Route path='/admin' component={Admin}/>

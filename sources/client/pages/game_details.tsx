@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {withRouter} from "react-router";
-
 import ERROR_CODES, {errorMsg} from "../../common/error_codes";
 import ServerApi from '../utils/server_api';
 import ContainerPage, {ContainerProps} from "./container_page";
@@ -17,8 +16,8 @@ class GameDetails extends React.Component<any, GameDetailsState> {
 	state: GameDetailsState = {
 		loading: false,
 		error: undefined,
-		game: null,
-		show_navigator: false
+		show_navigator: false,
+		game: null
 	};
 	
 	constructor(props: any) {
@@ -28,7 +27,7 @@ class GameDetails extends React.Component<any, GameDetailsState> {
 	async componentDidMount() {
 		try {
 			this.setState({loading: true});
-			if(false === await ServerApi.pingServer())
+			if(!await ServerApi.pingServer())
 				return this.setError( errorMsg(ERROR_CODES.SERVER_UNREACHABLE) );
 			if(typeof this.props.match.params.id !== 'string')
 				return;

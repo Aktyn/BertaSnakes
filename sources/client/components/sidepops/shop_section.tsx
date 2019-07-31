@@ -29,7 +29,7 @@ interface ShopSectionProps {
 	onError: (msg: string) => void;
 	buyShip: (type: number) => Promise<void>;
 	buySkill: (skill: SkillData) => Promise<void>;
-	buyCoins: (pack: CoinPackSchema) => Promise<void>;
+	buyCoins: (pack: CoinPackSchema, currency: string) => Promise<void>;
 }
 
 interface ShopSectionState {
@@ -37,6 +37,7 @@ interface ShopSectionState {
 	confirm_skill_buy?: SkillData;
 	confirm_coin_pack_buy?: CoinPackSchema
 	transaction_success: boolean;
+	redirecting_url?: string;
 	currency_base?: string;
 	currency?: string;
 	currency_rates?: CurrencyRatesSchema;
@@ -66,7 +67,7 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 		let currencies_res: CurrenciesResponse = await ServerApi.postRequest('/get_currencies', {
 			token: Account.getToken()
 		});
-		console.log('currencies:', currencies_res);
+		//console.log('currencies:', currencies_res);
 		if(currencies_res.error !== ERROR_CODES.SUCCESS || !currencies_res.base || !currencies_res.rates)
 			return this.props.onError(errorMsg(currencies_res.error));
 		
@@ -89,6 +90,14 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 		}
 	}
 	
+	public onTransactionSuccess() {
+		this.setState({transaction_success: true});
+	}
+	
+	public onRedirecting(url: string) {
+		this.setState({redirecting_url: url});
+	}
+	
 	private areCurrencyDataLoaded() {
 		return this.state.currency && this.state.currency_rates && this.state.currency_base;
 	}
@@ -100,10 +109,6 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 		}
 		this.props.onError('Cannot convert price for given currency: ' + this.state.currency);
 		return 'error';
-	}
-	
-	public onTransactionSuccess() {
-		this.setState({transaction_success: true});
 	}
 	
 	private tryBuyShip(type: number) {
@@ -264,11 +269,13 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 	
 	private renderCoinPackConfirmPrompt(pack: CoinPackSchema) {
 		return <>
-			<h4 className={'fader-in'}>You sure you want to buy {pack.coins.toLocaleString()} coins fo {
+			<h4 className={'fader-in'}>You sure you want to buy {pack.coins.toLocaleString()} coins for {
 				this.convertPrice(pack.price)}&nbsp;{this.state.currency}?</h4>
 			<button className={'fader-in'} onClick={() => {
+				if( !this.state.currency )
+					return;
 				this.cancelCoinPackBuyConfirm();
-				this.props.buyCoins(pack).catch(console.error);
+				this.props.buyCoins(pack, this.state.currency).catch(console.error);
 			}} style={{...offsetTop}}>
 				BUY WITH PAYPAL
 			</button>
@@ -296,8 +303,18 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 			{this.state.transaction_success && <div className={'fader-in'} style={{
 				color: '#8BC34A',
 				fontWeight: 'bold',
+				fontSize: '14px',
 				...offsetTop
 			}}>Transaction successful</div>}
+			{this.state.redirecting_url && <>
+					<div className={'fader-in'} style={{
+						fontWeight: 'bold',
+						fontSize: '14px',
+						...offsetTop
+					}}>Redirecting to your paypal account</div>
+					{(window.location.href = this.state.redirecting_url) && false}
+				</>
+			}
 			<h1 className={'fader-in shop-section-title'}>
 				<span/>
 				<label>SHOP</label>

@@ -1,0 +1,44 @@
+.payment-result {
+
+	.shop-btn {
+		$size: 40px;
+		//line-height: $size;
+		padding: 0px $size;
+		//display: inline-grid;
+        //align-items: center;
+		height: $size;
+		position: relative;
+		
+		$animFunc: 0.4s cubic-bezier(.36, .07, .19, .97);
+		transition: color $animFunc;
+		
+		&::after {
+			content: "";
+			display: inline-block;
+			height: $size;
+			width: 100%;
+			margin: auto;
+			background: url('../../img/icons/money.png') center no-repeat;
+			background-size: contain;
+			
+			position: absolute;
+			left: 0px;
+			right: 0px;
+			top: 0px;
+			
+			opacity: 0;
+			transform: translateX(50%) scale(0.5);
+			
+			transition: opacity $animFunc, transform $animFunc;
+		}
+		
+		&:hover {
+			color: #0000;
+			
+			&::after {
+				transform: translateX(0%) scale(1.5);
+				opacity: 1;
+			}
+		}
+	}
+}

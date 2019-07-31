@@ -13,7 +13,7 @@ interface AccountWidgetState {
 export default class AccountWidget extends React.Component<any, AccountWidgetState> {
 
 	state: AccountWidgetState = {
-		show_sidepop: true//false
+		show_sidepop: false//false
 	};
 
 	private readonly onLogIn: () => void;
@@ -34,8 +34,9 @@ export default class AccountWidget extends React.Component<any, AccountWidgetSta
 
 	render() {
 		let acc = Account.getAccount();
-		return <div className='account-widget'>
-			<div className='account-widget-content' onClick={() => this.setState({show_sidepop: true})}>
+		return <>
+			<div className='account-widget-bg' onClick={() => this.setState({show_sidepop: true})}/>
+			<div className='account-widget-content'>
 				<div className={`indicator ${acc ? '' : 'no-account'}`}>
 					{acc ? <span className={`avatar-circle ${/*!acc || !acc.avatar ? 'empty' : */''}`}>
 						<img src={ServerAPi.getAvatarPath(acc.avatar)}  alt={'avatar'}/></span> :
@@ -45,6 +46,6 @@ export default class AccountWidget extends React.Component<any, AccountWidgetSta
 			{this.state.show_sidepop && <AccountSidepop onClose={() => {
 				this.setState({show_sidepop: false});
 			}} />}
-		</div>;
+		</>;
 	}
 }

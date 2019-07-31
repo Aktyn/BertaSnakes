@@ -3,6 +3,7 @@ import RoomInfo, {RoomCustomData} from '../../common/room_info';
 
 import NetworkCodes, {NotificationCodes} from '../../common/network_codes';
 import SocialConnection from "../social/social_connection";
+import {extractIP} from "../utils";
 
 let connections: Map<number, Connection> = new Map();
 
@@ -10,20 +11,22 @@ export class Connection {
 	private static counter = 0;
 	readonly id: number;
 	readonly socket: any;
-	private req: any;
+	//private req: any;
+	public readonly client_ip: string;
 	public user: UserInfo | null = null;
 
 	constructor(socket: any, req: any) {
 		this.id = ++Connection.counter;//NOTE - connection never has id equal 0
 		this.socket = socket;
-		this.req = req;
+		//this.req = req;
+		this.client_ip = extractIP(req);
 
 		console.log('Connection id:', this.id, ', ip:', this.client_ip);
 	}
 
-	public get client_ip(): string {
-		return this.req.connection.remoteAddress.replace(/::ffff:/, '');
-	}
+	/*public get client_ip(): string {
+		//return this.req.connection.remoteAddress.replace(/::ffff:/, '');
+	}*/
 
 	/*private close() {
 		this.socket.close();

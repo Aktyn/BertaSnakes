@@ -2,10 +2,13 @@ import * as express from 'express';
 import Connections from '../game/connections';
 import RoomsManager from '../game/rooms_manager';
 import ERROR_CODES from '../../common/error_codes';
+import Config from '../../common/config';
 import {SHIP_COSTS, SHIP_LVL_REQUIREMENTS} from "../../common/game/objects/player";
 import Skills from '../../common/game/common/skills';
 import Database, {AccountSchema} from '../database';
 import {AccountSchema2UserCustomData} from '../utils';
+import getCurrenciesData from "../currencies";
+import Paypal from '../paypal';
 
 //check whether user is in room and send data update to everyone in this room
 function onAccountCustomDataUpdate(account: AccountSchema) {
@@ -158,7 +161,73 @@ function open(app: express.Express) {
 			return res.json({error: ERROR_CODES.UNKNOWN});
 		}
 	});
-
+	
+	app.post('/purchase_coins', async (req, res) => {//token, coins, currency
+		try {
+			if( typeof req.body.token !== 'string' || typeof req.body.coins !== 'number' ||
+				typeof req.body.currency !== 'string')
+			{
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			}
+			
+			//authenticate
+			let account_res = await Database.getAccountFromToken(req.body.token);
+			let account = account_res.account;
+			if( account_res.error !== ERROR_CODES.SUCCESS || !account )
+				return res.json({error: account_res.error});
+			
+			//find pack of coins
+			const pack = Object.values(Config.COIN_PACKS).find(pack => pack.coins === req.body.coins);
+			if( !pack )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			
+			const currencies_data = await getCurrenciesData();
+			if(currencies_data.error !== ERROR_CODES.SUCCESS)
+				return res.json(currencies_data);
+			if( !(req.body.currency in currencies_data.rates) )
+				return res.json({error: ERROR_CODES.UNKNOWN_CURRENCY});
+			
+			const origin = req.get('origin');
+			if( !origin )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			const price = pack.price * currencies_data.rates[req.body.currency];
+			
+			const pack_names = new Map([
+				[5000,  'Small coin pack'],
+				[30000, 'Medium coin pack'],
+				[70000, 'Large coin pack']
+			]);
+			const name = pack_names.get(pack.coins) || 'Coin pack';
+			
+			console.log(`purchase request: ${JSON.stringify(pack)}, currency: ${req.body.currency}, converted price: ${
+				price}, pack name: "${name}", origin: ${origin}`);
+			
+			try {
+				let payment = await Paypal.createPayment(origin, name, '001', price, req.body.currency,
+					`${pack.coins} coins`);
+				if( !payment.links )
+					return res.json({error: ERROR_CODES.PAYPAL_ERROR});
+				//console.log(payment);
+				for(let link of payment.links) {
+					if(link.rel === 'approval_url')
+						return res.json({error: ERROR_CODES.SUCCESS, approval_url: link.href});
+				}
+			}
+			catch(e) {
+				console.error(e);
+				return res.json({error: ERROR_CODES.PAYPAL_ERROR});
+			}
+			
+			// account.coins -= PRICE;
+			// onAccountCustomDataUpdate( account );
+			
+			return res.json({error: ERROR_CODES.SUCCESS, account});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
 }
 
 export default {open}

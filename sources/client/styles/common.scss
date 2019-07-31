@@ -58,6 +58,8 @@
 	align-items: center;
 	grid-column-gap: 10px;
 	//margin: 5px 0px;
+	animation: fade-in 1s cubic-bezier(.36, .07, .19, .97) forwards;
+	
 	
 	&::before, &::after {
 		content: "";
@@ -65,6 +67,11 @@
 		height: 1px;
 		width: auto;
 		background-color: #B0BEC5;
+	}
+	
+	@keyframes fade-in {
+		0%  { opacity: 0; }
+		100%{ opacity: 1; }
 	}
 }
 

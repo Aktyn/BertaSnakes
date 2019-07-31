@@ -1,110 +1,118 @@
 @import '../global';
 
 $size: 123px;
+$animFunc: 0.3s cubic-bezier(.36, .07, .19, .97);
 
-.account-widget {
+.account-widget-bg {
 	position: absolute;
 	z-index: 90;
 	top: 0px;
 	right: 0px;
 	cursor: pointer;
 	
-	filter: drop-shadow(0px 0px 3px #0008);
-	.account-widget-content {
-		width: $size;
-		height: $size;
-		background-color: #fff;
-		border-bottom-left-radius: $size;
-		//clip-path: polygon(0% 0%, 100% 0%, 100% 100%);
-		
-		position: relative;
-
-		.indicator {
-			position: absolute;
-
-			&.no-account {
-				width: $size;
-				height: $size;
-				//left: 0px;
-				transform: rotate(45deg);
-				line-height: round($size*0.9);
-				font-family: LuckiestGuy, Roboto-Regular, Arial, serif;
-			}
-			&:not(.no-account) {
-				$avatarSize: 50px;//round($size * 0.55589297025);
-				
-				width: $avatarSize;
-				height: $avatarSize;
-				left: round($size - ($size / (2.82842712475 * 0.9)) - $avatarSize/2 );
-				top: round( $size / (2.82842712475*0.9) - $avatarSize/2 );
-				
-				display: grid;
-				align-items: center;
-				justify-content: stretch;
-			}
-			
-			color: #263238;
-			cursor: pointer;
-			&:hover {
-				color: #e57373;
-			}
-			font-size: 30px;
-			white-space: nowrap;
-
-			button {
-				font-family: inherit;
-				box-shadow: none;
-				border: none;
-				font-size: inherit;
-				color: inherit;
-				font-weight: inherit;
-				padding: 0px;
-				background-color: transparent;
-			}
-
-			.avatar-circle {
-				display: block;
-				//width: round($size/3);
-				//height: round($size/3);
-				width: 100%;
-				height: 100%;
-				
-				border-radius: $size;
-				overflow: hidden;
-				
-				& > img {
-					width: 100%;
-				}
-				/*&.empty {
-					background-color: #90A4AE;//#ef5350;
-					box-shadow: 0px 2px 4px #0008;
-					line-height: $size/3;
-					img {
-						width: $size/3;//4
-						height: $size/3;//4
-					}
-				}*/
-
-				/*&:not(.empty) {
-					line-height: 0px;
-					img {
-						width: $size/3;
-						height: $size/3;
-					}
-				}*/
-				
-				transition: transform 0.4s cubic-bezier(.36,.07,.19,.97);
-
-				&:hover {
-					transform: scale(1.2);
-				}
-			}
-		}
+	background-color: #FFF;
+	border-bottom-left-radius: $size;
+	box-shadow: 0px 0px 5px #0008;
+	
+	width: $size;
+	height: $size;
+	
+	transition: transform $animFunc;
+	transform-origin: $size 0px; //top right corner
+	&:hover {
+		transform: scale(1.05);
 	}
+	
+	//filter: drop-shadow(0px 0px 3px #0008); (moved to account-widget-content as box-shadow)
 	
 	@media (max-width: 700px) {
 		& {
 			display: none;
+		}
+	}
+}
+
+.account-widget-bg:hover ~ .account-widget-content .indicator {
+	color: #E57373;
+}
+
+.account-widget-content {
+	width: $size;
+	height: $size;
+	top: 0px;
+	right: 0px;
+	
+	position: absolute;
+	z-index: 91;
+	
+	pointer-events: none;
+	
+	.indicator {
+		position: absolute;
+		
+		&.no-account {
+			width: $size;
+			height: $size;
+			//left: 0px;
+			transform: rotate(45deg);
+			line-height: round($size*0.9);
+			font-family: LuckiestGuy, Roboto-Regular, Arial, serif;
+		}
+		
+		&:not(.no-account) {
+			$avatarSize: 50px; //round($size * 0.55589297025);
+			
+			width: $avatarSize;
+			height: $avatarSize;
+			left: round($size - ($size / (2.82842712475 * 0.9)) - $avatarSize/2);
+			top: round($size / (2.82842712475*0.9) - $avatarSize/2);
+			
+			display: grid;
+			align-items: center;
+			justify-content: stretch;
+		}
+		
+		color: #263238;
+		cursor: pointer;
+		
+		transition: color $animFunc;
+		/*&:hover {
+			color: #E57373;
+		}*/
+		
+		font-size: 30px;
+		white-space: nowrap;
+		
+		button {
+			font-family: inherit;
+			box-shadow: none;
+			border: none;
+			font-size: inherit;
+			color: inherit;
+			font-weight: inherit;
+			padding: 0px;
+			background-color: transparent;
+		}
+		
+		.avatar-circle {
+			display: block;
+			//width: round($size/3);
+			//height: round($size/3);
+			width: 100%;
+			height: 100%;
+			
+			border-radius: $size;
+			overflow: hidden;
+			
+			& > img {
+				width: 100%;
+			}
+			
+			//transition: transform $animFunc;
+			
+			/*&:hover {
+				transform: scale(1.2);
+			}*/
 		}
 	}
 }

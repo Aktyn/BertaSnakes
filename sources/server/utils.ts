@@ -101,8 +101,8 @@ export function executeCommand(cmd: string, timeout = 1000 * 60 * 5): Promise<st
 export function extractIP(req: express.Request) {
 	let forwards = req.headers['x-forwarded-for'];
 	if (typeof forwards === 'object')//an array
-		forwards = forwards[0];// forwards.join(',');
-	if (typeof forwards === 'string')
+		forwards = forwards[0];
+	else if (typeof forwards === 'string')
 		forwards = forwards.split(',')[0];
 	return (forwards || req.connection.remoteAddress || '').replace(/::ffff:/, '');
 }

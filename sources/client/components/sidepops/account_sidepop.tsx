@@ -266,16 +266,45 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 	}
 	
 	private async buyShip(type: number) {
-		return this.buyMerchandise({type: MERCHANDISE_TYPE.SHIP, ship_type: type});
+		this.buyMerchandise({type: MERCHANDISE_TYPE.SHIP, ship_type: type});
 	}
 	
 	private async buySkill(skill: SkillData) {
-		return this.buyMerchandise({type: MERCHANDISE_TYPE.SKILL, skill: skill});
+		this.buyMerchandise({type: MERCHANDISE_TYPE.SKILL, skill: skill});
 	}
 	
-	private async buyCoins(pack: CoinPackSchema) {
+	private async buyCoins(pack: CoinPackSchema, currency: string) {
 		console.log('Buying coins pack:', pack);
-		//TODO: continue from here
+		
+		try {
+			this.setState({loading: true, error: undefined});
+			
+			if( !Account.getAccount() )
+				return this.setError( errorMsg(ERROR_CODES.NOT_LOGGED_IN) );
+			let res = await ServerApi.postRequest('/purchase_coins', {
+				token: Account.getToken(),
+				coins: pack.coins,
+				currency
+			});
+		
+			console.log(res);
+			
+			if(res.error)
+				return this.setError( errorMsg(res.error) );
+			if(!res.approval_url)
+				return this.setError( errorMsg(ERROR_CODES.INCORRECT_SERVER_RESPONSE) );
+			
+			if(this.shop_section)
+				this.shop_section.onRedirecting(res.approval_url);
+			else
+				throw new Error('No shop section');
+			//setTimeout(() => location.replace( res.approval_url ), 16);
+			
+			this.setState({loading: false, error: undefined});
+		}
+		catch(e) {
+			this.setError( errorMsg(ERROR_CODES.SERVER_UNREACHABLE) );
+		}
 	}
 
 	private async uploadAvatar(clear = false) {

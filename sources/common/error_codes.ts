@@ -38,6 +38,7 @@ const enum ERROR_CODES {
 	
 	INCORRECT_DATA_SENT,
 	INCORRECT_API_RESPONSE,
+	UNKNOWN_CURRENCY,
 	
 	//game
 	GAME_DOES_NOT_EXIST,
@@ -51,7 +52,10 @@ const enum ERROR_CODES {
 	SERVICE_WORKER_IS_NOT_INITIALIZED,
 	CANNOT_SUBSCRIBE_PUSH_NOTIFICATIONS,
 	CANNOT_UNSUBSCRIBE_PUSH_NOTIFICATIONS,
-	CANNOT_FIND_CURRENT_SUBSCRIPTION
+	CANNOT_FIND_CURRENT_SUBSCRIPTION,
+	
+	//paypal
+	PAYPAL_ERROR
 }
 
 export default ERROR_CODES;
@@ -94,8 +98,9 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.CANNOT_JOIN_CURRENT_ROOM:  return 'Cannot join current room';
 		case ERROR_CODES.USER_IS_NOT_IN_ROOM:	    return 'User is not in room';
 		
-		case ERROR_CODES.INCORRECT_DATA_SENT:       return 'Incorrect data sent';
-		case ERROR_CODES.INCORRECT_API_RESPONSE:    return 'Incorrect api response';
+		case ERROR_CODES.INCORRECT_DATA_SENT:   return 'Incorrect data sent';
+		case ERROR_CODES.INCORRECT_API_RESPONSE:return 'Incorrect api response';
+		case ERROR_CODES.UNKNOWN_CURRENCY:      return 'Unknown currency';
 		
 		//game
 		case ERROR_CODES.GAME_DOES_NOT_EXIST:   return 'Game does not exist';
@@ -110,5 +115,8 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.CANNOT_SUBSCRIBE_PUSH_NOTIFICATIONS:   return 'Cannot subscribe push notifications';
 		case ERROR_CODES.CANNOT_UNSUBSCRIBE_PUSH_NOTIFICATIONS: return 'Cannot unsubscribe push notifications';
 		case ERROR_CODES.CANNOT_FIND_CURRENT_SUBSCRIPTION:      return 'Cannot find current notifications subscription';
+		
+		//paypal
+		case ERROR_CODES.PAYPAL_ERROR:      return 'Paypal error';
 	}
 }

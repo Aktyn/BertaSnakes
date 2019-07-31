@@ -1,25 +1,27 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name='theme-color' content='#32494e'>
-        <meta name='author' content='Aktyn'>
-        <meta name="Description" content="Multi-player browser game created by Aktyn">
-        <title><%= htmlWebpackPlugin.options.title %></title>
-        <script>
-            //in some cases WebSockets may not work with location.hostname so you must connect through proxy
-           // window.SOCKET_PROXY = (window.location.protocol === 'http:' ? 'ws' : 'wss') +
-            //    '://dronidev.pl/ws';
-            //window.SOCIAL_SOCKET_PROXY = (window.location.protocol === 'http:' ? 'ws' : 'wss') +
-            //    '://dronidev.pl/ws_social';
-        </script>
-    </head>
-    <body>
-        <div id='page'>
-            <div style='padding-top: 20px;'>
-                Loading scripts...<br/>(This page requires JavaScript to be enabled in browser settings)
-            </div>
-        </div>
-    </body>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name='theme-color' content='#32494e'>
+	<meta name='author' content='Aktyn'>
+	<meta name="keywords"
+	      content="berta, snakes, multi, player, online, browser, free, game, platform, webgl, react, aktyn">
+	<meta name="Description" content="Multi-player browser game created by Aktyn">
+	<title><%= htmlWebpackPlugin.options.title %></title>
+	<script>
+		//in some cases WebSockets may not work with location.hostname so you must connect through proxy
+		// window.SOCKET_PROXY = (window.location.protocol === 'http:' ? 'ws' : 'wss') +
+		//    '://dronidev.pl/ws';
+		//window.SOCIAL_SOCKET_PROXY = (window.location.protocol === 'http:' ? 'ws' : 'wss') +
+		//    '://dronidev.pl/ws_social';
+	</script>
+</head>
+<body>
+<div id='page'>
+	<div style='padding: 20px;'>
+		Loading scripts...<br/>(This page requires JavaScript to be enabled in browser settings)
+	</div>
+</div>
+</body>
 </html>

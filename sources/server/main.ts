@@ -23,6 +23,8 @@ catch(e) {
 
 global.APP_VERSION = app_version || 'unknown version';
 
+console.log('Running BertaSnakes server\n\tNODE_ENV:', process.env.NODE_ENV, '\n\tversion:', global.APP_VERSION);
+
 import './database';//initializes database
 
 import HTTP_API from './apis';
