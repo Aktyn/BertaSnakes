@@ -1,6 +1,8 @@
 import * as paypal from 'paypal-rest-sdk';
 import {getArgument} from "./utils";
 
+export {Payment} from 'paypal-rest-sdk';
+
 const PAYPAL_SECRET = getArgument('PAYPAL_SECRET');
 
 // noinspection SpellCheckingInspection
@@ -50,6 +52,22 @@ export default {
 					resolve(payment);
 			});
 			
+		});
+	},
+	
+	executePayment(paymentId: string, payer_id: string): Promise<paypal.Payment> {
+		return new Promise((resolve, reject) => {
+			
+			const execute_payment_json = {
+				payer_id: payer_id
+			};
+			
+			paypal.payment.execute(paymentId, execute_payment_json,function(error, payment) {
+				if (error)
+					reject(error);
+				else
+					resolve(payment);
+			});
 		});
 	}
 }

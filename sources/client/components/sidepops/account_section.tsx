@@ -11,6 +11,33 @@ import RecentConversations from '../recent_conversations';
 import {PLAYER_TYPES} from "../../../common/game/objects/player";
 import SkillWidget, {DIRECTION} from "../widgets/skill_widget";
 
+export const AccountDetails = function(props: {account: AccountSchema}) {
+	let exp_percent = Math.round(props.account.exp*100) + '%';
+	return <div key='account_details' className='fader-in details-list'>
+		<label>Email:</label>
+		<div>{props.account.email}</div>
+		
+		<label>Registered since:</label>
+		<div>{new Date(props.account.creation_time).toLocaleDateString()}</div>
+		
+		<label>Rank:</label>
+		<div>{Math.round(props.account.rank)}</div>
+		
+		<label>Level:</label>
+		<div>
+			{props.account.level}
+			<div className='experience-bar'><span style={{width: exp_percent}}>&nbsp;</span></div>
+			({exp_percent})
+		</div>
+		
+		<label>Coins:</label>
+		<div>{props.account.coins.toLocaleString()}</div>
+		
+		<label>Total games:</label>
+		<div>{props.account.total_games}</div>
+	</div>;
+};
+
 class VerificationView extends React.Component<{self: AccountSidepop, account: AccountSchema,
 	tryVerify: () => Promise<void>, tryResendVerificationCode: () => Promise<void>}, any>
 {
@@ -118,34 +145,11 @@ class AccountDataView extends React.Component<{
 	
 	render() {
 		let account = this.props.account;
-		let exp_percent = Math.round(account.exp*100) + '%';
 		return <>
 			<hr/>
 			{this.props.self.state.verify_info &&
 				<h2 key='verified_label' className='success fader-in'>Verification successful</h2>}
-			<div key='account_email' className='fader-in details-list'>
-				<label>Email:</label>
-				<div>{account.email}</div>
-				
-				<label>Registered since:</label>
-				<div>{new Date(account.creation_time).toLocaleDateString()}</div>
-	
-				<label>Rank:</label>
-				<div>{Math.round(account.rank)}</div>
-	
-				<label>Level:</label>
-				<div>
-					{account.level}
-					<div className='experience-bar'><span style={{width: exp_percent}}>&nbsp;</span></div>
-					({exp_percent})
-				</div>
-	
-				<label>Coins:</label>
-				<div>{account.coins}</div>
-				
-				<label>Total games:</label>
-				<div>{account.total_games}</div>
-			</div>
+			<AccountDetails account={account} />
 			{this.props.account.admin && <Link to={'/admin'} className={'fader-in button-style'} style={{
 				display: 'inline-block',
 				...offsetTop

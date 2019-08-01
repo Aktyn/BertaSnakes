@@ -2,13 +2,23 @@ import * as express from 'express';
 import Connections from '../game/connections';
 import RoomsManager from '../game/rooms_manager';
 import ERROR_CODES from '../../common/error_codes';
-import Config from '../../common/config';
+import Config, {CoinPackSchema} from '../../common/config';
 import {SHIP_COSTS, SHIP_LVL_REQUIREMENTS} from "../../common/game/objects/player";
 import Skills from '../../common/game/common/skills';
 import Database, {AccountSchema} from '../database';
-import {AccountSchema2UserCustomData} from '../utils';
+import {AccountSchema2UserCustomData, extractIP} from '../utils';
 import getCurrenciesData from "../currencies";
-import Paypal from '../paypal';
+import Paypal, {Payment} from '../paypal';
+
+interface PaymentSchema {
+	account_id: string;
+	pack: CoinPackSchema;
+	currency: string;
+	payment: Payment;
+}
+
+//payment id is a key
+let awaiting_payments = new Map<string, PaymentSchema>();
 
 //check whether user is in room and send data update to everyone in this room
 function onAccountCustomDataUpdate(account: AccountSchema) {
@@ -172,12 +182,16 @@ function open(app: express.Express) {
 			
 			//authenticate
 			let account_res = await Database.getAccountFromToken(req.body.token);
-			let account = account_res.account;
-			if( account_res.error !== ERROR_CODES.SUCCESS || !account )
+			//let account = account_res.account;
+			if( account_res.error !== ERROR_CODES.SUCCESS || !account_res.account )
 				return res.json({error: account_res.error});
 			
 			//find pack of coins
-			const pack = Object.values(Config.COIN_PACKS).find(pack => pack.coins === req.body.coins);
+			const packs_array: CoinPackSchema[] = Object.values(Config.COIN_PACKS);
+			const pack_index = packs_array.findIndex(pack => pack.coins === req.body.coins);
+			let pack: CoinPackSchema | undefined;
+			if(pack_index !== -1)
+				pack = packs_array[pack_index];
 			if( !pack )
 				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			
@@ -203,14 +217,21 @@ function open(app: express.Express) {
 				price}, pack name: "${name}", origin: ${origin}`);
 			
 			try {
-				let payment = await Paypal.createPayment(origin, name, '001', price, req.body.currency,
-					`${pack.coins} coins`);
-				if( !payment.links )
+				let payment = await Paypal.createPayment(origin, name, `00${pack_index+1}`, price,
+					req.body.currency,`${pack.coins} coins`);
+				if( !payment.links || !payment.id )
 					return res.json({error: ERROR_CODES.PAYPAL_ERROR});
 				//console.log(payment);
 				for(let link of payment.links) {
-					if(link.rel === 'approval_url')
+					if(link.rel === 'approval_url') {
+						awaiting_payments.set(payment.id, {
+							account_id: account_res.account.id,
+							pack: pack,
+							currency: req.body.currency,
+							payment: payment
+						});
 						return res.json({error: ERROR_CODES.SUCCESS, approval_url: link.href});
+					}
 				}
 			}
 			catch(e) {
@@ -218,10 +239,80 @@ function open(app: express.Express) {
 				return res.json({error: ERROR_CODES.PAYPAL_ERROR});
 			}
 			
-			// account.coins -= PRICE;
-			// onAccountCustomDataUpdate( account );
+			return res.json({error: ERROR_CODES.PAYPAL_ERROR});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
+
+	//token: string, paypal_response: {PayerID: string, paymentId: string, token: string}
+	app.post('/execute_purchase', async (req, res) => {
+		try {
+			if( typeof req.body.token !== 'string' || typeof req.body.paypal_response !== 'object' )
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
 			
-			return res.json({error: ERROR_CODES.SUCCESS, account});
+			const paypal_response = req.body.paypal_response;
+			if( typeof paypal_response.paymentId !== 'string' || typeof paypal_response.PayerID !== 'string' ||
+				typeof paypal_response.token !== 'string' )
+			{
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			}
+			
+			//authenticate
+			let account_res = await Database.getAccountFromToken(req.body.token);
+			let account = account_res.account;
+			if( account_res.error !== ERROR_CODES.SUCCESS || !account )
+				return res.json({error: account_res.error});
+			
+			let payment_data = awaiting_payments.get( paypal_response.paymentId );
+			if( !payment_data )
+				return res.json({error: ERROR_CODES.PAYMENT_DATA_NOT_FOUND});
+			if( payment_data.account_id !== account.id )//only user who created payment can execute it
+				return res.json({error: ERROR_CODES.ACCOUNT_ID_MISMATCH});
+			
+			let saved_coins = account.coins;
+			
+			//console.log( payment_data );
+			try {//add coins to user's account, NOTE: this is done before payment execution
+				account.coins += payment_data.pack.coins;
+				let update_res = await Database.updateAccountCustomData(account.id, account);
+				if (update_res.error !== ERROR_CODES.SUCCESS)
+					return res.json({error: update_res.error});
+				
+				onAccountCustomDataUpdate(account);
+			}
+			catch(e) {
+				return res.json({error: ERROR_CODES.DATABASE_ERROR});
+			}
+			
+			try {
+				let payment_res = await Paypal.executePayment(paypal_response.paymentId, paypal_response.PayerID);
+				if( payment_res.state !== 'approved' )
+					console.warn('Payment execution has not been approved!!!', payment_res);
+			}
+			catch(e) {
+				console.error('Payment error: ' + e);
+				try {//restoring coins state because payment was not successful
+					account.coins = saved_coins;
+					await Database.updateAccountCustomData(account.id, account);
+					onAccountCustomDataUpdate(account);
+				}
+				catch(e) {
+				
+				}
+				return res.json({error: ERROR_CODES.PAYPAL_ERROR});
+			}
+			awaiting_payments.delete( paypal_response.paymentId );
+			
+			console.log('Payment executed', payment_data.account_id, payment_data.pack);
+			
+			//saving payment data in database (asynchronously)
+			Database.registerPayment(account.id, payment_data.pack, payment_data.currency,
+				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
+			
+			return res.json({error: ERROR_CODES.SUCCESS, account, pack: payment_data.pack});
 		}
 		catch(e) {
 			console.error(e);

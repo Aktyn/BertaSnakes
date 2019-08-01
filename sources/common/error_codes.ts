@@ -19,6 +19,7 @@ const enum ERROR_CODES {
 	ACCOUNT_NOT_VERIFIED,
 	ACCOUNT_ALREADY_VERIFIED,
 	ACCOUNT_ALREADY_LOGGED_IN,
+	ACCOUNT_ID_MISMATCH,
 	USERNAME_TAKEN,
 	EMAIL_ALREADY_IN_USE,
 	CANNOT_SEND_EMAIL,
@@ -38,7 +39,6 @@ const enum ERROR_CODES {
 	
 	INCORRECT_DATA_SENT,
 	INCORRECT_API_RESPONSE,
-	UNKNOWN_CURRENCY,
 	
 	//game
 	GAME_DOES_NOT_EXIST,
@@ -54,8 +54,10 @@ const enum ERROR_CODES {
 	CANNOT_UNSUBSCRIBE_PUSH_NOTIFICATIONS,
 	CANNOT_FIND_CURRENT_SUBSCRIPTION,
 	
-	//paypal
-	PAYPAL_ERROR
+	//payments
+	PAYPAL_ERROR,
+	UNKNOWN_CURRENCY,
+	PAYMENT_DATA_NOT_FOUND,
 }
 
 export default ERROR_CODES;
@@ -81,6 +83,7 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.ACCOUNT_NOT_VERIFIED:	    return 'Account is not verified';
 		case ERROR_CODES.ACCOUNT_ALREADY_VERIFIED:  return 'Account is already verified';
 		case ERROR_CODES.ACCOUNT_ALREADY_LOGGED_IN: return 'Account already logged in';
+		case ERROR_CODES.ACCOUNT_ID_MISMATCH:       return 'Account id\'s mismatch';
 		case ERROR_CODES.USERNAME_TAKEN: 		    return 'Username taken';
 		case ERROR_CODES.EMAIL_ALREADY_IN_USE:	    return 'Email already registered';
 		case ERROR_CODES.CANNOT_SEND_EMAIL:		    return 'Cannot send email';
@@ -100,7 +103,6 @@ export function errorMsg(code: ERROR_CODES) {
 		
 		case ERROR_CODES.INCORRECT_DATA_SENT:   return 'Incorrect data sent';
 		case ERROR_CODES.INCORRECT_API_RESPONSE:return 'Incorrect api response';
-		case ERROR_CODES.UNKNOWN_CURRENCY:      return 'Unknown currency';
 		
 		//game
 		case ERROR_CODES.GAME_DOES_NOT_EXIST:   return 'Game does not exist';
@@ -116,7 +118,9 @@ export function errorMsg(code: ERROR_CODES) {
 		case ERROR_CODES.CANNOT_UNSUBSCRIBE_PUSH_NOTIFICATIONS: return 'Cannot unsubscribe push notifications';
 		case ERROR_CODES.CANNOT_FIND_CURRENT_SUBSCRIPTION:      return 'Cannot find current notifications subscription';
 		
-		//paypal
-		case ERROR_CODES.PAYPAL_ERROR:      return 'Paypal error';
+		//payments
+		case ERROR_CODES.PAYPAL_ERROR:              return 'Paypal error';
+		case ERROR_CODES.UNKNOWN_CURRENCY:          return 'Unknown currency';
+		case ERROR_CODES.PAYMENT_DATA_NOT_FOUND:    return 'Payment data not found';
 	}
 }

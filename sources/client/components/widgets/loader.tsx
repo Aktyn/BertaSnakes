@@ -5,6 +5,7 @@ import '../../styles/widgets/loader.scss';
 
 interface LoaderProps extends Loadable.LoadingComponentProps {
 	color: string;
+	absolutePos: boolean;
 	isLoading: boolean;
     pastDelay: boolean;
     timedOut: boolean;
@@ -16,6 +17,7 @@ export default class Loader extends React.Component<LoaderProps, any> {
 	// noinspection JSUnusedGlobalSymbols
 	static defaultProps = {
 		color: '#f4f4f4',
+		absolutePos: true,
 		isLoading: true,
 		pastDelay: false,
 		timedOut: false,
@@ -28,7 +30,7 @@ export default class Loader extends React.Component<LoaderProps, any> {
 	}
 	render() {
 		const spin_style = { backgroundColor: this.props.color };
-		return <div className='spinner'>
+		return <div className={`spinner${this.props.absolutePos ? ' absolute' : ''}`}>
 			<div className='double-bounce1' style={spin_style}/>
 			<div className='double-bounce2' style={spin_style}/>
 		</div>;

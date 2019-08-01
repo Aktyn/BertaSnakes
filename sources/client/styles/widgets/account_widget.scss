@@ -24,12 +24,6 @@ $animFunc: 0.3s cubic-bezier(.36, .07, .19, .97);
 	}
 	
 	//filter: drop-shadow(0px 0px 3px #0008); (moved to account-widget-content as box-shadow)
-	
-	@media (max-width: 700px) {
-		& {
-			display: none;
-		}
-	}
 }
 
 .account-widget-bg:hover ~ .account-widget-content .indicator {
@@ -114,5 +108,11 @@ $animFunc: 0.3s cubic-bezier(.36, .07, .19, .97);
 				transform: scale(1.2);
 			}*/
 		}
+	}
+}
+
+@media (max-width: 700px) {
+	.account-widget-bg, .account-widget-content {
+		display: none;
 	}
 }

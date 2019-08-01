@@ -1,6 +1,7 @@
 import {ObjectId} from 'mongodb';
 import {AccountSchema, COLLECTIONS, getCollection} from "..";
 import ERROR_CODES from '../../../common/error_codes';
+import {CoinPackSchema} from "../../../common/config";
 
 const DAY_MS = 1000*60*60*24;
 const PROJECT_DATE = {
@@ -111,7 +112,6 @@ async function registerUserAgent(agent: string) {
 
 export default {
 	async registerVisit(account: AccountSchema | null, user_agent: string, ip: string) {
-		//console.log(account, user_agent, ip);
 		try {
 			let agent_id = await registerUserAgent(user_agent);
 			
@@ -244,6 +244,25 @@ export default {
 		catch(e) {
 			console.error(e);
 			return {error: ERROR_CODES.DATABASE_ERROR};
+		}
+	},
+	
+	async registerPayment(account_hex_id: string, pack: CoinPackSchema, currency: string, user_agent: string, ip: string)
+	{
+		try {
+			let agent_id = await registerUserAgent(user_agent);
+			
+			await getCollection(COLLECTIONS.payments).insertOne({
+				account_id: ObjectId.createFromHexString(account_hex_id),
+				user_agent_id: agent_id,
+				ip: ip,
+				currency: currency,
+				coins: pack.coins,
+				price: pack.price
+			});
+		}
+		catch(e) {
+			console.error(e);
 		}
 	}
 }

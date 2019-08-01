@@ -46,7 +46,8 @@ export const enum COLLECTIONS {
 	friendships = 'friendships',
 	social_messages = 'social_messages',
 	user_agents = 'user_agents',
-	visits = 'visits'
+	visits = 'visits',
+	payments = 'payments'
 }
 
 export function getCollection(name: string) {
@@ -110,6 +111,10 @@ MongoClient.connect(uri, {
 	//visits
 	await db.collection(COLLECTIONS.visits).createIndex({account_id: 'hashed'},
 		{name: 'filter_by_account'});
+	
+	//payments
+	await db.collection(COLLECTIONS.payments).createIndex({account_id: 'hashed'},
+		{name: 'filter_payment_by_account'});
 	
 	await cleanUpAll();
 	

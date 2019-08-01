@@ -325,7 +325,7 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 				<span>{this.props.account.level}</span>
 				
 				<label>Coins:</label>
-				<span>{this.props.account.coins}</span>
+				<span>{this.props.account.coins.toLocaleString()}</span>
 			</div>
 			
 			<label className={'separating-label'} style={{...offsetVert}}>SHIPS</label>
@@ -350,8 +350,8 @@ export default class ShopSection extends React.Component<ShopSectionProps, ShopS
 			{this.areCurrencyDataLoaded() && <>
 				<label className={'separating-label'} style={{...offsetVert}}>COINS (real money)</label>
 				<div className={'fader-in currency-selection-container'}>
-					<label>Currency:&nbsp;</label>
-					{this.renderCurrencySelector()}
+					<div><label>Currency:&nbsp;</label>{this.renderCurrencySelector()}</div>
+					<div className={'small-info'}>Note that there may be some small difference in final cost due to inaccurate currency rates.</div>
 				</div>
 				<div className={'fader-in'} style={offsetTop}>{
 					this.state.confirm_coin_pack_buy === undefined ? this.renderCoinPacks()

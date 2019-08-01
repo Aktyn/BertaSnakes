@@ -232,6 +232,27 @@ export default {
 			return {error: ERROR_CODES.SERVER_UNREACHABLE};
 		}
 	},
+	
+	async executePurchase(PayerID: string, paymentId: string, _token: string) {
+		try {
+			if(!token)//NOTE: checking by token because this function may be executed just after page loads
+				return {error: ERROR_CODES.NOT_LOGGED_IN};
+			let res = await ServerApi.postRequest('/execute_purchase', {
+				token,
+				paypal_response: {
+					PayerID: PayerID,
+					paymentId: paymentId,
+					token: _token
+				}
+			});
+			if( res.account )
+				onAccountData(res.account);
+			return res;
+		}
+		catch(e) {
+			return {error: ERROR_CODES.SERVER_UNREACHABLE};
+		}
+	},
 
 	logout() {
 		if( token )
