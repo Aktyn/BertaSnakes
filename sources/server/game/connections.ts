@@ -23,11 +23,7 @@ export class Connection {
 
 		console.log('Connection id:', this.id, ', ip:', this.client_ip);
 	}
-
-	/*public get client_ip(): string {
-		//return this.req.connection.remoteAddress.replace(/::ffff:/, '');
-	}*/
-
+	
 	/*private close() {
 		this.socket.close();
 	}*/

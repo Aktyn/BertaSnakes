@@ -19,6 +19,7 @@ interface PaymentSchema {
 
 //payment id is a key
 let awaiting_payments = new Map<string, PaymentSchema>();
+let realized_payments = new Map<string, PaymentSchema>();
 
 //check whether user is in room and send data update to everyone in this room
 function onAccountCustomDataUpdate(account: AccountSchema) {
@@ -267,8 +268,18 @@ function open(app: express.Express) {
 				return res.json({error: account_res.error});
 			
 			let payment_data = awaiting_payments.get( paypal_response.paymentId );
-			if( !payment_data )
-				return res.json({error: ERROR_CODES.PAYMENT_DATA_NOT_FOUND});
+			if( !payment_data ) {
+				let realized = realized_payments.get( paypal_response.paymentId );
+				if(realized) {//user refreshed page
+					return res.json({
+						error: ERROR_CODES.SUCCESS,
+						account, pack: realized.pack,
+						realized_before: true
+					});
+				}
+				else
+					return res.json({error: ERROR_CODES.PAYMENT_DATA_NOT_FOUND});
+			}
 			if( payment_data.account_id !== account.id )//only user who created payment can execute it
 				return res.json({error: ERROR_CODES.ACCOUNT_ID_MISMATCH});
 			
@@ -304,6 +315,8 @@ function open(app: express.Express) {
 				}
 				return res.json({error: ERROR_CODES.PAYPAL_ERROR});
 			}
+			
+			realized_payments.set(paypal_response.paymentId, payment_data);
 			awaiting_payments.delete( paypal_response.paymentId );
 			
 			console.log('Payment executed', payment_data.account_id, payment_data.pack);
@@ -312,7 +325,11 @@ function open(app: express.Express) {
 			Database.registerPayment(account.id, payment_data.pack, payment_data.currency,
 				req.headers['user-agent'] || '', extractIP(req)).catch(console.error);
 			
-			return res.json({error: ERROR_CODES.SUCCESS, account, pack: payment_data.pack});
+			return res.json({
+				error: ERROR_CODES.SUCCESS,
+				account, pack: payment_data.pack,
+				realized_before: false
+			});
 		}
 		catch(e) {
 			console.error(e);

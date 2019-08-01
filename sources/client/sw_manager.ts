@@ -26,6 +26,7 @@ let push_subscription: PushSubscription | null = null;
 let sw_handle: ServiceWorkerRegistration | null = null;
 
 //generated here: https://web-push-codelab.glitch.me/
+// noinspection SpellCheckingInspection
 const public_key = 'BJWUuo07UNqWGCazPhDTJyyQ9MZYd5pAqNK48OZXiSxq06IO0YmcXFXiU0N6UAB2IG3qQ0W3WncEbexn8AuBBEI';
 
 function urlBase64ToUint8Array(base64String: string) {

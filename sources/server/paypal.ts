@@ -3,12 +3,12 @@ import {getArgument} from "./utils";
 
 export {Payment} from 'paypal-rest-sdk';
 
+const PAYPAL_CLIENT = getArgument('PAYPAL_CLIENT');
 const PAYPAL_SECRET = getArgument('PAYPAL_SECRET');
 
-// noinspection SpellCheckingInspection
 paypal.configure({
 	'mode': 'sandbox',//sandbox or live
-    'client_id': 'AUTSJDYtxBXnsESkwRqjWKE1weE0mydwySz0U8F7U9n1Y3MWgCyDW4kJ8ojj7ku4C8x3sT9Sp8dtqMZQ',
+    'client_id': PAYPAL_CLIENT,
     'client_secret': PAYPAL_SECRET,
 });
 

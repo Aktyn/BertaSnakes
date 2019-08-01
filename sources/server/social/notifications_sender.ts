@@ -5,6 +5,7 @@ import Email from '../email';
 const PRIVATE_KEY = getArgument('PUSH_SERVICE_PRIVATE_KEY');
 const TIMESTAMP_SAMPLES = 4;
 
+// noinspection SpellCheckingInspection
 webpush.setVapidDetails(
 	`mailto: ${Email.getAddress()}`,
 	'BJWUuo07UNqWGCazPhDTJyyQ9MZYd5pAqNK48OZXiSxq06IO0YmcXFXiU0N6UAB2IG3qQ0W3WncEbexn8AuBBEI',

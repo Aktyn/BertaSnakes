@@ -66,7 +66,7 @@ export default class AccountSidepop extends React.Component<AccountSidepopProps,
 
 	state: AccountSidepopState = {
 		loading: false,
-		view: VIEWS.SHOP,//GENERAL
+		view: VIEWS.GENERAL,//GENERAL
 		account: null,
 		verify_info: false,
 		verification_resend: false,

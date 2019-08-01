@@ -28,6 +28,7 @@ interface PaymentResultState extends ContainerProps {
 	execution_res: RESULT_TYPE;
 	account: AccountSchema | null;
 	bought_pack: CoinPackSchema | null;
+	realized_before: boolean;
 }
 
 export default class PaymentResult extends React.Component<any, PaymentResultState> {
@@ -40,7 +41,8 @@ export default class PaymentResult extends React.Component<any, PaymentResultSta
 		open_shop: false,
 		execution_res: RESULT_TYPE.UNKNOWN,
 		account: null,
-		bought_pack: null
+		bought_pack: null,
+		realized_before: false
 	};
 	
 	constructor(props: any) {
@@ -65,7 +67,8 @@ export default class PaymentResult extends React.Component<any, PaymentResultSta
 				this.setState({
 					execution_res: RESULT_TYPE.SUCCESS,
 					bought_pack: res.pack,
-					account: Account.getAccount()
+					realized_before: !!res.realized_before,
+					account: Account.getAccount(),
 				});
 			}
 		}
@@ -99,9 +102,8 @@ export default class PaymentResult extends React.Component<any, PaymentResultSta
 		
 		//render success
 		return <>
-			<h2 style={offsetTop}>
-				You have successfully bought {this.state.bought_pack && this.state.bought_pack.coins.toLocaleString()} coins
-			</h2>
+			<h2 style={offsetTop}>You have {this.state.realized_before ? 'already' : 'successfully'} bought {
+				this.state.bought_pack && this.state.bought_pack.coins.toLocaleString()} coins</h2>
 			{this.state.account && <AccountDetails account={this.state.account} />}
 			<hr />
 			<button style={offsetTop} className={'shop-btn'}
