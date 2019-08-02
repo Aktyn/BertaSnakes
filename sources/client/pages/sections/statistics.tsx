@@ -6,7 +6,7 @@ import ServerApi from '../../utils/server_api';
 import Utils from '../../utils/utils';
 import {offsetTop} from '../../components/sidepops/sidepops_common';
 
-const DEFAULT_DATA = {
+const DEFAULT_VISITS_DATA = {
     datasets: [{
         label: 'Total',
         data: [{
@@ -44,23 +44,49 @@ const DEFAULT_DATA = {
     }]
 };
 
-interface VisitsStatisticsProps {
+const DEFAULT_PAYMENTS_DATA = {
+	datasets: [{
+        label: 'Daily Payments',
+        data: [{
+		    x: new Date(Date.now()-1000*60*60*24*7),
+		    y: 0
+		}, {
+		    x: new Date(),
+		    y: 0
+		}],
+        backgroundColor: [
+            '#8BC34A',
+        ],
+        borderColor: [
+            '#8BC34A',
+        ],
+        fill: 1,
+        borderWidth: 2
+    }]	
+};
+
+const VISITS_CHART_OPTIONS = Utils.createLineChartOptions('Daily page visits');
+const PAYMENTS_CHART_OPTIONS = Utils.createLineChartOptions('Daily payments', false);
+
+interface StatisticsProps {
 	setError: (msg: string) => void;
 }
 
-interface VisitsStatisticsState {
+interface StatisticsState {
 
 }
 
-export default class VisitsStatisticsSection extends React.Component<VisitsStatisticsProps, VisitsStatisticsState> {
+export default class StatisticsSection extends React.Component<StatisticsProps, StatisticsState> {
 	private from_input: HTMLInputElement | null = null;
 	private to_input: HTMLInputElement | null = null;
 	private visits_chart: LineChart | null = null;
+	private payments_chart: LineChart | null = null;
 	
-	state: VisitsStatisticsState = {
+	state: StatisticsState = {
 	
 	};
 	
+	// noinspection DuplicatedCode
 	componentDidMount() {
 		if(this.to_input)
 			this.to_input.value = Utils.toInputFormat(Date.now());
@@ -74,9 +100,15 @@ export default class VisitsStatisticsSection extends React.Component<VisitsStati
 		if(!this.from_input || !this.to_input)
 			return;
 		
+		const data_to_send = {
+			token: Account.getToken(),//for authorization
+			from: Utils.inputToTimestamp(this.from_input.value, true),
+			to: Utils.inputToTimestamp(this.to_input.value, false)
+		};
+		
 		//console.log( new Date(inputToTimestamp(this.from_input.value, true)),
 		//	new Date(inputToTimestamp(this.to_input.value, false)) );
-		interface StatsResponseSchema {
+		interface VisitsStatsResponseSchema {
 			error: ERROR_CODES;
 			data: {
 				total_visits: number,
@@ -85,11 +117,7 @@ export default class VisitsStatisticsSection extends React.Component<VisitsStati
 			}[]
 		}
 		
-		let res: StatsResponseSchema = await ServerApi.postRequest('/get_visit_statistics', {
-			token: Account.getToken(),//for authorization
-			from: Utils.inputToTimestamp(this.from_input.value, true),
-			to: Utils.inputToTimestamp(this.to_input.value, false)
-		});
+		let res: VisitsStatsResponseSchema = await ServerApi.postRequest('/get_visit_statistics', data_to_send);
 		
 		//console.log( res );
 		if(res['error'] !== ERROR_CODES.SUCCESS) {
@@ -111,6 +139,32 @@ export default class VisitsStatisticsSection extends React.Component<VisitsStati
 				}
 			});
 			this.visits_chart.chartInstance.update();
+		}
+		
+		///////////////////////////////////////////////////////////////////
+		
+		interface PaymentsStatsResponseSchema {
+			error: ERROR_CODES;
+			data: {
+				count: number;
+				date: Readonly<[number, number, number]>//YYYY, MM, DD
+			}[]
+		}
+		
+		let res_p: PaymentsStatsResponseSchema = await ServerApi.postRequest('/get_payments_statistics', data_to_send);
+		if(res_p['error'] !== ERROR_CODES.SUCCESS) {
+			this.props.setError(errorMsg(res_p.error));
+			return;
+		}
+		
+		if(this.payments_chart && this.payments_chart.chartInstance.data.datasets) {
+			this.payments_chart.chartInstance.data.datasets[0].data = res_p['data'].map(d => {
+				return {
+					x: Utils.arrToDate(d.date),
+					y: d.count
+				}
+			});
+			this.payments_chart.chartInstance.update();
 		}
 	}
 	
@@ -135,7 +189,10 @@ export default class VisitsStatisticsSection extends React.Component<VisitsStati
 				<button style={offsetTop} onClick={this.refresh.bind(this)}>REFRESH STATISTICS</button>
 			</div>
 			<LineChart width={600} height={400} ref={chart => this.visits_chart = chart}
-			           data={DEFAULT_DATA} options={Utils.LINE_CHART_OPTIONS}/>
+			           data={DEFAULT_VISITS_DATA} options={VISITS_CHART_OPTIONS}/>
+			<hr />
+			<LineChart width={600} height={400} ref={chart => this.payments_chart = chart}
+			           data={DEFAULT_PAYMENTS_DATA} options={PAYMENTS_CHART_OPTIONS}/>
 		</section>;
 	}
 }

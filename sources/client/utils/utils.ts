@@ -140,42 +140,44 @@ export default {
 		}
 	},
 	
-	LINE_CHART_OPTIONS: <ChartOptions>{
-		// maintainAspectRatio: false,
-		title: {
-			text: 'Pages visit',
-			display: true,
-			fontStyle: 'normal',
-			padding: 10
-		},
-	    scales: {
-	        yAxes: [{
-	            ticks: {
-	                beginAtZero: true
-	            },
-	            gridLines: {
-	                display: true,
-	                color: '#bbb',
-	                lineWidth: 1,
-	                zeroLineWidth: 0,
-	                drawBorder: true
-	            }
-	        }],
-	        xAxes: [{
-	            type: 'time',
-	            time: {
-		            unit: 'day',
-		            displayFormats: { day: 'DD-MM-YYYY' },
-		            //minUnit: 'days'
-	            },
-	            gridLines: {
-	                display: false
-	            }
-	        }]
-	    },
-	    legend: {
-	        display: true
-	    },
-	    // spanGaps
+	createLineChartOptions(title_text: string, display_legend = true): ChartOptions {
+		return <ChartOptions>{
+			// maintainAspectRatio: false,
+			title: {
+				text: title_text,
+				display: true,
+				fontStyle: 'normal',
+				padding: 10
+			},
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero: true
+					},
+					gridLines: {
+						display: true,
+						color: '#bbb',
+						lineWidth: 1,
+						zeroLineWidth: 0,
+						drawBorder: true
+					}
+				}],
+				xAxes: [{
+					type: 'time',
+					time: {
+						unit: 'day',
+						displayFormats: {day: 'DD-MM-YYYY'},
+						//minUnit: 'days'
+					},
+					gridLines: {
+						display: false
+					}
+				}]
+			},
+			legend: {
+				display: display_legend
+			},
+			// spanGaps
+		}
 	}
 };

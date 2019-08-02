@@ -59,19 +59,6 @@ async function saveGameResult(room: RoomInfo, result_json: GameResultJSON) {
 	}
 }
 
-function onGameFailedToStart(room: RoomInfo) {
-	console.warn('Game failed to start:', room.id);
-
-	room.unreadyAll();
-	room.forEachUser(user => {
-		if(user.connection)
-			user.connection.sendGameStartFailEvent(room);
-	});
-
-	//make this rooms appear again at user's rooms list
-	Connections.forEachLobbyUser(conn => conn.onRoomCreated(room));
-}
-
 interface MessageFromGameProcess {
 	room_id: number;
 	action: NetworkCodes;
@@ -148,7 +135,7 @@ export default class GameHandler {
 
 		setTimeout(() => {//after 10 seconds check if everyone confirmed game start
 			if( !this.game_started ) {//if not started yet
-				onGameFailedToStart(room);
+				RoomsManager.onGameFailedToStart(room, this.remaining_confirmations);
 				this.onGameEnd();
 			}
 		}, 10 * 1000);
@@ -199,7 +186,7 @@ export default class GameHandler {
 		catch(e) {
 			console.error(e);
 			
-			onGameFailedToStart(room);
+			RoomsManager.onGameFailedToStart(room);
 			this.onGameEnd();
 		}
 	}
@@ -267,7 +254,7 @@ export default class GameHandler {
 				});
 			}	break;
 			case NetworkCodes.START_GAME_FAIL_ACTION:
-				onGameFailedToStart( this.room );
+				RoomsManager.onGameFailedToStart( this.room );
 				this.onGameEnd();
 				break;
 			case NetworkCodes.END_GAME_ACTION: {

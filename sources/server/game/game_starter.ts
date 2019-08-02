@@ -2,6 +2,7 @@
 import RoomInfo from '../../common/room_info';
 import GameHandler from './game_handler';
 import RoomsManager from './rooms_manager';
+import Config from '../../common/config';
 
 let currentCountdowns: Map<number, NodeJS.Timeout> = new Map();
 let running_games: Map<number, GameHandler> = new Map();
@@ -17,6 +18,11 @@ function distributeCountdownUpdate(room: RoomInfo, time: number | null) {
 function prepareToStart(room: RoomInfo) {
 	if( running_games.has(room.id) )
 		throw new Error('Game with given id already running: ' + room.id);
+	
+	if( running_games.size >= Config.MAXIMUM_SIMULTANEOUSLY_GAMES ) {
+		RoomsManager.onServerOverload(room);
+		return;
+	}
 
 	running_games.set(room.id, new GameHandler(room, (no_error) => {
 		running_games.delete(room.id);

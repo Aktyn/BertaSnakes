@@ -1,7 +1,7 @@
 import UserInfo, {UserCustomData} from '../../common/user_info';
 import RoomInfo, {RoomCustomData} from '../../common/room_info';
 
-import NetworkCodes, {NotificationCodes} from '../../common/network_codes';
+import NetworkCodes, {NotificationCodes, ReasonCodes} from '../../common/network_codes';
 import SocialConnection from "../social/social_connection";
 import {extractIP} from "../utils";
 
@@ -273,12 +273,14 @@ export class Connection {
 			Connection.updateSocialIsPlayingState(this.user.account_id, true);
 	}
 
-	sendGameStartFailEvent(room: RoomInfo) {
+	sendGameStartFailEvent(room: RoomInfo, reason: ReasonCodes, error_data?: any) {
 		if(!this.user)
 			throw new Error('This connection has no user');
 		this.send({
 			type: NetworkCodes.ON_GAME_FAILED_TO_START,
 			room: room.toJSON(),
+			reason,
+			error_data//additional error data just for client information
 		});
 	}
 }

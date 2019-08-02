@@ -29,6 +29,8 @@ const DEFAULT_DATA = {
     }]
 };
 
+const LINE_CHART_OPTIONS = Utils.createLineChartOptions('User page visits');
+
 interface AdminPowersProps {
 	onError: (code: ERROR_CODES) => void;
 	user: PublicAccountSchema;
@@ -106,7 +108,7 @@ export default class AdminPowers extends React.Component<AdminPowersProps, any> 
 				<button style={offsetTop} onClick={this.refresh.bind(this)}>REFRESH</button>
 			</div>
 			<LineChart width={this.props.container ? 600 : 400} height={400} ref={chart => this.visits_chart = chart}
-			           data={DEFAULT_DATA} options={Utils.LINE_CHART_OPTIONS} />
+			           data={DEFAULT_DATA} options={LINE_CHART_OPTIONS} />
 		</div>;
 	}
 }

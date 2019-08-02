@@ -36,6 +36,7 @@ interface MenuState extends BaseState {
 
 export default class extends StageBase<MenuProps, MenuState> {
 	private right_panel: RightPanel | null = null;
+	private room_view: RoomView | null = null;
 	private readonly orientation_change_listener: (orientation: ORIENTATION) => void;
 	private readonly fullscreen_change_listener: (fullscreen: boolean) => void;
 
@@ -95,6 +96,11 @@ export default class extends StageBase<MenuProps, MenuState> {
 	public onSpamWarning() {
 		if(this.right_panel && this.right_panel.chatHandle)
 			this.right_panel.chatHandle.spamWarning();
+	}
+	
+	public onServerOverload() {
+		if(this.room_view)
+			this.room_view.showServerOverloadWarning();
 	}
 	
 	private renderInfos() {
@@ -211,7 +217,7 @@ export default class extends StageBase<MenuProps, MenuState> {
 					{
 						this.props.current_room && this.props.current_user ?
 							<RoomView room={this.props.current_room} current_user={this.props.current_user}
-								start_game_countdown={this.props.start_game_countdown} />
+								start_game_countdown={this.props.start_game_countdown} ref={el => this.room_view = el} />
 						:
 							this.renderInfos()
 					}

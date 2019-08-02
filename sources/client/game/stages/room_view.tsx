@@ -69,8 +69,13 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 		if(!am_i_owner && this.state.edit_mode)
 			this.setState({edit_mode: false});
 	}
+	
+	public showServerOverloadWarning() {
+		//TODO: show server overload warning
+		console.log('TODO: show server overload warning');
+	}
 
-	renderEditMode() {
+	private renderEditMode() {
 		let room_settings = this.props.room.getSettings();
 		return <div className='room-view edit-mode'>
 			<div key='settings' className='settings-grid'>

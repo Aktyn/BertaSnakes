@@ -3,7 +3,7 @@ import RoomInfo, {RoomSettings} from '../../common/room_info';
 import GameStarter from './game_starter';
 import Config from '../../common/config';
 import UserInfo from "../../common/user_info";
-import {NotificationCodes} from '../../common/network_codes';
+import {NotificationCodes, ReasonCodes} from '../../common/network_codes';
 
 const MINIMUM_ROOMS = 3;
 
@@ -231,5 +231,33 @@ export default {
 		});
 		
 		from_connection.user.registerLastMessageTimestamp(message.timestamp);
+	},
+	
+	onGameFailedToStart(room: RoomInfo, unconfirmed_users?: number[]) {
+		console.warn('Game failed to start:', room.id);
+	
+		room.unreadyAll();
+		room.forEachUser(user => {
+			if(user.connection) {
+				user.connection.sendGameStartFailEvent(
+					room,
+					unconfirmed_users ? ReasonCodes.USER_DOES_NOT_CONFIRM_GAME : ReasonCodes.SERVER_ERROR,
+					unconfirmed_users
+				);
+			}
+		});
+	
+		//make this rooms appear again at user's rooms list
+		Connections.forEachLobbyUser(conn => conn.onRoomCreated(room));
+	},
+	
+	onServerOverload(room: RoomInfo) {
+		console.warn('Game failed to start because server is overloaded:', room.id);
+		
+		room.unreadyAll();
+		room.forEachUser(user => {
+			if(user.connection)
+				user.connection.sendGameStartFailEvent(room, ReasonCodes.SERVER_OVERLOAD);
+		});
 	}
 }

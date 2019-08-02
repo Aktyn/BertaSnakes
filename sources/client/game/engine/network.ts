@@ -77,7 +77,7 @@ const HANDLERS = {
 					CurrentRoom.updateData( updated_room );
 					// CurrentRoom.updateSettings( updated_room.getSettings() )
 			}	break;
-			case NetworkCodes.ON_GAME_FAILED_TO_START:
+			case NetworkCodes.ON_GAME_FAILED_TO_START://room: RoomCustomData, reason: ReasonCodes, error_data?: any
 				if(CurrentRoom == null)
 					throw new Error('CurrentRoom is empty');
 				CurrentRoom.updateData( json_data['room'] );

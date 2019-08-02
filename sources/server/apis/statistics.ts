@@ -56,6 +56,29 @@ function open(app: express.Express) {
 			return res.json({error: ERROR_CODES.UNKNOWN});
 		}
 	});
+	
+	app.post('/get_payments_statistics', async (req, res) => {//token, from, to
+		try {
+			if (typeof req.body.token !== 'string' || typeof req.body.from !== 'number' ||
+				typeof req.body.to !== 'number')
+			{
+				return res.json({error: ERROR_CODES.INCORRECT_DATA_SENT});
+			}
+			
+			if( false === await checkAdminPermissions(req.body.token) )
+				return res.json({error: ERROR_CODES.INSUFFICIENT_PERMISSIONS});
+			
+			let db_res = await Database.getPaymentsStatistics(req.body.from, req.body.to);
+			if(db_res.error !== ERROR_CODES.SUCCESS || !db_res.data)
+				return res.json({error: db_res.error});
+			
+			return res.json({error: ERROR_CODES.SUCCESS, data: db_res.data});
+		}
+		catch(e) {
+			console.error(e);
+			return res.json({error: ERROR_CODES.UNKNOWN});
+		}
+	});
 }
 
 export default {open};

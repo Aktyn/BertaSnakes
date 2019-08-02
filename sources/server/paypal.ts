@@ -7,7 +7,7 @@ const PAYPAL_CLIENT = getArgument('PAYPAL_CLIENT');
 const PAYPAL_SECRET = getArgument('PAYPAL_SECRET');
 
 paypal.configure({
-	'mode': 'sandbox',//sandbox or live
+	'mode':  (process.env.NODE_ENV || '').match(/developement|dev/i) ? 'sandbox' : 'live',
     'client_id': PAYPAL_CLIENT,
     'client_secret': PAYPAL_SECRET,
 });

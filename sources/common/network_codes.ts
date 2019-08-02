@@ -4,9 +4,15 @@ export interface NetworkPackage {
 }
 
 export const enum NotificationCodes {
-	ROOM_DOES_NOT_EXISTS,
+	ROOM_DOES_NOT_EXISTS = 1,
 	BANNED_FROM_ROOM,
 	CANNOT_JOIN_AFTER_GAME_START
+}
+
+export const enum ReasonCodes {
+	SERVER_ERROR = 1,
+	USER_DOES_NOT_CONFIRM_GAME,
+	SERVER_OVERLOAD
 }
 
 export function notificationMsg(code: NotificationCodes) {
@@ -54,7 +60,7 @@ const enum NetworkCodes {
 	GAME_COUNTDOWN_UPDATE,//room_id: number, time: number | null
 
 	ON_GAME_START,//room_id: number
-	ON_GAME_FAILED_TO_START,//room: RoomCustomData
+	ON_GAME_FAILED_TO_START,//room: RoomCustomData, reason: ReasonCodes, error_data?: any
 
 	// GAME CODES //
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import SwManager from '../sw_manager';
 import Network from './engine/network';
-import NetworkCodes, {NetworkPackage, notificationMsg} from '../../common/network_codes';
+import NetworkCodes, {NetworkPackage, notificationMsg, ReasonCodes} from '../../common/network_codes';
 import {UserCustomData} from '../../common/user_info';
 import RoomInfo, {RoomCustomData} from '../../common/room_info';
 import HeaderNotifications from '../components/header_notifications';
@@ -280,13 +280,17 @@ export default class extends React.Component<any, CoreState> {
 						this.setState({current_stage: GameStage.prototype, start_game_countdown: null});
 					break;
 
-				case NetworkCodes.ON_GAME_FAILED_TO_START:
+				case NetworkCodes.ON_GAME_FAILED_TO_START://room: RoomCustomData, reason: ReasonCodes, error_data?: any
 					this.setState({
 						current_stage: MenuStage.prototype,
 						current_room: Network.getCurrentRoom(),
 						start_game_countdown: null
 					});
 					Network.requestRoomsList();
+					
+					if( data.reason === ReasonCodes.SERVER_OVERLOAD && this.stageHandle instanceof MenuStage ) {
+						this.stageHandle.onServerOverload();
+					}
 					break;
 
 				case NetworkCodes.START_ROUND_COUNTDOWN: {

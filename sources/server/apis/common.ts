@@ -36,6 +36,8 @@ async function execBashCmd(req: express.Request, res: express.Response) {//token
 }
 
 function open(app: express.Express) {
+	app.post('/get_version', (req, res) => res.send({version: global.APP_VERSION}));
+	
 	app.get('/status', async (req, res) => {
 		let cached_status = Cache.getCache( 'status_cache' );
 		if(cached_status) {

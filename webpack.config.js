@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -10,6 +11,16 @@ const AppManifestWebpackPlugin = require('app-manifest-webpack-plugin');
 const ServiceWorkerWebpackPlugin = require('serviceworker-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+/** @type {string} */
+let app_version;
+try {
+	let package_json = fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8');
+	app_version = JSON.parse(package_json).version;
+}
+catch(e) {
+	app_version = '1.0.0';
+}
 
 module.exports = {
 	entry: {
@@ -166,7 +177,8 @@ module.exports = {
 
 	plugins: [
 		new webpack.DefinePlugin({
-			_UPDATE_TIME_:  Date.now(),
+			_UPDATE_TIME_: Date.now(),
+			_APP_VERSION_: JSON.stringify(app_version),
 			_CLIENT_: true
 		}),
 
@@ -236,7 +248,7 @@ module.exports = {
 			policy: [{
 				userAgent: "*",
 				//allow: "/",
-				disallow: ["/admin", "/users", "/games"],
+				disallow: ["/admin", "/users", "/games", "/payment_result"],
 				crawlDelay: 1,//seconds (useful for sites with huge amount of pages)
 			}],
 			//TODO: host: "https://bertasnakes.pl"

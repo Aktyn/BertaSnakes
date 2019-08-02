@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ContainerPage, {ContainerProps} from "./container_page";
 import BashCommandsSection from "./sections/bash_commands";
-import VisitsStatisticsSection from "./sections/visit_statistics";
+import StatisticsSection from "./sections/statistics";
 import OnlineAccountsSection from "./sections/online_users";
 import RoomsSection from "./sections/rooms";
 
@@ -29,7 +29,7 @@ export default class AdminPage extends React.Component<any, AdminPageState> {
 	render() {
 		return <ContainerPage key={'admin-panel'} className={'admin-panel'} {...this.state}>
 			<div>
-				<VisitsStatisticsSection setError={this.setError.bind(this)} />
+				<StatisticsSection setError={this.setError.bind(this)} />
 				<hr />
 			</div>
 			<div>

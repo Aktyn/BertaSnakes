@@ -198,7 +198,6 @@ export default {
 							month: {$month: '$_id'},
 							day: {$dayOfMonth: '$_id'},
 							ip: '$ip'
-							//account: '$account_id'
 						},
 						count: {$sum: 1}
 					}
@@ -263,6 +262,60 @@ export default {
 		}
 		catch(e) {
 			console.error(e);
+		}
+	},
+	
+	async getPaymentsStatistics(from: number, to: number) {//timestamps range
+		interface PaymentsResponseItem {
+			count: number;
+			date: [number, number, number];
+		}
+		
+		try {
+			let payments: PaymentsResponseItem[] = await getCollection(COLLECTIONS.payments).aggregate([
+				{
+					$match: statsMatchConditions(from, to)
+				}, {
+					$group: {
+						_id: {
+							year: {$year: '$_id'},
+							month: {$month: '$_id'},
+							day: {$dayOfMonth: '$_id'}
+						},
+						count: {$sum: 1}
+					}
+				}, {
+					$limit: 365
+				}, {
+					$project: {
+						_id: 0,
+						count: 1,
+						date: PROJECT_DATE,
+					}
+				}
+			]).toArray();
+			
+			const range = getDateRangeValues(from, to);
+			payments = payments.sort(dateSort).filter(v => {
+				let date_value = dateToValue(v.date);
+				return date_value >= range.min && date_value <= range.max;
+			});
+			
+			// noinspection DuplicatedCode
+			for(let ts = from, i=0; ts < to; ts += DAY_MS, i++) {//fill gaps in database response
+				let dt = new Date(ts);
+				let date_arr: [number, number, number] = [dt.getFullYear(), dt.getMonth()+1, dt.getDate()];
+				if( !payments[i] || !dateCompare(payments[i].date, date_arr) )
+					payments.splice(i, 0, {count: 0, date: date_arr});
+			}
+			
+			//console.log(visits);
+			
+			return {error: ERROR_CODES.SUCCESS, data: payments};
+		}
+		catch(e) {
+			console.error(e);
+			return {error: ERROR_CODES.DATABASE_ERROR};
 		}
 	}
 }
