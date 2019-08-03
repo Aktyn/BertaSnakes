@@ -49,8 +49,8 @@ interface SkillsBarState {
 
 export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBarState> {
 	private emots_toggler: HTMLButtonElement | null = null;
-
 	private skill_cooldowns: Map<number, NodeJS.Timeout> = new Map();
+	private mounted = true;
 
 	state: SkillsBarState = {
 		skills: [],
@@ -63,12 +63,15 @@ export default class SkillsBar extends React.Component<SkillsBarProps, SkillsBar
 	}
 	
 	componentWillUnmount() {
+		this.mounted = false;
 		this.skill_cooldowns.forEach(timeout => clearTimeout(timeout));
 	}
 	
 	componentDidMount() {
 		//initialize emoticons preview
 		Assets.onload(() => {
+			if( !this.mounted )
+				return;
 			this.setState({
 				available_emots: EMOTS.map(emot => {
 					let entity_name = Emoticon.entityName(emot.file_name);

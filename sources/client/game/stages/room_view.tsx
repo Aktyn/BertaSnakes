@@ -36,6 +36,8 @@ interface RoomViewProps {
 	room: RoomInfo;
 	current_user: UserInfo;
 	start_game_countdown: number | null;
+	server_overload: boolean;
+	unconfirmed_players: number[] | null;
 }
 
 interface RoomViewState {
@@ -68,11 +70,6 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 
 		if(!am_i_owner && this.state.edit_mode)
 			this.setState({edit_mode: false});
-	}
-	
-	public showServerOverloadWarning() {
-		//TODO: show server overload warning
-		console.log('TODO: show server overload warning');
 	}
 
 	private renderEditMode() {
@@ -128,6 +125,35 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 			</div>
 		</div>;
 	}
+	
+	private renderInfoBar(free_sit: boolean) {
+		if( free_sit )
+			return <span>Waiting for everyone to take a sit</span>;
+		
+		if( this.props.room.everyoneReady() ) {
+			return <span>Everyone ready. Starting game
+				{this.props.start_game_countdown && <span> in {this.props.start_game_countdown}&nbsp;sec</span>}
+			</span>;
+		}
+		
+		if( this.props.server_overload ) {
+			return <span style={{
+				color: '#FFAB91',
+				fontWeight: 'bold'
+			}}>Server is overloaded. Too many simultaneous games. Please try again in a minute.</span>;
+		}
+		
+		if( this.props.unconfirmed_players ) {
+			return <span>Someone didn't load game in time.<br />({
+				this.props.unconfirmed_players.map(id => {
+					let player = this.props.room.getUserByID(id);
+					return player ? player.nick : undefined;
+				}).filter(nick => !!nick).join(', ')
+			})</span>;
+		}
+		
+		return <span>Waiting for everyone to be ready</span>;
+	}
 
 	render() {
 		if(this.state.edit_mode)
@@ -168,15 +194,8 @@ export default class extends React.Component<RoomViewProps, RoomViewState> {
 				</section>
 			</section>
 			<hr key={'hr4'} />
-			<section key='section2' className={`info-bar${
-				this.props.start_game_countdown ? ' pulsing' : ''}`}>{
-				free_sit ? 'Waiting for everyone to take a sit' : (
-					this.props.room.everyoneReady() ? 
-						<span>Everyone ready. Starting game{this.props.start_game_countdown &&
-							<span> in {this.props.start_game_countdown}&nbsp;sec</span>}</span>
-						: 
-						'Waiting for everyone to be ready'
-				)
+			<section key='section2' className={`info-bar${this.props.start_game_countdown ? ' pulsing' : ''}`}>{
+				this.renderInfoBar(free_sit)
 			}</section>
 			<hr key={'hr5'} />
 			<section key='section3' className='users'>

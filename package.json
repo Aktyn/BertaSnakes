@@ -1,6 +1,6 @@
 {
 	"name": "bertasnakes",
-	"version": "0.9.5",
+	"version": "0.9.6",
 	"description": "Multiplayer browser game created by Aktyn",
 	"main": "sources/server/main.ts",
 	"sideEffects": [

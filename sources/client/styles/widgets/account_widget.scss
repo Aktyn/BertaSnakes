@@ -23,7 +23,17 @@ $animFunc: 0.3s cubic-bezier(.36, .07, .19, .97);
 		transform: scale(1.05);
 	}
 	
-	//filter: drop-shadow(0px 0px 3px #0008); (moved to account-widget-content as box-shadow)
+	transform: translate($size, -$size);
+	@keyframes appear-from-corner {
+		0% {
+			transform: translate($size, -$size);
+		}
+		100% {
+			transform: translate(0px, 0px);
+		}
+	}
+	
+	animation: appear-from-corner 0.6s 0.6s cubic-bezier(.36,.07,.19,.97) forwards;
 }
 
 .account-widget-bg:hover ~ .account-widget-content .indicator {
@@ -40,6 +50,13 @@ $animFunc: 0.3s cubic-bezier(.36, .07, .19, .97);
 	z-index: 91;
 	
 	pointer-events: none;
+	
+	@keyframes appear {
+		0% {opacity: 0}
+		100% {opacity: 1}
+	}
+	opacity: 0;
+	animation: appear 0.6s 1.2s cubic-bezier(.36,.07,.19,.97) forwards;
 	
 	.indicator {
 		position: absolute;

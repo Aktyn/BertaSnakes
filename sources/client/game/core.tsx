@@ -19,6 +19,8 @@ interface CoreState extends BaseProps {
 	current_stage: StageBase<any, any>;
 	indicate_room_deletion: boolean;
 	start_game_countdown: number | null;
+	server_overload: boolean;
+	unconfirmed_players: number[] | null;
 	fading: boolean;
 }
 
@@ -44,6 +46,8 @@ export default class extends React.Component<any, CoreState> {
 
 		indicate_room_deletion: false,
 		start_game_countdown: null,
+		server_overload: false,
+		unconfirmed_players: null,
 		
 		fading: !first_load
 	};
@@ -203,14 +207,20 @@ export default class extends React.Component<any, CoreState> {
 					for(let i=0; i<rooms.length; i++) {
 						if(rooms[i].id === updated_room.id) {
 							rooms[i].updateData(updated_room);
-							this.setState({rooms_list: rooms, start_game_countdown: null});
+							this.setState({rooms_list: rooms});
 							break;
 						}
 					}
 
 					let current_room = Network.getCurrentRoom();
-					if(current_room && updated_room.id === current_room.id)
-						this.setState({current_room: current_room, start_game_countdown: null});
+					if(current_room && updated_room.id === current_room.id) {
+						this.setState({
+							current_room: current_room,
+							start_game_countdown: null,
+							server_overload: false,
+							unconfirmed_players: null
+						});
+					}
 				}	break;
 
 				case NetworkCodes.ON_ROOM_REMOVED: {
@@ -271,8 +281,13 @@ export default class extends React.Component<any, CoreState> {
 				case NetworkCodes.GAME_COUNTDOWN_UPDATE:
 					let _room = Network.getCurrentRoom();
 					let time = data['time'];
-					if( _room && _room.id === data['room_id'] && (typeof time==='number' || time===null) )
-						this.setState( {start_game_countdown: time} );
+					if( _room && _room.id === data['room_id'] && (typeof time==='number' || time === null) ) {
+						this.setState({
+							start_game_countdown: time,
+							server_overload: false,
+							unconfirmed_players: null
+						});
+					}
 					break;
 
 				case NetworkCodes.ON_GAME_START:
@@ -288,8 +303,12 @@ export default class extends React.Component<any, CoreState> {
 					});
 					Network.requestRoomsList();
 					
-					if( data.reason === ReasonCodes.SERVER_OVERLOAD && this.stageHandle instanceof MenuStage ) {
-						this.stageHandle.onServerOverload();
+					if( data.reason === ReasonCodes.SERVER_ERROR )
+						HeaderNotifications.push('Cannot start game because of server error');
+					else if( data.reason === ReasonCodes.USER_DOES_NOT_CONFIRM_GAME )
+						this.setState({unconfirmed_players: data.error_data as number[]});
+					else if( data.reason === ReasonCodes.SERVER_OVERLOAD && this.stageHandle instanceof MenuStage ) {
+						this.setState({server_overload: true});
 					}
 					break;
 
@@ -308,6 +327,7 @@ export default class extends React.Component<any, CoreState> {
 							game.startGame(
 								data['game_duration'], data['round_delay'], data['init_data']
 							);
+							this.stageHandle.onGameStarted();
 						}
 					}
 

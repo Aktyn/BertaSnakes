@@ -23,6 +23,7 @@ import NotificationsIndicator from '../../components/widgets/notifications_indic
 import {MOVEMENT_FLAGS} from "../../../common/game/common/movement";
 
 import '../../styles/game_stage.scss';
+import Loader from "../../components/widgets/loader";
 
 const arrow_down = require('../../img/icons/arrow_down.svg');
 const arrow_left = require('../../img/icons/arrow_left.svg');
@@ -52,6 +53,7 @@ interface GameState extends BaseState {
 	players_infos: PlayerInfo[];
 	notifications: {id: number, content: string}[];
 	
+	show_loading_info: boolean;
 	results?: PlayerResultJSON[];
 	
 	show_settings: boolean;
@@ -77,8 +79,7 @@ export default class extends StageBase<BaseProps, GameState> {
 
 	private speed_update_filter = 0;
 	private enemies_count = 0;
-
-	//public ready = false;
+	
 	private mounted = false;
 	private preserved_oncontextmenu_event: any = null;
 
@@ -95,6 +96,7 @@ export default class extends StageBase<BaseProps, GameState> {
 		players_infos: [],
 		notifications: [],
 		
+		show_loading_info: true,
 		show_settings: false,
 		show_fullscreen_icon: Device.isMobile()
 	};
@@ -123,11 +125,8 @@ export default class extends StageBase<BaseProps, GameState> {
 				let user = this.props.current_user;
 
 				//WHEN EVERYTHING LOADED CORRECTLY - SENDING CONFIRMATION TO SERVER
-				if(user && room && room.isUserSitting(user.id) ) {
-					//disable for testing game start failure
-					Network.confirmGameStart();
-					//this.ready = true;
-				}
+				if(user && room && room.isUserSitting(user.id) )
+					Network.confirmGameStart();//disable for testing game start failure
 			});
 		}
 		
@@ -144,9 +143,8 @@ export default class extends StageBase<BaseProps, GameState> {
 		
 		if( Device.isMobile()/* && !Device.isFullscreen() */) {//go fullscreen automatically on mobiles
 			if(process.env.NODE_ENV !== 'development') {
-				Device.goFullscreen();//.then(() => {
-					Device.setOrientation(ORIENTATION.LANDSCAPE).catch(console.error);
-				//});
+				Device.goFullscreen();
+				Device.setOrientation(ORIENTATION.LANDSCAPE).catch(console.error);
 			}
 		}
 		else
@@ -161,7 +159,6 @@ export default class extends StageBase<BaseProps, GameState> {
 			this.game.destroy();
 		if(this.exit_confirmation)
 			clearTimeout(this.exit_confirmation);
-		//this.ready = false;
 		
 		//restore oncontextmenu event
 		window.oncontextmenu = this.preserved_oncontextmenu_event;
@@ -307,6 +304,10 @@ export default class extends StageBase<BaseProps, GameState> {
 
 	public getGame() {
 		return this.game;
+	}
+	
+	public onGameStarted() {
+		this.setState({show_loading_info: false});
 	}
 	
 	public onGameEnd(players_results: PlayerResultJSON[]) {
@@ -515,6 +516,12 @@ export default class extends StageBase<BaseProps, GameState> {
 					<RoomChat current_user={this.props.current_user} ref={el => this.chatHandle = el} />
 				</div>
 			</div>
+			{this.state.show_loading_info && <div className={'loading-info'}>
+				<div className={'container'}>
+					<span>Waiting for every player to load game</span>
+					<Loader color={'#e57373'} absolutePos={false} />
+				</div>
+			</div>}
 			{this.state.show_settings && <SettingsSidepop
 				onClose={() => this.setState({show_settings: false})} />}
 		</div>;

@@ -29,7 +29,7 @@ export default {
 	
 	PAGE_TITLE: 'BertaSnakes',
 	
-	MAXIMUM_SIMULTANEOUSLY_GAMES: 7,//because each games takes some processing power and every machine has it's limit
+	MAXIMUM_SIMULTANEOUSLY_GAMES: 10,//because each games takes some processing power and every machine has it's limit
 	
 	TOKEN_LIFETIME: 1000 * 60 * 60 * 24 * 7, //one week
 	MAX_LOGIN_LENGTH: 64,

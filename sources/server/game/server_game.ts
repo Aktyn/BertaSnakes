@@ -149,7 +149,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		this.initialized = true;
 	}
 	
-	emitAction(action: NetworkCodes, data?: any) {
+	public emitAction(action: NetworkCodes, data?: any) {
 		try {
 			//@ts-ignore
 			process.send( {room_id: this.room.id, action, data} );
@@ -159,7 +159,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		}
 	}
 
-	start() {
+	public start() {
 		console.log('Starting round');
 
 		let init_data: InitDataSchema[] = [];
@@ -209,7 +209,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		runLoop(this);
 	}
 
-	end() {
+	public end() {
 		if(!this.running)
 			return;
 		this.running = false;
@@ -225,6 +225,12 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		});
 		
 		super.destroy();
+	}
+	
+	public finishImmediately() {
+		console.log(`No one is watching this game anymore, finishing it now (${this.room.id})`);
+		this.remaining_time = 0;
+		this.end();
 	}
 
 	getPlayerByUserId(id: number) {
@@ -280,7 +286,7 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		return this.bounceOutOfColor(object, color, this, bounce_vector);//returns boolean
 	}
 
-	playerBounce(player: Player, color: Uint8Array) {
+	playerBounce(player: Player, color: Uint8Array): boolean {
 		if(this.bouncePainter(player, color, this.bounceVec) === true) {
 			this.dataForClients.push(NetworkCodes.ON_PLAYER_BOUNCE, this.players.indexOf(player), 
 				player.x, player.y, player.rot, this.bounceVec.x, this.bounceVec.y);
@@ -336,11 +342,11 @@ export default class ServerGame extends GameCore implements CollisionsDetector {
 		else if(Colors.isPlayerColor(color)) {//checking collisions with other players curves
 			//other painter collisions only in competition mode
 			if(this.room.gamemode === GAME_MODES.COMPETITION) {
-				for(const player_col_i in Colors.PLAYERS_COLORS) {
-					if( Colors.compareByteBuffers(Colors.PLAYERS_COLORS[player_col_i].byte_buffer, color) ) {
+				for(let player_col of Colors.PLAYERS_COLORS) {
+					if( Colors.compareByteBuffers(player_col.byte_buffer, color) ) {
 						// console.log('You hit other player\'s painter');
 
-						if(this.playerBounce(player, color) === true)
+						if( this.playerBounce(player, color) )
 							this.onPlayerEnemyPainterCollision(player);
 						
 						//	console.log(this.bounceVec);

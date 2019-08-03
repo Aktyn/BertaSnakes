@@ -4,6 +4,7 @@ import GameStarter from './game_starter';
 import Config from '../../common/config';
 import UserInfo from "../../common/user_info";
 import {NotificationCodes, ReasonCodes} from '../../common/network_codes';
+import GameHandler from './game_handler';
 
 const MINIMUM_ROOMS = 3;
 
@@ -92,10 +93,15 @@ export default {
 		room.removeUser(from_user);
 		from_connection.onRoomLeft(room.id);
 
-		//REMOVE ROOM WHEN IT GETS EMPTY AND NOT DURING GAME
-		if( room.isEmpty() && !room.game_handler ) {
-			distributeRoomRemoveEvent(room);
-			rooms.delete(room.id);
+		//REMOVE ROOM WHEN IT GETS EMPTY
+		if( room.isEmpty() ) {
+			if( !room.game_handler ) {//AND NOT DURING GAME
+				distributeRoomRemoveEvent(room);
+				rooms.delete(room.id);
+			}
+			else {//IF IT IS DURING GAME THEN SPEED IT UP
+				(<GameHandler>room.game_handler).onRoomEmptied(room);
+			}
 		}
 		else {//send USER_LEFT_ROOM for every other user in room
 			room.forEachUser(user => {

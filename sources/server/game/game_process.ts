@@ -39,7 +39,8 @@ let waitForGameInitialize = (game: ServerGame, callback: () => void) => {
 export const enum PROCESS_ACTIONS {
 	INIT_GAME = 0,
 	START_GAME,
-	ON_GAME_END
+	ON_GAME_END,
+	ON_EVERYONE_LEFT
 }
 
 export interface MessageFromClient {
@@ -54,17 +55,23 @@ interface InitGameMessage {
 	playing_users: UserFullData[];
 }
 
-interface RunGameMessage {
+interface JustRoomIdData {
+	room_id: number;
+}
+
+interface RunGameMessage extends JustRoomIdData {
 	action: PROCESS_ACTIONS.START_GAME;
-	room_id: number;
 }
 
-interface GameEndMessage {
+interface GameEndMessage extends JustRoomIdData {
 	action: PROCESS_ACTIONS.ON_GAME_END;
-	room_id: number;
 }
 
-type ActionMessages = InitGameMessage | RunGameMessage | GameEndMessage;
+interface EveryoneLeftMessage extends JustRoomIdData{
+	action: PROCESS_ACTIONS.ON_EVERYONE_LEFT;
+}
+
+type ActionMessages = InitGameMessage | RunGameMessage | GameEndMessage | EveryoneLeftMessage;
 
 process.on('message', function(msg: MessageFromClient & ActionMessages) {
 	//console.log(msg);
@@ -130,6 +137,11 @@ process.on('message', function(msg: MessageFromClient & ActionMessages) {
 			case PROCESS_ACTIONS.ON_GAME_END: {
 				console.log('game ended:', msg.room_id);
 				games.delete(msg.room_id);
+			}   break;
+			case PROCESS_ACTIONS.ON_EVERYONE_LEFT: {
+				let game_to_finish = games.get(msg.room_id);
+				if(game_to_finish)
+					game_to_finish.finishImmediately();
 			}   break;
 		}
 	}

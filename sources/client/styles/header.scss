@@ -6,6 +6,17 @@ $playBtnSize: 230px;
 $bottomSize: 20px;
 
 .header {
+	@keyframes appear-from-bottom {
+		0% {
+			transform: translateY(80px) scale(0);
+			opacity: 0;
+		}
+		100% {
+			transform: translateY(0px) scale(1);
+			opacity: 1;
+		}
+	}
+	
 	grid-area: header;
 
 	box-shadow: 0px 0px 10px #0008;
@@ -38,9 +49,8 @@ $bottomSize: 20px;
 		}
 
 		.header-content {
-			//background-color: #006064a0;
-			//background-color: rgba(nth($palette, 6), 0.66);
-			background: linear-gradient(45deg, rgba(nth($palette, 6), 0.66), rgba(nth($palette, 7), 0.66));
+			//background: linear-gradient(45deg, rgba(nth($palette, 6), 0.66), rgba(nth($palette, 7), 0.66));
+			background: linear-gradient(66deg, #317b8ccc, #f0c0fb99, #c15354cc);
 			
 			* {
 				font-family: LuckiestGuy, Roboto-Regular, Arial, serif;
@@ -60,6 +70,8 @@ $bottomSize: 20px;
 			align-items: center;
 
 			.play-btn-wrapper {
+				animation: appear-from-bottom 0.6s cubic-bezier(.36,.07,.19,.97) forwards;
+				
 				grid-area: play;
 				// filter: drop-shadow(0px 3px 3px #0006);
 				filter: drop-shadow(0px 5px 3px #0004);
@@ -79,7 +91,7 @@ $bottomSize: 20px;
 					text-shadow: 0px 2px 5px #0004;
 					clip-path: polygon(0% 50%, 25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%);
 
-					background-color: #5a9698;
+					background-color: #64B5F6;
 					color: #fff;
 		
 					position: relative;
@@ -157,6 +169,15 @@ $bottomSize: 20px;
 					
 					&.navigator-play, &.navigator-account {
 						display: none;
+					}
+					
+					opacity: 0;
+					animation: appear-from-bottom 0.6s cubic-bezier(.36,.07,.19,.97) forwards;
+					
+					@for $i from 1 through 8 {
+						&:nth-child(#{$i}) {
+							animation-delay: 0.15s * ($i - 1);
+						}
 					}
 				}
 			}

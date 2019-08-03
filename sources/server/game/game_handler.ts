@@ -146,7 +146,6 @@ export default class GameHandler {
 			//spawn process for game
 			//this.room.game_handler = child_process.fork( path.join(__dirname, 'game_handler') );
 			//deprecated: child_process.fork(__dirname + '/game_handler');
-			
 			if(processes.length === 0)
 				this.process_info = forkProcess();
 			else {
@@ -181,7 +180,6 @@ export default class GameHandler {
 
 			//distribute room remove to every lobby subscriber
 			Connections.forEachLobbyUser(conn => conn.onRoomRemove(room));
-
 		}
 		catch(e) {
 			console.error(e);
@@ -235,6 +233,17 @@ export default class GameHandler {
 	public send(msg: Omit<MessageFromClient, 'room_id'>) {
 		if(this.process_info)
 			this.process_info.proc.send({...msg, room_id: this.room.id});
+	}
+	
+	public onRoomEmptied(room: RoomInfo) {//TODO: speeding up game since there is no one to see it
+		if(room !== this.room)
+			throw new Error('GameHandler\'s room mismatch');
+		if( !this.process_info )
+			return;
+		this.process_info.proc.send({
+			action: PROCESS_ACTIONS.ON_EVERYONE_LEFT,
+			room_id: this.room.id
+		});
 	}
 
 	public handleGameProcessMessage(msg: MessageFromGameProcess) {
