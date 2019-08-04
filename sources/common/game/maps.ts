@@ -134,6 +134,18 @@ const Maps = {
 		background_texture: loadImage(_CLIENT_ ? require('../maps/bg1.jpg') : null),
 		walls_texture: loadImage(_CLIENT_ ? 
 			require('../maps/Snowflake.svg') : path.join(MAP_FOLDER, 'Snowflake.png'))
+	} as MapJSON_I,
+	'Checkers': {
+		map_size: 5,
+		walls_size: DEFAULT_WALLS_SIZE,
+		walls_color: Colors.gen(215, 204, 200),
+		smooth_walls: true,
+		smooth_background: false,
+		weather: WEATHER_TYPE.CLOUDS,
+
+		background_texture: loadImage(_CLIENT_ ? require('../maps/bg4.png') : null),
+		walls_texture: loadImage(_CLIENT_ ?
+			require('../maps/Checkers.svg') : path.join(MAP_FOLDER, 'Checkers.png'))
 	} as MapJSON_I
 };
 

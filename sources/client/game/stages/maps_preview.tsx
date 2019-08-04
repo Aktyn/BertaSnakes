@@ -2,13 +2,39 @@ import * as React from 'react';
 
 import Maps, {map_name, isReady, onMapsLoaded} from '../../../common/game/maps';
 
+const override_previews: {[index: string]: string} = {
+	'Checkers': require('../../img/thumbnails/checkers_map.jpg')
+};
+
+function setContextImageSmoothing(ctx: CanvasRenderingContext2D, smooth: boolean) {
+	//@ts-ignore
+	ctx['mozImageSmoothingEnabled'] = smooth;
+	//@ts-ignore
+	ctx['webkitImageSmoothingEnabled'] = smooth;
+	//@ts-ignore
+	ctx['msImageSmoothingEnabled'] = smooth;
+	ctx['imageSmoothingEnabled'] = smooth;
+}
+
+const THUMBNAIL_SIZE = 150;
+
 export function updateMapPreview(map_name: map_name, canv: HTMLCanvasElement) {
+	if( map_name in override_previews ) {
+		let thumbnail = new Image();
+		thumbnail.onload = () => {
+			let ctx = canv.getContext('2d', {antialias: true}) as CanvasRenderingContext2D;
+			ctx.drawImage(thumbnail, 0, 0, canv.width, canv.height);
+		};
+		thumbnail.src = override_previews[map_name];
+		return;
+	}
+	
 	let map = Maps[map_name];
 	if(map === null)
 		throw new Error('Cannot find map by it\'s name: ' + map_name);
 
 	let ctx = canv.getContext('2d', {antialias: true}) as CanvasRenderingContext2D;
-
+	setContextImageSmoothing(ctx, map.smooth_background);
 	ctx.drawImage(map['background_texture'], 0, 0, canv.width, canv.height);
 	
 	let w_canv = document.createElement('canvas');
@@ -17,6 +43,7 @@ export function updateMapPreview(map_name: map_name, canv: HTMLCanvasElement) {
 	let w_ctx = w_canv.getContext('2d', {antialias: true}) as CanvasRenderingContext2D;
 	w_ctx.fillStyle = '#000';
 	w_ctx.fillRect(0, 0, w_canv.width, w_canv.height);
+	setContextImageSmoothing(w_ctx, map.smooth_walls);
 	w_ctx.drawImage(map['walls_texture'], 0, 0, w_canv.width, w_canv.height);
 
 	//@ts-ignore
@@ -84,7 +111,7 @@ export default class extends React.Component<MapsPreviewProps, MapsPreviewState>
 				className={`${map_name === this.state.value ? 'selected ' : ''}map_preview`}
 				onClick={() => this.setState({value: map_name as map_name})}>
 				<label>{map_name}</label>
-				<canvas width={150} height={150}
+				<canvas width={THUMBNAIL_SIZE} height={THUMBNAIL_SIZE}
 					ref={el => el && updateMapPreview(map_name as map_name, el)}/>
 			</div>;
 		})}</div>;
