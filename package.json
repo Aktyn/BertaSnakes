@@ -42,7 +42,7 @@
 		"ip": "^1.1.5",
 		"mongodb": "^3.2.7",
 		"mysql": "^2.17.1",
-		"node-fetch": "^2.6.0",
+		"node-fetch": "^2.6.1",
 		"nodemailer": "^5.1.1",
 		"paypal-rest-sdk": "^1.8.1",
 		"prompt-sync": "^4.1.7",
