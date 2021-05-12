@@ -35,7 +35,7 @@
 	"dependencies": {
 		"body-parser": "^1.19.0",
 		"canvas": "^2.5.0",
-		"chart.js": "^2.8.0",
+		"chart.js": "^2.9.4",
 		"email-exists": "^0.2.1",
 		"express": "^4.17.1",
 		"express-fileupload": "^1.1.5",
