@@ -1,0 +1,24 @@
+{
+  "processors": [
+    [
+      "stylelint-processor-styled-components",
+      {
+        "moduleName": "emotion"
+      }
+    ]
+  ],
+  "extends": [
+    "stylelint-config-standard-scss",
+    "stylelint-prettier/recommended",
+    "stylelint-config-prettier",
+    "stylelint-config-prettier-scss",
+    "stylelint-config-styled-components"
+  ],
+  "plugin": [
+    "stylelint-prettier",
+    "stylelint-order"
+  ],
+  "rules": {
+    "prettier/prettier": true
+  }
+}

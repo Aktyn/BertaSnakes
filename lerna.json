@@ -1,0 +1,4 @@
+{
+  "packages": ["frontend", "backend", "shared"],
+  "version": "2.0.0"
+}
