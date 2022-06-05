@@ -1,0 +1,33 @@
+{
+	"include": [
+		"./src/index.ts"
+	],
+  "exclude": [
+		"./node_modules",
+		"./lib"
+	],
+	"compilerOptions": {
+		"module": "commonjs",
+		"declaration": true,
+		"outDir": "./lib",
+    "baseUrl": "./",
+		"target": "es2022",
+    "moduleResolution": "node",
+		"sourceMap": true,
+    "allowJs": false,
+		"incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "removeComments": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "importsNotUsedAsValues": "error",
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+	}
+}

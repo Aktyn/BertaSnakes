@@ -7,7 +7,12 @@
     "app:install": "lerna bootstrap",
     "app:clean": "lerna clean --yes",
     "app:build": "lerna run --parallel build",
-    "frontend:start": "lerna run --scope berta-snakes-frontend start"
+    "frontend:start": "lerna run --scope berta-snakes-frontend start",
+    "frontend:dev": "lerna run --stream --scope berta-snakes-frontend start",
+    "backend:start": "lerna run --scope berta-snakes-backend start",
+    "backend:dev": "lerna run --stream --scope berta-snakes-backend start:dev",
+    "shared:publish": "lerna run --scope berta-snakes-shared publish",
+    "shared:dev": "lerna run --stream --scope berta-snakes-shared dev"
   },
   "repository": {
     "type": "git",

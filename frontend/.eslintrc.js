@@ -106,7 +106,7 @@ module.exports = {
     'react/jsx-wrap-multilines': [0],
     'react/prop-types': [0],
     'react/react-in-jsx-scope': 'off',
-    'no-console': 2,
+    'no-console': 'warn',
   },
   overrides: [
     {

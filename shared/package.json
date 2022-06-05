@@ -1,0 +1,33 @@
+{
+  "name": "berta-snakes-shared",
+  "version": "2.0.0",
+  "description": "Berta Snakes shared code",
+  "author": "Aktyn",
+  "license": "UNLICENSED",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "publish": "rimraf lib && NODE_ENV=prod tsc -p ./tsconfig.json",
+    "build": "npm run publish",
+    "dev": "set NODE_ENV=dev&& nodemon --watch ./src --exec \"tsc -p ./tsconfig.json\" -e ts",
+    "format": "prettier --write src/**/*{.ts,.tsx}",
+    "lint": "eslint --ext .js,.ts,.tsx src",
+    "lint:all": "tsc --project tsconfig.json && npm run lint && npm run format"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.39",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "eslint": "^8.17.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.7.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-unicorn": "^42.0.0",
+    "lint-staged": "^13.0.0",
+    "nodemon": "^2.0.16",
+    "prettier": "^2.6.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.7.3"
+  }
+}
