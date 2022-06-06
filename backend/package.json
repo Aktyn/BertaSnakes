@@ -23,7 +23,9 @@
     "@nestjs/core": "^8.4.6",
     "@nestjs/mongoose": "^9.1.0",
     "@nestjs/platform-express": "^8.4.6",
+    "@nestjs/platform-socket.io": "^8.4.6",
     "@nestjs/swagger": "^5.2.1",
+    "@nestjs/websockets": "^8.4.6",
     "berta-snakes-shared": "file:../shared",
     "class-validator": "^0.13.2",
     "dotenv": "^16.0.1",
@@ -31,6 +33,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.5",
+    "socket.io": "^4.5.1",
     "swagger-ui-express": "^4.4.0"
   },
   "devDependencies": {

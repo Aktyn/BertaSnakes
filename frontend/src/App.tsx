@@ -1,8 +1,41 @@
-import React from 'react'
+import assert from 'assert'
+import { memo, useEffect } from 'react'
+import { io } from 'socket.io-client'
 import logo from './logo.svg'
+
 import './App.css'
 
 function App() {
+  useEffect(() => {
+    assert(
+      typeof process.env.REACT_APP_WEBSOCKET_URL === 'string',
+      'REACT_APP_WEBSOCKET_URL is not set',
+    )
+
+    const socket = io(process.env.REACT_APP_WEBSOCKET_URL)
+    socket.on('connect', function () {
+      console.log('Connected')
+
+      socket.emit('events', { test: 'test' })
+      socket.emit('identity', 0, (response: number) =>
+        console.log('Identity:', response),
+      )
+    })
+    socket.on('events', function (data) {
+      console.log('event', data)
+    })
+    socket.on('exception', function (data) {
+      console.log('exception event', data)
+    })
+    socket.on('disconnect', function () {
+      console.log('Disconnected')
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
+
   return (
     <div className="App">
       <header className="App-header">
@@ -23,4 +56,4 @@ function App() {
   )
 }
 
-export default App
+export default memo(App)

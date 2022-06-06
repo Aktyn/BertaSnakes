@@ -16,7 +16,3 @@ export const MongoDBModule = MongooseModule.forRootAsync({
     }
   },
 })
-/* export const MongoDBModule = MongooseModule.forRoot(process.env.MONGODB_URI, {
-  retryAttempts: 100,
-  retryDelay: 1000 * 60,
-}) */

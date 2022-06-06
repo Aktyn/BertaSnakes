@@ -1,4 +1,5 @@
 import type { INestApplication } from '@nestjs/common'
+import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
@@ -17,13 +18,13 @@ function setupSwagger(app: INestApplication) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
+    cors: true,
   })
 
   setupSwagger(app)
 
   await app.listen(5348)
-  // eslint-disable-next-line no-console
-  console.log(`Application is running on: ${await app.getUrl()}`)
+  Logger.log(`Application is running on: ${await app.getUrl()}`, 'Bootstrap')
 }
 
 export function initRestApi() {
