@@ -6,7 +6,7 @@ import headerBackground from '../../img/graphics5.webp'
 import { PlayButton } from '../components/PlayButton'
 import Navigation from '../navigation'
 
-export const PageHeader = () => {
+export const PageHeader = ({ compact }: { compact?: boolean }) => {
   const theme = useTheme()
   const navigate = useNavigate()
 
@@ -56,7 +56,11 @@ export const PageHeader = () => {
           );
         `}
       />
-      <PlayButton size={192} onClick={() => navigate(Navigation.PLAY.path)} />
+      <PlayButton
+        size={compact ? 96 : 192}
+        borderWidth={compact ? 12 : 24}
+        onClick={() => navigate(Navigation.PLAY.path)}
+      />
     </Stack>
   )
 }
