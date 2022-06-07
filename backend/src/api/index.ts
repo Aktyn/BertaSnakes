@@ -24,7 +24,7 @@ async function bootstrap() {
   setupSwagger(app)
 
   await app.listen(5348)
-  Logger.log(`Application is running on: ${await app.getUrl()}`, 'Bootstrap')
+  Logger.log(`Application is running on: ${await app.getUrl()}`, 'REST API')
 }
 
 export function initRestApi() {

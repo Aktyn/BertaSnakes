@@ -1,0 +1,24 @@
+{
+  "sections": {
+    "gameInfo": {
+      "line1": "Multi-player browser game",
+      "line2": "WebGL based graphics engine",
+      "line3": "Unique collision physics",
+      "line4": "Everything free of charge with no ads"
+    },
+    "features": {
+      "shop": {
+        "title": "Shop",
+        "content": "Finish games destroying as much enemies as you can to receive coins and spend them to expand your character's possibilities"
+      },
+      "socialChat": {
+        "title": "Social chat",
+        "content": "Invite some friends and chat with them privately even in a middle of gameplay"
+      },
+      "rankings": {
+        "title": "Rankings",
+        "content": "Gain rank and experience from playing games and climb up in global ranking"
+      }
+    }
+  }
+}

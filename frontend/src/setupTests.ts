@@ -1,5 +1,30 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+import type { TypedTFunction } from './i18n'
+
+jest.mock('i18next', () => {
+  return {
+    __esModule: true,
+    default: {
+      t: (str: string) => str,
+    },
+  }
+})
+
+jest.mock('react-i18next', () => {
+  const t: TypedTFunction = (str: string) => str
+
+  return {
+    __esModule: true,
+    useTranslation: () => {
+      return [
+        t,
+        {
+          changeLanguage: () => new Promise(() => void 0),
+        },
+      ]
+    },
+    default: {
+      t,
+    },
+  }
+})

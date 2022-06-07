@@ -1,0 +1,11 @@
+{
+  "version": "Version",
+  "play": "Play",
+  "paypal": {
+    "donate": "Donate project via PayPal"
+  },
+  "serverConnection": {
+    "connected": "Connected to server",
+    "disconnected": "Disconnected from server"
+  }
+}
