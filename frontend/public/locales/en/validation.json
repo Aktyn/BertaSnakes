@@ -1,0 +1,22 @@
+{
+  "password": {
+    "required": "Password is required",
+    "minLength": {
+      "8": "Password must have at least 8 characters."
+    },
+    "mustContainDigit": "Password must contain a digit.",
+    "mustContainLowercaseLetter": "Password must contain lowercase letters.",
+    "mustContainUppercaseLetter": "Password must contain uppercase letters.",
+    "mustContainSpecialSymbol": "Password must contain special symbols.",
+    "doesNotMatch": "Passwords does not match."
+  },
+  "username": {
+    "required": "Name is required",
+    "minLength": "Name must have at least {{min}} characters.",
+    "maxLength": "Name must have at most {{max}} characters."
+  },
+  "email": {
+    "required": "Email is required",
+    "mustBeValid": "Email must be valid."
+  }
+}

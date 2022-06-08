@@ -15,8 +15,11 @@ import { initReactI18next } from 'react-i18next'
 export interface NsTypes {
   global: typeof import('../public/locales/en/global.json')
   error: typeof import('../public/locales/en/error.json')
+  validation: typeof import('../public/locales/en/validation.json')
   common: typeof import('../public/locales/en/common.json')
+  dialog: typeof import('../public/locales/en/dialog.json')
   dashboard: typeof import('../public/locales/en/dashboard.json')
+  register: typeof import('../public/locales/en/register.json')
 }
 
 type Separator<Key, Condition> = Condition extends number

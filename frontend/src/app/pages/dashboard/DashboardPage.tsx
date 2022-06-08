@@ -1,5 +1,15 @@
+import { useState } from 'react'
 import { css } from '@emotion/css'
-import { alpha, Box, darken, Stack, Typography, useTheme } from '@mui/material'
+import { LoginRounded } from '@mui/icons-material'
+import {
+  alpha,
+  Box,
+  Button,
+  darken,
+  Stack,
+  Typography,
+  useTheme,
+} from '@mui/material'
 import { cyan, red } from '@mui/material/colors'
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +18,9 @@ import articleBackgroundGraphic from '../../../img/graphics4.webp'
 import cashIcon from '../../../img/icons/money.png'
 import podiumIcon from '../../../img/icons/podium.svg'
 import socialIcon from '../../../img/icons/social.svg'
+import { zoomDelay } from '../../../utils/common'
+import { LoginDialog } from '../../components/dialog/LoginDialog'
+import { ZoomEnter } from '../../components/transition/ZoomEnter'
 import { FeatureCard } from './FeatureCard'
 
 const sectionClass = css`
@@ -66,108 +79,139 @@ const DashboardPage = () => {
   const [t] = useTranslation()
   const theme = useTheme()
 
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false)
+
   return (
-    <Stack
-      className={css`
-        transform-style: preserve-3d;
-      `}
-    >
+    <>
       <Stack
-        alignItems="center"
-        justifyContent="center"
-        className={clsx(
-          sectionClass,
-          css`
-            background-color: ${darken(theme.palette.background.default, 0.3)};
-            background-image: url(${articleBackgroundGraphic});
-          `,
-        )}
+        className={css`
+          transform-style: preserve-3d;
+        `}
       >
-        <Box className={sectionGradientClass} />
         <Stack
           alignItems="center"
           justifyContent="center"
-          sx={{ height: '100%' }}
+          className={clsx(
+            sectionClass,
+            css`
+              background-color: ${darken(
+                theme.palette.background.default,
+                0.3,
+              )};
+              background-image: url(${articleBackgroundGraphic});
+            `,
+          )}
         >
-          <Typography
-            variant="h3"
-            sx={{ fontFamily: "'Luckiest Guy', Roboto;'" }}
+          <Box className={sectionGradientClass} />
+          <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{ height: '100%' }}
           >
-            {t('global:projectName')}
-          </Typography>
-          <Typography variant="body1">
-            {t('dashboard:sections.gameInfo.line1')}
-          </Typography>
-          <Typography variant="body1">
-            {t('dashboard:sections.gameInfo.line2')}
-          </Typography>
-          <Typography variant="body1">
-            {t('dashboard:sections.gameInfo.line3')}
-          </Typography>
-          <Typography variant="body1">
-            {t('dashboard:sections.gameInfo.line4')}
-          </Typography>
-          {/* TODO {!this.state.account && (
-            <>
-              <label>Log in now to get access to all features</label>
-              <button
-                style={offsetTop}
-                onClick={() => {
-                  this.setState({ show_login_panel: true })
-                }}
+            <ZoomEnter>
+              <Typography
+                variant="h3"
+                sx={{ fontFamily: "'Luckiest Guy', Roboto;'" }}
               >
-                LOG IN
-              </button>
-            </>
-          )} */}
+                {t('global:projectName')}
+              </Typography>
+            </ZoomEnter>
+            {(['line1', 'line2', 'line3', 'line4'] as const).map(
+              (line, index) => (
+                <ZoomEnter key={line} delay={(index + 1) * zoomDelay}>
+                  <Typography variant="body1">
+                    {t(`dashboard:sections.gameInfo.${line}`)}
+                  </Typography>
+                </ZoomEnter>
+              ),
+            )}
+            <Stack mt={2} spacing={1} alignItems="center">
+              <ZoomEnter delay={zoomDelay * 5}>
+                <Typography variant="body2">
+                  {t('dashboard:logInInvitation')}
+                </Typography>
+              </ZoomEnter>
+              <ZoomEnter delay={zoomDelay * 6}>
+                <Button
+                  size="small"
+                  color="primary"
+                  variant="contained"
+                  startIcon={<LoginRounded />}
+                  onClick={() => setLoginDialogOpen(true)}
+                >
+                  {t('common:logIn').toUpperCase()}
+                </Button>
+              </ZoomEnter>
+            </Stack>
+          </Stack>
+        </Stack>
+        <Box
+          className={clsx(
+            parallaxImageClass,
+            css`
+              background-image: linear-gradient(
+                90deg,
+                ${theme.palette.background.default} 0%,
+                transparent,
+                ${theme.palette.background.default} 100%
+              );
+            `,
+          )}
+        >
+          <Box sx={{ backgroundImage: `url(${parallaxImage})` }} />
+        </Box>
+        <Stack
+          className={sectionClass}
+          sx={{
+            backgroundColor: darken(theme.palette.background.default, 0.3),
+          }}
+          direction="row"
+          flexWrap="wrap"
+          alignItems="center"
+          justifyContent="center"
+          p={4}
+          gap={4}
+        >
+          <ZoomEnter delay={zoomDelay * 7}>
+            <Box>
+              <FeatureCard
+                title={t(
+                  'dashboard:sections.features.shop.title',
+                ).toUpperCase()}
+                content={t('dashboard:sections.features.shop.content')}
+                iconUrl={cashIcon}
+              ></FeatureCard>
+            </Box>
+          </ZoomEnter>
+          <ZoomEnter delay={zoomDelay * 8}>
+            <Box>
+              <FeatureCard
+                title={t(
+                  'dashboard:sections.features.socialChat.title',
+                ).toUpperCase()}
+                content={t('dashboard:sections.features.socialChat.content')}
+                iconUrl={socialIcon}
+              />
+            </Box>
+          </ZoomEnter>
+          <ZoomEnter delay={zoomDelay * 9}>
+            <Box>
+              <FeatureCard
+                title={t(
+                  'dashboard:sections.features.rankings.title',
+                ).toUpperCase()}
+                content={t('dashboard:sections.features.rankings.content')}
+                iconUrl={podiumIcon}
+              />
+            </Box>
+          </ZoomEnter>
         </Stack>
       </Stack>
-      <Box
-        className={clsx(
-          parallaxImageClass,
-          css`
-            background-image: linear-gradient(
-              90deg,
-              ${theme.palette.background.default} 0%,
-              transparent,
-              ${theme.palette.background.default} 100%
-            );
-          `,
-        )}
-      >
-        <Box sx={{ backgroundImage: `url(${parallaxImage})` }} />
-      </Box>
-      <Stack
-        className={sectionClass}
-        sx={{
-          backgroundColor: darken(theme.palette.background.default, 0.3),
-        }}
-        direction="row"
-        flexWrap="wrap"
-        alignItems="center"
-        justifyContent="center"
-        p={4}
-        gap={4}
-      >
-        <FeatureCard
-          title={t('dashboard:sections.features.shop.title').toUpperCase()}
-          content={t('dashboard:sections.features.shop.content')}
-          iconUrl={cashIcon}
-        />
-        <FeatureCard
-          title={t(
-            'dashboard:sections.features.socialChat.title',
-          ).toUpperCase()}
-          content={t('dashboard:sections.features.socialChat.content')}
-          iconUrl={socialIcon}
-        />
-        <FeatureCard
-          title={t('dashboard:sections.features.rankings.title').toUpperCase()}
-          content={t('dashboard:sections.features.rankings.content')}
-          iconUrl={podiumIcon}
-        />
-      </Stack>
-    </Stack>
+      <LoginDialog
+        open={loginDialogOpen}
+        onClose={() => setLoginDialogOpen(false)}
+      />
+    </>
   )
 }
 

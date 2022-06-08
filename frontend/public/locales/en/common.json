@@ -1,11 +1,15 @@
 {
   "version": "Version",
+  "homepage": "Homepage",
   "play": "Play",
+  "logIn": "Log in",
+  "goToRegisterPage": "Go to register page",
   "paypal": {
     "donate": "Donate project via PayPal"
   },
   "serverConnection": {
     "connected": "Connected to server",
     "disconnected": "Disconnected from server"
-  }
+  },
+  "cancel": "Cancel"
 }

@@ -1,4 +1,5 @@
 import { css } from '@emotion/css'
+import { CheckCircleRounded, ErrorRounded } from '@mui/icons-material'
 import {
   Box,
   darken,
@@ -8,12 +9,15 @@ import {
   typographyClasses,
   useTheme,
 } from '@mui/material'
+import { lightGreen, red } from '@mui/material/colors'
 import { useTranslation } from 'react-i18next'
 import aktynLogo from '../../img/icons/aktyn.png'
+import { useWebsocket } from '../hooks/useWebsocket'
 
 export const Footer = () => {
   const [t] = useTranslation()
   const theme = useTheme()
+  const websocket = useWebsocket()
 
   return (
     <Box
@@ -36,9 +40,32 @@ export const Footer = () => {
         }
       `}
     >
-      <Typography>
-        {t('common:version')}:&nbsp;{process.env.REACT_APP_VERSION}
-      </Typography>
+      <Stack direction="row" spacing={2}>
+        <Typography>
+          {t('common:version')}:&nbsp;{process.env.REACT_APP_VERSION}
+        </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          gap={1}
+          sx={{
+            color: websocket.connected ? lightGreen[200] : red[300],
+          }}
+        >
+          {websocket.connected ? (
+            <CheckCircleRounded fontSize="small" />
+          ) : (
+            <ErrorRounded fontSize="small" />
+          )}
+          <Typography>
+            {t(
+              `common:serverConnection.${
+                websocket.connected ? 'connected' : 'disconnected'
+              }`,
+            )}
+          </Typography>
+        </Stack>
+      </Stack>
       <Typography>
         {t('global:copyright')}&nbsp;
         <img style={{ height: 16 }} alt="author logo" src={aktynLogo} />

@@ -5,6 +5,7 @@ import {
   lightBlue,
   lightGreen,
   pink,
+  red,
 } from '@mui/material/colors'
 
 const textPrimary = lightBlue[50]
@@ -60,15 +61,46 @@ export const defaultTheme = createTheme({
     },
     MuiOutlinedInput: {
       styleOverrides: {
+        input: {
+          '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus, &:-webkit-autofill:active':
+            {
+              WebkitBoxShadow: `0 0 0 100px ${backgroundDefault} inset`,
+              WebkitTextFillColor: textPrimary,
+            },
+        },
         root: {
           '&:hover fieldset': {
             borderColor: `${lightBlue[500]} !important`,
+          },
+          '&.Mui-error fieldset': {
+            borderColor: `${red[200]} !important`,
           },
         },
         notchedOutline: {
           borderColor: lightBlue[800],
         },
       },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          '&.Mui-error': {
+            color: `${red[200]} !important`,
+          },
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          '&.Mui-error': {
+            color: `${red[200]} !important`,
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {},
     },
     MuiCheckbox: {
       styleOverrides: {

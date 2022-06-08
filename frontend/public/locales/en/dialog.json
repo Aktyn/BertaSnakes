@@ -1,0 +1,10 @@
+{
+  "login": {
+    "title": "Login to your account",
+    "noAccountInfo": "Don't have an account?",
+    "form": {
+      "usernameOrEmail": "Username or email",
+      "password": "Password"
+    }
+  }
+}

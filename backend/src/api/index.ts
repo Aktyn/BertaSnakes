@@ -20,6 +20,7 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
     cors: true,
   })
+  app.setGlobalPrefix('api')
 
   setupSwagger(app)
 

@@ -19,7 +19,7 @@ export const Config = {
   //     ? location.origin
   //     : undefined,
 
-  DATABASE_NAME: 'bertasnakes',
+  DATABASE_NAME: 'BertaSnakes',
   SERVER_PORT,
   // WEBSOCKET_PORT: 2674,
   // SOCIAL_WEBSOCKET_PORT: 2675,

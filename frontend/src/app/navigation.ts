@@ -21,6 +21,14 @@ const Routes = {
     path: '/dashboard',
     component: lazy(() => import('./pages/dashboard/DashboardPage')),
   },
+  REGISTER: {
+    path: '/register',
+    component: lazy(() => import('./pages/register/RegisterPage')),
+  },
+  REGISTER_SUCCESS: {
+    path: '/register-success',
+    component: lazy(() => import('./pages/register/RegisterSuccessPage')),
+  },
   PLAY: {
     path: '/play',
     component: lazy(() => import('./pages/play/PlayPage')),

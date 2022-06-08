@@ -1,0 +1,12 @@
+{
+  "pageTitle": "Register account",
+  "form": {
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "success": "Account successfully registered",
+    "error": "Registration failed",
+    "submit": "Register"
+  }
+}

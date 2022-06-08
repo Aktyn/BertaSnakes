@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
+import { CircularProgress, Stack } from '@mui/material'
 import { SnackbarProvider } from 'notistack'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom'
@@ -50,7 +51,20 @@ export const App = () => {
                         path={route.path}
                         element={
                           <Layout>
-                            <route.component />
+                            <Suspense
+                              fallback={
+                                <Stack
+                                  p={4}
+                                  alignItems="center"
+                                  justifyContent="center"
+                                  sx={{ width: '100%', height: '100%' }}
+                                >
+                                  <CircularProgress color="inherit" />
+                                </Stack>
+                              }
+                            >
+                              <route.component />
+                            </Suspense>
                           </Layout>
                         }
                       />

@@ -1,14 +1,24 @@
+import { memo } from 'react'
 import { css } from '@emotion/css'
-import { CheckCircleRounded, ErrorRounded } from '@mui/icons-material'
-import { Box, darken, Stack, Typography, useTheme } from '@mui/material'
-import { lightGreen, red } from '@mui/material/colors'
+import { HomeRounded } from '@mui/icons-material'
+import {
+  Box,
+  darken,
+  Grow,
+  IconButton,
+  Stack,
+  Tooltip,
+  useTheme,
+} from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { useWebsocket } from '../hooks/useWebsocket'
+import { useLocation, useNavigate } from 'react-router-dom'
+import Navigation from '../navigation'
 
-export const InfoBar = () => {
+export const InfoBar = memo(() => {
   const [t] = useTranslation()
   const theme = useTheme()
-  const websocket = useWebsocket()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   return (
     <Box
@@ -20,30 +30,22 @@ export const InfoBar = () => {
 
         padding: 4px 8px;
         background-color: ${darken(theme.palette.background.default, 0.4)};
-        box-shadow: 0 0 8px #0006;
+        box-shadow: 0 0 4px #0006;
+        z-index: 5;
       `}
     >
-      <Stack
-        direction="row"
-        alignItems="center"
-        gap={1}
-        sx={{
-          color: websocket.connected ? lightGreen[200] : red[300],
-        }}
-      >
-        {websocket.connected ? (
-          <CheckCircleRounded fontSize="small" />
-        ) : (
-          <ErrorRounded fontSize="small" />
-        )}
-        <Typography variant="caption">
-          {t(
-            `common:serverConnection.${
-              websocket.connected ? 'connected' : 'disconnected'
-            }`,
-          )}
-        </Typography>
+      <Stack direction="row" spacing={2}>
+        <Grow in={location.pathname !== Navigation.DASHBOARD.path}>
+          <Tooltip title={t('common:homepage')}>
+            <IconButton
+              color="inherit"
+              onClick={() => navigate(Navigation.DASHBOARD.path)}
+            >
+              <HomeRounded />
+            </IconButton>
+          </Tooltip>
+        </Grow>
       </Stack>
     </Box>
   )
-}
+})
