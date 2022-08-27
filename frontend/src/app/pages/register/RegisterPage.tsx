@@ -56,6 +56,10 @@ const RegisterPage = () => {
 
   const checkUsernameAvailability = useDebounce(
     (name: string) => {
+      if (!name?.length) {
+        clearErrors('name')
+        return
+      }
       setCheckingNameAvailability(true)
       searchUsers(
         { name, pageSize: 1, page: 0 },
@@ -77,6 +81,10 @@ const RegisterPage = () => {
   )
   const checkEmailAvailability = useDebounce(
     (email: string) => {
+      if (!email?.length) {
+        clearErrors('email')
+        return
+      }
       setCheckingEmailAvailability(true)
       searchUsers(
         { email, pageSize: 1, page: 0 },

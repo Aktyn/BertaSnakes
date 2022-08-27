@@ -11,5 +11,6 @@
     "connected": "Connected to server",
     "disconnected": "Disconnected from server"
   },
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "confirm": "Confirm"
 }

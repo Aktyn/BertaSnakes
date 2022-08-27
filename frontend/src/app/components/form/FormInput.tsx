@@ -48,7 +48,7 @@ export const FormInput = <FieldsType extends FieldValues>({
               in
               appear
               easing={smoothBezier}
-              style={{ transitionDelay: '200ms' }}
+              style={{ transitionDelay: '50ms' }}
             >
               <CircularProgress size={24} color="inherit" />
             </Fade>

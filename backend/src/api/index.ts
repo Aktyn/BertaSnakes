@@ -3,6 +3,8 @@ import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
+import { PrismaService } from 'db/prisma.service'
+
 import { AppModule } from './app.module'
 
 function setupSwagger(app: INestApplication) {
@@ -26,6 +28,9 @@ async function bootstrap() {
 
   await app.listen(5348)
   Logger.log(`Application is running on: ${await app.getUrl()}`, 'REST API')
+
+  const prismaService = app.get(PrismaService)
+  await prismaService.enableShutdownHooks(app)
 }
 
 export function initRestApi() {
