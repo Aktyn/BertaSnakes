@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Inter', Roboto, sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Confirm Your email Address</h2>
+  <h3>Hello {{firstName}}</h3>
+  <div style='margin-top: 12px'>
+    To confirm your email address, click on the button below.<br />
+    If you didn't create an account on our app, please just ignore or delete the mail.
+  </div>
+  <div style='margin-top: 32px'>
+    <a href="{{url}}" style="display: inline-block">
+      <button class='primary'>Confirm Account</button>
+    </a>
+  </div>
+  <div class='container-bottom'>
+    <div>Button Didn't work? Copy and paste the link below into your browser</div>
+    <a href="{{url}}" style="display: block; margin-top: 7px; letter-spacing: -0.011em;">{{url}}</a>
+  </div>
+</body>
+
+</html>

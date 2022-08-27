@@ -8,7 +8,7 @@ const key = crypto
   .createHash('sha256')
   .update('mgdlnkczmr')
   .digest('base64')
-  .substr(0, 32)
+  .substring(0, 32)
 
 export function encryptCtr(buffer: Buffer | string, _key = key) {
   const iv = crypto.randomBytes(16)

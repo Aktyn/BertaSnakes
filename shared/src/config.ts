@@ -31,6 +31,10 @@ export const Config = {
 
   MAX_USER_NAME_LENGTH: 24,
 
+  TABLE: {
+    DEFAULT_PAGE_SIZE: 20,
+  },
+
   // MAXIMUM_SIMULTANEOUSLY_GAMES: 10, //because each games takes some processing power and every machine has it's limit
 
   // TOKEN_LIFETIME: 1000 * 60 * 60 * 24 * 7, //one week

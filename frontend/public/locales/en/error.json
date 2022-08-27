@@ -3,5 +3,9 @@
     "code": "404",
     "name": "Unknown route",
     "redirectingInfo": "Redirecting to home page in {{timeToRedirect}} seconds"
+  },
+  "email": {
+    "sendingError": "Error sending email",
+    "invalidConfirmationCode": "Email confirmation code is invalid or expired"
   }
 }

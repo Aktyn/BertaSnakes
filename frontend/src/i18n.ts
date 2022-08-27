@@ -20,6 +20,7 @@ export interface NsTypes {
   dialog: typeof import('../public/locales/en/dialog.json')
   dashboard: typeof import('../public/locales/en/dashboard.json')
   register: typeof import('../public/locales/en/register.json')
+  emailConfirmation: typeof import('../public/locales/en/emailConfirmation.json')
 }
 
 type Separator<Key, Condition> = Condition extends number

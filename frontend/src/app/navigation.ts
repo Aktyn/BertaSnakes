@@ -29,6 +29,12 @@ const Routes = {
     path: '/register-success',
     component: lazy(() => import('./pages/register/RegisterSuccessPage')),
   },
+  CONFIRM_EMAIL: {
+    path: '/confirm-email',
+    component: lazy(
+      () => import('./pages/emailConfirmation/EmailConfirmationPage'),
+    ),
+  },
   PLAY: {
     path: '/play',
     component: lazy(() => import('./pages/play/PlayPage')),

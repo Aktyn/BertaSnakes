@@ -1,5 +1,7 @@
 {
   "pageTitle": "Register account",
+  "successPageTitle": "Account registered",
+  "successPageInfo": "Check your email for a confirmation link.\nIf you don't see it in a few minutes, check your spam folder.\n\nAfter you confirm your email address, you can log in to your account.",
   "form": {
     "username": "Username",
     "email": "Email",

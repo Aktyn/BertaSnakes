@@ -1,6 +1,8 @@
 node_modules/
 uploads/
 .directory
+backend/prisma/migrations/
+shared/lib/
 
 # testing
 coverage/

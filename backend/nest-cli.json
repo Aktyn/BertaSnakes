@@ -12,6 +12,13 @@
           "dtoFileNameSuffix": "DTO"
         }
       }
-    ]
+    ],
+    "assets": [
+      "**/*.asset.*",
+      "**/resources/**",
+      "**/*.html",
+      "**/*.hbs"
+    ],
+    "watchAssets": true
   }
 }

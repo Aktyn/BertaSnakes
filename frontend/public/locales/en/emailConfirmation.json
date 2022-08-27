@@ -1,0 +1,7 @@
+{
+  "pendingTitle": "Awaiting email confirmation result",
+  "successTitle": "Email confirmed!",
+  "errorTitle": "Email could not be confirmed.\nThe account is already confirmed or doesn't exist.",
+  "incorrectUrlInfo": "The URL you entered is not valid.\nPlease check the URL and try again.",
+  "confirmationUnsuccessful": "Email confirmation was unsuccessful"
+}

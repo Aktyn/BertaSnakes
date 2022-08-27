@@ -16,6 +16,8 @@ const queryClient = new QueryClient({
   },
 })
 
+const navigationRoutes = Object.values(Navigation)
+
 export const App = () => {
   useEffect(() => {
     if (!location.pathname.startsWith(basename)) {
@@ -31,7 +33,10 @@ export const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SnackbarProvider maxSnack={24}>
+      <SnackbarProvider
+        maxSnack={24}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
         <BrowserRouter basename={basename}>
           <Routes>
             <Route
@@ -42,7 +47,7 @@ export const App = () => {
                     path="/"
                     element={<Navigate to={Navigation.DEFAULT_PAGE.path} />}
                   />
-                  {Object.values(Navigation).map((route) => {
+                  {navigationRoutes.map((route) => {
                     const Layout = route.layout ?? Layouts.DEFAULT
 
                     return (
@@ -50,10 +55,11 @@ export const App = () => {
                         key={route.path}
                         path={route.path}
                         element={
-                          <Layout>
+                          <Layout key={route.path}>
                             <Suspense
                               fallback={
                                 <Stack
+                                  key={route.path}
                                   p={4}
                                   alignItems="center"
                                   justifyContent="center"
@@ -63,7 +69,7 @@ export const App = () => {
                                 </Stack>
                               }
                             >
-                              <route.component />
+                              <route.component key={route.path} />
                             </Suspense>
                           </Layout>
                         }

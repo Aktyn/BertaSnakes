@@ -1,0 +1,24 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique @db.VarChar(42)
+  email     String  @unique @db.VarChar(128)
+  salt      String  @db.VarChar(16)
+  password  String  @db.VarChar(64)
+  created   BigInt
+  confirmed String? @db.VarChar(64)
+
+  @@index(name, type: Hash)
+  @@index(created)
+}
