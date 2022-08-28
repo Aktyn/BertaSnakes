@@ -1,13 +1,33 @@
+// Value cannot not be longer than 16 characters since database column for role is of type varchar(16)
+export enum UserRole {
+  REGULAR = 'regular',
+  MODERATOR = 'moderator',
+  ADMIN = 'admin',
+}
+
 export interface UserPublic {
   id: number
   name: string
   created: number
+  lastLogin: number
+  role: UserRole
 }
 
 export interface UserPrivate extends UserPublic {
   email: string
-  /** True if there is a `confirmationCode` field in database document */
+  /** True if `confirmed` field in database is `null` */
   confirmed: boolean
+}
+
+export interface UserSessionData {
+  accessToken: string
+  user: UserPrivate
+  expires: number
+}
+
+export interface LoginUserRequest {
+  usernameOrEmail: string
+  password: string
 }
 
 export interface CreateUserRequest {

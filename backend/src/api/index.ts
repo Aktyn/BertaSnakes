@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
-import { PrismaService } from 'db/prisma.service'
+import { PrismaService } from '../db/prisma.service'
 
 import { AppModule } from './app.module'
 
@@ -11,7 +11,15 @@ function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Berta Snakes REST API')
     .setDescription('---')
-    .setVersion('2.0.0')
+    .setVersion('1.0.0')
+    // .addBearerAuth({
+    //   type: 'http',
+    //   scheme: 'bearer',
+    //   bearerFormat: 'JWT',
+    //   name: 'JWT',
+    //   description: 'Enter JWT token',
+    //   in: 'header',
+    // })
     .build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, document)
@@ -22,7 +30,8 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
     cors: true,
   })
-  app.setGlobalPrefix('api')
+  app.setGlobalPrefix('/api')
+  app.enableCors()
 
   setupSwagger(app)
 

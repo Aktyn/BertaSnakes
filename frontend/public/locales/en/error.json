@@ -7,5 +7,10 @@
   "email": {
     "sendingError": "Error sending email",
     "invalidConfirmationCode": "Email confirmation code is invalid or expired"
-  }
+  },
+  "usernameOrEmailDoesNotExist": "Username or email doesn't exist",
+  "incorrectPassword": "Incorrect password",
+  "sessionNotFound": "Session not found",
+  "userNotFound": "User not found",
+  "noAccessTokenProvided": "No access token provided"
 }

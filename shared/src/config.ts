@@ -19,7 +19,6 @@ export const Config = {
   //     ? location.origin
   //     : undefined,
 
-  DATABASE_NAME: 'BertaSnakes',
   SERVER_PORT,
   // WEBSOCKET_PORT: 2674,
   // SOCIAL_WEBSOCKET_PORT: 2675,
@@ -33,6 +32,13 @@ export const Config = {
 
   TABLE: {
     DEFAULT_PAGE_SIZE: 20,
+  },
+
+  /** 7 days before access token expires */
+  LOGIN_SESSION_LIFETIME: 604800000,
+
+  LOCAL_STORAGE: {
+    ACCESS_TOKEN_KEY: 'accessToken',
   },
 
   // MAXIMUM_SIMULTANEOUSLY_GAMES: 10, //because each games takes some processing power and every machine has it's limit

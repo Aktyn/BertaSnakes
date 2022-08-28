@@ -19,6 +19,7 @@ import cashIcon from '../../../img/icons/money.png'
 import podiumIcon from '../../../img/icons/podium.svg'
 import socialIcon from '../../../img/icons/social.svg'
 import { zoomDelay } from '../../../utils/common'
+import { useAuth } from '../../auth/AuthProvider'
 import { LoginDialog } from '../../components/dialog/LoginDialog'
 import { ZoomEnter } from '../../components/transition/ZoomEnter'
 import { FeatureCard } from './FeatureCard'
@@ -78,6 +79,7 @@ const parallaxImageClass = css`
 const DashboardPage = () => {
   const [t] = useTranslation()
   const theme = useTheme()
+  const auth = useAuth()
 
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
 
@@ -125,24 +127,26 @@ const DashboardPage = () => {
                 </ZoomEnter>
               ),
             )}
-            <Stack mt={2} spacing={1} alignItems="center">
-              <ZoomEnter delay={zoomDelay * 5}>
-                <Typography variant="body2">
-                  {t('dashboard:logInInvitation')}
-                </Typography>
-              </ZoomEnter>
-              <ZoomEnter delay={zoomDelay * 6}>
-                <Button
-                  size="small"
-                  color="primary"
-                  variant="contained"
-                  startIcon={<LoginRounded />}
-                  onClick={() => setLoginDialogOpen(true)}
-                >
-                  {t('common:logIn').toUpperCase()}
-                </Button>
-              </ZoomEnter>
-            </Stack>
+            {!auth.user && (
+              <Stack mt={2} spacing={1} alignItems="center">
+                <ZoomEnter delay={zoomDelay * 5}>
+                  <Typography variant="body2">
+                    {t('dashboard:logInInvitation')}
+                  </Typography>
+                </ZoomEnter>
+                <ZoomEnter delay={zoomDelay * 6}>
+                  <Button
+                    size="small"
+                    color="primary"
+                    variant="contained"
+                    startIcon={<LoginRounded />}
+                    onClick={() => setLoginDialogOpen(true)}
+                  >
+                    {t('common:logIn').toUpperCase()}
+                  </Button>
+                </ZoomEnter>
+              </Stack>
+            )}
           </Stack>
         </Stack>
         <Box
@@ -208,7 +212,7 @@ const DashboardPage = () => {
         </Stack>
       </Stack>
       <LoginDialog
-        open={loginDialogOpen}
+        open={loginDialogOpen && !auth.user}
         onClose={() => setLoginDialogOpen(false)}
       />
     </>

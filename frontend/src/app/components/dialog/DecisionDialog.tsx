@@ -1,5 +1,6 @@
 import type { FC, PropsWithChildren } from 'react'
 import { css } from '@emotion/css'
+import { LoadingButton } from '@mui/lab'
 import type { DialogProps } from '@mui/material'
 import {
   Button,
@@ -16,6 +17,9 @@ interface DecisionDialogProps extends Omit<DialogProps, 'title' | 'onClose'> {
   title?: React.ReactNode
   cancelContent?: React.ReactNode
   confirmContent?: React.ReactNode
+  confirmEndIcon?: React.ReactNode
+  disableConfirm?: boolean
+  loading?: boolean
 }
 
 export const DecisionDialog: FC<PropsWithChildren<DecisionDialogProps>> = ({
@@ -25,6 +29,9 @@ export const DecisionDialog: FC<PropsWithChildren<DecisionDialogProps>> = ({
   title,
   cancelContent,
   confirmContent,
+  confirmEndIcon,
+  disableConfirm,
+  loading,
   ...dialogProps
 }) => {
   const [t] = useTranslation()
@@ -45,9 +52,17 @@ export const DecisionDialog: FC<PropsWithChildren<DecisionDialogProps>> = ({
         <Button variant="contained" color="secondary" onClick={onClose}>
           {cancelContent ?? t('common:cancel')}
         </Button>
-        <Button variant="contained" color="primary" onClick={onConfirm}>
+        <LoadingButton
+          variant="contained"
+          color="primary"
+          endIcon={confirmEndIcon}
+          disabled={disableConfirm && !loading}
+          loading={loading}
+          loadingPosition="end"
+          onClick={onConfirm}
+        >
           {confirmContent ?? t('common:confirm')}
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   )

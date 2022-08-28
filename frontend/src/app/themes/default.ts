@@ -69,7 +69,7 @@ export const defaultTheme = createTheme({
             },
         },
         root: {
-          '&:hover fieldset': {
+          '&:not(.Mui-disabled):hover fieldset': {
             borderColor: `${lightBlue[500]} !important`,
           },
           '&.Mui-error fieldset': {

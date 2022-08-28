@@ -1,4 +1,3 @@
-import type { ErrorCode } from 'berta-snakes-shared'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -22,8 +21,7 @@ export function useRegister() {
       })
     },
     (err) => {
-      const errorCode = (err.response?.data as { error?: ErrorCode }).error
-      enqueueErrorSnackbar(errorCode, t('register:form.error'))
+      enqueueErrorSnackbar(err, t('register:form.error'))
     },
   )
 

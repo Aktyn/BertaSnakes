@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { joiResolver } from '@hookform/resolvers/joi'
 import {
   AccountCircleRounded,
   AppRegistrationRounded,
   KeyRounded,
+  LoginRounded,
 } from '@mui/icons-material'
 import type { DialogProps } from '@mui/material'
 import {
@@ -16,6 +18,8 @@ import { pick } from 'berta-snakes-shared'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../auth/AuthProvider'
+import useCancellablePromise from '../../hooks/useCancellablePromise'
 import Navigation from '../../navigation'
 import { FormInput } from '../form/FormInput'
 import { DecisionDialog } from './DecisionDialog'
@@ -28,6 +32,10 @@ interface LoginDialogProps extends Omit<DialogProps, 'title' | 'onClose'> {
 export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
   const [t] = useTranslation()
   const navigate = useNavigate()
+  const cancellable = useCancellablePromise()
+  const auth = useAuth()
+
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   type FieldsType = {
     login: string //username or email
@@ -45,10 +53,13 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
         : undefined,
   })
 
-  // const login = watch('login')
-
   const handleLogin = (data: FieldsType) => {
-    console.log('Login...', data)
+    setIsLoggingIn(true)
+    cancellable(auth.login(data.login, data.password))
+      .then(() => {
+        setIsLoggingIn(false)
+      })
+      .catch((err) => err && setIsLoggingIn(false))
   }
 
   return (
@@ -58,7 +69,10 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
         handleLogin(pick(formData, 'login', 'password')),
       )}
       title={t('dialog:login.title')}
+      confirmEndIcon={<LoginRounded />}
       confirmContent={t('common:logIn')}
+      disableConfirm={isLoggingIn}
+      loading={isLoggingIn}
       {...dialogProps}
     >
       <Stack alignItems="center" spacing={1}>
@@ -76,7 +90,7 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
         </Button>
       </Stack>
       <Divider variant="fullWidth" />
-      <Stack alignItems="center" spacing={4}>
+      <Stack alignItems="center" spacing={3}>
         <FormInput
           required
           control={control}
@@ -92,6 +106,7 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
           }}
           autoFocus
           autoComplete="username,email"
+          disabled={isLoggingIn}
         />
         <FormInput
           required
@@ -109,6 +124,7 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
             ),
           }}
           autoComplete="password"
+          disabled={isLoggingIn}
         />
       </Stack>
     </DecisionDialog>

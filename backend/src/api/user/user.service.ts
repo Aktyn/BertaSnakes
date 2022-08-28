@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common'
 import type { Prisma, User } from '@prisma/client'
 import type {
@@ -10,40 +11,47 @@ import type {
   SearchUserRequest,
   UserPrivate,
   UserPublic,
+  UserRole,
+  UserSessionData,
 } from 'berta-snakes-shared'
-import { omit, getRandomString, ErrorCode } from 'berta-snakes-shared'
+import { pick, getRandomString, ErrorCode } from 'berta-snakes-shared'
 
 import { sha256 } from '../../common/crypto'
 import { PrismaService } from '../../db/prisma.service'
 import { EmailService } from '../email/email.service'
 
-import type { CreateUserDto } from './user.dto'
+import { SessionService } from './session.service'
+import type { CreateUserDto, LoginUserDto } from './user.dto'
 
 const parseToUserPublic = (data: {
   [key in keyof UserPublic]: User[key]
-}): UserPublic => ({ ...data, created: Number(data.created) })
-
-const parseToUserPrivate = (
-  data: { [key in keyof UserPrivate]: User[key] },
-  confirmed: boolean,
-): UserPrivate => ({
-  ...omit(data, 'confirmed'),
+}): UserPublic => ({
+  ...pick(data, 'id', 'name'),
   created: Number(data.created),
-  confirmed,
+  lastLogin: Number(data.lastLogin),
+  role: data.role as UserRole,
 })
 
-const selectPrivate: { [key in keyof UserPrivate]: true } = {
-  id: true,
-  name: true,
-  email: true,
-  created: true,
-  confirmed: true,
-}
+const parseToUserPrivate = (data: {
+  [key in keyof UserPrivate]: User[key]
+}): UserPrivate => ({
+  ...parseToUserPublic(data),
+  email: data.email,
+  confirmed: !data.confirmed,
+})
 
 const selectPublic: { [key in keyof UserPublic]: true } = {
   id: true,
   name: true,
   created: true,
+  lastLogin: true,
+  role: true,
+}
+
+const selectPrivate: { [key in keyof UserPrivate]: true } = {
+  ...selectPublic,
+  email: true,
+  confirmed: true,
 }
 
 @Injectable()
@@ -53,6 +61,7 @@ export class UserService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
+    private sessionService: SessionService,
   ) {}
 
   async findAll(
@@ -110,6 +119,89 @@ export class UserService {
     }
   }
 
+  async login(loginUserDto: LoginUserDto): Promise<UserSessionData> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              equals: loginUserDto.usernameOrEmail,
+              mode: 'insensitive',
+            },
+          },
+          {
+            email: {
+              equals: loginUserDto.usernameOrEmail,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+    })
+
+    if (!users.length) {
+      throw new NotFoundException({
+        error: ErrorCode.USERNAME_OR_EMAIL_DOES_NOT_EXIST,
+      })
+    }
+
+    const authorizedUsers = users.filter((user) => {
+      const password = sha256(loginUserDto.password + user.salt)
+      return password === user.password
+    })
+
+    if (!authorizedUsers.length) {
+      throw new BadRequestException({
+        error: ErrorCode.INCORRECT_PASSWORD,
+      })
+    }
+
+    const loggedUser = await this.prisma.user.update({
+      data: {
+        lastLogin: Date.now(),
+      },
+      where: {
+        id: authorizedUsers[0].id,
+      },
+      select: selectPrivate,
+    })
+
+    const session = this.sessionService.createSession(loggedUser)
+    this.logger.log(
+      `User logged in: ${loggedUser.name}, id: ${loggedUser.id}`,
+      'REST API',
+    )
+    return {
+      user: parseToUserPrivate(loggedUser),
+      accessToken: session.accessToken,
+      expires: session.expiresTimestamp,
+    }
+  }
+
+  async getSelfUser(accessToken: string): Promise<UserPrivate> {
+    const session = this.sessionService.getSession(accessToken)
+
+    if (!session) {
+      throw new NotFoundException({
+        error: ErrorCode.SESSION_NOT_FOUND,
+      })
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: session.userId,
+      },
+      select: selectPrivate,
+    })
+
+    if (!user) {
+      throw new NotFoundException({
+        error: ErrorCode.USER_NOT_FOUND,
+      })
+    }
+    return parseToUserPrivate(user)
+  }
+
   async create(createUserDto: CreateUserDto): Promise<UserPrivate> {
     //? if (!this.authService.checkPassword(user.password)) {
     //?   throw new BadRequestException(
@@ -143,6 +235,7 @@ export class UserService {
     const data: Prisma.UserCreateInput = {
       ...createUserDto,
       created: Date.now(),
+      lastLogin: 0,
       salt,
       password,
       confirmed: emailConfirmationHash,
@@ -154,6 +247,7 @@ export class UserService {
     })
     this.logger.log(
       `New user created {id: ${createdUser.id}; name: ${createdUser.name}}`,
+      'REST API',
     )
     await this.emailService.sendConfirmationEmail({
       to: createdUser.email,
@@ -161,10 +255,10 @@ export class UserService {
       code: emailConfirmationHash,
     })
 
-    return parseToUserPrivate(createdUser, false)
+    return parseToUserPrivate(createdUser)
   }
 
-  async confirmEmail(confirmationCode: string): Promise<UserPrivate> {
+  async confirmEmail(confirmationCode: string): Promise<UserSessionData> {
     if (!confirmationCode) {
       throw new BadRequestException({
         error: ErrorCode.INVALID_ERROR_CONFIRMATION_CODE,
@@ -172,7 +266,6 @@ export class UserService {
     }
 
     try {
-      //TODO: auto login user and return generated access token
       let user = await this.prisma.user.findFirst({
         where: {
           confirmed: { equals: confirmationCode, mode: 'default' },
@@ -181,7 +274,9 @@ export class UserService {
       })
 
       if (!user) {
-        throw new Error('User not found with corresponding confirmation code')
+        throw new Error(
+          `User not found with corresponding confirmation code: ${confirmationCode}`,
+        )
       }
 
       user = await this.prisma.user.update({
@@ -194,7 +289,16 @@ export class UserService {
         select: selectPrivate,
       })
 
-      return parseToUserPrivate(user, true)
+      const session = this.sessionService.createSession(user)
+      this.logger.log(
+        `User confirmed email: ${user.name}, id: ${user.id}`,
+        'REST API',
+      )
+      return {
+        user: parseToUserPrivate(user),
+        accessToken: session.accessToken,
+        expires: session.expiresTimestamp,
+      }
     } catch (err) {
       this.logger.error(err)
       throw new BadRequestException({

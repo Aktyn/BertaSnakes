@@ -1,4 +1,5 @@
-import React, { Suspense, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
+import type { GlobalStylesProps } from '@mui/material'
 import {
   CssBaseline,
   GlobalStyles,
@@ -28,65 +29,59 @@ initializeI18n(i18nConfig).then(
   },
 )
 
+const App = React.lazy(() => import('./app/App'))
+
+const globalStyles: GlobalStylesProps['styles'] = {
+  body: {
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale',
+  },
+  // Hack for disabling error overlay
+  iframe: {
+    display: process.env.NODE_ENV === 'development' ? 'none' : 'initial',
+  },
+
+  // Scrollbars sizes
+  '::-webkit-scrollbar': {
+    width: 8,
+    height: 6,
+  },
+  // Scrollbars track
+  '::-webkit-scrollbar-track': {
+    backgroundColor: defaultTheme.palette.background.default,
+  },
+  // Scrollbars handle
+  '::-webkit-scrollbar-thumb': {
+    backgroundColor: lighten(defaultTheme.palette.background.default, 0.25),
+    borderRadius: 8,
+  },
+  // Scrollbars handle on hover
+  '::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: lighten(defaultTheme.palette.background.default, 0.5),
+  },
+}
+
 const LocaleAppProvider = React.memo(() => {
   const [initialized, setInitialized] = useState(false)
-  i18n.on('initialized', () => {
-    setInitialized(true)
-  })
+  useEffect(() => {
+    i18n.on('initialized', () => {
+      setInitialized(true)
+    })
+  }, [])
 
-  const App = React.lazy(() => import('./app/App'))
-
-  if (initialized) {
-    return (
-      <React.StrictMode>
-        <ThemeProvider theme={defaultTheme}>
-          <CssBaseline />
-          <GlobalStyles
-            styles={{
-              body: {
-                WebkitFontSmoothing: 'antialiased',
-                MozOsxFontSmoothing: 'grayscale',
-              },
-              // Hack for disabling error overlay
-              iframe: {
-                display:
-                  process.env.NODE_ENV === 'development' ? 'none' : 'initial',
-              },
-
-              // Scrollbars sizes
-              '::-webkit-scrollbar': {
-                width: 8,
-                height: 6,
-              },
-              // Scrollbars track
-              '::-webkit-scrollbar-track': {
-                backgroundColor: defaultTheme.palette.background.default,
-              },
-              // Scrollbars handle
-              '::-webkit-scrollbar-thumb': {
-                backgroundColor: lighten(
-                  defaultTheme.palette.background.default,
-                  0.25,
-                ),
-                borderRadius: 8,
-              },
-              // Scrollbars handle on hover
-              '::-webkit-scrollbar-thumb:hover': {
-                backgroundColor: lighten(
-                  defaultTheme.palette.background.default,
-                  0.5,
-                ),
-              },
-            }}
-          />
-          <Suspense fallback={<PageLoader />}>
-            <App />
-          </Suspense>
-        </ThemeProvider>
-      </React.StrictMode>
-    )
+  if (!initialized) {
+    return null
   }
-  return null
+
+  return (
+    <ThemeProvider theme={defaultTheme}>
+      <CssBaseline />
+      <GlobalStyles styles={globalStyles} />
+      <Suspense fallback={<PageLoader />}>
+        <App key="app" />
+      </Suspense>
+    </ThemeProvider>
+  )
 })
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)

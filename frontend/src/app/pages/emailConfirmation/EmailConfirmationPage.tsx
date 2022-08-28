@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { CircularProgress, Stack, Typography } from '@mui/material'
-import type { ErrorCode } from 'berta-snakes-shared'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useEmailConfirmation } from '../../../api/queries/useEmailConfirmation'
+import { useAuth } from '../../auth/AuthProvider'
 import { ZoomEnter } from '../../components/transition/ZoomEnter'
 import { useErrorSnackbar } from '../../hooks/useErrorSnackbar'
 import useQueryParams from '../../hooks/useQueryParams'
@@ -20,21 +20,26 @@ const EmailConfirmationPage = () => {
   const { confirmEmail, isLoading } = useEmailConfirmation()
   const { enqueueSnackbar } = useSnackbar()
   const { enqueueErrorSnackbar } = useErrorSnackbar()
+  const auth = useAuth()
+
   const [status, setStatus] = useState(STATUS.PENDING)
 
   useEffect(() => {
     if (typeof params.code !== 'string') {
       return
     }
-    confirmEmail(params.code, {
-      onSuccess: () => {
+
+    confirmEmail(params.code.replaceAll(' ', '+'), {
+      onSuccess: (response) => {
         enqueueSnackbar(t('register:form.success'), { variant: 'success' })
         setStatus(STATUS.SUCCESS)
+        if (response.data) {
+          auth.setSession(response.data)
+        }
       },
       onError: (err) => {
-        const errorCode = (err.response?.data as { error?: ErrorCode })?.error
         enqueueErrorSnackbar(
-          errorCode,
+          err,
           t('emailConfirmation:confirmationUnsuccessful'),
         )
         setStatus(STATUS.ERROR)

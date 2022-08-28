@@ -12,5 +12,11 @@
     "disconnected": "Disconnected from server"
   },
   "cancel": "Cancel",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "login": {
+    "success": "Login successful",
+    "error": "Login failed",
+    "fetchingAccountData": "Fetching account data",
+    "sessionExpired": "Session expired"
+  }
 }

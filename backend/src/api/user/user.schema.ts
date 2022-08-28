@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { UserRole } from 'berta-snakes-shared'
 import type {
   UserPublic,
   UserPrivate,
   PaginatedResponse,
+  UserSessionData,
 } from 'berta-snakes-shared'
 
 export class UserPublicClass implements UserPublic {
@@ -12,8 +14,14 @@ export class UserPublicClass implements UserPublic {
   @ApiProperty()
   name!: string
 
-  @ApiProperty({ type: Number, required: true })
+  @ApiProperty()
   created!: number
+
+  @ApiProperty()
+  lastLogin!: number
+
+  @ApiProperty({ enum: UserRole })
+  role!: UserRole
 }
 
 export class UserPrivateClass extends UserPublicClass implements UserPrivate {
@@ -25,15 +33,26 @@ export class UserPrivateClass extends UserPublicClass implements UserPrivate {
 }
 
 export class UserPaginatedResponse implements PaginatedResponse<UserPublic> {
-  @ApiProperty({ type: [UserPublicClass], required: true })
+  @ApiProperty({ type: [UserPublicClass] })
   items!: UserPublicClass[]
 
-  @ApiProperty({ type: Number, required: true })
+  @ApiProperty()
   page!: number
 
-  @ApiProperty({ type: Number, required: true })
+  @ApiProperty()
   pageSize!: number
 
-  @ApiProperty({ type: Number, required: true })
+  @ApiProperty()
   total!: number
+}
+
+export class UserSessionDataClass implements UserSessionData {
+  @ApiProperty()
+  user!: UserPrivateClass
+
+  @ApiProperty()
+  accessToken!: string
+
+  @ApiProperty()
+  expires!: number
 }
