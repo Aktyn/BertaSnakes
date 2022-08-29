@@ -16,7 +16,7 @@ interface FeatureCardProps {
 }
 
 const featureClass = css`
-  width: 518px;
+  max-width: 518px;
   height: 320px;
 
   & img {
@@ -38,7 +38,7 @@ export const FeatureCard = ({ title, content, iconUrl }: FeatureCardProps) => {
       }}
       elevation={4}
     >
-      <CardContent sx={{ height: '100%' }}>
+      <CardContent sx={{ minHeight: '100%' }}>
         <Stack
           gap={2}
           alignItems="center"
@@ -47,6 +47,7 @@ export const FeatureCard = ({ title, content, iconUrl }: FeatureCardProps) => {
         >
           <Typography
             variant="h4"
+            textAlign="center"
             sx={{ fontFamily: "'Luckiest Guy', Roboto;'" }}
           >
             {title}

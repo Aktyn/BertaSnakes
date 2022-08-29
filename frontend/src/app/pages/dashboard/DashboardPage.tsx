@@ -129,6 +129,7 @@ const DashboardPage = () => {
             <ZoomEnter>
               <Typography
                 variant="h3"
+                textAlign="center"
                 sx={{ fontFamily: "'Luckiest Guy', Roboto;'" }}
               >
                 {t('global:projectName')}
@@ -137,7 +138,7 @@ const DashboardPage = () => {
             {(['line1', 'line2', 'line3', 'line4'] as const).map(
               (line, index) => (
                 <ZoomEnter key={line} delay={(index + 1) * zoomDelay}>
-                  <Typography variant="body1">
+                  <Typography variant="body1" textAlign="center">
                     {t(`dashboard:sections.gameInfo.${line}`)}
                   </Typography>
                 </ZoomEnter>

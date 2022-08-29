@@ -56,7 +56,7 @@ export const App = () => {
                           key={route.path}
                           path={route.path}
                           element={
-                            <Layout key={route.path}>
+                            <Layout>
                               <Suspense
                                 fallback={
                                   <Stack

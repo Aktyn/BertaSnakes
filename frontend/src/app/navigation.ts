@@ -1,8 +1,10 @@
 import type { FC, LazyExoticComponent, ReactNode } from 'react'
 import { lazy } from 'react'
 
+export type RoutePath = typeof Routes[keyof typeof Routes]['path']
+
 interface RouteSchema {
-  path: string
+  path: RoutePath
   component: LazyExoticComponent<() => JSX.Element>
   layout?: LazyExoticComponent<
     FC<{
@@ -40,7 +42,15 @@ const Routes = {
     component: lazy(() => import('./pages/play/PlayPage')),
     layout: Layouts.PLAY,
   },
-}
+  PLAYERS: {
+    path: '/players',
+    component: lazy(() => import('./pages/players/PlayersPage')),
+  },
+  GALLERY: {
+    path: '/gallery',
+    component: lazy(() => import('./pages/gallery/GalleryPage')),
+  },
+} as const
 
 const Navigation: Record<keyof typeof Routes | 'DEFAULT_PAGE', RouteSchema> = {
   ...Routes,

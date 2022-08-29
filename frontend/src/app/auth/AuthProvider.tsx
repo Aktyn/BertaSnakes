@@ -124,7 +124,7 @@ export const AuthProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
           color: (theme) => theme.palette.text.primary,
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
-        open={fetchingAccountData}
+        open={fetchingAccountData && !user}
       >
         <Stack alignItems="center" spacing={4}>
           <Typography variant="h5" sx={{ fontWeight: 'bold' }}>

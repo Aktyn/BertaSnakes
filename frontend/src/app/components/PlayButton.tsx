@@ -1,6 +1,6 @@
 import type { MouseEventHandler } from 'react'
-import { useCallback, useState } from 'react'
-import { css } from '@emotion/css'
+import { useMemo, useCallback, useState } from 'react'
+import { css, keyframes } from '@emotion/css'
 import { HexagonRounded, PlayArrowRounded } from '@mui/icons-material'
 import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
 import { common, lightBlue, red } from '@mui/material/colors'
@@ -32,6 +32,20 @@ export const PlayButton = ({
   const [showTooltip, setShowTooltip] = useState(false)
 
   const mounted = useMounted()
+
+  const zoomKeyframes = useMemo(
+    () => keyframes`
+      from {
+        transform: translate(-50%, -50%) scale(0);
+        background-color: ${lightBlue[900]};
+      }
+      to {
+        transform: translate(-50%, -50%) scale(1);
+        background-color: ${theme.palette.background.default};
+      }
+    `,
+    [theme.palette.background.default],
+  )
 
   const handleClick: MouseEventHandler<HTMLDivElement> = useCallback(
     (event) => {
@@ -75,7 +89,7 @@ export const PlayButton = ({
           height: ${size}px;
           width: ${size}px;
 
-          transition: height 0.4s ${smoothBezier};
+          transition: height 0.4s ${smoothBezier} !important;
 
           &:hover .outer-hexagon,
           &:hover .inner-text,
@@ -83,7 +97,12 @@ export const PlayButton = ({
             color: ${red[400]};
           }
           &:hover .inner-hexagon {
-            transform: scale(1);
+            transform: scale(${1 - borderWidth / size});
+          }
+          .inner-hexagon,
+          .outer-hexagon {
+            height: ${size}px;
+            width: ${size}px;
           }
         `}
       >
@@ -97,10 +116,8 @@ export const PlayButton = ({
               bottom: 0;
               margin: auto;
               filter: drop-shadow(0 4px 4px #0006);
-              font-size: ${size}px;
               color: ${lightBlue[400]};
-              transition: color 0.4s ${smoothBezier},
-                font-size 0.4s ${smoothBezier};
+              transition: color 0.4s ${smoothBezier} !important;
             `,
           )}
         />
@@ -113,11 +130,9 @@ export const PlayButton = ({
               top: 0;
               bottom: 0;
               margin: auto;
-              font-size: ${size - borderWidth}px;
               color: ${common.white};
               transform: scale(0);
-              transition: transform 0.4s ${smoothBezier},
-                font-size 0.4s ${smoothBezier};
+              transition: transform 0.4s ${smoothBezier} !important;
             `,
           )}
         />
@@ -132,13 +147,13 @@ export const PlayButton = ({
               user-select: none;
               text-align: center;
               white-space: nowrap;
-              font-family: 'Luckiest Guy', Roboto;
-              font-size: 38px;
+              font-family: 'Luckiest Guy', Roboto !important;
+              font-size: 38px !important;
               text-shadow: 0 2px 4px #0006;
               color: ${common.white};
               opacity: ${showText ? 1 : 0};
               transition: color 0.4s ${smoothBezier},
-                opacity 0.4s ${smoothBezier};
+                opacity 0.4s ${smoothBezier} !important;
             `,
           )}
         >
@@ -155,11 +170,11 @@ export const PlayButton = ({
               margin: auto;
               user-select: none;
               filter: drop-shadow(0 2px 2px #0006);
-              font-size: ${Math.round(size * 0.618)}px;
+              font-size: ${Math.round(size * 0.618)}px !important;
               color: ${common.white};
               opacity: ${!showText ? 1 : 0};
               transition: color 0.4s ${smoothBezier},
-                opacity 0.4s ${smoothBezier};
+                opacity 0.4s ${smoothBezier} !important;
             `,
           )}
         />
@@ -175,18 +190,8 @@ export const PlayButton = ({
               border-radius: 100%;
               transform: translate(-50%, -50%) scale(0);
 
-              @keyframes zoom {
-                from {
-                  transform: translate(-50%, -50%) scale(0);
-                  background-color: ${lightBlue[900]};
-                }
-                to {
-                  transform: translate(-50%, -50%) scale(1);
-                  background-color: ${theme.palette.background.default};
-                }
-              }
-
-              animation: zoom ${transitionDuration}ms ease-in forwards;
+              animation: ${zoomKeyframes} ${transitionDuration}ms ease-in
+                forwards;
             `}
           />
         )}
