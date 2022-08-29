@@ -12,7 +12,7 @@ import type { Control, FieldValues, Path } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 import { smoothBezier } from '../../../utils/common'
 
-interface FormInputProps<FieldsType, TContext = unknown>
+interface FormInputProps<FieldsType extends FieldValues, TContext = unknown>
   extends Omit<
     TextFieldProps,
     'required' | 'inputProps' | 'InputProps' | 'label' | 'name'

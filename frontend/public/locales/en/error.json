@@ -12,5 +12,6 @@
   "incorrectPassword": "Incorrect password",
   "sessionNotFound": "Session not found",
   "userNotFound": "User not found",
-  "noAccessTokenProvided": "No access token provided"
+  "noAccessTokenProvided": "No access token provided",
+  "requestUnauthorized": "Request unauthorized"
 }

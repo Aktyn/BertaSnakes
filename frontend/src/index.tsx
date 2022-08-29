@@ -11,6 +11,7 @@ import { PageLoader } from './app/components/loaders/PageLoader'
 import { defaultTheme } from './app/themes/default'
 import { i18nConfig } from './configs/i18n.config'
 import i18n, { initializeI18n } from './i18n'
+import { waitForFontLoad } from './utils/common'
 
 import '@fontsource/roboto/100.css'
 import '@fontsource/roboto/300.css'
@@ -63,22 +64,31 @@ const globalStyles: GlobalStylesProps['styles'] = {
 
 const LocaleAppProvider = React.memo(() => {
   const [initialized, setInitialized] = useState(false)
+  const [fontLoaded, setFontLoaded] = useState(false)
+
   useEffect(() => {
     i18n.on('initialized', () => {
       setInitialized(true)
     })
+    const start = performance.now()
+    Promise.all([waitForFontLoad('Roboto'), waitForFontLoad('Luckiest Guy')])
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(err)
+      })
+      .finally(() => {
+        // eslint-disable-next-line no-console
+        console.log(`Fonts loaded in ${performance.now() - start}ms`)
+        setFontLoaded(true)
+      })
   }, [])
-
-  if (!initialized) {
-    return null
-  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
       <GlobalStyles styles={globalStyles} />
       <Suspense fallback={<PageLoader />}>
-        <App key="app" />
+        {initialized && fontLoaded && <App key="app" />}
       </Suspense>
     </ThemeProvider>
   )

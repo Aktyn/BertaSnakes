@@ -13,6 +13,7 @@ import type { UserPrivate, UserSessionData } from 'berta-snakes-shared'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import {
+  api,
   hasAuthorizationHeader,
   removeAuthorizationHeader,
   setAuthorizationHeader,
@@ -45,8 +46,12 @@ export const AuthProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
 
   const setSession = useCallback<AuthContextType['setSession']>((session) => {
     setAuthorizationHeader(session.accessToken)
-    localStorage.setItem('accessToken', session.accessToken)
     setUser(session.user)
+  }, [])
+
+  const removeSession = useCallback(() => {
+    removeAuthorizationHeader()
+    setUser(null)
   }, [])
 
   const login = useCallback<AuthContextType['login']>(
@@ -85,12 +90,26 @@ export const AuthProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
           if (!err) {
             return
           }
-          removeAuthorizationHeader()
           setFetchingAccountData(false)
+          removeSession()
           enqueueErrorSnackbar(err, t('common:login.sessionExpired'))
         })
     }
-  }, [cancellable, enqueueErrorSnackbar, enqueueSnackbar, t])
+  }, [cancellable, enqueueErrorSnackbar, enqueueSnackbar, removeSession, t])
+
+  useEffect(() => {
+    api.interceptors.response.use(undefined, (error: AxiosError) => {
+      const isUnauthorized =
+        !!error.response && [401, 403].includes(error.response.status)
+
+      if (isUnauthorized) {
+        enqueueErrorSnackbar(error, t('error:requestUnauthorized'))
+        removeSession()
+      }
+
+      return Promise.reject(error.response || error.message)
+    })
+  }, [enqueueErrorSnackbar, removeSession, t])
 
   const authValue = useMemo(
     () => ({ user, login, setSession }),

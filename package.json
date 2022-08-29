@@ -33,6 +33,6 @@
   },
   "homepage": "https://github.com/Aktyn/BertaSnakes#readme",
   "devDependencies": {
-    "lerna": "^5.0.0"
+    "lerna": "^5.4.3"
   }
 }

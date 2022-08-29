@@ -10,6 +10,8 @@ export const PageHeader = ({ compact }: { compact?: boolean }) => {
   const theme = useTheme()
   const navigate = useNavigate()
 
+  //TODO: responsive navigation; entry redirecting to ranking page, gallery page etc
+
   return (
     <Stack
       direction="row"

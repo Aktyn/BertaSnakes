@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { css } from '@emotion/css'
-import { LoginRounded } from '@mui/icons-material'
+import { css, keyframes } from '@emotion/css'
+import { LoginRounded, PersonAddAlt1Rounded } from '@mui/icons-material'
 import {
   alpha,
   Box,
@@ -10,28 +10,43 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
+import Grid2 from '@mui/material/Unstable_Grid2'
 import { cyan, red } from '@mui/material/colors'
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import parallaxImage from '../../../img/graphics3.jpg'
 import articleBackgroundGraphic from '../../../img/graphics4.webp'
 import cashIcon from '../../../img/icons/money.png'
 import podiumIcon from '../../../img/icons/podium.svg'
 import socialIcon from '../../../img/icons/social.svg'
-import { zoomDelay } from '../../../utils/common'
+import { smoothBezier, zoomDelay } from '../../../utils/common'
 import { useAuth } from '../../auth/AuthProvider'
 import { LoginDialog } from '../../components/dialog/LoginDialog'
 import { ZoomEnter } from '../../components/transition/ZoomEnter'
+import Navigation from '../../navigation'
 import { FeatureCard } from './FeatureCard'
+
+const backgroundZoomIn = keyframes`
+  from {
+    background-size: auto 150%;
+  }
+
+  to {
+    background-size: auto 100%;
+  }
+`
 
 const sectionClass = css`
   min-height: 256px;
-  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
   z-index: 0;
   box-shadow: 0 4px 8px #0006;
+
+  background-size: auto 150%;
+  animation: ${backgroundZoomIn} 1000ms ${smoothBezier} forwards;
 `
 
 const sectionGradientClass = css`
@@ -79,6 +94,7 @@ const parallaxImageClass = css`
 const DashboardPage = () => {
   const [t] = useTranslation()
   const theme = useTheme()
+  const navigate = useNavigate()
   const auth = useAuth()
 
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
@@ -135,15 +151,32 @@ const DashboardPage = () => {
                   </Typography>
                 </ZoomEnter>
                 <ZoomEnter delay={zoomDelay * 6}>
-                  <Button
-                    size="small"
-                    color="primary"
-                    variant="contained"
-                    startIcon={<LoginRounded />}
-                    onClick={() => setLoginDialogOpen(true)}
-                  >
-                    {t('common:logIn').toUpperCase()}
-                  </Button>
+                  <Grid2 container spacing={1} width="100%">
+                    <Grid2 xs={6}>
+                      <Button
+                        size="small"
+                        color="primary"
+                        variant="contained"
+                        startIcon={<LoginRounded />}
+                        onClick={() => setLoginDialogOpen(true)}
+                        fullWidth
+                      >
+                        {t('common:logIn').toUpperCase()}
+                      </Button>
+                    </Grid2>
+                    <Grid2 xs={6}>
+                      <Button
+                        size="small"
+                        color="primary"
+                        variant="contained"
+                        startIcon={<PersonAddAlt1Rounded />}
+                        onClick={() => navigate(Navigation.REGISTER.path)}
+                        fullWidth
+                      >
+                        {t('common:register').toUpperCase()}
+                      </Button>
+                    </Grid2>
+                  </Grid2>
                 </ZoomEnter>
               </Stack>
             )}

@@ -5,7 +5,7 @@ import {
   WebSocketGateway as NestJsWebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
-import { from, Observable } from 'rxjs'
+import { Observable, from } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Server } from 'socket.io'
 

@@ -33,10 +33,20 @@ export const Footer = () => {
         box-shadow: 0 0 8px #0006;
 
         & .${typographyClasses.root} {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           font-size: 10px;
           font-weight: 400;
+        }
+
+        @media only screen and (max-width: ${theme.breakpoints.values.md}px) {
+          grid-template-columns: auto;
+          grid-template-rows: repeat(3, 1fr);
+          justify-content: center;
+
+          & > * {
+            justify-self: center;
+          }
         }
       `}
     >
@@ -71,7 +81,11 @@ export const Footer = () => {
         <img style={{ height: 16 }} alt="author logo" src={aktynLogo} />
         &nbsp;- {t('global:allRightsReserved')}
       </Typography>
-      <Stack direction="row" gap={2} justifyContent="flex-end">
+      <Stack
+        direction="row"
+        gap={2}
+        justifyContent={{ xs: 'center', md: 'flex-end' }}
+      >
         <Typography>
           {process.env.REACT_APP_PAYPAL_DONATE_URL && (
             <Link

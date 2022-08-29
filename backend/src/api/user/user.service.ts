@@ -23,21 +23,29 @@ import { EmailService } from '../email/email.service'
 import { SessionService } from './session.service'
 import type { CreateUserDto, LoginUserDto } from './user.dto'
 
-const parseToUserPublic = (data: {
-  [key in keyof UserPublic]: User[key]
-}): UserPublic => ({
+const parseToUserPublic = (
+  data: {
+    [key in keyof UserPublic]: User[key]
+  },
+  override: Partial<UserPublic> = {},
+): UserPublic => ({
   ...pick(data, 'id', 'name'),
   created: Number(data.created),
   lastLogin: Number(data.lastLogin),
   role: data.role as UserRole,
+  ...override,
 })
 
-const parseToUserPrivate = (data: {
-  [key in keyof UserPrivate]: User[key]
-}): UserPrivate => ({
+const parseToUserPrivate = (
+  data: {
+    [key in keyof UserPrivate]: User[key]
+  },
+  override: Partial<UserPrivate> = {},
+): UserPrivate => ({
   ...parseToUserPublic(data),
   email: data.email,
   confirmed: !data.confirmed,
+  ...override,
 })
 
 const selectPublic: { [key in keyof UserPublic]: true } = {
@@ -63,6 +71,22 @@ export class UserService {
     private emailService: EmailService,
     private sessionService: SessionService,
   ) {}
+
+  private updateUserLastLogin(
+    userId: User['id'],
+    select = selectPrivate,
+    now = Date.now(),
+  ) {
+    return this.prisma.user.update({
+      data: {
+        lastLogin: now,
+      },
+      where: {
+        id: userId,
+      },
+      select,
+    })
+  }
 
   async findAll(
     page: number,
@@ -112,7 +136,7 @@ export class UserService {
     }
 
     return {
-      items: results[1].map(parseToUserPublic),
+      items: results[1].map((row) => parseToUserPublic(row)),
       page,
       pageSize,
       total: results[0],
@@ -156,23 +180,19 @@ export class UserService {
       })
     }
 
-    const loggedUser = await this.prisma.user.update({
-      data: {
-        lastLogin: Date.now(),
-      },
-      where: {
-        id: authorizedUsers[0].id,
-      },
-      select: selectPrivate,
-    })
+    const loggedUser = authorizedUsers[0]
 
     const session = this.sessionService.createSession(loggedUser)
     this.logger.log(
       `User logged in: ${loggedUser.name}, id: ${loggedUser.id}`,
       'REST API',
     )
+    const now = Date.now()
+    this.updateUserLastLogin(loggedUser.id, undefined, now).catch(
+      this.logger.error,
+    )
     return {
-      user: parseToUserPrivate(loggedUser),
+      user: parseToUserPrivate(loggedUser, { lastLogin: now }),
       accessToken: session.accessToken,
       expires: session.expiresTimestamp,
     }
@@ -199,7 +219,10 @@ export class UserService {
         error: ErrorCode.USER_NOT_FOUND,
       })
     }
-    return parseToUserPrivate(user)
+
+    const now = Date.now()
+    this.updateUserLastLogin(user.id, undefined, now).catch(this.logger.error)
+    return parseToUserPrivate(user, { lastLogin: now })
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserPrivate> {
@@ -282,6 +305,7 @@ export class UserService {
       user = await this.prisma.user.update({
         data: {
           confirmed: null,
+          lastLogin: Date.now(),
         },
         where: {
           id: user.id,

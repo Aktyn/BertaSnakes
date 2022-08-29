@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { UserRole } from 'berta-snakes-shared'
 import type {
   UserPublic,
   UserPrivate,
   PaginatedResponse,
   UserSessionData,
 } from 'berta-snakes-shared'
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { UserRole } from 'berta-snakes-shared'
 
 export class UserPublicClass implements UserPublic {
   @ApiProperty()

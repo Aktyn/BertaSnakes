@@ -3,6 +3,7 @@
   "homepage": "Homepage",
   "play": "Play",
   "logIn": "Log in",
+  "register": "Register",
   "goToRegisterPage": "Go to register page",
   "paypal": {
     "donate": "Donate project via PayPal"
