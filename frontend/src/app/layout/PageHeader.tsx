@@ -1,7 +1,16 @@
 import { css } from '@emotion/css'
 import type { SvgIconComponent } from '@mui/icons-material'
 import { CollectionsRounded, PeopleAltRounded } from '@mui/icons-material'
-import { alpha, Box, Button, darken, Stack, useTheme } from '@mui/material'
+import type { Theme } from '@mui/material'
+import {
+  alpha,
+  Box,
+  Button,
+  darken,
+  Stack,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material'
 import { cyan, red } from '@mui/material/colors'
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
@@ -95,6 +104,10 @@ export const PageHeader = ({ compact }: { compact?: boolean }) => {
   const theme = useTheme()
   const navigate = useNavigate()
 
+  const forceCompact = useMediaQuery<Theme>((theme) =>
+    theme.breakpoints.down('md'),
+  )
+
   return (
     <Stack
       direction="row"
@@ -143,7 +156,14 @@ export const PageHeader = ({ compact }: { compact?: boolean }) => {
       />
       <Box
         sx={{
-          display: 'inline-grid',
+          display: 'grid',
+          width: '100%',
+          maxHeight: { xs: '25vh', md: 'max(25vh, 192px)' },
+          overflowY: 'overlay',
+          gridTemplateAreas: {
+            xs: '"play-button" "left-menu" "right-menu"',
+            md: '"left-menu play-button right-menu"',
+          },
           gridTemplateColumns: { xs: 'auto', md: '1fr auto 1fr' },
           gridTemplateRows: { xs: 'repeat(3, auto)', md: 'auto' },
           columnGap: 2,
@@ -151,17 +171,17 @@ export const PageHeader = ({ compact }: { compact?: boolean }) => {
           justifyContent: 'center',
         }}
       >
-        <Box>
+        <Box sx={{ gridArea: 'left-menu', justifySelf: 'flex-end' }}>
           {menuEntries.slice(0, (menuEntries.length / 2) | 0).map((entry) => (
             <MenuEntry key={entry.path} entry={entry} />
           ))}
         </Box>
         <PlayButton
-          size={compact ? 96 : 192}
-          borderWidth={compact ? 12 : 24}
+          size={compact || forceCompact ? 96 : 192}
+          borderWidth={compact || forceCompact ? 12 : 24}
           onClick={() => navigate(Navigation.PLAY.path)}
         />
-        <Box>
+        <Box sx={{ gridArea: 'right-menu', justifySelf: 'flex-start' }}>
           {menuEntries.slice((menuEntries.length / 2) | 0).map((entry) => (
             <MenuEntry key={entry.path} entry={entry} />
           ))}

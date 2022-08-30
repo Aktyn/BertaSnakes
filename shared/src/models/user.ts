@@ -11,6 +11,7 @@ export interface UserPublic {
   created: number
   lastLogin: number
   role: UserRole
+  avatar: string | null
 }
 
 export interface UserPrivate extends UserPublic {
@@ -41,4 +42,14 @@ export interface SearchUserRequest {
   nameFragment?: string
   email?: string
   emailFragment?: string
+}
+
+export interface EmailConfirmationRequest {
+  /** Base64 confirmation code */
+  confirmationCode: string
+}
+
+export interface SetAvatarRequest {
+  /** Base64 image value or null */
+  base64: string | null
 }

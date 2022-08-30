@@ -7,6 +7,9 @@ import type {
   UserPublic,
   LoginUserRequest,
   UserSessionData,
+  EmailConfirmationRequest,
+  SetAvatarRequest,
+  SuccessResponse,
 } from 'berta-snakes-shared'
 import { api } from '.'
 
@@ -21,7 +24,8 @@ export const register = (request: CreateUserRequest) =>
 export const searchUsers = (request: PaginatedRequest<SearchUserRequest>) =>
   api.get<PaginatedResponse<UserPublic>>('/users', { params: request })
 
-export const confirmEmail = (confirmationCode: string) =>
-  api.put<UserSessionData>('/users/confirm-email', {
-    confirmationCode,
-  })
+export const confirmEmail = (request: EmailConfirmationRequest) =>
+  api.put<UserSessionData>('/users/confirm-email', request)
+
+export const setAvatar = (request: SetAvatarRequest) =>
+  api.patch<SuccessResponse>('/users/avatar', request)

@@ -4,11 +4,13 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common'
 import type { Prisma, User } from '@prisma/client'
 import type {
   PaginatedResponse,
   SearchUserRequest,
+  SuccessResponse,
   UserPrivate,
   UserPublic,
   UserRole,
@@ -29,7 +31,7 @@ const parseToUserPublic = (
   },
   override: Partial<UserPublic> = {},
 ): UserPublic => ({
-  ...pick(data, 'id', 'name'),
+  ...pick(data, 'id', 'name', 'avatar'),
   created: Number(data.created),
   lastLogin: Number(data.lastLogin),
   role: data.role as UserRole,
@@ -54,6 +56,7 @@ const selectPublic: { [key in keyof UserPublic]: true } = {
   created: true,
   lastLogin: true,
   role: true,
+  avatar: true,
 }
 
 const selectPrivate: { [key in keyof UserPrivate]: true } = {
@@ -86,6 +89,18 @@ export class UserService {
       },
       select,
     })
+  }
+
+  private getSession(accessToken: string) {
+    const session = this.sessionService.getSession(accessToken)
+
+    if (!session) {
+      throw new UnauthorizedException({
+        error: ErrorCode.SESSION_NOT_FOUND,
+      })
+    }
+
+    return session
   }
 
   async findAll(
@@ -199,13 +214,7 @@ export class UserService {
   }
 
   async getSelfUser(accessToken: string): Promise<UserPrivate> {
-    const session = this.sessionService.getSession(accessToken)
-
-    if (!session) {
-      throw new NotFoundException({
-        error: ErrorCode.SESSION_NOT_FOUND,
-      })
-    }
+    const session = this.getSession(accessToken)
 
     const user = await this.prisma.user.findUnique({
       where: {
@@ -329,5 +338,30 @@ export class UserService {
         error: ErrorCode.INVALID_ERROR_CONFIRMATION_CODE,
       })
     }
+  }
+
+  async setAvatar(
+    base64: string | null,
+    accessToken: string,
+  ): Promise<SuccessResponse> {
+    const session = this.getSession(accessToken)
+
+    const user = await this.prisma.user.update({
+      data: {
+        avatar: base64,
+      },
+      where: {
+        id: session.userId,
+      },
+      select: selectPublic,
+    })
+
+    if (!user) {
+      throw new NotFoundException({
+        error: ErrorCode.USER_NOT_FOUND,
+      })
+    }
+
+    return { success: true }
   }
 }

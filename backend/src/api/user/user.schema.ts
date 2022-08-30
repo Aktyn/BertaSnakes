@@ -23,6 +23,9 @@ export class UserPublicClass implements UserPublic {
 
   @ApiProperty({ enum: UserRole })
   role!: UserRole
+
+  @ApiProperty()
+  avatar!: string | null
 }
 
 export class UserPrivateClass extends UserPublicClass implements UserPrivate {

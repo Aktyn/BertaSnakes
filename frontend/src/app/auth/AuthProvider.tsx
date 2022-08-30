@@ -26,7 +26,9 @@ const AuthContext = createContext({
   user: null as UserPrivate | null,
   login: (_usernameOrEmail: string, _password: string) =>
     Promise.resolve(false),
+  logout: () => void 0 as void,
   setSession: (_session: UserSessionData) => void 0 as void,
+  updateUserData: (_data: Partial<UserPrivate>) => void 0 as void,
 })
 
 type AuthContextType = typeof AuthContext extends Context<infer Type>
@@ -111,9 +113,20 @@ export const AuthProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
     })
   }, [enqueueErrorSnackbar, removeSession, t])
 
-  const authValue = useMemo(
-    () => ({ user, login, setSession }),
-    [login, setSession, user],
+  const authValue = useMemo<AuthContextType>(
+    () => ({
+      user,
+      login,
+      setSession,
+      logout: removeSession,
+      updateUserData: (data) => {
+        if (!user) {
+          return
+        }
+        setUser({ ...user, ...data })
+      },
+    }),
+    [login, removeSession, setSession, user],
   )
 
   return (

@@ -8,6 +8,11 @@
     "sendingError": "Error sending email",
     "invalidConfirmationCode": "Email confirmation code is invalid or expired"
   },
+  "file": {
+    "cannotOpen": "Cannot open file",
+    "tooLarge": "File too large"
+  },
+  "unknown": "Unknown error",
   "usernameOrEmailDoesNotExist": "Username or email doesn't exist",
   "incorrectPassword": "Incorrect password",
   "sessionNotFound": "Session not found",

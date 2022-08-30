@@ -11,3 +11,7 @@ export type PaginatedResponse<DataType> = {
   pageSize: number
   total: number
 }
+
+export interface SuccessResponse {
+  success: boolean
+}

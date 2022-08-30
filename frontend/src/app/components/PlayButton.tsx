@@ -82,14 +82,17 @@ export const PlayButton = ({
         alignItems="center"
         justifyContent="center"
         className={css`
+          grid-area: play-button;
           cursor: pointer;
           align-items: center;
           position: relative;
+          margin: auto;
+          overflow: hidden;
 
           height: ${size}px;
           width: ${size}px;
 
-          transition: height 0.4s ${smoothBezier} !important;
+          transition: height 0.4s ${smoothBezier}, width 0.6s ${smoothBezier} !important;
 
           &:hover .outer-hexagon,
           &:hover .inner-text,
@@ -101,8 +104,8 @@ export const PlayButton = ({
           }
           .inner-hexagon,
           .outer-hexagon {
-            height: ${size}px;
-            width: ${size}px;
+            height: 100%;
+            width: 100%;
           }
         `}
       >
@@ -117,7 +120,8 @@ export const PlayButton = ({
               margin: auto;
               filter: drop-shadow(0 4px 4px #0006);
               color: ${lightBlue[400]};
-              transition: color 0.4s ${smoothBezier} !important;
+              transition: color 0.4s ${smoothBezier},
+                height 0.4s ${smoothBezier}, width 0.4s ${smoothBezier} !important;
             `,
           )}
         />
@@ -136,63 +140,73 @@ export const PlayButton = ({
             `,
           )}
         />
-        <Typography
-          variant="h4"
-          className={clsx(
-            'inner-text',
-            css`
-              z-index: 3;
-              margin: auto;
-              overflow: hidden;
-              user-select: none;
-              text-align: center;
-              white-space: nowrap;
-              font-family: 'Luckiest Guy', Roboto !important;
-              font-size: 38px !important;
-              text-shadow: 0 2px 4px #0006;
-              color: ${common.white};
-              opacity: ${showText ? 1 : 0};
-              transition: color 0.4s ${smoothBezier},
-                opacity 0.4s ${smoothBezier} !important;
-            `,
-          )}
+        <Box
+          sx={{
+            overflow: 'hidden',
+            zIndex: 3,
+            userSelect: 'none',
+            width: '66.6%',
+            height: '100%',
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+          }}
         >
-          {t('common:play')}
-        </Typography>
-        <PlayArrowRounded
-          className={clsx(
-            'inner-arrow',
-            css`
-              z-index: 3;
-              position: absolute;
-              top: 0;
-              bottom: 0;
-              margin: auto;
-              user-select: none;
-              filter: drop-shadow(0 2px 2px #0006);
-              font-size: ${Math.round(size * 0.618)}px !important;
-              color: ${common.white};
-              opacity: ${!showText ? 1 : 0};
-              transition: color 0.4s ${smoothBezier},
-                opacity 0.4s ${smoothBezier} !important;
-            `,
-          )}
-        />
+          <Typography
+            variant="h4"
+            className="inner-text"
+            sx={{
+              width: 'auto',
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              overflow: 'hidden',
+              textAlign: 'center',
+              whiteSpace: 'nowrap',
+              fontFamily: '"Luckiest Guy", Roboto',
+              fontSize: '38px',
+              textShadow: '0 2px 4px #0006',
+              color: common.white,
+              transform: `translate(${showText ? -50 : -150}%, -50%)`,
+              opacity: showText ? 1 : 0,
+              transition: `color 0.4s ${smoothBezier},
+                  transform 0.4s ${smoothBezier}, opacity 0.4s ${smoothBezier}`,
+            }}
+          >
+            {t('common:play')}
+          </Typography>
+          <PlayArrowRounded
+            className="inner-arrow"
+            sx={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              margin: 'auto',
+              filter: 'drop-shadow(0 2px 2px #0006)',
+              color: common.white,
+              fontSize: '58px',
+              transform: `translate(${showText ? 50 : -50}%, -50%)`,
+              opacity: showText ? 0 : 1,
+              transition: `color 0.4s ${smoothBezier}, transform 0.4s ${smoothBezier}, opacity 0.4s ${smoothBezier}`,
+            }}
+          />
+        </Box>
         {clickPosition && (
           <Box
-            className={css`
-              position: fixed;
-              left: ${clickPosition.x}px;
-              top: ${clickPosition.y}px;
-              z-index: 99;
-              width: max(282vh, 282vw);
-              height: max(282vh, 282vw);
-              border-radius: 100%;
-              transform: translate(-50%, -50%) scale(0);
-
-              animation: ${zoomKeyframes} ${transitionDuration}ms ease-in
-                forwards;
-            `}
+            sx={{
+              position: 'fixed',
+              left: `${clickPosition.x}px`,
+              top: `${clickPosition.y}px`,
+              zIndex: 99,
+              width: 'max(282vh, 282vw)',
+              height: 'max(282vh, 282vw)',
+              borderRadius: '100%',
+              transform: 'translate(-50%, -50%) scale(0)',
+              animation: `${zoomKeyframes} ${transitionDuration}ms ease-in
+                forwards`,
+            }}
           />
         )}
       </Stack>

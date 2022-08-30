@@ -1,20 +1,28 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
   Get,
+  Patch,
   Post,
   Put,
   Query,
   Req,
 } from '@nestjs/common'
 import { ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
-import { int, Config, ErrorCode } from 'berta-snakes-shared'
+import { int, Config } from 'berta-snakes-shared'
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { Request as ExpressRequest } from 'express'
 
-import { CreateUserDto, EmailConfirmationDto, LoginUserDto } from './user.dto'
+import { SuccessResponseClass } from '../../common/common.schema'
+import { retrieveAccessToken } from '../../common/rest'
+
+import {
+  CreateUserDto,
+  EmailConfirmationDto,
+  LoginUserDto,
+  SetAvatarDto,
+} from './user.dto'
 import {
   UserPaginatedResponse,
   UserSessionDataClass,
@@ -68,13 +76,7 @@ export class UserController {
     description: 'Data of logged user',
   })
   getSelfUserData(@Req() request: ExpressRequest) {
-    const accessToken = request.headers.authorization
-    if (!accessToken) {
-      throw new BadRequestException({
-        error: ErrorCode.NO_ACCESS_TOKEN_PROVIDED,
-      })
-    }
-    return this.service.getSelfUser(accessToken)
+    return this.service.getSelfUser(retrieveAccessToken(request))
   }
 
   @Post()
@@ -101,5 +103,20 @@ export class UserController {
   })
   confirmEmail(@Body() emailConfirmationDto: EmailConfirmationDto) {
     return this.service.confirmEmail(emailConfirmationDto.confirmationCode)
+  }
+
+  @Patch('avatar')
+  @ApiCreatedResponse({
+    type: SuccessResponseClass,
+    description: 'Information whether request was successful',
+  })
+  setAvatar(
+    @Body() setAvatarDto: SetAvatarDto,
+    @Req() request: ExpressRequest,
+  ) {
+    return this.service.setAvatar(
+      setAvatarDto.base64,
+      retrieveAccessToken(request),
+    )
   }
 }

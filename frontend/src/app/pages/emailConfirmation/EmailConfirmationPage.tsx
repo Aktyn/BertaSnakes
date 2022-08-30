@@ -29,22 +29,25 @@ const EmailConfirmationPage = () => {
       return
     }
 
-    confirmEmail(params.code.replaceAll(' ', '+'), {
-      onSuccess: (response) => {
-        enqueueSnackbar(t('register:form.success'), { variant: 'success' })
-        setStatus(STATUS.SUCCESS)
-        if (response.data) {
-          auth.setSession(response.data)
-        }
+    confirmEmail(
+      { confirmationCode: params.code.replaceAll(' ', '+') },
+      {
+        onSuccess: (response) => {
+          enqueueSnackbar(t('register:form.success'), { variant: 'success' })
+          setStatus(STATUS.SUCCESS)
+          if (response.data) {
+            auth.setSession(response.data)
+          }
+        },
+        onError: (err) => {
+          enqueueErrorSnackbar(
+            err,
+            t('emailConfirmation:confirmationUnsuccessful'),
+          )
+          setStatus(STATUS.ERROR)
+        },
       },
-      onError: (err) => {
-        enqueueErrorSnackbar(
-          err,
-          t('emailConfirmation:confirmationUnsuccessful'),
-        )
-        setStatus(STATUS.ERROR)
-      },
-    })
+    )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.code])
 

@@ -17,6 +17,7 @@ model User {
   lastLogin BigInt  @default(0)
   confirmed String? @db.VarChar(64)
   role      String  @default("regular") @db.VarChar(16)
+  avatar    String?
 
   sessions Session[]
 

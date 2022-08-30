@@ -56,8 +56,11 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
   const handleLogin = (data: FieldsType) => {
     setIsLoggingIn(true)
     cancellable(auth.login(data.login, data.password))
-      .then(() => {
+      .then((success) => {
         setIsLoggingIn(false)
+        if (success) {
+          onClose()
+        }
       })
       .catch((err) => err && setIsLoggingIn(false))
   }

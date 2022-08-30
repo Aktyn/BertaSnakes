@@ -19,5 +19,10 @@
     "error": "Login failed",
     "fetchingAccountData": "Fetching account data",
     "sessionExpired": "Session expired"
+  },
+  "roleName": {
+    "regular": "Regular",
+    "moderator": "Moderator",
+    "admin": "Admin"
   }
 }

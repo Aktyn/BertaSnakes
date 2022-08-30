@@ -10,12 +10,13 @@ import {
 
 const textPrimary = lightBlue[50]
 const backgroundDefault = darken(lightBlue[900], 0.5)
+const paperBackgroundDefault = darken(lightBlue[900], 0.4)
 
 export const defaultTheme = createTheme({
   palette: {
     background: {
       default: backgroundDefault,
-      paper: darken(lightBlue[900], 0.2),
+      paper: paperBackgroundDefault,
     },
     text: {
       primary: textPrimary,
@@ -124,7 +125,8 @@ export const defaultTheme = createTheme({
       styleOverrides: {
         paper: {
           minWidth: 256,
-          backgroundColor: backgroundDefault,
+          maxWidth: '100vw',
+          boxSizing: 'border-box',
         },
       },
     },

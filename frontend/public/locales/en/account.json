@@ -1,0 +1,20 @@
+{
+  "accountButton": {
+    "tooltip": "Open account panel"
+  },
+  "userData": {
+    "name": "Username",
+    "email": "Email",
+    "created": "Created",
+    "confirmed": "Confirmed",
+    "role": "Role"
+  },
+  "action": {
+    "logout": "Logout",
+    "chooseAvatarFile": "Choose file",
+    "chooseAvatarFileError": "Error while choosing avatar file",
+    "clearAvatar": "Clear avatar",
+    "avatarSetSuccess": "Avatar image has been set successfully",
+    "avatarSetError": "Error occurred while setting avatar"
+  }
+}

@@ -11,6 +11,7 @@ export const i18nConfig: InitOptions = {
     'dashboard',
     'register',
     'emailConfirmation',
+    'account',
   ],
   defaultNS: 'global',
   backend: {

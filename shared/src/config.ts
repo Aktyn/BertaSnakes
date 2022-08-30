@@ -49,7 +49,8 @@ export const Config = {
   // MAX_PASSWORD_LENGTH: 64,
   // MIN_PASSWORD_LENGTH: 6,
 
-  // MAXIMUM_IMAGE_FILE_SIZE: 1024 * 1024 * 2, //2MB
+  /** Value in bytes */
+  MAXIMUM_IMAGE_FILE_SIZE: 1024 * 1024 * 2,
   // //server will scale uploaded avatar to this resolution before saving it as file
   // CONVERTED_AVATARS_RESOLUTION: 128,
 

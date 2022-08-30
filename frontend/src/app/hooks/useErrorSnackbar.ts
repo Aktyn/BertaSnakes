@@ -1,11 +1,13 @@
 import { useMemo } from 'react'
 import { AxiosError } from 'axios'
 import { ErrorCode } from 'berta-snakes-shared'
+import type { SnackbarKey } from 'notistack'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import type { KeyType } from '../../i18n'
 
 const ErrorMessageMapper: { [key in ErrorCode]: KeyType } = {
+  [ErrorCode.UNKNOWN]: 'error:unknown',
   [ErrorCode.DATABASE_SEARCH_ERROR]: 'validation:common.databaseSearchError',
   [ErrorCode.EMAIL_ALREADY_EXISTS]: 'validation:email.inUse',
   [ErrorCode.USERNAME_ALREADY_EXISTS]: 'validation:username.taken',
@@ -18,18 +20,22 @@ const ErrorMessageMapper: { [key in ErrorCode]: KeyType } = {
     'error:email.invalidConfirmationCode',
   [ErrorCode.SESSION_NOT_FOUND]: 'error:sessionNotFound',
   [ErrorCode.NO_ACCESS_TOKEN_PROVIDED]: 'error:noAccessTokenProvided',
+  [ErrorCode.CANNOT_OPEN_FILE]: 'error:file.cannotOpen',
+  [ErrorCode.FILE_TOO_LARGE]: 'error:file.tooLarge',
 }
 
 export function useErrorSnackbar() {
   const { enqueueSnackbar } = useSnackbar()
   const [t] = useTranslation()
 
-  return useMemo(() => {
+  return useMemo<{
+    enqueueErrorSnackbar: (
+      error: AxiosError | undefined | null | unknown,
+      fallbackMessage: string,
+    ) => SnackbarKey
+  }>(() => {
     return {
-      enqueueErrorSnackbar: (
-        error: AxiosError | undefined | null,
-        fallbackMessage: string,
-      ) => {
+      enqueueErrorSnackbar: (error, fallbackMessage) => {
         const errorCode =
           error instanceof AxiosError
             ? (error.response?.data as { error?: ErrorCode }).error

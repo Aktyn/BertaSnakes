@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { css, keyframes } from '@emotion/css'
 import { LoginRounded, PersonAddAlt1Rounded } from '@mui/icons-material'
 import {
@@ -98,6 +98,12 @@ const DashboardPage = () => {
   const auth = useAuth()
 
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
+
+  useEffect(() => {
+    if (loginDialogOpen && !!auth.user) {
+      setLoginDialogOpen(false)
+    }
+  }, [auth.user, loginDialogOpen])
 
   return (
     <>
@@ -246,7 +252,7 @@ const DashboardPage = () => {
         </Stack>
       </Stack>
       <LoginDialog
-        open={loginDialogOpen && !auth.user}
+        open={loginDialogOpen}
         onClose={() => setLoginDialogOpen(false)}
       />
     </>

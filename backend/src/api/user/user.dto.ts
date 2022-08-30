@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
-import type { CreateUserRequest, LoginUserRequest } from 'berta-snakes-shared'
+import type {
+  CreateUserRequest,
+  EmailConfirmationRequest,
+  LoginUserRequest,
+  SetAvatarRequest,
+} from 'berta-snakes-shared'
 import { Config } from 'berta-snakes-shared'
 import {
   IsBase64,
@@ -9,6 +14,8 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator'
+
+import { IsNullable } from '../../common/validation'
 
 export class CreateUserDto implements CreateUserRequest {
   @ApiProperty()
@@ -47,9 +54,17 @@ export class LoginUserDto implements LoginUserRequest {
   readonly password!: string
 }
 
-export class EmailConfirmationDto {
+export class EmailConfirmationDto implements EmailConfirmationRequest {
   @ApiProperty()
   @IsString()
   @IsBase64()
   readonly confirmationCode!: string
+}
+
+export class SetAvatarDto implements SetAvatarRequest {
+  @ApiProperty()
+  @IsString()
+  @IsBase64()
+  @IsNullable()
+  readonly base64!: string
 }

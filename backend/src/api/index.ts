@@ -2,6 +2,7 @@ import type { INestApplication } from '@nestjs/common'
 import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { json } from 'express'
 
 import { PrismaService } from '../db/prisma.service'
 
@@ -32,6 +33,7 @@ async function bootstrap() {
   })
   app.setGlobalPrefix('/api')
   app.enableCors()
+  app.use(json({ limit: '2mb' }))
 
   setupSwagger(app)
 

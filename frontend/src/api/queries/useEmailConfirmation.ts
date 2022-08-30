@@ -6,7 +6,7 @@ export function useEmailConfirmation() {
 
   return {
     isLoading: mutation.isLoading,
-    // users: mutation.data?.data,
+    users: mutation.data?.data,
     confirmEmail: mutation.mutate,
   }
 }
