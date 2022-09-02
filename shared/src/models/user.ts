@@ -11,6 +11,7 @@ export interface UserPublic {
   created: number
   lastLogin: number
   role: UserRole
+  /** Base64 image data or null */
   avatar: string | null
 }
 
@@ -50,6 +51,6 @@ export interface EmailConfirmationRequest {
 }
 
 export interface SetAvatarRequest {
-  /** Base64 image value or null */
+  /** Base64 image data or null */
   base64: string | null
 }

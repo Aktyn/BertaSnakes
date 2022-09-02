@@ -9,7 +9,12 @@ import {
   Query,
   Req,
 } from '@nestjs/common'
-import { ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger'
 import { int, Config } from 'berta-snakes-shared'
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { Request as ExpressRequest } from 'express'
@@ -22,8 +27,6 @@ import {
   EmailConfirmationDto,
   LoginUserDto,
   SetAvatarDto,
-} from './user.dto'
-import {
   UserPaginatedResponse,
   UserSessionDataClass,
   UserPrivateClass,
@@ -55,7 +58,7 @@ export class UserController {
     @Query('emailFragment') emailFragment?: string,
   ) {
     return this.service.findAll(
-      int(page),
+      Math.max(0, int(page)),
       int(pageSize) || Config.TABLE.DEFAULT_PAGE_SIZE,
       { name, nameFragment, email, emailFragment },
     )
@@ -70,6 +73,7 @@ export class UserController {
     return this.service.login(loginUserDto)
   }
 
+  @ApiBearerAuth('Bearer')
   @Get('me')
   @ApiCreatedResponse({
     type: UserPrivateClass,
@@ -105,6 +109,7 @@ export class UserController {
     return this.service.confirmEmail(emailConfirmationDto.confirmationCode)
   }
 
+  @ApiBearerAuth('Bearer')
   @Patch('avatar')
   @ApiCreatedResponse({
     type: SuccessResponseClass,

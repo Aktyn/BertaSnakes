@@ -9,5 +9,11 @@ export function retrieveAccessToken(request: ExpressRequest) {
       error: ErrorCode.NO_ACCESS_TOKEN_PROVIDED,
     })
   }
-  return accessToken
+  const match = accessToken.match(/^Bearer (.*)$/)
+  if (!match) {
+    throw new BadRequestException({
+      error: ErrorCode.INVALID_ACCESS_TOKEN,
+    })
+  }
+  return match[1]
 }

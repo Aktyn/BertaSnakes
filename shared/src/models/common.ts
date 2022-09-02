@@ -12,6 +12,12 @@ export type PaginatedResponse<DataType> = {
   total: number
 }
 
+export type OrderByRequest<KeyType = string> = {
+  key: KeyType
+  /** @default 'desc' */
+  direction?: 'asc' | 'desc'
+}
+
 export interface SuccessResponse {
   success: boolean
 }

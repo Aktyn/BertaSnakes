@@ -6,7 +6,7 @@ export const api = axios.create({
 })
 
 export function setAuthorizationHeader(token: string) {
-  api.defaults.headers.common['Authorization'] = token
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
   localStorage.setItem(Config.LOCAL_STORAGE.ACCESS_TOKEN_KEY, token)
 }
 

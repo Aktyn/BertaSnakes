@@ -12,9 +12,12 @@
     "dev": "set NODE_ENV=dev&& nodemon --watch ./src --exec \"tsc -p ./tsconfig.json\" -e ts",
     "format": "prettier --write src/**/*{.ts,.tsx}",
     "lint": "eslint --ext .js,.ts,.tsx src",
-    "lint:all": "tsc --project tsconfig.json && npm run lint && npm run format"
+    "lint:all": "tsc --project tsconfig.json && npm run lint && npm run format",
+    "test": "jest --watch --no-cache",
+    "test:ci": "jest --coverage --ci --reporters=jest-junit --no-cache"
   },
   "devDependencies": {
+    "@types/jest": "^29.0.0",
     "@types/node": "^18.7.13",
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
@@ -24,10 +27,13 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unicorn": "^43.0.2",
+    "jest": "^28.1.3",
+    "jest-junit": "^14.0.1",
     "lint-staged": "^13.0.3",
     "nodemon": "^2.0.19",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
+    "ts-jest": "^28.0.8",
     "typescript": "^4.8.2"
   }
 }

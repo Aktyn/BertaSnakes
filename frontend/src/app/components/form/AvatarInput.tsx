@@ -27,7 +27,7 @@ export const AvatarInput = ({
       const base64 = await openImageFile()
       onSelect(base64)
     } catch (e) {
-      enqueueErrorSnackbar(e, t('account:action.chooseAvatarFileError'))
+      enqueueErrorSnackbar(e, t('user:action.chooseAvatarFileError'))
     }
   }
 
@@ -51,7 +51,7 @@ export const AvatarInput = ({
     >
       {value ? (
         <img
-          src={value}
+          src={'data:image;base64,' + value}
           alt="avatar-image"
           style={{ width: '100%', height: '100%' }}
         />
@@ -85,9 +85,7 @@ export const AvatarInput = ({
       >
         <Typography variant="body2" fontWeight="bold" textAlign="center">
           {t(
-            value
-              ? 'account:action.clearAvatar'
-              : 'account:action.chooseAvatarFile',
+            value ? 'user:action.clearAvatar' : 'user:action.chooseAvatarFile',
           )}
         </Typography>
       </Stack>

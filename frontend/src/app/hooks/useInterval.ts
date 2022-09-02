@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-export default function useInterval(
+export function useInterval(
   func: () => void,
   delay: number,
   deps: ReadonlyArray<unknown> = [],

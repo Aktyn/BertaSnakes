@@ -21,7 +21,8 @@ export interface NsTypes {
   dashboard: typeof import('../public/locales/en/dashboard.json')
   register: typeof import('../public/locales/en/register.json')
   emailConfirmation: typeof import('../public/locales/en/emailConfirmation.json')
-  account: typeof import('../public/locales/en/account.json')
+  user: typeof import('../public/locales/en/user.json')
+  gallery: typeof import('../public/locales/en/gallery.json')
 }
 
 type Separator<Key, Condition> = Condition extends number

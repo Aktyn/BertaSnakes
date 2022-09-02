@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { css, keyframes } from '@emotion/css'
-import { LoginRounded, PersonAddAlt1Rounded } from '@mui/icons-material'
+import { PersonAddAlt1Rounded } from '@mui/icons-material'
 import {
   alpha,
   Box,
@@ -22,8 +22,9 @@ import podiumIcon from '../../../img/icons/podium.svg'
 import socialIcon from '../../../img/icons/social.svg'
 import { smoothBezier, zoomDelay } from '../../../utils/common'
 import { useAuth } from '../../auth/AuthProvider'
-import { LoginDialog } from '../../components/dialog/LoginDialog'
+import { LoginButton } from '../../components/common/LoginButton'
 import { ZoomEnter } from '../../components/transition/ZoomEnter'
+import { useDelayedCall } from '../../hooks/useDelayedCall'
 import Navigation from '../../navigation'
 import { FeatureCard } from './FeatureCard'
 
@@ -97,165 +98,143 @@ const DashboardPage = () => {
   const navigate = useNavigate()
   const auth = useAuth()
 
-  const [loginDialogOpen, setLoginDialogOpen] = useState(false)
+  const [entryAnimationsDone, setEntryAnimationsDone] = useState(false)
 
-  useEffect(() => {
-    if (loginDialogOpen && !!auth.user) {
-      setLoginDialogOpen(false)
-    }
-  }, [auth.user, loginDialogOpen])
+  useDelayedCall(() => setEntryAnimationsDone(true), zoomDelay * 10)
 
   return (
-    <>
+    <Stack
+      className={css`
+        transform-style: preserve-3d;
+      `}
+    >
       <Stack
-        className={css`
-          transform-style: preserve-3d;
-        `}
+        alignItems="center"
+        justifyContent="center"
+        className={clsx(
+          sectionClass,
+          css`
+            background-color: ${darken(theme.palette.background.default, 0.3)};
+            background-image: url(${articleBackgroundGraphic});
+          `,
+        )}
       >
+        <Box className={sectionGradientClass} />
         <Stack
           alignItems="center"
           justifyContent="center"
-          className={clsx(
-            sectionClass,
-            css`
-              background-color: ${darken(
-                theme.palette.background.default,
-                0.3,
-              )};
-              background-image: url(${articleBackgroundGraphic});
-            `,
-          )}
+          sx={{ height: '100%' }}
         >
-          <Box className={sectionGradientClass} />
-          <Stack
-            alignItems="center"
-            justifyContent="center"
-            sx={{ height: '100%' }}
-          >
-            <ZoomEnter>
-              <Typography
-                variant="h3"
-                textAlign="center"
-                sx={{ fontFamily: "'Luckiest Guy', Roboto;'" }}
+          <ZoomEnter>
+            <Typography
+              variant="h3"
+              textAlign="center"
+              sx={{ fontFamily: "'Luckiest Guy', Roboto;'" }}
+            >
+              {t('global:projectName')}
+            </Typography>
+          </ZoomEnter>
+          {(['line1', 'line2', 'line3', 'line4'] as const).map(
+            (line, index) => (
+              <ZoomEnter key={line} delay={(index + 1) * zoomDelay}>
+                <Typography variant="body1" textAlign="center">
+                  {t(`dashboard:sections.gameInfo.${line}`)}
+                </Typography>
+              </ZoomEnter>
+            ),
+          )}
+          {!auth.user && (
+            <Stack mt={2} spacing={1} alignItems="center">
+              <ZoomEnter delay={entryAnimationsDone ? 0 : zoomDelay * 5}>
+                <Typography variant="body2">
+                  {t('dashboard:logInInvitation')}
+                </Typography>
+              </ZoomEnter>
+              <ZoomEnter
+                delay={entryAnimationsDone ? zoomDelay : zoomDelay * 6}
               >
-                {t('global:projectName')}
-              </Typography>
-            </ZoomEnter>
-            {(['line1', 'line2', 'line3', 'line4'] as const).map(
-              (line, index) => (
-                <ZoomEnter key={line} delay={(index + 1) * zoomDelay}>
-                  <Typography variant="body1" textAlign="center">
-                    {t(`dashboard:sections.gameInfo.${line}`)}
-                  </Typography>
-                </ZoomEnter>
-              ),
-            )}
-            {!auth.user && (
-              <Stack mt={2} spacing={1} alignItems="center">
-                <ZoomEnter delay={zoomDelay * 5}>
-                  <Typography variant="body2">
-                    {t('dashboard:logInInvitation')}
-                  </Typography>
-                </ZoomEnter>
-                <ZoomEnter delay={zoomDelay * 6}>
-                  <Grid2 container spacing={1} width="100%">
-                    <Grid2 xs={6}>
-                      <Button
-                        size="small"
-                        color="primary"
-                        variant="contained"
-                        startIcon={<LoginRounded />}
-                        onClick={() => setLoginDialogOpen(true)}
-                        fullWidth
-                      >
-                        {t('common:logIn').toUpperCase()}
-                      </Button>
-                    </Grid2>
-                    <Grid2 xs={6}>
-                      <Button
-                        size="small"
-                        color="primary"
-                        variant="contained"
-                        startIcon={<PersonAddAlt1Rounded />}
-                        onClick={() => navigate(Navigation.REGISTER.path)}
-                        fullWidth
-                      >
-                        {t('common:register').toUpperCase()}
-                      </Button>
-                    </Grid2>
+                <Grid2 container spacing={1} width="100%">
+                  <Grid2 xs={6}>
+                    <LoginButton />
                   </Grid2>
-                </ZoomEnter>
-              </Stack>
-            )}
-          </Stack>
-        </Stack>
-        <Box
-          className={clsx(
-            parallaxImageClass,
-            css`
-              background-image: linear-gradient(
-                90deg,
-                ${theme.palette.background.default} 0%,
-                transparent,
-                ${theme.palette.background.default} 100%
-              );
-            `,
+                  <Grid2 xs={6}>
+                    <Button
+                      size="small"
+                      color="primary"
+                      variant="contained"
+                      startIcon={<PersonAddAlt1Rounded />}
+                      onClick={() => navigate(Navigation.REGISTER.path)}
+                      fullWidth
+                    >
+                      {t('common:register').toUpperCase()}
+                    </Button>
+                  </Grid2>
+                </Grid2>
+              </ZoomEnter>
+            </Stack>
           )}
-        >
-          <Box sx={{ backgroundImage: `url(${parallaxImage})` }} />
-        </Box>
-        <Stack
-          className={sectionClass}
-          sx={{
-            backgroundColor: darken(theme.palette.background.default, 0.3),
-          }}
-          direction="row"
-          flexWrap="wrap"
-          alignItems="center"
-          justifyContent="center"
-          p={4}
-          gap={4}
-        >
-          <ZoomEnter delay={zoomDelay * 7}>
-            <Box>
-              <FeatureCard
-                title={t(
-                  'dashboard:sections.features.shop.title',
-                ).toUpperCase()}
-                content={t('dashboard:sections.features.shop.content')}
-                iconUrl={cashIcon}
-              ></FeatureCard>
-            </Box>
-          </ZoomEnter>
-          <ZoomEnter delay={zoomDelay * 8}>
-            <Box>
-              <FeatureCard
-                title={t(
-                  'dashboard:sections.features.socialChat.title',
-                ).toUpperCase()}
-                content={t('dashboard:sections.features.socialChat.content')}
-                iconUrl={socialIcon}
-              />
-            </Box>
-          </ZoomEnter>
-          <ZoomEnter delay={zoomDelay * 9}>
-            <Box>
-              <FeatureCard
-                title={t(
-                  'dashboard:sections.features.rankings.title',
-                ).toUpperCase()}
-                content={t('dashboard:sections.features.rankings.content')}
-                iconUrl={podiumIcon}
-              />
-            </Box>
-          </ZoomEnter>
         </Stack>
       </Stack>
-      <LoginDialog
-        open={loginDialogOpen}
-        onClose={() => setLoginDialogOpen(false)}
-      />
-    </>
+      <Box
+        className={clsx(
+          parallaxImageClass,
+          css`
+            background-image: linear-gradient(
+              90deg,
+              ${theme.palette.background.default} 0%,
+              transparent,
+              ${theme.palette.background.default} 100%
+            );
+          `,
+        )}
+      >
+        <Box sx={{ backgroundImage: `url(${parallaxImage})` }} />
+      </Box>
+      <Stack
+        className={sectionClass}
+        sx={{
+          backgroundColor: darken(theme.palette.background.default, 0.3),
+        }}
+        direction="row"
+        flexWrap="wrap"
+        alignItems="center"
+        justifyContent="center"
+        p={4}
+        gap={4}
+      >
+        <ZoomEnter delay={zoomDelay * 7}>
+          <Box>
+            <FeatureCard
+              title={t('dashboard:sections.features.shop.title').toUpperCase()}
+              content={t('dashboard:sections.features.shop.content')}
+              iconUrl={cashIcon}
+            />
+          </Box>
+        </ZoomEnter>
+        <ZoomEnter delay={zoomDelay * 8}>
+          <Box>
+            <FeatureCard
+              title={t(
+                'dashboard:sections.features.socialChat.title',
+              ).toUpperCase()}
+              content={t('dashboard:sections.features.socialChat.content')}
+              iconUrl={socialIcon}
+            />
+          </Box>
+        </ZoomEnter>
+        <ZoomEnter delay={zoomDelay * 9}>
+          <Box>
+            <FeatureCard
+              title={t(
+                'dashboard:sections.features.rankings.title',
+              ).toUpperCase()}
+              content={t('dashboard:sections.features.rankings.content')}
+              iconUrl={podiumIcon}
+            />
+          </Box>
+        </ZoomEnter>
+      </Stack>
+    </Stack>
   )
 }
 

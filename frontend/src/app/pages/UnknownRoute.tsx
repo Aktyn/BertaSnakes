@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Stack, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import useInterval from '../hooks/useInterval'
+import { useInterval } from '../hooks/useInterval'
 import Navigation from '../navigation'
 
 export const UnknownRoute = () => {

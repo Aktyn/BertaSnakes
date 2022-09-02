@@ -20,6 +20,7 @@ const ErrorMessageMapper: { [key in ErrorCode]: KeyType } = {
     'error:email.invalidConfirmationCode',
   [ErrorCode.SESSION_NOT_FOUND]: 'error:sessionNotFound',
   [ErrorCode.NO_ACCESS_TOKEN_PROVIDED]: 'error:noAccessTokenProvided',
+  [ErrorCode.INVALID_ACCESS_TOKEN]: 'error:invalidAccessToken',
   [ErrorCode.CANNOT_OPEN_FILE]: 'error:file.cannotOpen',
   [ErrorCode.FILE_TOO_LARGE]: 'error:file.tooLarge',
 }

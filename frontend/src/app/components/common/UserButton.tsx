@@ -11,14 +11,22 @@ import {
 } from '@mui/material'
 import { lightBlue } from '@mui/material/colors'
 import { useTranslation } from 'react-i18next'
-import { smoothBezier } from '../../utils/common'
-import { useAuth } from '../auth/AuthProvider'
-import { AccountPanel } from './panels/AccountPanel'
+import { smoothBezier } from '../../../utils/common'
+import type { UserPanelProps } from '../panels/UserPanel'
+import { UserPanel } from '../panels/UserPanel'
 
-export const AccountButton = () => {
+type UserButtonProps = UserPanelProps & {
+  /** @default 'contained' */
+  variant?: 'contained' | 'text'
+}
+
+export const UserButton = ({
+  variant = 'contained',
+  isUserPrivate,
+  user,
+}: UserButtonProps) => {
   const [t] = useTranslation()
   const theme = useTheme()
-  const { user } = useAuth()
 
   const [accountPanelOpen, setAccountPanelOpen] = useState(false)
 
@@ -28,30 +36,34 @@ export const AccountButton = () => {
     }
   }, [accountPanelOpen, user])
 
-  if (!user) {
-    return null
-  }
-
   return (
     <>
-      <Tooltip arrow title={t('account:accountButton.tooltip')}>
+      <Tooltip arrow title={t('user:userButton.tooltip')}>
         <Stack
           direction="row"
           alignItems="center"
           spacing={1}
           sx={{
+            display: 'inline-flex',
             cursor: 'pointer',
             padding: '4px 8px',
             borderRadius: '8px',
-            boxShadow: '0 2px 4px #0008',
-            backgroundColor: darken(theme.palette.background.default, 0.1),
+            boxShadow: variant === 'contained' ? '0 2px 4px #0008' : 'none',
+            backgroundColor:
+              variant === 'contained'
+                ? darken(theme.palette.background.default, 0.1)
+                : '#fff0',
             transition: `background-color 0.4s ${smoothBezier}`,
             '&:hover': {
-              backgroundColor: lighten(theme.palette.background.default, 0.1),
+              backgroundColor:
+                variant === 'contained'
+                  ? lighten(theme.palette.background.default, 0.1)
+                  : '#fff1',
             },
             '& > *': {
               pointerEvents: 'none',
             },
+            overflow: 'hidden',
           }}
           onClick={() => setAccountPanelOpen(true)}
         >
@@ -65,7 +77,7 @@ export const AccountButton = () => {
           >
             {user.avatar ? (
               <img
-                src={user.avatar}
+                src={'data:image;base64,' + user.avatar}
                 alt="account-avatar"
                 style={{ width: '100%', height: '100%' }}
               />
@@ -76,13 +88,24 @@ export const AccountButton = () => {
               />
             )}
           </Avatar>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              flexGrow: 1,
+            }}
+          >
             {user.name}
           </Typography>
           <ChevronRightRounded color="inherit" />
         </Stack>
       </Tooltip>
-      <AccountPanel
+      <UserPanel
+        isUserPrivate={isUserPrivate as false}
+        user={user}
         open={accountPanelOpen}
         onOpen={!user ? () => void 0 : () => setAccountPanelOpen(true)}
         onClose={() => setAccountPanelOpen(false)}

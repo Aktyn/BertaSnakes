@@ -8,18 +8,18 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique @db.VarChar(42)
-  email     String  @unique @db.VarChar(128)
-  salt      String  @db.VarChar(16)
-  password  String  @db.VarChar(64)
+  id        Int       @id @default(autoincrement())
+  name      String    @unique @db.VarChar(42)
+  email     String    @unique @db.VarChar(128)
+  salt      String    @db.VarChar(16)
+  password  String    @db.VarChar(64)
   created   BigInt
-  lastLogin BigInt  @default(0)
-  confirmed String? @db.VarChar(64)
-  role      String  @default("regular") @db.VarChar(16)
-  avatar    String?
-
-  sessions Session[]
+  lastLogin BigInt    @default(0)
+  confirmed String?   @db.VarChar(64)
+  role      String    @default("regular") @db.VarChar(16)
+  avatar    Bytes?
+  sessions  Session[]
+  media     Media[]
 
   @@index(name, type: Hash)
   @@index(role, type: Hash)
@@ -27,11 +27,24 @@ model User {
 }
 
 model Session {
-  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           Int
   accessToken      String @id @db.VarChar(64)
   expiresTimestamp BigInt
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           Int
 
   @@index(accessToken, type: Hash)
   @@index(expiresTimestamp)
+}
+
+model Media {
+  id      Int    @id @default(autoincrement())
+  created BigInt
+  title   String @db.VarChar(128)
+  data    Bytes
+  author  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId  Int?
+
+  @@index(created)
+  @@index(userId)
+  @@index(title, type: Hash)
 }

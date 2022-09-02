@@ -16,7 +16,7 @@ import { useSearchUsers } from '../../../api/queries/useSearchUsers'
 import { zoomDelay } from '../../../utils/common'
 import { FormInput } from '../../components/form/FormInput'
 import { ZoomEnter } from '../../components/transition/ZoomEnter'
-import useDebounce from '../../hooks/useDebounce'
+import { useDebounce } from '../../hooks/useDebounce'
 import { registerSchema } from './registerSchema'
 
 const RegisterPage = () => {

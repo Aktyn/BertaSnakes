@@ -1,12 +1,12 @@
 {
-  "accountButton": {
-    "tooltip": "Open account panel"
+  "userButton": {
+    "tooltip": "Open user panel"
   },
   "userData": {
     "name": "Username",
     "email": "Email",
-    "created": "Created",
     "confirmed": "Confirmed",
+    "lastLogin": "Last login",
     "role": "Role"
   },
   "action": {

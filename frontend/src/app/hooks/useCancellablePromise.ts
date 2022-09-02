@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-export default function useCancellablePromise() {
+export function useCancellablePromise() {
   const promises = useRef<{ promise: Promise<unknown>; cancel: () => void }[]>(
     [],
   )

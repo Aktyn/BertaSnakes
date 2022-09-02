@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { smoothBezier } from '../../utils/common'
 import { useAuth } from '../auth/AuthProvider'
-import { AccountButton } from '../components/AccountButton'
+import { LoginButton } from '../components/common/LoginButton'
+import { UserButton } from '../components/common/UserButton'
 import Navigation from '../navigation'
+import { RouteActions } from './RouteActions'
 
 export const InfoBar = memo(() => {
   const [t] = useTranslation()
@@ -45,10 +47,10 @@ export const InfoBar = memo(() => {
           </IconButton>
         </Tooltip>
       </Grow>
-      <Box sx={{ display: 'inline-block' }} />
-      <Grow in={!!user} easing={smoothBezier}>
+      <RouteActions />
+      <Grow in easing={smoothBezier}>
         <Box sx={{ justifySelf: 'flex-end' }}>
-          <AccountButton />
+          {user ? <UserButton isUserPrivate user={user} /> : <LoginButton />}
         </Box>
       </Grow>
     </Box>

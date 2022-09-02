@@ -16,3 +16,4 @@ dist/
 .env
 
 npm-debug.log*
+junit.xml

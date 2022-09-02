@@ -6,7 +6,7 @@ import { useEmailConfirmation } from '../../../api/queries/useEmailConfirmation'
 import { useAuth } from '../../auth/AuthProvider'
 import { ZoomEnter } from '../../components/transition/ZoomEnter'
 import { useErrorSnackbar } from '../../hooks/useErrorSnackbar'
-import useQueryParams from '../../hooks/useQueryParams'
+import { useQueryParams } from '../../hooks/useQueryParams'
 
 enum STATUS {
   PENDING,

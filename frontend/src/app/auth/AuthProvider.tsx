@@ -19,7 +19,7 @@ import {
   setAuthorizationHeader,
 } from '../../api'
 import { getMe, login as sendLoginRequest } from '../../api/user'
-import useCancellablePromise from '../hooks/useCancellablePromise'
+import { useCancellablePromise } from '../hooks/useCancellablePromise'
 import { useErrorSnackbar } from '../hooks/useErrorSnackbar'
 
 const AuthContext = createContext({
@@ -55,6 +55,20 @@ export const AuthProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
     removeAuthorizationHeader()
     setUser(null)
   }, [])
+
+  useEffect(() => {
+    api.interceptors.response.use(undefined, (error: AxiosError) => {
+      const isUnauthorized =
+        !!error.response && [401, 403].includes(error.response.status)
+
+      if (isUnauthorized) {
+        enqueueErrorSnackbar(error, t('error:requestUnauthorized'))
+        removeSession()
+      }
+
+      return Promise.reject(error.response || error.message)
+    })
+  }, [enqueueErrorSnackbar, removeSession, t])
 
   const login = useCallback<AuthContextType['login']>(
     async (usernameOrEmail, password) => {
@@ -93,25 +107,11 @@ export const AuthProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
             return
           }
           setFetchingAccountData(false)
-          removeSession()
+          removeSession() //TODO: session should not be removed when error is caused by client-server connection problem
           enqueueErrorSnackbar(err, t('common:login.sessionExpired'))
         })
     }
   }, [cancellable, enqueueErrorSnackbar, enqueueSnackbar, removeSession, t])
-
-  useEffect(() => {
-    api.interceptors.response.use(undefined, (error: AxiosError) => {
-      const isUnauthorized =
-        !!error.response && [401, 403].includes(error.response.status)
-
-      if (isUnauthorized) {
-        enqueueErrorSnackbar(error, t('error:requestUnauthorized'))
-        removeSession()
-      }
-
-      return Promise.reject(error.response || error.message)
-    })
-  }, [enqueueErrorSnackbar, removeSession, t])
 
   const authValue = useMemo<AuthContextType>(
     () => ({

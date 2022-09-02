@@ -4,6 +4,7 @@
   "play": "Play",
   "logIn": "Log in",
   "register": "Register",
+  "created": "Created",
   "goToRegisterPage": "Go to register page",
   "paypal": {
     "donate": "Donate project via PayPal"

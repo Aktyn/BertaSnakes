@@ -23,18 +23,19 @@ import { PrismaService } from '../../db/prisma.service'
 import { EmailService } from '../email/email.service'
 
 import { SessionService } from './session.service'
-import type { CreateUserDto, LoginUserDto } from './user.dto'
+import type { LoginUserDto, CreateUserDto } from './user.schema'
 
-const parseToUserPublic = (
+export const parseToUserPublic = (
   data: {
     [key in keyof UserPublic]: User[key]
   },
   override: Partial<UserPublic> = {},
 ): UserPublic => ({
-  ...pick(data, 'id', 'name', 'avatar'),
+  ...pick(data, 'id', 'name'),
   created: Number(data.created),
   lastLogin: Number(data.lastLogin),
   role: data.role as UserRole,
+  avatar: data.avatar?.toString('base64') ?? null,
   ...override,
 })
 
@@ -50,7 +51,7 @@ const parseToUserPrivate = (
   ...override,
 })
 
-const selectPublic: { [key in keyof UserPublic]: true } = {
+export const selectUserPublic: { [key in keyof UserPublic]: true } = {
   id: true,
   name: true,
   created: true,
@@ -59,8 +60,8 @@ const selectPublic: { [key in keyof UserPublic]: true } = {
   avatar: true,
 }
 
-const selectPrivate: { [key in keyof UserPrivate]: true } = {
-  ...selectPublic,
+const selectUserPrivate: { [key in keyof UserPrivate]: true } = {
+  ...selectUserPublic,
   email: true,
   confirmed: true,
 }
@@ -77,7 +78,7 @@ export class UserService {
 
   private updateUserLastLogin(
     userId: User['id'],
-    select = selectPrivate,
+    select = selectUserPrivate,
     now = Date.now(),
   ) {
     return this.prisma.user.update({
@@ -140,7 +141,7 @@ export class UserService {
         take: pageSize,
         where: conditions,
         //orderBy, //TODO: sorting options
-        select: selectPublic,
+        select: selectUserPublic,
       }),
     ])
 
@@ -220,7 +221,7 @@ export class UserService {
       where: {
         id: session.userId,
       },
-      select: selectPrivate,
+      select: selectUserPrivate,
     })
 
     if (!user) {
@@ -275,7 +276,7 @@ export class UserService {
 
     const createdUser = await this.prisma.user.create({
       data,
-      select: selectPrivate,
+      select: selectUserPrivate,
     })
     this.logger.log(
       `New user created {id: ${createdUser.id}; name: ${createdUser.name}}`,
@@ -302,7 +303,7 @@ export class UserService {
         where: {
           confirmed: { equals: confirmationCode, mode: 'default' },
         },
-        select: selectPrivate,
+        select: selectUserPrivate,
       })
 
       if (!user) {
@@ -319,7 +320,7 @@ export class UserService {
         where: {
           id: user.id,
         },
-        select: selectPrivate,
+        select: selectUserPrivate,
       })
 
       const session = this.sessionService.createSession(user)
@@ -348,12 +349,12 @@ export class UserService {
 
     const user = await this.prisma.user.update({
       data: {
-        avatar: base64,
+        avatar: base64 ? Buffer.from(base64, 'base64') : null,
       },
       where: {
         id: session.userId,
       },
-      select: selectPublic,
+      select: selectUserPublic,
     })
 
     if (!user) {

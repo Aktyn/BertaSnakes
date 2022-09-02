@@ -7,7 +7,7 @@ type ArgumentTypes<F extends Func> = F extends (...args: infer A) => void
   ? A
   : never
 
-export default function useDebounce<T extends Func>(
+export function useDebounce<T extends Func>(
   func: T,
   delay = 0,
   deps?: unknown[],

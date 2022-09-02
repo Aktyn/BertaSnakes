@@ -5,6 +5,7 @@ import type { SwipeableDrawerProps } from '@mui/material'
 import { Box, SwipeableDrawer, Button, Stack } from '@mui/material'
 import { AxiosError } from 'axios'
 import { parseTimestamp } from 'berta-snakes-shared'
+import type { UserPrivate, UserPublic } from 'berta-snakes-shared'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { setAvatar } from '../../../api/user'
@@ -17,19 +18,32 @@ import { CenteredStatsRow } from '../common/CenteredStatsRow'
 import { AvatarInput } from '../form/AvatarInput'
 import { ZoomEnter } from '../transition/ZoomEnter'
 
-type AccountPanelProps = SwipeableDrawerProps
+export type UserPanelProps =
+  | {
+      isUserPrivate?: true
+      user: UserPrivate
+    }
+  | {
+      isUserPrivate?: false
+      user: UserPublic
+    }
 
-export const AccountPanel = ({
+export const UserPanel = ({
+  isUserPrivate,
+  user,
   onClose,
   ...drawerProps
-}: AccountPanelProps) => {
+}: UserPanelProps & SwipeableDrawerProps) => {
   const [t] = useTranslation()
-  const { user, logout, updateUserData } = useAuth()
+  const { user: selfUser, logout, updateUserData } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
   const { enqueueErrorSnackbar } = useErrorSnackbar()
 
+  const isSelfUser = selfUser?.id === user.id
+
   const handleChangeAvatar = async (base64?: string) => {
     try {
+      base64 = base64?.replace(/^data:image(\/[^;]+)?;base64,/i, '')
       const response = await setAvatar({
         base64: base64 ?? null,
       })
@@ -37,41 +51,56 @@ export const AccountPanel = ({
         throw new Error()
       }
       updateUserData({ avatar: base64 ?? null })
-      enqueueSnackbar(t('account:action.avatarSetSuccess'), {
+      enqueueSnackbar(t('user:action.avatarSetSuccess'), {
         variant: 'success',
       })
       return true
     } catch (err) {
       enqueueErrorSnackbar(
         err instanceof AxiosError ? err : null,
-        t('account:action.avatarSetError'),
+        t('user:action.avatarSetError'),
       )
       return false
     }
   }
 
-  const userData = useMemo<{ label: KeyType; value: ReactNode }[]>(
-    () =>
-      user
-        ? [
-            { label: 'account:userData.name', value: user.name },
-            { label: 'account:userData.email', value: user.email },
-            {
-              label: 'account:userData.created',
-              value: parseTimestamp(user.created),
-            },
-            {
-              label: 'account:userData.confirmed',
-              value: <BooleanValue>{user.confirmed}</BooleanValue>,
-            },
-            {
-              label: 'account:userData.role',
-              value: t(`common:roleName.${user.role}`), //TODO: color coded role chips
-            },
-          ]
-        : [],
-    [t, user],
-  )
+  type UserDataEntry = { label: KeyType; value: ReactNode }
+
+  const userData = useMemo(() => {
+    if (!user) {
+      return [] as UserDataEntry[]
+    }
+    const data: UserDataEntry[] = [
+      { label: 'user:userData.name', value: user.name },
+      {
+        label: 'user:userData.role',
+        value: t(`common:roleName.${user.role}`), //TODO: color coded role chips
+      },
+      {
+        label: 'common:created',
+        value: parseTimestamp(user.created),
+      },
+    ]
+
+    if (isUserPrivate) {
+      if (!isSelfUser) {
+        data.push({
+          label: 'user:userData.lastLogin',
+          value: parseTimestamp(user.lastLogin),
+        })
+      }
+
+      data.push(
+        { label: 'user:userData.email', value: user.email },
+        {
+          label: 'user:userData.confirmed',
+          value: <BooleanValue>{user.confirmed}</BooleanValue>,
+        },
+      )
+    }
+
+    return data
+  }, [isSelfUser, isUserPrivate, t, user])
 
   if (!user) {
     return null
@@ -118,16 +147,18 @@ export const AccountPanel = ({
             ))}
           </Stack>
         </Stack>
-        <ZoomEnter delay={zoomDelay * userData.length}>
-          <Button
-            variant="contained"
-            color="primary"
-            endIcon={<LogoutRounded />}
-            onClick={logout}
-          >
-            {t('account:action.logout')}
-          </Button>
-        </ZoomEnter>
+        {isSelfUser && (
+          <ZoomEnter delay={zoomDelay * userData.length}>
+            <Button
+              variant="contained"
+              color="primary"
+              endIcon={<LogoutRounded />}
+              onClick={logout}
+            >
+              {t('user:action.logout')}
+            </Button>
+          </ZoomEnter>
+        )}
       </Stack>
     </SwipeableDrawer>
   )
