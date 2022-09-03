@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Post, Query, Req } from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -34,7 +34,7 @@ export class MediaController {
   @ApiQuery({
     name: 'sortDirection',
     enum: ['asc', 'desc'],
-    example: 'desc',
+    example: 'asc',
     required: false,
   })
   @Get()
@@ -70,5 +70,15 @@ export class MediaController {
       submitGalleryMediaDto,
       retrieveAccessToken(request),
     )
+  }
+
+  @ApiQuery({ name: 'id', type: Number, required: false })
+  @Delete()
+  @ApiCreatedResponse({
+    type: SuccessResponseClass,
+    description: 'Information whether request was successful',
+  })
+  deleteMedia(@Query('id') id: number, @Req() request: ExpressRequest) {
+    return this.service.deleteMedia(int(id), retrieveAccessToken(request))
   }
 }

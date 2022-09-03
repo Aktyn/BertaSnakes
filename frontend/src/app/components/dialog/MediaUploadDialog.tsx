@@ -16,10 +16,12 @@ import {
   Tooltip,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { useGalleryMedia } from '../../../api/queries/useGalleryMedia'
 import { openImageFile } from '../../../utils/common'
 import { useErrorSnackbar } from '../../hooks/useErrorSnackbar'
 import { useMounted } from '../../hooks/useMounted'
+import Navigation from '../../navigation'
 import { DecisionDialog } from './DecisionDialog'
 
 interface MediaUploadDialogProps
@@ -32,9 +34,10 @@ export const MediaUploadDialog = ({
   ...dialogProps
 }: MediaUploadDialogProps) => {
   const [t] = useTranslation()
+  const navigate = useNavigate()
   const mounted = useMounted()
   const { enqueueErrorSnackbar } = useErrorSnackbar()
-  const { isGalleryMediaSubmitting, submitGalleryMedia } = useGalleryMedia()
+  const { isGalleryMediaSubmitting, submitGalleryMedia } = useGalleryMedia(0)
 
   const [mediaTitle, setMediaTitle] = useState('')
   const [fileData, setFileData] = useState<string | null>(null)
@@ -60,12 +63,13 @@ export const MediaUploadDialog = ({
             data: fileData.replace(/^data:image(\/[^;]+)?;base64,/i, ''),
           },
           {
-            onSuccess: () => {
-              if (!mounted) {
+            onSuccess: (res) => {
+              if (!mounted || !res.data.success) {
                 return
               }
               setMediaTitle('')
               setFileData(null)
+              navigate(Navigation.GALLERY.path)
               onClose()
             },
           },

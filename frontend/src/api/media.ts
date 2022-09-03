@@ -17,3 +17,6 @@ export const searchGalleryMedia = (
 
 export const submitGalleryMedia = (request: SubmitGalleryMediaRequest) =>
   api.post<SuccessResponse>('/media', request)
+
+export const deleteGalleryMedia = (mediaId: GalleryMedia['id']) =>
+  api.delete<SuccessResponse>('/media', { params: { id: mediaId } })

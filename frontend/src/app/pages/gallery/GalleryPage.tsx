@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { Masonry } from '@mui/lab'
 import type { Theme } from '@mui/material'
 import { CircularProgress, Stack, useMediaQuery } from '@mui/material'
@@ -9,22 +9,22 @@ import { MediaItem } from './MediaItem'
 const ITEM_WIDTH = 256
 
 const GalleryPage = () => {
-  const { searchGalleryMedia, galleryMedia, isGalleryMediaFetching } =
-    useGalleryMedia()
-
   const belowLG = useMediaQuery<Theme>((theme) => theme.breakpoints.down('lg'))
   const belowMD = useMediaQuery<Theme>((theme) => theme.breakpoints.down('md'))
   const columns = belowMD ? 1 : belowLG ? 2 : 3
 
-  const search = useCallback(
-    (page: number) =>
-      searchGalleryMedia({
-        page,
-        sortKey: 'created',
-        sortDirection: 'desc',
-      }),
-    [searchGalleryMedia],
-  )
+  const [page, setPage] = useState<number | null>(null)
+  const [pages, setPages] = useState(0)
+
+  const { galleryMedia, isGalleryMediaFetching } = useGalleryMedia(page)
+
+  useEffect(() => {
+    if (galleryMedia) {
+      setPages(
+        Math.ceil(galleryMedia.total / Math.max(1, galleryMedia.pageSize)),
+      )
+    }
+  }, [galleryMedia])
 
   return (
     <Stack
@@ -47,14 +47,7 @@ const GalleryPage = () => {
           ))}
         </Masonry>
       )}
-      <Pagination
-        pages={
-          galleryMedia
-            ? Math.ceil(galleryMedia.total / Math.max(1, galleryMedia.pageSize))
-            : 0
-        }
-        onChange={search}
-      />
+      <Pagination pages={pages} onChange={setPage} />
     </Stack>
   )
 }

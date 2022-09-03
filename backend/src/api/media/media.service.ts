@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common'
 import type { Media, Prisma, User } from '@prisma/client'
 import type {
   GalleryMedia,
@@ -45,7 +49,7 @@ const orderByKeysMapping: {
 
 @Injectable()
 export class MediaService {
-  // private readonly logger = new Logger(MediaService.name)
+  private readonly logger = new Logger(MediaService.name)
 
   constructor(
     private prisma: PrismaService,
@@ -68,7 +72,7 @@ export class MediaService {
         orderBy: searchParameters.sortKey
           ? {
               [orderByKeysMapping[searchParameters.sortKey]]:
-                searchParameters.sortDirection ?? 'desc',
+                searchParameters.sortDirection ?? 'asc',
             }
           : undefined,
         select: selectGalleryMediaPublic,
@@ -103,6 +107,23 @@ export class MediaService {
         userId: session.userId,
       },
     })
+
+    return { success: true }
+  }
+
+  async deleteMedia(id: number, accessToken: string): Promise<SuccessResponse> {
+    const session = this.sessionService.getSession(accessToken)
+
+    //_session.role
+    //TODO: check if user has proper permissions to perform this action
+
+    await this.prisma.media.delete({
+      where: {
+        id,
+      },
+    })
+
+    this.logger.log(`User ${session.userId} deleted media ${id}`)
 
     return { success: true }
   }

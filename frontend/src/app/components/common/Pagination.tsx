@@ -17,6 +17,7 @@ export const Pagination = ({
   onChange,
   ...muiPaginationProps
 }: PaginationProps) => {
+  //TODO: separate logic into usePagination hook and use it for better data refetching (in gallery page for example)
   const params = useQueryParams() as { page?: string }
   const navigate = useNavigate()
 
@@ -28,16 +29,17 @@ export const Pagination = ({
 
   const setPage = useCallback(
     (_: ChangeEvent<unknown> | null, value: number) => {
-      navigate({ search: qs.stringify({ ...params, page: value }) })
+      const p = qs.parse(window.location.search, { ignoreQueryPrefix: true })
+      navigate({ search: qs.stringify({ ...p, page: value }) })
 
       // To force page refresh:
       // window.history.replaceState(null, '', `${window.location.pathname}?${nextSearch}`);
     },
-    [navigate, params],
+    [navigate],
   )
 
   useEffect(() => {
-    if (page > pages) {
+    if (pages > 0 && page > pages) {
       setPage(null, pages)
     }
   }, [page, pages, setPage])

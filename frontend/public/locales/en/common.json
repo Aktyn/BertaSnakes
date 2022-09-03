@@ -8,6 +8,8 @@
   "cancel": "Cancel",
   "confirm": "Confirm",
   "upload": "Upload",
+  "delete": "Delete",
+  "more": "More",
   "goToRegisterPage": "Go to register page",
   "paypal": {
     "donate": "Donate project via PayPal"

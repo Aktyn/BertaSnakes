@@ -2,10 +2,12 @@
   "author": "Author",
   "error": {
     "cannotFetchGalleryMedia": "Cannot fetch gallery media",
-    "cannotSubmitGalleryMedia": "Cannot submit gallery media"
+    "cannotSubmitGalleryMedia": "Cannot submit gallery media",
+    "cannotDeleteGalleryMedia": "Cannot delete gallery media"
   },
   "success": {
-    "galleryMediaSubmitted": "Gallery media submitted"
+    "galleryMediaSubmitted": "Gallery media submitted",
+    "galleryMediaDeleted": "Gallery media deleted"
   },
   "action": {
     "uploadMedia": "Upload media"
