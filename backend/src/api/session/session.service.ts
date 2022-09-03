@@ -1,6 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import type { User } from '@prisma/client'
-import { Config, getRandomString, pick, Repeatable } from 'berta-snakes-shared'
+import {
+  Config,
+  ErrorCode,
+  getRandomString,
+  pick,
+  Repeatable,
+} from 'berta-snakes-shared'
 
 import { sha256 } from '../../common/crypto'
 import { PrismaService } from '../../db/prisma.service'
@@ -55,6 +61,8 @@ export class SessionService {
       runImmediately: false,
       frequency: 1000 * 60 * 60,
     })
+
+    this.logger.log('Session service initialized')
   }
 
   private removeExpired() {
@@ -83,8 +91,15 @@ export class SessionService {
   getSession(accessToken: string) {
     const session = this.sessions.get(accessToken)
     if (!session || session.expiresTimestamp <= Date.now()) {
-      return undefined
+      if (session) {
+        // Remove expired session
+        this.sessions.delete(accessToken)
+      }
+      throw new UnauthorizedException({
+        error: ErrorCode.SESSION_NOT_FOUND,
+      })
     }
+
     return session
   }
 

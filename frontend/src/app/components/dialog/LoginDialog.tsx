@@ -42,7 +42,7 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
     password: string
   }
 
-  const { control, handleSubmit } = useForm<FieldsType>({
+  const { control, handleSubmit, watch } = useForm<FieldsType>({
     resolver: joiResolver(loginSchema),
     defaultValues:
       process.env.NODE_ENV === 'development'
@@ -52,6 +52,8 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
           }
         : undefined,
   })
+  const login = watch('login')
+  const password = watch('password')
 
   const handleLogin = (data: FieldsType) => {
     setIsLoggingIn(true)
@@ -74,7 +76,7 @@ export const LoginDialog = ({ onClose, ...dialogProps }: LoginDialogProps) => {
       title={t('dialog:login.title')}
       confirmEndIcon={<LoginRounded />}
       confirmContent={t('common:logIn')}
-      disableConfirm={isLoggingIn}
+      disableConfirm={isLoggingIn || !login.length || !password.length}
       loading={isLoggingIn}
       {...dialogProps}
     >

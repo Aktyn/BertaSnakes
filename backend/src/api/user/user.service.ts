@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common'
 import type { Prisma, User } from '@prisma/client'
 import type {
@@ -21,8 +20,8 @@ import { pick, getRandomString, ErrorCode } from 'berta-snakes-shared'
 import { sha256 } from '../../common/crypto'
 import { PrismaService } from '../../db/prisma.service'
 import { EmailService } from '../email/email.service'
+import { SessionService } from '../session/session.service'
 
-import { SessionService } from './session.service'
 import type { LoginUserDto, CreateUserDto } from './user.schema'
 
 export const parseToUserPublic = (
@@ -90,18 +89,6 @@ export class UserService {
       },
       select,
     })
-  }
-
-  private getSession(accessToken: string) {
-    const session = this.sessionService.getSession(accessToken)
-
-    if (!session) {
-      throw new UnauthorizedException({
-        error: ErrorCode.SESSION_NOT_FOUND,
-      })
-    }
-
-    return session
   }
 
   async findAll(
@@ -215,7 +202,7 @@ export class UserService {
   }
 
   async getSelfUser(accessToken: string): Promise<UserPrivate> {
-    const session = this.getSession(accessToken)
+    const session = this.sessionService.getSession(accessToken)
 
     const user = await this.prisma.user.findUnique({
       where: {
@@ -345,7 +332,7 @@ export class UserService {
     base64: string | null,
     accessToken: string,
   ): Promise<SuccessResponse> {
-    const session = this.getSession(accessToken)
+    const session = this.sessionService.getSession(accessToken)
 
     const user = await this.prisma.user.update({
       data: {

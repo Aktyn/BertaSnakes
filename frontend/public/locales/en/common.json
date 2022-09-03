@@ -5,6 +5,9 @@
   "logIn": "Log in",
   "register": "Register",
   "created": "Created",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "upload": "Upload",
   "goToRegisterPage": "Go to register page",
   "paypal": {
     "donate": "Donate project via PayPal"
@@ -13,8 +16,6 @@
     "connected": "Connected to server",
     "disconnected": "Disconnected from server"
   },
-  "cancel": "Cancel",
-  "confirm": "Confirm",
   "login": {
     "success": "Login successful",
     "error": "Login failed",

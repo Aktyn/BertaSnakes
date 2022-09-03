@@ -10,6 +10,10 @@ export interface GalleryMedia {
   author: UserPublic | null
 }
 
-export interface SearchGalleryMediaRequest {
-  orderBy?: OrderByRequest<'created'>
+export type SearchGalleryMediaRequest = OrderByRequest<'created'>
+
+export interface SubmitGalleryMediaRequest {
+  title: string
+  /** Base64 media data or null */
+  data: string
 }

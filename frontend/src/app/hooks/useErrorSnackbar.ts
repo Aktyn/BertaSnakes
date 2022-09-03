@@ -31,14 +31,16 @@ export function useErrorSnackbar() {
 
   return useMemo<{
     enqueueErrorSnackbar: (
-      error: AxiosError | undefined | null | unknown,
+      error: AxiosError | number | undefined | null | unknown,
       fallbackMessage: string,
     ) => SnackbarKey
   }>(() => {
     return {
       enqueueErrorSnackbar: (error, fallbackMessage) => {
         const errorCode =
-          error instanceof AxiosError
+          typeof error === 'number'
+            ? (error as ErrorCode)
+            : error instanceof AxiosError
             ? (error.response?.data as { error?: ErrorCode }).error
             : undefined
         return enqueueSnackbar(

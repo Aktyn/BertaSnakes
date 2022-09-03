@@ -1,6 +1,13 @@
 {
+  "author": "Author",
   "error": {
-    "cannotFetchGalleryMedia": "Cannot fetch gallery media"
+    "cannotFetchGalleryMedia": "Cannot fetch gallery media",
+    "cannotSubmitGalleryMedia": "Cannot submit gallery media"
   },
-  "author": "Author"
+  "success": {
+    "galleryMediaSubmitted": "Gallery media submitted"
+  },
+  "action": {
+    "uploadMedia": "Upload media"
+  }
 }

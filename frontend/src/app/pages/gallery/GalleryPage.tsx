@@ -20,7 +20,8 @@ const GalleryPage = () => {
     (page: number) =>
       searchGalleryMedia({
         page,
-        orderBy: { key: 'created', direction: 'desc' },
+        sortKey: 'created',
+        sortDirection: 'desc',
       }),
     [searchGalleryMedia],
   )

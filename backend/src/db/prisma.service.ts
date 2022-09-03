@@ -8,12 +8,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
   constructor() {
     super()
-    this.logger.log('PrismaService created')
   }
 
   async onModuleInit() {
     try {
       await this.$connect()
+      this.logger.log('Connected to database')
     } catch (err) {
       this.logger.error(err)
     }

@@ -13,9 +13,9 @@ export type PaginatedResponse<DataType> = {
 }
 
 export type OrderByRequest<KeyType = string> = {
-  key: KeyType
+  sortKey?: KeyType
   /** @default 'desc' */
-  direction?: 'asc' | 'desc'
+  sortDirection?: 'asc' | 'desc'
 }
 
 export interface SuccessResponse {

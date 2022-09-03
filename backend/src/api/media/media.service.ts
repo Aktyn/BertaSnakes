@@ -4,11 +4,14 @@ import type {
   GalleryMedia,
   PaginatedResponse,
   SearchGalleryMediaRequest,
+  SubmitGalleryMediaRequest,
+  SuccessResponse,
   UserPublic,
 } from 'berta-snakes-shared'
 import { pick, ErrorCode } from 'berta-snakes-shared'
 
 import { PrismaService } from '../../db/prisma.service'
+import { SessionService } from '../session/session.service'
 import { parseToUserPublic, selectUserPublic } from '../user/user.service'
 
 const parseToGalleryMedia = (data: {
@@ -35,7 +38,7 @@ const selectGalleryMediaPublic: {
 }
 
 const orderByKeysMapping: {
-  [key in Required<SearchGalleryMediaRequest>['orderBy']['key']]: keyof Prisma.MediaOrderByWithRelationInput
+  [key in Required<SearchGalleryMediaRequest>['sortKey']]: keyof Prisma.MediaOrderByWithRelationInput
 } = {
   created: 'created',
 }
@@ -44,7 +47,10 @@ const orderByKeysMapping: {
 export class MediaService {
   // private readonly logger = new Logger(MediaService.name)
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private sessionService: SessionService,
+  ) {}
 
   async findAll(
     page: number,
@@ -59,10 +65,10 @@ export class MediaService {
         skip: page * pageSize,
         take: pageSize,
         where: conditions,
-        orderBy: searchParameters.orderBy
+        orderBy: searchParameters.sortKey
           ? {
-              [orderByKeysMapping[searchParameters.orderBy.key]]:
-                searchParameters.orderBy.direction ?? 'desc',
+              [orderByKeysMapping[searchParameters.sortKey]]:
+                searchParameters.sortDirection ?? 'desc',
             }
           : undefined,
         select: selectGalleryMediaPublic,
@@ -81,5 +87,23 @@ export class MediaService {
       pageSize,
       total: results[0],
     }
+  }
+
+  async addMedia(
+    request: SubmitGalleryMediaRequest,
+    accessToken: string,
+  ): Promise<SuccessResponse> {
+    const session = this.sessionService.getSession(accessToken)
+
+    await this.prisma.media.create({
+      data: {
+        created: Date.now(),
+        title: request.title,
+        data: Buffer.from(request.data, 'base64'),
+        userId: session.userId,
+      },
+    })
+
+    return { success: true }
   }
 }

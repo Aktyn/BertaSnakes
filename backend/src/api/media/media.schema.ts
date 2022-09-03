@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger'
 import type {
   GalleryMedia,
   PaginatedResponse,
-  SearchGalleryMediaRequest,
+  SubmitGalleryMediaRequest,
 } from 'berta-snakes-shared'
+import { IsBase64, IsString } from 'class-validator'
 
-import { OrderByBaseClass } from '../../common/common.schema'
 import { UserPublicClass } from '../user/user.schema'
 
 export class GalleryMediaClass implements GalleryMedia {
@@ -41,12 +41,13 @@ export class GalleryMediaPaginatedResponse
   total!: number
 }
 
-type T = Required<SearchGalleryMediaRequest>['orderBy']
-export class GalleryMediaOrderByClass extends OrderByBaseClass implements T {
-  @ApiProperty({
-    enum: [
-      'created',
-    ] as Required<SearchGalleryMediaRequest>['orderBy']['key'][],
-  })
-  key!: 'created'
+export class SubmitGalleryMediaDto implements SubmitGalleryMediaRequest {
+  @ApiProperty()
+  @IsString()
+  readonly title!: string
+
+  @ApiProperty()
+  @IsString()
+  @IsBase64()
+  readonly data!: string
 }

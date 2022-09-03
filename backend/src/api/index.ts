@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import type { SecuritySchemeObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface'
+import { Config } from 'berta-snakes-shared'
 import { json } from 'express'
 
 import { PrismaService } from '../db/prisma.service'
@@ -34,7 +35,8 @@ async function bootstrap() {
   })
   app.setGlobalPrefix('/api')
   app.enableCors()
-  app.use(json({ limit: '2mb' }))
+  /** Considers base64 conversion which is roughly 8/6 size of original data */
+  app.use(json({ limit: (Config.MAXIMUM_IMAGE_FILE_SIZE * 8) / 6 + 1024 }))
 
   setupSwagger(app)
 

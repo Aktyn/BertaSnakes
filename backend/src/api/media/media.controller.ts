@@ -1,11 +1,21 @@
-import { Controller, Get, Query } from '@nestjs/common'
-import { ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common'
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger'
 import type { SearchGalleryMediaRequest } from 'berta-snakes-shared'
 import { Config, int } from 'berta-snakes-shared'
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import type { Request as ExpressRequest } from 'express'
+
+import { SuccessResponseClass } from '../../common/common.schema'
+import { retrieveAccessToken } from '../../common/rest'
 
 import {
-  GalleryMediaOrderByClass,
   GalleryMediaPaginatedResponse,
+  SubmitGalleryMediaDto,
 } from './media.schema'
 import { MediaService } from './media.service'
 
@@ -17,8 +27,14 @@ export class MediaController {
   @ApiQuery({ name: 'page', type: Number, required: false })
   @ApiQuery({ name: 'pageSize', type: Number, required: false })
   @ApiQuery({
-    name: 'orderBy',
-    type: GalleryMediaOrderByClass,
+    name: 'sortKey',
+    enum: ['created'] as Required<SearchGalleryMediaRequest>['sortKey'][],
+    required: false,
+  })
+  @ApiQuery({
+    name: 'sortDirection',
+    enum: ['asc', 'desc'],
+    example: 'desc',
     required: false,
   })
   @Get()
@@ -29,12 +45,30 @@ export class MediaController {
   findAll(
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
-    @Query('orderBy') orderBy?: SearchGalleryMediaRequest['orderBy'],
+    @Query('sortKey') sortKey?: SearchGalleryMediaRequest['sortKey'],
+    @Query('sortDirection')
+    sortDirection?: SearchGalleryMediaRequest['sortDirection'],
   ) {
     return this.service.findAll(
       Math.max(0, int(page)),
       int(pageSize) || Config.TABLE.DEFAULT_PAGE_SIZE,
-      { orderBy },
+      { sortKey, sortDirection },
+    )
+  }
+
+  @ApiBearerAuth('Bearer')
+  @Post()
+  @ApiCreatedResponse({
+    type: SuccessResponseClass,
+    description: 'Information whether request was successful',
+  })
+  submitMedia(
+    @Body() submitGalleryMediaDto: SubmitGalleryMediaDto,
+    @Req() request: ExpressRequest,
+  ) {
+    return this.service.addMedia(
+      submitGalleryMediaDto,
+      retrieveAccessToken(request),
     )
   }
 }

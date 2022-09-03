@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common'
 
-import { PrismaService } from '../../db/prisma.service'
+import { DependencyPrismaModule } from '../../db/dependency-prisma.module'
 import { EmailModule } from '../email/email.module'
+import { DependencySessionModule } from '../session/dependency-session.module'
 
-import { SessionService } from './session.service'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
 
 @Module({
-  imports: [EmailModule],
+  imports: [EmailModule, DependencySessionModule, DependencyPrismaModule],
   controllers: [UserController],
-  providers: [UserService, PrismaService, SessionService],
+  providers: [UserService],
 })
 export class UserModule {}

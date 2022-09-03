@@ -3,13 +3,17 @@ import type {
   PaginatedRequest,
   PaginatedResponse,
   SearchGalleryMediaRequest,
+  SubmitGalleryMediaRequest,
+  SuccessResponse,
 } from 'berta-snakes-shared'
-import { flattenObject } from 'berta-snakes-shared'
 import { api } from '.'
 
 export const searchGalleryMedia = (
   request: PaginatedRequest<SearchGalleryMediaRequest>,
 ) =>
   api.get<PaginatedResponse<GalleryMedia>>('/media', {
-    params: flattenObject(request),
+    params: request,
   })
+
+export const submitGalleryMedia = (request: SubmitGalleryMediaRequest) =>
+  api.post<SuccessResponse>('/media', request)

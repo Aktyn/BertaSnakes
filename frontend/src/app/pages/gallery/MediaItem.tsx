@@ -16,9 +16,9 @@ export const MediaItem = ({ media, width }: MediaItemProps) => {
     <Stack
       alignItems="center"
       spacing={2}
+      padding={1}
       sx={{
         width: `${width}px`,
-        padding: 2,
         backgroundColor: (theme) =>
           lighten(theme.palette.background.default, 0.1),
         border: (theme) =>

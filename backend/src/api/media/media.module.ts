@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common'
 
-import { PrismaService } from '../../db/prisma.service'
+import { DependencyPrismaModule } from '../../db/dependency-prisma.module'
+import { DependencySessionModule } from '../session/dependency-session.module'
 
 import { MediaController } from './media.controller'
 import { MediaService } from './media.service'
 
 @Module({
-  imports: [],
+  imports: [DependencySessionModule, DependencyPrismaModule],
   controllers: [MediaController],
-  providers: [MediaService, PrismaService],
+  providers: [MediaService],
 })
 export class MediaModule {}
