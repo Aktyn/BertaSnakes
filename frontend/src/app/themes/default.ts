@@ -1,4 +1,10 @@
-import { alpha, createTheme, darken, svgIconClasses } from '@mui/material'
+import {
+  alpha,
+  createTheme,
+  darken,
+  emphasize,
+  svgIconClasses,
+} from '@mui/material'
 import {
   common,
   indigo,
@@ -9,6 +15,7 @@ import {
 } from '@mui/material/colors'
 
 const textPrimary = lightBlue[50]
+const textSecondary = emphasize(lightBlue[100], 0.2)
 const backgroundDefault = darken(lightBlue[900], 0.5)
 const paperBackgroundDefault = darken(lightBlue[900], 0.4)
 
@@ -20,6 +27,7 @@ export const defaultTheme = createTheme({
     },
     text: {
       primary: textPrimary,
+      secondary: textSecondary,
     },
     primary: {
       main: lightBlue[500],
@@ -161,6 +169,27 @@ export const defaultTheme = createTheme({
         root: {
           borderRadius: 16,
         },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          border: 'none',
+          color: textSecondary,
+        },
+        body: {
+          borderBottom: 'none',
+          borderTop: `1px solid ${darken(lightBlue[900], 0.2)}`,
+        },
+        footer: {
+          borderBottom: 'none',
+          borderTop: `1px solid ${darken(lightBlue[900], 0.2)}`,
+        },
+      },
+    },
+    MuiTable: {
+      styleOverrides: {
+        root: {},
       },
     },
   },

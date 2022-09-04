@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  regular
+  moderator
+  admin
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   name      String    @unique @db.VarChar(42)
@@ -16,7 +22,7 @@ model User {
   created   BigInt
   lastLogin BigInt    @default(0)
   confirmed String?   @db.VarChar(64)
-  role      String    @default("regular") @db.VarChar(16)
+  role      UserRole  @default(regular) //@db.VarChar(16)
   avatar    Bytes?
   sessions  Session[]
   media     Media[]

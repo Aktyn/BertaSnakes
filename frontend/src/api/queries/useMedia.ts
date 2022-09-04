@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
@@ -9,22 +10,27 @@ import {
 } from '../media'
 import { useApiMutation } from './useApiMutation'
 
-export function useGalleryMedia(page?: number | null) {
+export function useMedia(page?: number) {
   const [t] = useTranslation()
 
   const { enqueueSnackbar } = useSnackbar()
   const { enqueueErrorSnackbar } = useErrorSnackbar()
 
+  const request = useMemo(
+    () => ({
+      page,
+      sortKey: 'created',
+      sortDirection: 'desc',
+      pageSize: 6,
+    }),
+    [page],
+  )
+
   const galleryMediaQuery = useQuery(
-    `/media?page=${page}`,
+    `/media?page=${page ?? '-'}`,
     () =>
       typeof page === 'number'
-        ? searchGalleryMedia({
-            page,
-            sortKey: 'created',
-            sortDirection: 'desc',
-            pageSize: 6,
-          })
+        ? searchGalleryMedia(request)
         : Promise.resolve(null),
     {
       onError: (err) => {
@@ -67,7 +73,8 @@ export function useGalleryMedia(page?: number | null) {
     galleryMedia: galleryMediaQuery.data?.data,
 
     searchGalleryMedia: galleryMediaQuery.refetch,
-    isGalleryMediaFetching: galleryMediaQuery.isLoading,
+    isGalleryMediaFetching:
+      galleryMediaQuery.isLoading || galleryMediaQuery.isFetching,
 
     submitGalleryMedia: submitGalleryMediaMutation.mutate,
     isGalleryMediaSubmitting: submitGalleryMediaMutation.isLoading,

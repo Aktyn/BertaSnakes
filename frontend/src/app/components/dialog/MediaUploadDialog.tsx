@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { useGalleryMedia } from '../../../api/queries/useGalleryMedia'
+import { useMedia } from '../../../api/queries/useMedia'
 import { openImageFile } from '../../../utils/common'
 import { useErrorSnackbar } from '../../hooks/useErrorSnackbar'
 import { useMounted } from '../../hooks/useMounted'
@@ -37,7 +37,9 @@ export const MediaUploadDialog = ({
   const navigate = useNavigate()
   const mounted = useMounted()
   const { enqueueErrorSnackbar } = useErrorSnackbar()
-  const { isGalleryMediaSubmitting, submitGalleryMedia } = useGalleryMedia(0)
+  const { isGalleryMediaSubmitting, submitGalleryMedia } = useMedia(
+    dialogProps.open ? 0 : undefined,
+  )
 
   const [mediaTitle, setMediaTitle] = useState('')
   const [fileData, setFileData] = useState<string | null>(null)

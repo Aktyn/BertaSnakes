@@ -20,9 +20,7 @@ export function useRegister() {
         state: { email: request.email },
       })
     },
-    (err) => {
-      enqueueErrorSnackbar(err, t('register:form.error'))
-    },
+    (err) => enqueueErrorSnackbar(err, t('register:form.error')),
   )
 
   return {

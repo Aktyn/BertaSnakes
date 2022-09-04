@@ -18,25 +18,23 @@ import {
 import type { GalleryMedia } from 'berta-snakes-shared'
 import { parseTimestamp } from 'berta-snakes-shared'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { useGalleryMedia } from '../../../api/queries/useGalleryMedia'
+import { useMedia } from '../../../api/queries/useMedia'
 import { smoothBezier } from '../../../utils/common'
-import { UserButton } from '../../components/common/UserButton'
 import { RootPortal } from '../../components/portals/RootPortal'
+import { UserButton } from '../../components/user/UserButton'
 import { useMounted } from '../../hooks/useMounted'
-import Navigation from '../../navigation'
 
 interface MediaItemProps {
   media: GalleryMedia
   width: number
+  onDelete: () => void
 }
 
-export const MediaItem = ({ media, width }: MediaItemProps) => {
+export const MediaItem = ({ media, width, onDelete }: MediaItemProps) => {
   const [t] = useTranslation()
-  const navigate = useNavigate()
   const mounted = useMounted()
   const moreButtonRef = useRef<HTMLButtonElement>(null)
-  const { deleteGalleryMedia, isGalleryMediaDeleting } = useGalleryMedia(0)
+  const { deleteGalleryMedia, isGalleryMediaDeleting } = useMedia()
 
   const [showFullscreen, setShowFullscreen] = useState(false)
   const [showMore, setShowMore] = useState(false)
@@ -110,7 +108,7 @@ export const MediaItem = ({ media, width }: MediaItemProps) => {
                       if (!mounted || !res.data.success) {
                         return
                       }
-                      navigate(Navigation.GALLERY.path)
+                      onDelete()
                     },
                   })
                 }

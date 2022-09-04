@@ -72,6 +72,7 @@ export class MediaController {
     )
   }
 
+  @ApiBearerAuth('Bearer')
   @ApiQuery({ name: 'id', type: Number, required: false })
   @Delete()
   @ApiCreatedResponse({

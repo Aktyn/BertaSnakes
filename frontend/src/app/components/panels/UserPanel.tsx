@@ -17,6 +17,7 @@ import { BooleanValue } from '../common/BooleanValue'
 import { CenteredStatsRow } from '../common/CenteredStatsRow'
 import { AvatarInput } from '../form/AvatarInput'
 import { ZoomEnter } from '../transition/ZoomEnter'
+import { UserRoleChip } from '../user/UserRoleChip'
 
 export type UserPanelProps =
   | {
@@ -32,8 +33,10 @@ export const UserPanel = ({
   isUserPrivate,
   user,
   onClose,
+  onOpen,
   ...drawerProps
-}: UserPanelProps & SwipeableDrawerProps) => {
+}: UserPanelProps &
+  Omit<SwipeableDrawerProps, 'onOpen'> & { onOpen?: () => void }) => {
   const [t] = useTranslation()
   const { user: selfUser, logout, updateUserData } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
@@ -74,7 +77,7 @@ export const UserPanel = ({
       { label: 'user:userData.name', value: user.name },
       {
         label: 'user:userData.role',
-        value: t(`common:roleName.${user.role}`), //TODO: color coded role chips
+        value: <UserRoleChip user={user} />,
       },
       {
         label: 'common:created',
@@ -100,7 +103,7 @@ export const UserPanel = ({
     }
 
     return data
-  }, [isSelfUser, isUserPrivate, t, user])
+  }, [isSelfUser, isUserPrivate, user])
 
   if (!user) {
     return null
@@ -116,6 +119,7 @@ export const UserPanel = ({
         },
       }}
       {...drawerProps}
+      onOpen={onOpen ?? (() => void 0)}
     >
       <Stack
         height="100%"
@@ -124,14 +128,18 @@ export const UserPanel = ({
         spacing={2}
       >
         <Stack spacing={2} alignItems="center">
-          <AvatarInput
-            value={user.avatar}
-            onSelect={handleChangeAvatar}
-            onClear={handleChangeAvatar}
-          />
-          <Stack alignItems="center">
+          <ZoomEnter delay={zoomDelay}>
+            <Box>
+              <AvatarInput
+                value={user.avatar}
+                onSelect={handleChangeAvatar}
+                onClear={handleChangeAvatar}
+              />
+            </Box>
+          </ZoomEnter>
+          <Stack alignItems="center" spacing={1}>
             {userData.map((row, index) => (
-              <ZoomEnter key={index} delay={zoomDelay * index}>
+              <ZoomEnter key={index} delay={zoomDelay * (index + 1)}>
                 <Box
                   sx={{
                     display: 'block',
@@ -148,7 +156,7 @@ export const UserPanel = ({
           </Stack>
         </Stack>
         {isSelfUser && (
-          <ZoomEnter delay={zoomDelay * userData.length}>
+          <ZoomEnter delay={zoomDelay * (userData.length + 1)}>
             <Button
               variant="contained"
               color="primary"

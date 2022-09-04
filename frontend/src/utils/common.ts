@@ -1,7 +1,11 @@
+import React from 'react'
 import { Config, ErrorCode } from 'berta-snakes-shared'
 
 export const smoothBezier = 'cubic-bezier(0.36, 0.07, 0.19, 0.97)'
 export const zoomDelay = 100
+
+export const typedMemo: <T>(c: T) => T = React.memo
+export const typedForwardRef: <T>(c: T) => T = React.forwardRef as never
 
 export function waitForFontLoad(font: string, timeout = 5000, interval = 10) {
   const startTime = Date.now()

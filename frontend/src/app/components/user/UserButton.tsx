@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { AccountCircleRounded, ChevronRightRounded } from '@mui/icons-material'
+import { ChevronRightRounded } from '@mui/icons-material'
 import {
-  Avatar,
   darken,
   lighten,
   Stack,
@@ -9,11 +8,11 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { lightBlue } from '@mui/material/colors'
 import { useTranslation } from 'react-i18next'
 import { smoothBezier } from '../../../utils/common'
 import type { UserPanelProps } from '../panels/UserPanel'
 import { UserPanel } from '../panels/UserPanel'
+import { UserAvatar } from './UserAvatar'
 
 type UserButtonProps = UserPanelProps & {
   /** @default 'contained' */
@@ -67,27 +66,7 @@ export const UserButton = ({
           }}
           onClick={() => setAccountPanelOpen(true)}
         >
-          <Avatar
-            sx={{
-              bgcolor: 'transparent',
-              color: lightBlue[200],
-              height: '24px',
-              width: '24px',
-            }}
-          >
-            {user.avatar ? (
-              <img
-                src={'data:image;base64,' + user.avatar}
-                alt="account-avatar"
-                style={{ width: '100%', height: '100%' }}
-              />
-            ) : (
-              <AccountCircleRounded
-                color="inherit"
-                sx={{ height: '100%', width: '100%' }}
-              />
-            )}
-          </Avatar>
+          <UserAvatar user={user} />
           <Typography
             variant="body2"
             sx={{

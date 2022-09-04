@@ -42,7 +42,8 @@ export function useErrorSnackbar() {
             ? (error as ErrorCode)
             : error instanceof AxiosError
             ? (error.response?.data as { error?: ErrorCode }).error
-            : undefined
+            : ((error as AxiosError['response'])?.data as { error?: ErrorCode })
+                ?.error
         return enqueueSnackbar(
           errorCode !== undefined && ErrorMessageMapper[errorCode]
             ? t(ErrorMessageMapper[errorCode])

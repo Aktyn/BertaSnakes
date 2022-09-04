@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { smoothBezier } from '../../utils/common'
 import { useAuth } from '../auth/AuthProvider'
 import { LoginButton } from '../components/common/LoginButton'
-import { UserButton } from '../components/common/UserButton'
+import { UserButton } from '../components/user/UserButton'
 import Navigation from '../navigation'
 import { RouteActions } from './RouteActions'
 

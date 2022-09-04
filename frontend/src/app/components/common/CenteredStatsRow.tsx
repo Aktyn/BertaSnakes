@@ -23,6 +23,7 @@ export const CenteredStatsRow = ({ label, value }: CenteredStatsRowProps) => {
       }}
     >
       <Typography
+        component="div"
         variant="body2"
         sx={{
           textAlign: 'right',
@@ -32,6 +33,7 @@ export const CenteredStatsRow = ({ label, value }: CenteredStatsRowProps) => {
         {label}
       </Typography>
       <Typography
+        component="div"
         variant="body1"
         fontWeight="bold"
         sx={{

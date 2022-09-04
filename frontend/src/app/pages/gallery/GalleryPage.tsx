@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Masonry } from '@mui/lab'
 import type { Theme } from '@mui/material'
 import { CircularProgress, Stack, useMediaQuery } from '@mui/material'
-import { useGalleryMedia } from '../../../api/queries/useGalleryMedia'
+import { useMedia } from '../../../api/queries/useMedia'
 import { Pagination } from '../../components/common/Pagination'
 import { MediaItem } from './MediaItem'
 
@@ -16,7 +16,9 @@ const GalleryPage = () => {
   const [page, setPage] = useState<number | null>(null)
   const [pages, setPages] = useState(0)
 
-  const { galleryMedia, isGalleryMediaFetching } = useGalleryMedia(page)
+  const { galleryMedia, isGalleryMediaFetching, searchGalleryMedia } = useMedia(
+    page ?? undefined,
+  )
 
   useEffect(() => {
     if (galleryMedia) {
@@ -24,7 +26,8 @@ const GalleryPage = () => {
         Math.ceil(galleryMedia.total / Math.max(1, galleryMedia.pageSize)),
       )
     }
-  }, [galleryMedia])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!galleryMedia])
 
   return (
     <Stack
@@ -43,7 +46,12 @@ const GalleryPage = () => {
           sx={{ maxWidth: `${ITEM_WIDTH * (columns + 1)}px` }}
         >
           {(galleryMedia?.items ?? []).map((media) => (
-            <MediaItem key={media.id} media={media} width={ITEM_WIDTH} />
+            <MediaItem
+              key={media.id}
+              media={media}
+              width={ITEM_WIDTH}
+              onDelete={searchGalleryMedia}
+            />
           ))}
         </Masonry>
       )}

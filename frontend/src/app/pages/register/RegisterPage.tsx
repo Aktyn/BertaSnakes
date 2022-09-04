@@ -12,15 +12,17 @@ import { pick } from 'berta-snakes-shared'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useRegister } from '../../../api/queries/useRegister'
-import { useSearchUsers } from '../../../api/queries/useSearchUsers'
+import { searchUsers } from '../../../api/user'
 import { zoomDelay } from '../../../utils/common'
 import { FormInput } from '../../components/form/FormInput'
 import { ZoomEnter } from '../../components/transition/ZoomEnter'
+import { useCancellablePromise } from '../../hooks/useCancellablePromise'
 import { useDebounce } from '../../hooks/useDebounce'
 import { registerSchema } from './registerSchema'
 
 const RegisterPage = () => {
   const [t] = useTranslation()
+  const cancellable = useCancellablePromise()
 
   type FieldsType = {
     name: string
@@ -48,7 +50,6 @@ const RegisterPage = () => {
   const password = watch('password')
   const confirmPassword = watch('confirmPassword')
 
-  const { searchUsers, isLoading: isSearching } = useSearchUsers()
   const [checkingNameAvailability, setCheckingNameAvailability] =
     useState(false)
   const [checkingEmailAvailability, setCheckingEmailAvailability] =
@@ -60,24 +61,25 @@ const RegisterPage = () => {
         clearErrors('name')
         return
       }
+      if (formState.errors.name?.message) {
+        return
+      }
       setCheckingNameAvailability(true)
-      searchUsers(
-        { name, pageSize: 1, page: 0 },
-        {
-          onSettled: (response) => {
-            if (response?.data?.total) {
-              setError('name', { message: t('validation:username.taken') })
-            } else if (
-              formState.errors.name?.message === t('validation:username.taken')
-            ) {
-              clearErrors('name')
-            }
-          },
-        },
-      )
+      cancellable(searchUsers({ name, pageSize: 1, page: 0 }))
+        .then((response) => {
+          setCheckingNameAvailability(false)
+          if (response?.data?.total) {
+            setError('name', { message: t('validation:username.taken') })
+          } else if (
+            formState.errors.name?.message === t('validation:username.taken')
+          ) {
+            clearErrors('name')
+          }
+        })
+        .catch((err) => err && setCheckingNameAvailability(false))
     },
-    1000,
-    [formState.errors.name?.message],
+    400,
+    [name, formState.errors.name?.message],
   )
   const checkEmailAvailability = useDebounce(
     (email: string) => {
@@ -85,24 +87,25 @@ const RegisterPage = () => {
         clearErrors('email')
         return
       }
+      if (formState.errors.email?.message) {
+        return
+      }
       setCheckingEmailAvailability(true)
-      searchUsers(
-        { email, pageSize: 1, page: 0 },
-        {
-          onSettled: (response) => {
-            if (response?.data?.total) {
-              setError('email', { message: t('validation:email.inUse') })
-            } else if (
-              formState.errors.email?.message === t('validation:email.inUse')
-            ) {
-              clearErrors('email')
-            }
-          },
-        },
-      )
+      cancellable(searchUsers({ email, pageSize: 1, page: 0 }))
+        .then((response) => {
+          setCheckingEmailAvailability(false)
+          if (response?.data?.total) {
+            setError('email', { message: t('validation:email.inUse') })
+          } else if (
+            formState.errors.email?.message === t('validation:email.inUse')
+          ) {
+            clearErrors('email')
+          }
+        })
+        .catch((err) => err && setCheckingEmailAvailability(false))
     },
-    1000,
-    [formState.errors.email?.message],
+    400,
+    [email, formState.errors.email?.message],
   )
 
   useEffect(
@@ -113,12 +116,6 @@ const RegisterPage = () => {
     () => checkEmailAvailability(email),
     [checkEmailAvailability, email],
   )
-  useEffect(() => {
-    if (!isSearching) {
-      setCheckingNameAvailability(false)
-      setCheckingEmailAvailability(false)
-    }
-  }, [isSearching])
 
   const { handleRegister, isLoading: isRegistering } = useRegister()
 

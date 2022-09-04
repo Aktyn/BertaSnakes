@@ -9,6 +9,9 @@
     "lastLogin": "Last login",
     "role": "Role"
   },
+  "error": {
+    "cannotFetchUsers": "Cannot fetch users"
+  },
   "action": {
     "logout": "Logout",
     "chooseAvatarFile": "Choose file",
@@ -16,5 +19,12 @@
     "clearAvatar": "Clear avatar",
     "avatarSetSuccess": "Avatar image has been set successfully",
     "avatarSetError": "Error occurred while setting avatar"
+  },
+  "table": {
+    "tableTitle": "Users",
+    "name": "Name",
+    "created": "Created",
+    "lastLogin": "Last login",
+    "role": "Role"
   }
 }

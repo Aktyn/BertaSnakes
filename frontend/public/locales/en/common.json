@@ -28,5 +28,10 @@
     "regular": "Regular",
     "moderator": "Moderator",
     "admin": "Admin"
+  },
+  "table": {
+    "total": "Total",
+    "refresh": "Refresh",
+    "toggleMode": "Toggle table mode"
   }
 }
